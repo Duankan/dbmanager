@@ -1,0 +1,66 @@
+
+<svg width="190px" height="160px" viewBox="0 0 190 160" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <path d="M1.815,39.271 C0.745,40.024 0.716,41.277 1.765,42.081 L55.711,83.409 C56.753,84.207 58.441,84.195 59.463,83.396 L112.252,42.093 C113.282,41.288 113.251,40.013 112.187,39.248 L57.598,0 L1.815,39.271 Z" id="path-1"></path>
+        <path d="M-4.93038066e-32,1.384 C-4.93038066e-32,0.074 0.873,-0.39 1.962,0.358 L55.038,36.77 C56.122,37.513 57.873,37.517 58.962,36.77 L112.038,0.358 C113.122,-0.386 114,0.068 114,1.384 L114,60.628 C114.000539,61.2588201 113.749569,61.8638269 113.302668,62.3090389 C112.855766,62.7542508 112.249814,63.0029281 111.619,63 L2.38,63 C1.74968353,63.0015933 1.14460827,62.7524542 0.698156086,62.3075027 C0.251703907,61.8625512 0.000529004405,61.2583183 -2.63566946e-16,60.628 L-4.93038066e-32,1.384 Z" id="path-3"></path>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" opacity="0.64">
+        <g id="svg-sprite_d9532ba" transform="translate(-1202.000000, -1615.000000)">
+            <g id="no-message" transform="translate(1203.000000, 1615.000000)">
+                <g id="Group">
+                    <circle id="Oval" fill="#A3ABB0" fill-rule="nonzero" opacity="0.3" cx="138.5" cy="3.5" r="3.5"></circle>
+                    <g opacity="0.3" transform="translate(127.000000, 81.000000)" fill-rule="nonzero" fill="#A3ABB0">
+                        <rect id="Rectangle-path" x="0" y="0" width="45" height="8" rx="4"></rect>
+                        <path d="M45.5,8 L10.5,8 L17.007,8 C19.216139,8 21.007,9.790861 21.007,12 C21.007,14.209139 19.216139,16 17.007,16 L10.5,16 L45.5,16 L40.993,16 C38.783861,16 36.993,14.209139 36.993,12 C36.993,9.790861 38.783861,8 40.993,8 L45.5,8 Z" id="Shape"></path>
+                        <path d="M2,20 C2,17.79 3.796,16 6.007,16 L57.993,16 C60.2035021,15.9994457 61.9966893,17.7895003 62,20 C62,22.21 60.204,24 57.993,24 L6.007,24 C3.79649793,24.0005543 2.00331072,22.2104997 2,20 Z" id="Shape"></path>
+                    </g>
+                    <g opacity="0.3" transform="translate(5.000000, 105.000000)" fill-rule="nonzero" fill="#A3ABB0">
+                        <rect id="Rectangle-path" x="0" y="0" width="45" height="8" rx="4"></rect>
+                        <path d="M45.5,8 L10.5,8 L17.007,8 C19.216139,8 21.007,9.790861 21.007,12 C21.007,14.209139 19.216139,16 17.007,16 L10.5,16 L45.5,16 L40.993,16 C38.783861,16 36.993,14.209139 36.993,12 C36.993,9.790861 38.783861,8 40.993,8 L45.5,8 Z M7,20 C7,17.79 8.799,16 11,16 L58,16 C60.21,16 62,17.795 62,20 C62,22.21 60.201,24 58,24 L11,24 C8.79,24 7,22.205 7,20 Z" id="Shape"></path>
+                    </g>
+                    <circle id="Oval" stroke="#A3ABB0" stroke-width="2" opacity="0.3" cx="5" cy="19" r="5"></circle>
+                    <circle id="Oval" stroke="#A3ABB0" stroke-width="2" opacity="0.3" cx="173.5" cy="61.5" r="3.5"></circle>
+                    <g transform="translate(37.000000, 27.000000)">
+                        <g>
+                            <g id="ooa-link" transform="translate(57.000000, 42.500000) scale(-1, 1) rotate(-180.000000) translate(-57.000000, -42.500000) " stroke="#A3ABB0" stroke-width="2" fill="#E8EBED" fill-rule="nonzero">
+                                <path d="M1.815,39.271 C0.745,40.024 0.716,41.277 1.765,42.081 L55.711,83.409 C56.753,84.207 58.441,84.195 59.463,83.396 L112.252,42.093 C113.282,41.288 113.251,40.013 112.187,39.248 L57.598,0 L1.815,39.271 Z" id="ooa"></path>
+                            </g>
+                            <g id="Clipped" transform="translate(0.000000, 1.000000)">
+                                <mask id="mask-2" fill="white">
+                                    <use xlink:href="#path-1"></use>
+                                </mask>
+                                <g id="ooa"></g>
+                                <polygon id="Shape" fill="#A3ABB0" fill-rule="nonzero" opacity="0.3" mask="url(#mask-2)" points="12 27 109 27 109 95 12 95"></polygon>
+                            </g>
+                        </g>
+                        <polygon id="Shape" stroke="#A3ABB0" stroke-width="2" fill="#F0F3F4" fill-rule="nonzero" points="8 23 105 23 105 91 8 91"></polygon>
+                        <g opacity="0.5" transform="translate(20.000000, 37.000000)" id="Shape" fill-rule="nonzero" fill="#A3ABB0">
+                            <path d="M0,0 L21,0 L21,7 L0,7 L0,0 Z M0,19 L21,19 L21,23 L0,23 L0,19 Z M0,28 L32,28 L32,32 L0,32 L0,28 Z M26,19 L40,19 L40,23 L26,23 L26,19 Z M37,28 L51,28 L51,32 L37,32 L37,28 Z M45,19 L75,19 L75,23 L45,23 L45,19 Z"></path>
+                        </g>
+                        <path d="M-4.93038066e-32,45.384 C-4.93038066e-32,44.074 0.927,43.526 2.078,44.166 L60.922,76.846 C62.07,77.483 63.874,77.4 64.952,76.661 L112.048,44.351 C113.126,43.611 114,44.069 114,45.384 L114,104.628 C114.000539,105.25882 113.749569,105.863827 113.302668,106.309039 C112.855766,106.754251 112.249814,107.002928 111.619,107 L2.38,107 C1.74968353,107.001593 1.14460827,106.752454 0.698156086,106.307503 C0.251703907,105.862551 0.000529004405,105.258318 -2.63566946e-16,104.628 L-4.93038066e-32,45.384 Z" id="Shape" fill="#A3ABB0" fill-rule="nonzero" opacity="0.3"></path>
+                        <g transform="translate(0.000000, 44.000000)">
+                            <g id="ooc-link" stroke="#A3ABB0" stroke-width="2" fill="#E0E4E6" fill-rule="nonzero">
+                                <path d="M-4.93038066e-32,1.384 C-4.93038066e-32,0.074 0.873,-0.39 1.962,0.358 L55.038,36.77 C56.122,37.513 57.873,37.517 58.962,36.77 L112.038,0.358 C113.122,-0.386 114,0.068 114,1.384 L114,60.628 C114.000539,61.2588201 113.749569,61.8638269 113.302668,62.3090389 C112.855766,62.7542508 112.249814,63.0029281 111.619,63 L2.38,63 C1.74968353,63.0015933 1.14460827,62.7524542 0.698156086,62.3075027 C0.251703907,61.8625512 0.000529004405,61.2583183 -2.63566946e-16,60.628 L-4.93038066e-32,1.384 Z" id="ooc"></path>
+                            </g>
+                            <g id="Clipped">
+                                <mask id="mask-4" fill="white">
+                                    <use xlink:href="#path-3"></use>
+                                </mask>
+                                <g id="ooc"></g>
+                                <polygon id="Shape" fill="#A3ABB0" fill-rule="nonzero" opacity="0.3" mask="url(#mask-4)" points="109 0 114 0 114 63 109 63"></polygon>
+                            </g>
+                        </g>
+                        <path d="M54.445,75.491 C55.58,74.838 57.415,74.835 58.555,75.491 L111.23,105.817 C112.365,106.47 112.215,107 110.913,107 L2.086,107 C0.776,107 0.629,106.473 1.768,105.817 L54.445,75.491 L54.445,75.491 Z" id="Shape" stroke="#A3ABB0" stroke-width="2" fill="#E0E4E6" fill-rule="nonzero"></path>
+                    </g>
+                    <g opacity="0.8" stroke-linecap="round" transform="translate(142.000000, 33.000000)" id="Shape" stroke="#A3ABB0" stroke-width="2">
+                        <path d="M0,0 L0,6 M12.02,4.98 L7.779,9.221 M17,17 L11,17"></path>
+                    </g>
+                    <g opacity="0.8" stroke-linecap="round" transform="translate(36.500000, 42.000000) scale(-1, 1) translate(-36.500000, -42.000000) translate(28.000000, 33.000000)" id="Shape" stroke="#A3ABB0" stroke-width="2">
+                        <path d="M0,0 L0,6 M12.02,4.98 L7.779,9.221 M17,17 L11,17"></path>
+                    </g>
+                    <ellipse id="Oval" fill="#A3ABB0" fill-rule="nonzero" opacity="0.2" cx="94" cy="156" rx="44" ry="4"></ellipse>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
