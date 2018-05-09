@@ -17,6 +17,10 @@ class Event {
     callback._options = options;
     if (!this._events[eventName]) {
       this._events[eventName] = [callback];
+    } else if (this._events[eventName].payload) {
+      const payload = this._events[eventName].payload;
+      this._events[eventName] = [callback];
+      this.emit(eventName, payload);
     } else {
       this._events[eventName].push(callback);
       this._events[eventName].sort((a, b) => {
@@ -28,7 +32,7 @@ class Event {
     this.on(eventName, callback, { times: 1 });
   }
   emit(eventName, payload) {
-    if (this._events[eventName]) {
+    if (this._events[eventName] && Array.isArray(this._events[eventName])) {
       this._events[eventName].forEach(callback => {
         // 记录调用次数
         if (!callback._options.count) {
@@ -55,7 +59,8 @@ class Event {
         }
       });
     } else {
-      throw new Error(`不存在事件名为 ${eventName} 的监听事件！`);
+      // 缓存payload 等待事件监听时触发回调函数
+      this._events[eventName] = { payload };
     }
   }
   off(eventName, callback) {
