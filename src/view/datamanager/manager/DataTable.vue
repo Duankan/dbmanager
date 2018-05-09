@@ -26,22 +26,41 @@ export default {
         {
           title: '大小',
           key: 'size',
+          align: 'center',
+          sortable: true,
+          sortMethod(a, b, type) {},
         },
         {
           title: '已发布服务',
           key: 'pubState',
+          align: 'center',
+          sortable: true,
+          render: (h, params) => {
+            if (params.row.pubState == '-') return <span>-</span>;
+            return params.row.pubState ? (
+              <span class={['pubstate', 'published']} />
+            ) : (
+              <span class={['pubstate', 'unpublish']} />
+            );
+          },
+          sortMethod(a, b, type) {},
         },
         {
           title: '类型',
           key: 'typeName',
+          sortable: true,
+          ellipsis: true,
         },
         {
-          title: '上传人',
+          title: '拥有者',
           key: 'userName',
+          align: 'center',
         },
         {
           title: '修改日期',
           key: 'updateTime',
+          align: 'center',
+          sortable: true,
         },
       ],
     };
@@ -49,14 +68,18 @@ export default {
   computed: {
     tableData() {
       return this.value.map(item => {
-        item.alias = item.alias ? item.alias : item.title;
+        item.alias = item.alias ? item.alias : item.name;
         item.userName = item.userName ? item.userName : item.createusername || '-';
-        item.size = item.size ? filesize(item.size) : '-';
-        item.pubState = item.pubState ? item.pubState : '-';
+        item.size = item.size != undefined ? filesize(item.size) : '-';
+        item.pubState = item.pubState != undefined ? item.pubState : '-';
         item.updateTime = new Date(item.updateTime).toLocaleDateString();
         return item;
       });
     },
+  },
+  methods: {
+    sort() {},
+    clickRow(row, index) {},
   },
 };
 </script>
@@ -67,7 +90,8 @@ export default {
     :columns="columns"
     :data="tableData"
     :height="height"
-    size="small" ></Table>
+    size="small"
+    @on-row-click="clickRow"></Table>
 </template>
 
 <style lang="less" scoped>
@@ -77,6 +101,18 @@ export default {
     &::before,
     &::after {
       display: none;
+    }
+  }
+  /deep/ .pubstate {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    &.published {
+      background-color: #19be6b;
+    }
+    &.unpublish {
+      background-color: #ff9900;
     }
   }
 }

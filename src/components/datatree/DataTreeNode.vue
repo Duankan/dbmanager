@@ -184,14 +184,14 @@ export default {
     },
     // 浏览元数据
     async viewMeta() {
-      const response = await api.db.findService({
-        resourceId: nodeData.id,
-        serivestatus: 0,
-        metadataLayer: 1,
-      });
-      const search = url.parse(response.data[0].servicesurl).search;
-      const layers = search.layers ? search.layers : search.typeName;
-      this.$store.commit(SET_MAP_SERVICELIST, { [layername]: response.data });
+      // const response = await api.db.findService({
+      //   resourceId: nodeData.id,
+      //   serivestatus: 0,
+      //   metadataLayer: 1,
+      // });
+      // const search = url.parse(response.data[0].servicesurl).search;
+      // const layers = search.layers ? search.layers : search.typeName;
+      // this.$store.commit(SET_MAP_SERVICELIST, { [layername]: response.data });
     },
     // 删除服务资源
     deleteNode() {
@@ -220,21 +220,25 @@ export default {
       :size="16"/>
     <span>{{ isDirectory ? nodeData.title : nodeData.alias }}</span>
     <span class="k-datatree-node-button">
+      <slot
+        :rootNode="rootNode"
+        :currentNode="currentNode"
+        :nodeData="nodeData"></slot>
       <SvgIcon
         v-if="isView"
         :size="16"
         icon-class="view"
-        @click.native="view"/>
+        @click.native.stop="view"/>
       <SvgIcon
         v-if="isMetaView"
         :size="16"
         icon-class="view-meta"
-        @click.native="viewMeta"/>
+        @click.native.stop="viewMeta"/>
       <SvgIcon
         v-if="!isDirectory"
         :size="16"
         icon-class="delete"
-        @click.native="deleteNode"/>
+        @click.native.stop="deleteNode"/>
     </span>
   </div>
 </template>
@@ -273,6 +277,10 @@ export default {
   .k-datatree-node-button {
     float: right;
     opacity: 0;
+    transition: opacity 0.3s;
+    > * {
+      vertical-align: middle;
+    }
   }
 
   &:hover {

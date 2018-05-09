@@ -1,9 +1,12 @@
 <script>
+import DashBoardMenu from './DashBoardMenu';
+
 /* mutation */
 const USER_LOGOUT = 'USER_LOGOUT';
 
 export default {
   name: 'DashBoardNav',
+  components: { DashBoardMenu },
   methods: {
     click(name) {
       if (name === 'logout') {
@@ -25,6 +28,7 @@ export default {
       <span>
         大数据中心管理系统
       </span>
+      <DashBoardMenu/>
     </div>
     <div class="right">
       <UserInfo/>
@@ -39,29 +43,28 @@ export default {
 
 <style lang="less" scoped>
 header {
+  display: flex;
   height: 60px;
   color: #fff;
   background-color: #318cf0;
 
   .left {
-    float: left;
-    font-size: 0;
+    display: flex;
+    flex: 1;
 
     img {
       height: 35px;
       margin: 10px 14px;
     }
     span {
-      float: right;
       line-height: 60px;
       font-size: 20px;
+      margin: 0 60px 0 6px;
     }
   }
   .right {
     display: flex;
     align-items: center;
-    float: right;
-    height: 60px;
 
     .k-icon {
       cursor: pointer;

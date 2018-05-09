@@ -74,7 +74,7 @@ export default {
   async mounted() {
     await this.loadRootNode();
     // 默认展开加载根节点后，展开根节点
-    this.$refs.tree.$children[0].handleExpand();
+    this.$refs.tree.$children[0].handleSelect();
   },
   methods: {
     // 判断是否是目录节点
@@ -193,7 +193,17 @@ export default {
       }
     },
     renderContent(h, { root, node, data }) {
-      return <DataTreeNode rootNode={root[0].node} currentNode={node.node} nodeData={data} />;
+      return h(
+        DataTreeNode,
+        {
+          props: {
+            rootNode: root[0].node,
+            currentNode: node.node,
+            nodeData: data,
+          },
+        },
+        [this.$scopedSlots.default]
+      );
     },
   },
 };
