@@ -69,8 +69,6 @@ class Event {
       const index = this._events[eventName].indexOf(callback);
       if (index > 0) {
         this._events[eventName].splice(index, 1);
-      } else {
-        throw new Error(`${eventName} 不存在函数名为 ${callback.name} 的回调函数！`);
       }
     } else {
       this._events[eventName] = [];

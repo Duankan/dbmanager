@@ -1,4 +1,7 @@
 <script>
+import * as types from '@/store/types';
+import { debug } from 'util';
+
 export default {
   name: 'DataGrid',
   props: {
@@ -13,11 +16,22 @@ export default {
       loading: false,
     };
   },
+  computed: {
+    selectNodes() {
+      return this.$store.state.app.selectNodes;
+    },
+  },
   watch: {
     value: {
       handler(val) {
         this.loading = false;
       },
+    },
+    selectNodes: {
+      handler(val) {
+        this.check = val.length === this.value.length;
+      },
+      immediate: true,
     },
   },
   methods: {
@@ -74,9 +88,37 @@ export default {
           return 'other';
       }
     },
-    clickDirectory(node) {
-      this.loading = true;
-      this.$emit('on-select-node', node);
+    itemClasses(node) {
+      const index = this.selectNodes.findIndex(item => node.id === item.id);
+      return [
+        'data-grid-item',
+        {
+          'data-grid-item-checked': index > -1,
+        },
+      ];
+    },
+    checkAll(checked) {
+      if (checked) {
+        this.$store.commit(types.SET_APP_SELECT_NODES, this.value);
+      } else {
+        this.$store.commit(types.REMOVE_APP_SELECT_NODES);
+      }
+    },
+    checkNode(node) {
+      const index = this.selectNodes.findIndex(item => node.id === item.id);
+      if (index > -1) {
+        this.$store.commit(types.REMOVE_APP_SELECT_NODES, node);
+      } else {
+        this.$store.commit(types.SET_APP_SELECT_NODES, node);
+      }
+    },
+    clickNode(node, index) {
+      if (+node.typeId <= 8) {
+        this.loading = true;
+        this.$emit('on-select-node', node);
+      } else {
+        this.checkNode(node);
+      }
     },
   },
 };
@@ -88,33 +130,30 @@ export default {
       v-if="value.length"
       class="data-grid-wrap">
       <div class="data-grid-header">
-        <Checkbox v-model="check">
+        <Checkbox
+          :value="check"
+          @input="checkAll">
           <span class="total-check">全选</span>
         </Checkbox>
       </div>
       <div class="data-grid-container">
         <div
-          v-for="item in value"
+          v-for="(item, index) in value"
           :key="item.id"
-          class="data-grid-item">
+          :class="itemClasses(item)"
+          @click="clickNode(item, index)">
           <Icon
             type="checkmark-circled"
             size="22"
-            color="#358CF0"></Icon>
+            color="#3F8CFF"
+            @click.native.stop="checkNode(item)"></Icon>
           <SvgIcon
             :icon-class="iconClass(item)"
             size="60">
           </SvgIcon>
-          <span
-            v-if="+item.typeId < 8"
-            class="directory"
-            @click="clickDirectory(item)"
-          >
-            <Ellipsis :length="10">{{ item.alias || item.name }}</Ellipsis>
-          </span>
-          <span v-else>
-            <Ellipsis :length="10">{{ item.alias || item.name }}</Ellipsis>
-          </span>
+          <Ellipsis
+            :class="+item.typeId <= 8 ? 'directory' : ''"
+            :length="10">{{ item.alias || item.name }}</Ellipsis>
         </div>
         <Spin
           v-if="loading"
@@ -172,12 +211,19 @@ export default {
     margin: 4px 0 0 6px;
     height: 120px;
     width: 130px;
+    border-radius: 5px;
     border: 1px solid transparent;
     cursor: pointer;
 
+    &-checked {
+      border-color: #459aee;
+      background-color: #eef8ff;
+      .k-icon {
+        opacity: 1 !important;
+      }
+    }
+
     &:hover {
-      border: 1px solid #90c3fd;
-      border-radius: 5px;
       background-color: #eef8ff;
       .k-icon {
         opacity: 0.5;

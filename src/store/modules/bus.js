@@ -3,43 +3,12 @@ import { cloneDeep } from '@ktw/ktools';
 
 const bus = {
   state: {
-    // 存储系统目录信息
-    catalog: {},
-    // 存储系统资源信息
-    resource: {},
-    // 存储系统服务信息
-    service: {},
     // 存储系统需要发布的资源信息
     publish: [],
     // 存储系统查询属性信息对象
     attribute: [],
   },
   mutations: {
-    // 存储、更新目录
-    [types.SET_BUS_CATALOG](state, catalog) {
-      catalog = Array.isArray(catalog) ? catalog : [catalog];
-      catalog.forEach(item => {
-        if (!state.catalog[item.id]) {
-          state.catalog[item.id] = cloneDeep(item);
-        }
-      });
-    },
-    // 存储、更新资源信息
-    [types.SET_BUS_RESOURCE](state, resource) {
-      resource = Array.isArray(resource) ? resource : [resource];
-      resource.forEach(item => {
-        if (!state.resource[item.id]) {
-          state.resource[item.id] = cloneDeep(item);
-        }
-      });
-    },
-    // 存储、更新服务信息
-    [types.SET_BUS_SERVICE](state, service) {
-      service = Array.isArray(service) ? service : [service];
-      if (!state.service[service[0].servicesname]) {
-        state.service[service[0].servicesname] = cloneDeep(service);
-      }
-    },
     // 服务发布提交
     [types.SET_BUS_PUBLISH](state, resources) {
       if (Array.isArray(resources)) {

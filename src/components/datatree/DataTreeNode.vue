@@ -1,9 +1,9 @@
 <script>
 import { url } from '@ktw/ktools';
+// const SET_BUS_CATALOG = 'SET_BUS_CATALOG';
+// const SET_BUS_RESOURCE = 'SET_BUS_RESOURCE';
+// const SET_BUS_SERVICE = 'SET_BUS_SERVICE';
 const SET_MAP_SERVICELIST = 'SET_MAP_SERVICELIST';
-const SET_BUS_CATALOG = 'SET_BUS_CATALOG';
-const SET_BUS_RESOURCE = 'SET_BUS_RESOURCE';
-const SET_BUS_SERVICE = 'SET_BUS_SERVICE';
 const SET_BUS_ATTRIBUTE = 'SET_BUS_ATTRIBUTE';
 
 export default {
@@ -149,26 +149,26 @@ export default {
       return (this.nodeType === 'vector' || this.nodeType === 'raster') && !this.isView;
     },
   },
-  created() {
-    // 标记当前节点的状态
-    this.nodeData.isDirectory = this.isDirectory;
-    this.nodeData.isView = this.isView;
-    this.nodeData.isMetaView = this.isMetaView;
-    this.nodeData.isPublish = this.isPublish;
-  },
-  mounted() {
-    // 向store提交对应节点信息
-    this.$nextTick(() => {
-      if (this.isDirectory) {
-        this.$store.commit(SET_BUS_CATALOG, this.nodeData);
-      } else {
-        if (this.isView) {
-          this.$store.commit(SET_BUS_SERVICE, this.nodeData.serviceList);
-        }
-        this.$store.commit(SET_BUS_RESOURCE, this.nodeData);
-      }
-    });
-  },
+  // created() {
+  //   // 标记当前节点的状态
+  //   this.nodeData.isDirectory = this.isDirectory;
+  //   this.nodeData.isView = this.isView;
+  //   this.nodeData.isMetaView = this.isMetaView;
+  //   this.nodeData.isPublish = this.isPublish;
+  // },
+  // mounted() {
+  //   // 向store提交对应节点信息
+  //   this.$nextTick(() => {
+  //     if (this.isDirectory) {
+  //       this.$store.commit(SET_BUS_CATALOG, this.nodeData);
+  //     } else {
+  //       if (this.isView) {
+  //         this.$store.commit(SET_BUS_SERVICE, this.nodeData.serviceList);
+  //       }
+  //       this.$store.commit(SET_BUS_RESOURCE, this.nodeData);
+  //     }
+  //   });
+  // },
   methods: {
     view() {
       // 浏览

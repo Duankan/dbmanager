@@ -1,4 +1,6 @@
 <script>
+import * as types from '@/store/types';
+import { cloneDeep } from '@ktw/ktools';
 import api from 'api';
 import Navigator from './navigator/Navigator';
 import Operation from './operation/Operation';
@@ -24,6 +26,9 @@ export default {
   methods: {
     // 接受目录类型节点
     async loadNodes(node) {
+      this.$store.commit(types.SET_APP_CURRENT_CATALOG, cloneDeep(node));
+      this.$store.commit(types.REMOVE_APP_SELECT_NODES);
+
       const response = await api.db.findCatalog({
         owner: 1,
         ownerId: this.$user.orgid,

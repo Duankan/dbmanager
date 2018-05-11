@@ -1,6 +1,7 @@
 <script>
 import api from 'api';
-import { filesize } from '@ktw/ktools';
+import * as types from '@/store/types';
+import { filesize, cloneDeep } from '@ktw/ktools';
 
 export default {
   name: 'DataTable',
@@ -24,6 +25,8 @@ export default {
           title: '文件名',
           key: 'alias',
           width: 800,
+          sortable: true,
+          sortMethod(a, b, type) {},
           render: (h, params) => {
             const isDirectory = +params.row.typeId <= 8;
             return (
@@ -32,7 +35,8 @@ export default {
                 {isDirectory ? (
                   <span
                     class={'directory'}
-                    onClick={() => {
+                    onClick={e => {
+                      e.stopPropagation();
                       this.loading = true;
                       this.$emit('on-select-node', params.row);
                     }}
@@ -47,7 +51,7 @@ export default {
           },
         },
         {
-          title: '已发布服务',
+          title: '服务',
           key: 'pubState',
           align: 'center',
           filters: [
@@ -132,6 +136,8 @@ export default {
           title: '拥有者',
           key: 'userName',
           align: 'center',
+          sortable: true,
+          sortMethod(a, b, type) {},
         },
         {
           title: '修改日期',
@@ -156,21 +162,38 @@ export default {
             },
           ],
           filterMultiple: false,
-          filterMethod(value, row) {
-            console.log(value);
-            // return value === row.pubState;
-          },
+          filterMethod(value, row) {},
           sortable: true,
         },
       ],
       tableData: [],
+      selection: [],
     };
+  },
+  computed: {
+    selectNodes() {
+      return this.$store.state.app.selectNodes;
+    },
   },
   watch: {
     value: {
       handler(val) {
         this.tableData = this.handleData(val);
         this.loading = false;
+      },
+    },
+    selectNodes: {
+      handler(val) {
+        if (val.length !== this.selection.length) {
+          const params =
+            this.selection.length > val.length ? [this.selection, val] : [val, this.selection];
+          const difference = this.compare(...params);
+          difference.forEach(node => {
+            const index = this.tableData.findIndex(item => item.id === node.id);
+            this.$refs.table.toggleSelect(index);
+          });
+          this.selection = cloneDeep(val);
+        }
       },
     },
   },
@@ -233,14 +256,35 @@ export default {
         item.alias = item.alias ? item.alias : item.name;
         item.userName = item.userName ? item.userName : item.createusername || '-';
         item.size = item.size != undefined ? filesize(item.size) : '-';
-        item.pubState = item.pubState != undefined ? item.pubState : '-';
+        item.pubState = item.resourceTypeId == '2' ? item.pubState : '-';
         item.updateTime = new Date(item.updateTime).toLocaleDateString();
         return item;
       });
     },
-    sort() {},
+    // 接受两个参数，根据id求两个数组参数的差集
+    compare(superset, subset) {
+      return superset.filter(ele => {
+        const index = subset.findIndex(item => ele.id === item.id);
+        return index === -1;
+      });
+    },
     clickRow(row, index) {
-      // this.tableData[index]._checked = !this.tableData[index]._checked;
+      this.$refs.table.toggleSelect(index);
+    },
+    selectRow(selection, row) {
+      this.$store.commit(types.SET_APP_SELECT_NODES, row);
+    },
+    cancelSelectRow(selection, row) {
+      this.$store.commit(types.REMOVE_APP_SELECT_NODES, row);
+    },
+    selectAllRow(selection) {
+      this.$store.commit(types.SET_APP_SELECT_NODES, selection);
+    },
+    selectChange(selection) {
+      this.selection = selection;
+      if (!selection.length) {
+        this.$store.commit(types.REMOVE_APP_SELECT_NODES);
+      }
     },
   },
 };
@@ -254,7 +298,11 @@ export default {
     :height="height"
     :loading="loading"
     size="small"
-    @on-row-click="clickRow">
+    @on-row-click="clickRow"
+    @on-select="selectRow"
+    @on-select-cancel="cancelSelectRow"
+    @on-select-all="selectAllRow"
+    @on-selection-change="selectChange">
   </Table>
 </template>
 
