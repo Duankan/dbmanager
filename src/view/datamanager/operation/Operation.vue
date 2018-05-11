@@ -1,6 +1,6 @@
 <script>
 export default {
-  name: 'NavTool',
+  name: 'Operation',
   data() {
     return {
       search: '',
@@ -17,8 +17,8 @@ export default {
 </script>
 
 <template>
-  <div class="nav-tool">
-    <div class="nav-tool-left">
+  <div class="operation">
+    <div class="operation-left">
       <Dropdown placement="bottom-start">
         <Button type="primary">
           <Icon
@@ -54,7 +54,7 @@ export default {
       </Button>
     </div>
 
-    <div class="nav-tool-right">
+    <div class="operation-right">
       <Input
         v-model="search"
         icon="ios-search"
@@ -79,7 +79,7 @@ export default {
 </template>
 
 <style lang="less" scoped>
-.nav-tool {
+.operation {
   &-left {
     float: left;
     .k-dropdown {
@@ -90,6 +90,9 @@ export default {
     float: right;
     .k-input-wrapper {
       width: 260px;
+    }
+    .k-icon {
+      cursor: pointer;
     }
     > * {
       margin-left: 8px;

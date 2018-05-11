@@ -1,15 +1,9 @@
 import * as types from '../types';
 
 const app = {
-  state: {
-    bbox: [],
-  },
+  state: {},
   getters: {},
-  mutations: {
-    [types.SET_APP_BBOX](state, bbox) {
-      state.bbox = [...bbox];
-    },
-  },
+  mutations: {},
   actions: {},
 };
 

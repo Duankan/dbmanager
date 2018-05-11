@@ -1,13 +1,8 @@
 <script>
 export default {
   name: 'Map',
-  computed: {
-    bbox() {
-      return this.$store.state.app.bbox;
-    },
-  },
-  watch: {
-    bbox(val) {
+  events: {
+    'on-set-bbox': function(val) {
       this.$refs.map.setBounds(val);
     },
   },

@@ -17,7 +17,6 @@
 */
 
 /* app modules */
-export const SET_APP_BBOX = 'SET_APP_BBOX';
 
 /* bus modules */
 export const SET_BUS_CATALOG = 'SET_BUS_CATALOG';

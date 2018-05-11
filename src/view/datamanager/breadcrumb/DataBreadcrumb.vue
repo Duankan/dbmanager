@@ -1,7 +1,6 @@
 <script>
-import { ALPN_ENABLED } from 'constants';
 export default {
-  name: 'DataInfo',
+  name: 'DataBreadcrumb',
   props: {
     value: {
       type: Array,
@@ -12,18 +11,18 @@ export default {
 </script>
 
 <template>
-  <div class="data-info">
+  <div class="data-breadcrumb">
     <Breadcrumb>
       <BreadcrumbItem to="/">全部</BreadcrumbItem>
       <BreadcrumbItem to="/datamanager">数据目录</BreadcrumbItem>
     </Breadcrumb>
-    <span class="total">已全部加载，共{{ value.length }}个</span>
+    <span class="total">已全部加载，共 {{ value.length }} 个</span>
   </div>
 
 </template>
 
 <style lang="less" scoped>
-.data-info {
+.data-breadcrumb {
   margin: 16px 0;
   .k-breadcrumb {
     float: left;

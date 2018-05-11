@@ -14,13 +14,14 @@ class Event {
         return;
       }
     }
+
+    options.priority = options.priority == undefined ? 0 : options.priority;
     callback._options = options;
+
     if (!this._events[eventName]) {
       this._events[eventName] = [callback];
     } else if (this._events[eventName].payload) {
-      const payload = this._events[eventName].payload;
-      this._events[eventName] = [callback];
-      this.emit(eventName, payload);
+      this._events[eventName].callback = callback;
     } else {
       this._events[eventName].push(callback);
       this._events[eventName].sort((a, b) => {
@@ -118,6 +119,15 @@ export default {
         }
         this.$events.dispatch = this.$events.dispatch.bind(this);
         this.$events.broadcast = this.$events.broadcast.bind(this);
+      },
+      created() {
+        for (const eventName in this.$events._events) {
+          if (this.$events._events[eventName].callback) {
+            const payload = this.$events._events[eventName].payload;
+            this.$events._events[eventName] = [this.$events._events[eventName].callback];
+            this.$events.emit(eventName, payload);
+          }
+        }
       },
       beforeDestroy() {
         if (this.$options.events) {

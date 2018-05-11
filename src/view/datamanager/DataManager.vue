@@ -1,16 +1,17 @@
 <script>
+import api from 'api';
 import Navigator from './navigator/Navigator';
+import Operation from './operation/Operation';
+import DataBreadcrumb from './breadcrumb/DataBreadcrumb';
 import DataGrid from './manager/DataGrid';
 import DataTable from './manager/DataTable';
-import DataInfo from './manager/DataInfo';
-import NavTool from './manager/NavTool';
 
 export default {
   name: 'DataManager',
   components: {
     Navigator,
-    NavTool,
-    DataInfo,
+    Operation,
+    DataBreadcrumb,
     DataGrid,
     DataTable,
   },
@@ -20,19 +21,40 @@ export default {
       value: [],
     };
   },
+  methods: {
+    // 接受目录类型节点
+    async loadNodes(node) {
+      const response = await api.db.findCatalog({
+        owner: 1,
+        ownerId: this.$user.orgid,
+        access: 1,
+        hasChild: false,
+        relatedType: 1,
+        orderby: 'sort_asc',
+        getmode: 'all',
+        resourceTypeId: '1,2',
+        parentId: node.childId,
+      });
+      response.data = response.data.filter(item => item.typeId !== '20102');
+      this.value = response.data;
+    },
+  },
 };
 </script>
 
 <template>
   <div class="data-manager">
-    <Navigator @on-load-nodes="(val) => value = val"/>
+    <Navigator @on-select-node="loadNodes"/>
     <div class="manager-container">
-      <NavTool @toggle-mode="(val) => componentId = val"/>
-      <DataInfo :value="value"></DataInfo>
+      <Operation @toggle-mode="(val) => componentId = val"/>
+      <DataBreadcrumb
+        :value="value"
+        @on-select-node="loadNodes"></DataBreadcrumb>
       <keep-alive>
         <component
           :is="componentId"
-          :value="value"></component>
+          :value="value"
+          @on-select-node="loadNodes"></component>
       </keep-alive>
     </div>
   </div>

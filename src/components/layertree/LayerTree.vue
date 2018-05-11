@@ -119,7 +119,7 @@ export default {
     },
     // 图层定位
     positionLayer(root, node, data) {
-      this.$store.commit('SET_APP_BBOX', data.bbox);
+      this.$events.emit('on-set-bbox', data.bbox);
     },
     // 切换图层面板显示隐藏
     toggle() {
