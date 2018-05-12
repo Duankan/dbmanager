@@ -34,7 +34,7 @@ export default {
     renderContent(h, { root, node, data }) {
       return (
         <div class="common-tree-node">
-          <svgIcon icon-class="folder" size="16" />
+          <svgIcon icon-class="folder-favor" size="16" />
           <span class="common-tree-node-title">{data.name}</span>
           <svgIcon
             class="common-tree-node-remove"

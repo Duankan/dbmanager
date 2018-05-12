@@ -1,4 +1,5 @@
 <script>
+import * as types from '@/store/types';
 import CommonTree from './CommonTree';
 import NavTree from './NavTree';
 import Classify from './classify/Classify';
@@ -12,7 +13,7 @@ export default {
   },
   methods: {
     select(node) {
-      this.$emit('on-select-node', node);
+      this.$store.dispatch(types.APP_NODES_FETCH, node);
     },
   },
 };

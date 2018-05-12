@@ -24,7 +24,8 @@ export default {
       pageSize: 20, // 每页显示条数（必填）
       orderby: 'createTime_desc', // 排序（选填）
     });
-    console.log(response.data.dataSource);
+    // 聚合查询
+    // console.log(response.data.dataSource);
     this.serviceList = response.data.dataSource;
     // this.serviceList = {
     //   '今天': {

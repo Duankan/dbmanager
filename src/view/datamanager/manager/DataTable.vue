@@ -5,12 +5,6 @@ import { filesize, cloneDeep } from '@ktw/ktools';
 
 export default {
   name: 'DataTable',
-  props: {
-    value: {
-      type: Array,
-      required: true,
-    },
-  },
   data() {
     return {
       height: 760,
@@ -24,7 +18,7 @@ export default {
         {
           title: '文件名',
           key: 'alias',
-          width: 800,
+          width: 860,
           sortable: true,
           sortMethod(a, b, type) {},
           render: (h, params) => {
@@ -38,7 +32,7 @@ export default {
                     onClick={e => {
                       e.stopPropagation();
                       this.loading = true;
-                      this.$emit('on-select-node', params.row);
+                      this.$store.dispatch(types.APP_NODES_FETCH, params.row);
                     }}
                   >
                     {params.row.alias}
@@ -53,6 +47,7 @@ export default {
         {
           title: '服务',
           key: 'pubState',
+          width: 80,
           align: 'center',
           filters: [
             {
@@ -84,19 +79,19 @@ export default {
           filters: [
             {
               label: '< 1Gb',
-              value: 1,
+              value: filesize.parse('1Gb'),
             },
             {
               label: '1Gb ~ 10Gb',
-              value: 0,
+              value: filesize.parse('10Gb'),
             },
             {
               label: '10Gb ~ 100Gb',
-              value: 0,
+              value: filesize.parse('100Gb'),
             },
             {
               label: '> 100Gb',
-              value: 0,
+              value: filesize.parse('100Gb'),
             },
           ],
           filterMethod(value, row) {
@@ -166,21 +161,20 @@ export default {
           sortable: true,
         },
       ],
-      tableData: [],
       selection: [],
     };
   },
   computed: {
+    tableData() {
+      return this.handleData(cloneDeep(this.$store.state.app.nodes));
+    },
     selectNodes() {
       return this.$store.state.app.selectNodes;
     },
   },
   watch: {
-    value: {
-      handler(val) {
-        this.tableData = this.handleData(val);
-        this.loading = false;
-      },
+    tableData() {
+      this.loading = false;
     },
     selectNodes: {
       handler(val) {
@@ -190,7 +184,9 @@ export default {
           const difference = this.compare(...params);
           difference.forEach(node => {
             const index = this.tableData.findIndex(item => item.id === node.id);
-            this.$refs.table.toggleSelect(index);
+            if (index > -1) {
+              this.$refs.table.toggleSelect(index);
+            }
           });
           this.selection = cloneDeep(val);
         }

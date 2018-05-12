@@ -1,7 +1,5 @@
 <script>
 import * as types from '@/store/types';
-import { cloneDeep } from '@ktw/ktools';
-import api from 'api';
 import Navigator from './navigator/Navigator';
 import Operation from './operation/Operation';
 import DataBreadcrumb from './breadcrumb/DataBreadcrumb';
@@ -19,29 +17,20 @@ export default {
   },
   data() {
     return {
-      componentId: 'DataTable',
-      value: [],
+      component: 'DataTable',
     };
   },
   methods: {
-    // 接受目录类型节点
-    async loadNodes(node) {
-      this.$store.commit(types.SET_APP_CURRENT_CATALOG, cloneDeep(node));
-      this.$store.commit(types.REMOVE_APP_SELECT_NODES);
-
-      const response = await api.db.findCatalog({
-        owner: 1,
-        ownerId: this.$user.orgid,
-        access: 1,
-        hasChild: false,
-        relatedType: 1,
-        orderby: 'sort_asc',
-        getmode: 'all',
-        resourceTypeId: '1,2',
-        parentId: node.childId,
-      });
-      response.data = response.data.filter(item => item.typeId !== '20102');
-      this.value = response.data;
+    handleClick() {},
+    sort(key) {
+      this.$store.commit(types.SORT_APP_NODES, { key });
+    },
+    refresh() {
+      const currentNode = this.$store.state.app.currentCatalog;
+      this.$store.dispatch(types.APP_NODES_FETCH, currentNode);
+    },
+    overload() {
+      this.$router.go(0);
     },
   },
 };
@@ -49,17 +38,34 @@ export default {
 
 <template>
   <div class="data-manager">
-    <Navigator @on-select-node="loadNodes"/>
-    <div class="manager-container">
-      <Operation @toggle-mode="(val) => componentId = val"/>
-      <DataBreadcrumb
-        :value="value"
-        @on-select-node="loadNodes"></DataBreadcrumb>
+    <Navigator/>
+    <ContextMenu ref="contextmenu">
+      <ContextMenuSubmenu title="查看方式">
+        <ContextMenuItem @click="() => component = 'DataTable'">列表</ContextMenuItem>
+        <ContextMenuItem @click="() => component = 'DataGrid'">缩略图</ContextMenuItem>
+      </ContextMenuSubmenu>
+      <ContextMenuSubmenu title="排序方式">
+        <ContextMenuItem @click="sort('name')">文件名</ContextMenuItem>
+        <ContextMenuItem @click="sort('size')">文件大小</ContextMenuItem>
+        <ContextMenuItem @click="sort('updateTime')">修改时间</ContextMenuItem>
+      </ContextMenuSubmenu>
+      <ContextMenuItem divided>新建文件夹</ContextMenuItem>
+      <ContextMenuSubmenu title="上传">
+        <ContextMenuItem @click="handleClick">文件</ContextMenuItem>
+        <ContextMenuItem @click="handleClick">文件夹</ContextMenuItem>
+      </ContextMenuSubmenu>
+      <ContextMenuItem
+        divided
+        @click="refresh">刷新</ContextMenuItem>
+      <ContextMenuItem @click="overload">重新加载页面</ContextMenuItem>
+    </ContextMenu>
+    <div
+      v-contextmenu:contextmenu
+      class="manager-container">
+      <Operation :component.sync="component"/>
+      <DataBreadcrumb></DataBreadcrumb>
       <keep-alive>
-        <component
-          :is="componentId"
-          :value="value"
-          @on-select-node="loadNodes"></component>
+        <component :is="component"></component>
       </keep-alive>
     </div>
   </div>

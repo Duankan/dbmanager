@@ -1,15 +1,8 @@
 <script>
 import * as types from '@/store/types';
-import { debug } from 'util';
 
 export default {
   name: 'DataGrid',
-  props: {
-    value: {
-      type: Array,
-      required: true,
-    },
-  },
   data() {
     return {
       check: false,
@@ -17,19 +10,20 @@ export default {
     };
   },
   computed: {
+    nodes() {
+      return this.$store.state.app.nodes;
+    },
     selectNodes() {
       return this.$store.state.app.selectNodes;
     },
   },
   watch: {
-    value: {
-      handler(val) {
-        this.loading = false;
-      },
+    nodes() {
+      this.loading = false;
     },
     selectNodes: {
       handler(val) {
-        this.check = val.length === this.value.length;
+        this.check = val.length === this.nodes.length;
       },
       immediate: true,
     },
@@ -99,7 +93,7 @@ export default {
     },
     checkAll(checked) {
       if (checked) {
-        this.$store.commit(types.SET_APP_SELECT_NODES, this.value);
+        this.$store.commit(types.SET_APP_SELECT_NODES, this.nodes);
       } else {
         this.$store.commit(types.REMOVE_APP_SELECT_NODES);
       }
@@ -115,7 +109,7 @@ export default {
     clickNode(node, index) {
       if (+node.typeId <= 8) {
         this.loading = true;
-        this.$emit('on-select-node', node);
+        this.$store.dispatch(types.APP_NODES_FETCH, node);
       } else {
         this.checkNode(node);
       }
@@ -127,7 +121,7 @@ export default {
 <template>
   <div class="data-grid">
     <div
-      v-if="value.length"
+      v-if="nodes.length"
       class="data-grid-wrap">
       <div class="data-grid-header">
         <Checkbox
@@ -138,22 +132,22 @@ export default {
       </div>
       <div class="data-grid-container">
         <div
-          v-for="(item, index) in value"
-          :key="item.id"
-          :class="itemClasses(item)"
-          @click="clickNode(item, index)">
+          v-for="(node, index) in nodes"
+          :key="node.id"
+          :class="itemClasses(node)"
+          @click="clickNode(node, index)">
           <Icon
             type="checkmark-circled"
             size="22"
             color="#3F8CFF"
-            @click.native.stop="checkNode(item)"></Icon>
+            @click.native.stop="checkNode(node)"></Icon>
           <SvgIcon
-            :icon-class="iconClass(item)"
+            :icon-class="iconClass(node)"
             size="60">
           </SvgIcon>
           <Ellipsis
-            :class="+item.typeId <= 8 ? 'directory' : ''"
-            :length="10">{{ item.alias || item.name }}</Ellipsis>
+            :class="+node.typeId <= 8 ? 'directory' : ''"
+            :length="10">{{ node.alias || node.name }}</Ellipsis>
         </div>
         <Spin
           v-if="loading"

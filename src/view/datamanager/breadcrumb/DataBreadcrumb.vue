@@ -1,13 +1,10 @@
 <script>
+import * as types from '@/store/types';
 import api from 'api';
 
 export default {
   name: 'DataBreadcrumb',
   props: {
-    value: {
-      type: Array,
-      default: () => [],
-    },
     rootNodeText: {
       type: String,
       default: '数据目录',
@@ -19,6 +16,9 @@ export default {
     };
   },
   computed: {
+    nodes() {
+      return this.$store.state.app.nodes;
+    },
     current() {
       return this.$store.state.app.currentCatalog;
     },
@@ -35,7 +35,7 @@ export default {
     select(node, index) {
       // 如果点击的不是当前目录节点 则提交节点对象 刷新列表
       if (index !== this.breadcrumb.length - 1) {
-        this.$emit('on-select-node', node);
+        this.$store.dispatch(types.APP_NODES_FETCH, node);
       }
     },
   },
@@ -51,7 +51,7 @@ export default {
         :key="item.id"
         @click.native="select(item, index)">{{ item.name }}</BreadcrumbItem>
     </Breadcrumb>
-    <span class="total">已全部加载，共 {{ value.length }} 个</span>
+    <span class="total">已全部加载，共 {{ nodes.length }} 个</span>
   </div>
 
 </template>

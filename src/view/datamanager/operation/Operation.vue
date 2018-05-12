@@ -1,16 +1,28 @@
 <script>
+import * as types from '@/store/types';
+
 export default {
   name: 'Operation',
+  props: {
+    component: {
+      type: String,
+      validator(val) {
+        return ['DataTable', 'DataGrid'].includes(val);
+      },
+      default: 'DataTable',
+    },
+  },
   data() {
     return {
       search: '',
-      gridMode: false,
     };
   },
   methods: {
+    sort(key) {
+      this.$store.commit(types.SORT_APP_NODES, { key });
+    },
     toggle() {
-      this.gridMode = !this.gridMode;
-      this.$emit('toggle-mode', this.gridMode ? 'DataGrid' : 'DataTable');
+      this.$emit('update:component', this.component === 'DataTable' ? 'DataGrid' : 'DataTable');
     },
   },
 };
@@ -59,19 +71,21 @@ export default {
         v-model="search"
         icon="ios-search"
         placeholder="搜索您的数据"></Input>
-      <Dropdown placement="bottom-end">
+      <Dropdown
+        placement="bottom-end"
+        @on-click="sort">
         <Icon
           type="more"
           size="24"
         ></Icon>
         <DropdownMenu slot="list">
-          <DropdownItem>文件名</DropdownItem>
-          <DropdownItem>大小</DropdownItem>
-          <DropdownItem>修改时间</DropdownItem>
+          <DropdownItem name="name">文件名</DropdownItem>
+          <DropdownItem name="size">大小</DropdownItem>
+          <DropdownItem name="updateTime">修改时间</DropdownItem>
         </DropdownMenu>
       </Dropdown>
       <Icon
-        :type="gridMode ? 'navicon' : 'grid'"
+        :type="component === 'DataTable' ? 'navicon' : 'grid'"
         size="24"
         @click.native="toggle"></Icon>
     </div>
