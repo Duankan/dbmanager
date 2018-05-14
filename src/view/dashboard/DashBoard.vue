@@ -1,12 +1,12 @@
 <script>
 import DashBoardNav from './DashBoardNav';
-import DashBoardSider from './DashBoardSider';
+import DashBoardSidebar from './DashBoardSidebar';
 
 export default {
   name: 'DashBoard',
   components: {
     DashBoardNav,
-    DashBoardSider,
+    DashBoardSidebar,
   },
 };
 </script>
@@ -15,7 +15,7 @@ export default {
   <div>
     <DashBoardNav/>
     <main>
-      <DashBoardSider/>
+      <DashBoardSidebar/>
       <transition
         name="fade"
         mode="out-in">

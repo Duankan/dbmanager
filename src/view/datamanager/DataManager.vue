@@ -63,7 +63,7 @@ export default {
       v-contextmenu:contextmenu
       class="manager-container">
       <Operation :component.sync="component"/>
-      <DataBreadcrumb></DataBreadcrumb>
+      <DataBreadcrumb></DataBreadcrumb> 
       <keep-alive>
         <component :is="component"></component>
       </keep-alive>

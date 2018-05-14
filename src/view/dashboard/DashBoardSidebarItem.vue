@@ -1,6 +1,6 @@
 <script>
 export default {
-  name: 'DashBoardSiderItem',
+  name: 'DashBoardSidebarItem',
   props: {
     value: {
       type: Object,

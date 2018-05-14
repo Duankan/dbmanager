@@ -1,13 +1,16 @@
 <script>
+import ShortCut from './ShortCut';
 import api from 'api';
 import * as types from '@/store/types';
 import { filesize, cloneDeep } from '@ktw/ktools';
+import { isDirectory } from '@/utils';
 
 export default {
   name: 'DataTable',
   data() {
     return {
       height: 760,
+      isActive: true,
       loading: true,
       columns: [
         {
@@ -22,24 +25,26 @@ export default {
           sortable: true,
           sortMethod(a, b, type) {},
           render: (h, params) => {
-            const isDirectory = +params.row.typeId <= 8;
             return (
-              <span class={'filename'}>
+              <span class="file">
                 <svgIcon iconClass={this.iconClass(params.row)} size={28} />
-                {isDirectory ? (
-                  <span
-                    class={'directory'}
-                    onClick={e => {
-                      e.stopPropagation();
-                      this.loading = true;
-                      this.$store.dispatch(types.APP_NODES_FETCH, params.row);
-                    }}
-                  >
-                    {params.row.alias}
-                  </span>
-                ) : (
-                  <span>{params.row.alias}</span>
-                )}
+                <span class="filename">
+                  {isDirectory(params.row) ? (
+                    <span
+                      class="directory"
+                      onClick={e => {
+                        e.stopPropagation();
+                        this.loading = true;
+                        this.$store.dispatch(types.APP_NODES_FETCH, params.row);
+                      }}
+                    >
+                      {params.row.alias}
+                    </span>
+                  ) : (
+                    <span>{params.row.alias}</span>
+                  )}
+                </span>
+                <ShortCut node={params.row} />
               </span>
             );
           },
@@ -174,7 +179,9 @@ export default {
   },
   watch: {
     tableData() {
-      this.loading = false;
+      if (this.isActive) {
+        this.loading = false;
+      }
     },
     selectNodes: {
       handler(val) {
@@ -192,6 +199,14 @@ export default {
         }
       },
     },
+  },
+  activated() {
+    this.isActive = true;
+    this.loading = false;
+  },
+  deactivated() {
+    this.isActive = false;
+    this.loading = true;
   },
   methods: {
     iconClass(node) {
@@ -315,7 +330,7 @@ export default {
     padding-left: 0px;
   }
 
-  /deep/ .filename {
+  /deep/ .file {
     display: flex;
     align-items: center;
     .k-svgicon {
@@ -324,9 +339,20 @@ export default {
         fill: #459aee !important;
       }
     }
-    .directory:hover {
-      color: #459aee;
-      cursor: pointer;
+    .filename {
+      flex: 1;
+      .directory:hover {
+        color: #459aee;
+        cursor: pointer;
+      }
+    }
+    .shortcut {
+      opacity: 0;
+    }
+    &:hover {
+      .shortcut {
+        opacity: 1;
+      }
     }
   }
 

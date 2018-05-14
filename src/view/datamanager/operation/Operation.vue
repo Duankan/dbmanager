@@ -54,7 +54,7 @@ export default {
         </Button>
         <DropdownMenu slot="list">
           <DropdownItem>第三方服务</DropdownItem>
-          <DropdownItem>gis数据库</DropdownItem>
+          <DropdownItem>空间数据库</DropdownItem>
         </DropdownMenu>
       </Dropdown>
       <Button type="ghost">

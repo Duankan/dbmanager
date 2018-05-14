@@ -1,10 +1,10 @@
 <script>
-import DashBoardSiderItem from './DashBoardSiderItem';
+import DashBoardSidebarItem from './DashBoardSidebarItem';
 
 export default {
-  name: 'DashBoardsider',
+  name: 'DashBoardSidebar',
   components: {
-    DashBoardSiderItem,
+    DashBoardSidebarItem,
   },
   data() {
     return {
@@ -37,7 +37,7 @@ export default {
 
 <template>
   <aside>
-    <DashBoardSiderItem
+    <DashBoardSidebarItem
       v-for="(item) in siderBar"
       :value="item"
       :key="item.title"

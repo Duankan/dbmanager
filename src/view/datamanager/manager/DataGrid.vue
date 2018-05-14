@@ -1,5 +1,6 @@
 <script>
 import * as types from '@/store/types';
+import { isDirectory } from '@/utils';
 
 export default {
   name: 'DataGrid',
@@ -27,6 +28,9 @@ export default {
       },
       immediate: true,
     },
+  },
+  created() {
+    this.isDirectory = isDirectory;
   },
   methods: {
     iconClass(node) {
@@ -107,7 +111,7 @@ export default {
       }
     },
     clickNode(node, index) {
-      if (+node.typeId <= 8) {
+      if (isDirectory(node)) {
         this.loading = true;
         this.$store.dispatch(types.APP_NODES_FETCH, node);
       } else {
@@ -146,7 +150,7 @@ export default {
             size="60">
           </SvgIcon>
           <Ellipsis
-            :class="+node.typeId <= 8 ? 'directory' : ''"
+            :class="isDirectory(node) ? 'directory' : ''"
             :length="10">{{ node.alias || node.name }}</Ellipsis>
         </div>
         <Spin

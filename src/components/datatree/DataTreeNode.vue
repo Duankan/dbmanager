@@ -202,8 +202,8 @@ export default {
         }</b> 的服务资源吗？</br></br><strong>删除操作将不可恢复！！！</strong>`,
         okText: '删除',
         onOk: async () => {
-          // await api.db.deleteResource([nodeData.id]);
-          this.$emit('on-delete', currentNode);
+          await api.db.deleteResource([nodeData.id]);
+          // this.$emit('on-delete', currentNode);
         },
       });
     },
