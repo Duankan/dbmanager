@@ -1,6 +1,16 @@
 <script>
+import CreateDirectory from './modal/CreateDirectory';
+
 export default {
   name: 'OperationFixed',
+  components: {
+    CreateDirectory,
+  },
+  data() {
+    return {
+      directoryModal: false,
+    };
+  },
 };
 </script>
 
@@ -32,13 +42,16 @@ export default {
         <DropdownItem>空间数据库</DropdownItem>
       </DropdownMenu>
     </Dropdown>
-    <Button type="ghost">
+    <Button
+      type="ghost"
+      @click="directoryModal = true">
       <Icon
         type="folder"
         size="14"
         style="margin-right: 8px"></Icon>
       新建文件夹
     </Button>
+    <CreateDirectory v-model="directoryModal"/>
   </div>
 </template>
 

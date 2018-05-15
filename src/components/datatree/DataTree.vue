@@ -25,11 +25,6 @@ export default {
       type: Boolean,
       default: false,
     },
-    // 多选模式
-    checkbox: {
-      type: Boolean,
-      default: false,
-    },
     clickNodeExpand: {
       type: Boolean,
       default: true,
@@ -225,7 +220,6 @@ export default {
       :render="renderContent"
       :filter-node="searchFilterNode"
       :before-drop="beforeDrop"
-      :show-checkbox="checkbox"
       :click-node-expand="clickNodeExpand"
       v-bind="$attrs"
       v-on="$listeners"

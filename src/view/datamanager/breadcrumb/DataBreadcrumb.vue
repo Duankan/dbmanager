@@ -20,7 +20,7 @@ export default {
       return this.$store.state.app.nodes;
     },
     current() {
-      return this.$store.state.app.currentCatalog;
+      return this.$store.state.app.currentDirectory;
     },
   },
   watch: {

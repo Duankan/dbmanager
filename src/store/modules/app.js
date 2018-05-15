@@ -5,7 +5,7 @@ import { clone } from '@ktw/ktools';
 const app = {
   state: {
     // 当前浏览的目录节点对象
-    currentCatalog: {},
+    currentDirectory: {},
     // 根据当前浏览的目录节点对象查询的子节点
     nodes: [],
     // 当前选择的节点对象列表
@@ -14,8 +14,8 @@ const app = {
   getters: {},
   mutations: {
     // 设置目录对象
-    [types.SET_APP_CURRENT_CATALOG](state, catalog) {
-      state.currentCatalog = catalog;
+    [types.SET_APP_CURRENT_DIRECTORY](state, directory) {
+      state.currentDirectory = directory;
     },
     // 对当前浏览的目录节点对象进行排序 默认降序排列
     [types.SORT_APP_NODES](state, { key, desc = true }) {
@@ -63,7 +63,7 @@ const app = {
         parentId: node.childId,
       });
       state.nodes = response.data.filter(item => item.typeId !== '20102');
-      commit(types.SET_APP_CURRENT_CATALOG, clone(node));
+      commit(types.SET_APP_CURRENT_DIRECTORY, clone(node));
       commit(types.REMOVE_APP_SELECT_NODES);
     },
   },

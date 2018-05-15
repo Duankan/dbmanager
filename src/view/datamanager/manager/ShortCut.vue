@@ -1,6 +1,7 @@
 <script>
 import config from 'config';
-import { isGisResource, isFile, canView } from '@/utils';
+import api from 'api';
+import { isDirectory, isGisResource, isFile, canView } from '@/utils';
 
 export default {
   name: 'ShortCut',
@@ -11,6 +12,9 @@ export default {
     },
   },
   computed: {
+    isDirectory() {
+      return isDirectory(this.node);
+    },
     isGisResource() {
       return isGisResource(this.node);
     },
@@ -24,6 +28,16 @@ export default {
     },
     clickMore(type) {
       this[type]();
+    },
+    // 收藏目录
+    async favor() {
+      await api.db.addCommonCatalog({
+        favoriteId: this.node.id, //目录id
+        name: this.node.name, //目录名称（可自定）
+        type: '1001', // 1001:目录 1002:服务 1003:数据
+        userId: this.$user.id, //用户id
+      });
+      this.$events.emit('on-common-tree-update');
     },
     // 业务文件下载
     download() {
@@ -50,35 +64,41 @@ export default {
 <template>
   <div class="shortcut">
     <Icon
+      v-if="isDirectory"
+      size="20"
+      color="red"
+      type="bookmark"
+      @click.native.stop="favor"></Icon>
+    <Icon
       v-if="isFile"
       type="ios-cloud-download-outline"
       size="20"
       color="#358CF0"
-      @click.stop.native="download"/>
+      @click.native.stop="download"/>
     <Icon
       v-if="isFile"
       type="ios-trash-outline"
       size="20"
       color="#358CF0"
-      @click.stop.native="deleteNode"></Icon>
+      @click.native.stop="deleteNode"></Icon>
     <Icon
       v-if="isGisResource && !canView(node.serviceList)"
       type="ios-paperplane-outline"
       size="22"
       color="#358CF0"
-      @click.stop.native="quickPublish"></Icon>
+      @click.native.stop="quickPublish"></Icon>
     <Icon
       v-if="isGisResource && canView(node.serviceList)"
       type="ios-eye-outline"
       size="22"
       color="#358CF0"
-      @click.stop.native="quickView"></Icon>
+      @click.native.stop="quickView"></Icon>
     <Icon
       v-if="isGisResource"
       type="ios-information-outline"
       size="20"
       color="#358CF0"
-      @click.stop.native="information"></Icon>
+      @click.native.stop="information"></Icon>
     <Dropdown
       v-if="isGisResource"
       @on-click="clickMore">
@@ -98,7 +118,7 @@ export default {
 <style lang="less" scoped>
 .shortcut {
   > * {
-    margin-right: 14px;
+    padding: 0 6px;
     cursor: pointer;
   }
 }

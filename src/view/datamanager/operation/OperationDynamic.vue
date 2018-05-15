@@ -1,17 +1,24 @@
 <script>
-import { isDirectory, isFile, isGisResource, canView } from '@/utils';
+import MoveTo from './modal/MoveTo';
+import QuickView from './modal/QuickView';
+import ViewInformation from './modal/ViewInformation';
+import DeleteResource from './modal/DeleteResource';
+import { isFile, isGisResource, canView } from '@/utils';
 
 export default {
   name: 'OperationDynamic',
+  components: {
+    MoveTo,
+    QuickView,
+    ViewInformation,
+    DeleteResource,
+  },
   computed: {
     selectNodes() {
       return this.$store.state.app.selectNodes;
     },
     single() {
       return this.selectNodes.length === 1;
-    },
-    showFavor() {
-      return this.selectNodes[0] && isDirectory(this.selectNodes[0]);
     },
     showPublish() {
       const publishNode = this.selectNodes.filter(node => {
@@ -41,9 +48,6 @@ export default {
     hasSelectNode() {
       return this.selectNodes.length;
     },
-    onlyDirectory() {
-      return this.selectNodes.every(node => isDirectory(node));
-    },
     onlyGisResource() {
       return this.selectNodes.every(node => isGisResource(node));
     },
@@ -54,14 +58,6 @@ export default {
 
 <template>
   <div class="operation-dynamic">
-    <Button
-      v-if="showFavor"
-      :disabled="!onlyDirectory"
-      type="ghost">
-      <Icon
-        type="android-favorite"
-        size="14"></Icon>
-      收藏</Button>
     <Button
       v-if="showPublish"
       :disabled="!onlyGisResource"
@@ -100,6 +96,10 @@ export default {
         v-if="hasSelectNode"
         type="ghost">删除</Button>
     </ButtonGroup>
+    <MoveTo :value="true"></MoveTo>
+    <QuickView></QuickView>
+    <ViewInformation></ViewInformation>
+    <DeleteResource></DeleteResource>
   </div>
 </template>
 

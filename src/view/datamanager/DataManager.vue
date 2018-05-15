@@ -26,7 +26,7 @@ export default {
       this.$store.commit(types.SORT_APP_NODES, { key });
     },
     refresh() {
-      const currentNode = this.$store.state.app.currentCatalog;
+      const currentNode = this.$store.state.app.currentDirectory;
       this.$store.dispatch(types.APP_NODES_FETCH, currentNode);
     },
     overload() {
@@ -63,7 +63,7 @@ export default {
       v-contextmenu:contextmenu
       class="manager-container">
       <Operation :component.sync="component"/>
-      <DataBreadcrumb></DataBreadcrumb> 
+      <DataBreadcrumb></DataBreadcrumb>
       <keep-alive>
         <component :is="component"></component>
       </keep-alive>

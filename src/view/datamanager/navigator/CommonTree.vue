@@ -12,15 +12,17 @@ export default {
   created() {
     this.fetchData();
   },
+  events: {
+    'on-common-tree-update': function() {
+      this.fetchData();
+    },
+  },
   methods: {
     async fetchData() {
       const response = await api.db.findCommonCatalog({
         userId: this.$user.id,
       });
       this.common = response.data;
-    },
-    update() {
-      this.fetchData();
     },
     async removeFavor(data) {
       await api.db.deleteCommonCatalog({

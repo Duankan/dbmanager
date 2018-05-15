@@ -14,7 +14,7 @@ export default {
         type: '1001', // 1001:目录 1002:服务 1003:数据
         userId: this.$user.id, //用户id
       });
-      this.$parent.$refs['common-tree'].update();
+      this.$events.emit('on-common-tree-update');
     },
   },
 };
