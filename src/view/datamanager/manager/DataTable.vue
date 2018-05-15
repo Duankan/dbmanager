@@ -2,8 +2,8 @@
 import ShortCut from './ShortCut';
 import api from 'api';
 import * as types from '@/store/types';
-import { filesize, cloneDeep } from '@ktw/ktools';
-import { isDirectory } from '@/utils';
+import { filesize, date, cloneDeep } from '@ktw/ktools';
+import * as utils from '@/utils';
 
 export default {
   name: 'DataTable',
@@ -29,7 +29,7 @@ export default {
               <span class="file">
                 <svgIcon iconClass={this.iconClass(params.row)} size={28} />
                 <span class="filename">
-                  {isDirectory(params.row) ? (
+                  {utils.isDirectory(params.row) ? (
                     <span
                       class="directory"
                       onClick={e => {
@@ -84,23 +84,25 @@ export default {
           filters: [
             {
               label: '< 1Gb',
-              value: filesize.parse('1Gb'),
+              value: `0, ${filesize.parse('1Gb')}`,
             },
             {
               label: '1Gb ~ 10Gb',
-              value: filesize.parse('10Gb'),
+              value: `${filesize.parse('1Gb')}, ${filesize.parse('10Gb')}`,
             },
             {
               label: '10Gb ~ 100Gb',
-              value: filesize.parse('100Gb'),
+              value: `${filesize.parse('10Gb')}, ${filesize.parse('100Gb')}`,
             },
             {
               label: '> 100Gb',
-              value: filesize.parse('100Gb'),
+              value: `${filesize.parse('100Gb')}, Infinity`,
             },
           ],
           filterMethod(value, row) {
-            return value === row.pubState;
+            if (row.size === '-') return false;
+            const sizeArr = value.split(',').map(item => Number(item));
+            return sizeArr[0] <= filesize.parse(row.size) && filesize.parse(row.size) <= sizeArr[1];
           },
           sortable: true,
           sortMethod(a, b, type) {},
@@ -110,26 +112,25 @@ export default {
           key: 'typeName',
           filters: [
             {
-              label: '< 1Gb',
-              value: 1,
+              label: '矢量',
+              value: 'isVector',
             },
             {
-              label: '1Gb ~ 10Gb',
-              value: 0,
+              label: '影像',
+              value: 'isRaster',
             },
             {
-              label: '10Gb ~ 100Gb',
-              value: 0,
+              label: '文档',
+              value: 'isFile',
             },
             {
-              label: '> 100Gb',
-              value: 0,
+              label: '服务',
+              value: 'isService',
             },
           ],
           filterMethod(value, row) {
-            return value === row.pubState;
+            return utils[value](row);
           },
-          sortable: true,
           ellipsis: true,
         },
         {
@@ -150,20 +151,24 @@ export default {
             },
             {
               label: '昨天',
-              value: 0,
+              value: 1,
+            },
+            {
+              label: '三天内',
+              value: 3,
             },
             {
               label: '一周内',
-              value: 0,
-            },
-            {
-              label: '其他',
-              value: 0,
+              value: 7,
             },
           ],
           filterMultiple: false,
-          filterMethod(value, row) {},
+          filterMethod(value, row) {
+            const updateTimeStamp = date.parse(row.updateTime, 'YYYY-M-D HH:mm').getTime();
+            return updateTimeStamp >= utils.getTimeStamp(value);
+          },
           sortable: true,
+          sortMethod(a, b, type) {},
         },
       ],
       selection: [],
@@ -268,7 +273,7 @@ export default {
         item.userName = item.userName ? item.userName : item.createusername || '-';
         item.size = item.size != undefined ? filesize(item.size) : '-';
         item.pubState = item.resourceTypeId == '2' ? item.pubState : '-';
-        item.updateTime = new Date(item.updateTime).toLocaleDateString();
+        item.updateTime = date.format(new Date(item.updateTime), 'YYYY-M-D HH:mm');
         return item;
       });
     },
@@ -302,22 +307,41 @@ export default {
 </script>
 
 <template>
-  <Table
-    ref="table"
-    :columns="columns"
-    :data="tableData"
-    :height="height"
-    :loading="loading"
-    size="small"
-    @on-row-click="clickRow"
-    @on-select="selectRow"
-    @on-select-cancel="cancelSelectRow"
-    @on-select-all="selectAllRow"
-    @on-selection-change="selectChange">
-  </Table>
+  <div class="data-table">
+    <div
+      v-show="selectNodes.length"
+      class="select-count">已选择 {{ selectNodes.length }} 项</div>
+    <Table
+      ref="table"
+      :columns="columns"
+      :data="tableData"
+      :height="height"
+      :loading="loading"
+      size="small"
+      @on-row-click="clickRow"
+      @on-select="selectRow"
+      @on-select-cancel="cancelSelectRow"
+      @on-select-all="selectAllRow"
+      @on-selection-change="selectChange">
+    </Table>
+  </div>
 </template>
 
 <style lang="less" scoped>
+.data-table {
+  position: relative;
+  .select-count {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 28px;
+    right: 0;
+    height: 30px;
+    font-weight: 700;
+    padding: 7px 11px;
+    background-color: #f8f8f9;
+  }
+}
 .k-table-wrapper {
   border: none;
   /deep/ .k-table {

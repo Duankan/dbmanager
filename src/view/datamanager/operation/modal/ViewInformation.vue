@@ -1,6 +1,6 @@
 <script>
 export default {
-  name: 'OperationInformation',
+  name: 'ViewInformation',
   props: {
     value: {
       type: Boolean,
@@ -12,9 +12,7 @@ export default {
     },
   },
   data() {
-    return {
-      loading: false,
-    };
+    return {};
   },
   methods: {},
 };

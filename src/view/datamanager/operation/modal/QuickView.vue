@@ -4,7 +4,7 @@ import { url } from '@ktw/ktools';
 const SET_MAP_SERVICELIST = 'SET_MAP_SERVICELIST';
 
 export default {
-  name: 'OperationView',
+  name: 'QuickView',
   props: {
     value: {
       type: Boolean,

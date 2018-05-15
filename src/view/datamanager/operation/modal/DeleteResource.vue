@@ -2,7 +2,7 @@
 import api from 'api';
 
 export default {
-  name: 'OperationDelete',
+  name: 'DeleteResource',
   props: {
     value: {
       type: Boolean,

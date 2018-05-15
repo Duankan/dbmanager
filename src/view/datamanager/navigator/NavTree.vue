@@ -30,10 +30,13 @@ export default {
       slot-scope="{ nodeData }"
       :size="16"
       color="red"
-      type="android-favorite"
+      type="bookmark"
       @click.native.stop="favor(nodeData)"></Icon>
   </DataTree>
 </template>
 
 <style lang="less" scoped>
+.k-icon-bookmark {
+  padding: 0 5px;
+}
 </style>

@@ -131,7 +131,12 @@ export default {
         <Checkbox
           :value="check"
           @input="checkAll">
-          <span class="total-check">全选</span>
+          <span
+            v-if="selectNodes.length"
+            class="total-check">已选择 {{ selectNodes.length }} 项</span>
+          <span
+            v-else
+            class="total-check">全选</span>
         </Checkbox>
       </div>
       <div class="data-grid-container">
@@ -209,6 +214,7 @@ export default {
     margin: 4px 0 0 6px;
     height: 120px;
     width: 130px;
+    text-align: center;
     border-radius: 5px;
     border: 1px solid transparent;
     cursor: pointer;

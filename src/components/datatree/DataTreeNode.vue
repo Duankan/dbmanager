@@ -194,19 +194,19 @@ export default {
       // this.$store.commit(SET_MAP_SERVICELIST, { [layername]: response.data });
     },
     // 删除服务资源
-    deleteNode() {
-      this.$Modal.confirm({
-        title: '删除服务资源',
-        content: `确认要删除服务名称为 <b>${
-          this.nodeData.name
-        }</b> 的服务资源吗？</br></br><strong>删除操作将不可恢复！！！</strong>`,
-        okText: '删除',
-        onOk: async () => {
-          await api.db.deleteResource([nodeData.id]);
-          // this.$emit('on-delete', currentNode);
-        },
-      });
-    },
+    // deleteNode() {
+    //   this.$Modal.confirm({
+    //     title: '删除服务资源',
+    //     content: `确认要删除服务名称为 <b>${
+    //       this.nodeData.name
+    //     }</b> 的服务资源吗？</br></br><strong>删除操作将不可恢复！！！</strong>`,
+    //     okText: '删除',
+    //     onOk: async () => {
+    //       await api.db.deleteResource([nodeData.id]);
+    //       // this.$emit('on-delete', currentNode);
+    //     },
+    //   });
+    // },
   },
 };
 </script>
@@ -218,7 +218,9 @@ export default {
     <SvgIcon
       :icon-class="iconClass"
       :size="16"/>
-    <span>{{ isDirectory ? nodeData.title : nodeData.alias }}</span>
+    <Ellipsis
+      :length="10"
+      tooltip>{{ isDirectory ? nodeData.title : nodeData.alias }}</Ellipsis>
     <span class="k-datatree-node-button">
       <slot
         :rootNode="rootNode"
@@ -234,11 +236,11 @@ export default {
         :size="16"
         icon-class="view-meta"
         @click.native.stop="viewMeta"/>
-      <SvgIcon
+        <!-- <SvgIcon
         v-if="!isDirectory"
         :size="16"
         icon-class="delete"
-        @click.native.stop="deleteNode"/>
+        @click.native.stop="deleteNode"/> -->
     </span>
   </div>
 </template>
@@ -272,6 +274,10 @@ export default {
     & > svg {
       fill: #459aee !important;
     }
+  }
+
+  .k-ellipsis {
+    vertical-align: middle;
   }
 
   .k-datatree-node-button {

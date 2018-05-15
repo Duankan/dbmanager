@@ -30,6 +30,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    clickNodeExpand: {
+      type: Boolean,
+      default: true,
+    },
     // 过滤节点类型 ['sld', 'vector', 'raster', 'file']
     filterType: {
       type: [Array, String],
@@ -75,9 +79,9 @@ export default {
     await this.loadRootNode();
     // 默认展开加载根节点后，展开根节点
     if (!this.clickNodeExpand) {
-      this.$refs.tree.$children[0].handleExpand();
+      this.$refs.tree.$children[0].handleSelect();
     }
-    this.$refs.tree.$children[0].handleSelect();
+    this.$refs.tree.$children[0].handleExpand();
   },
   methods: {
     // 判断是否是目录节点
@@ -222,6 +226,7 @@ export default {
       :filter-node="searchFilterNode"
       :before-drop="beforeDrop"
       :show-checkbox="checkbox"
+      :click-node-expand="clickNodeExpand"
       v-bind="$attrs"
       v-on="$listeners"
       @on-drag-end="dragEnd"

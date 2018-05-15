@@ -1,8 +1,14 @@
 <script>
 import * as types from '@/store/types';
+import OperationFixed from './OperationFixed';
+import OperationDynamic from './OperationDynamic';
 
 export default {
   name: 'Operation',
+  components: {
+    OperationFixed,
+    OperationDynamic,
+  },
   props: {
     component: {
       type: String,
@@ -30,43 +36,9 @@ export default {
 
 <template>
   <div class="operation">
-    <div class="operation-left">
-      <Dropdown placement="bottom-start">
-        <Button type="primary">
-          <Icon
-            type="upload"
-            size="16"
-            style="margin-right: 8px"></Icon>
-          上传
-        </Button>
-        <DropdownMenu slot="list">
-          <DropdownItem>文件上传</DropdownItem>
-          <DropdownItem>文件夹上传</DropdownItem>
-        </DropdownMenu>
-      </Dropdown>
-      <Dropdown placement="bottom-start">
-        <Button type="primary">
-          <Icon
-            type="android-share-alt"
-            size="16"
-            style="margin-right: 8px"></Icon>
-          连接
-        </Button>
-        <DropdownMenu slot="list">
-          <DropdownItem>第三方服务</DropdownItem>
-          <DropdownItem>空间数据库</DropdownItem>
-        </DropdownMenu>
-      </Dropdown>
-      <Button type="ghost">
-        <Icon
-          type="folder"
-          size="16"
-          style="margin-right: 8px"></Icon>
-        新建文件夹
-      </Button>
-    </div>
-
-    <div class="operation-right">
+    <OperationFixed/>
+    <OperationDynamic/>
+    <div class="operation-search">
       <Input
         v-model="search"
         icon="ios-search"
@@ -94,13 +66,14 @@ export default {
 
 <style lang="less" scoped>
 .operation {
-  &-left {
+  &-fixed {
     float: left;
-    .k-dropdown {
-      margin-right: 8px;
-    }
   }
-  &-right {
+  &-dynamic {
+    float: left;
+    margin-left: 32px;
+  }
+  &-search {
     float: right;
     .k-input-wrapper {
       width: 260px;
@@ -108,7 +81,7 @@ export default {
     .k-icon {
       cursor: pointer;
     }
-    > * {
+    & > * {
       margin-left: 8px;
       vertical-align: middle;
     }

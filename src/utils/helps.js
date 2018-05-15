@@ -4,6 +4,7 @@
 在需要的组件中 通过 import { uuid } from '@ktw/ktools'; 按需引入
 */
 
+/* 数据类型判断 */
 function nodeType(node) {
   switch (node.typeId) {
     case '1':
@@ -58,10 +59,23 @@ export function isFile(node) {
   return nodeType(node) === 'file';
 }
 
+// 第三方服务及gis数据类型
+export function isService(node) {
+  return false;
+}
+
 export function isGisResource(node) {
   return isVector(node) || isRaster(node);
 }
 
 export function canView(serviceList) {
   return serviceList.length >= 2 || (serviceList.length === 1 && serviceList[0].servicestype === 5);
+}
+
+/* 时间函数 */
+export function getTimeStamp(day = 0) {
+  const date = new Date();
+  const BASE = 24 * 60 * 60 * 1000;
+  const todayTimeStamp = date.getTime() - date.getTime() % BASE;
+  return todayTimeStamp - day * BASE;
 }
