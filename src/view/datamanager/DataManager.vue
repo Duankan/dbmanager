@@ -21,7 +21,9 @@ export default {
     };
   },
   methods: {
-    handleClick() {},
+    upload(name) {
+      this.$events.emit('on-upload', name);
+    },
     sort(key) {
       this.$store.commit(types.SORT_APP_NODES, { key });
     },
@@ -51,8 +53,8 @@ export default {
       </ContextMenuSubmenu>
       <ContextMenuItem divided>新建文件夹</ContextMenuItem>
       <ContextMenuSubmenu title="上传">
-        <ContextMenuItem @click="handleClick">文件</ContextMenuItem>
-        <ContextMenuItem @click="handleClick">文件夹</ContextMenuItem>
+        <ContextMenuItem @click="upload('file')">文件</ContextMenuItem>
+        <ContextMenuItem @click="upload('dictionary')">文件夹</ContextMenuItem>
       </ContextMenuSubmenu>
       <ContextMenuItem
         divided

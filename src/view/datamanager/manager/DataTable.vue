@@ -20,11 +20,41 @@ export default {
         },
         {
           title: '文件名',
-          key: 'alias',
+          key: '_alias',
           width: 860,
           sortable: true,
           sortMethod(a, b, type) {},
           render: (h, params) => {
+            let child = params.row._alias;
+            if (params.row._rename) {
+              child = (
+                <div class="rename">
+                  <Input
+                    value={params.row._alias}
+                    nativeOnInput={e => (params.row.alias = e.target.value)}
+                  />
+                  <icon
+                    type="checkmark-round"
+                    color="#19be6b"
+                    size="14"
+                    nativeOnClick={() => {
+                      console.log(params.row);
+                    }}
+                  />
+                  <icon
+                    type="close-round"
+                    color="#000"
+                    size="14"
+                    nativeOnClick={() =>
+                      this.$store.commit(
+                        types.UPDATE_APP_NODES,
+                        Object.assign(params.row, { _rename: false })
+                      )
+                    }
+                  />
+                </div>
+              );
+            }
             return (
               <span class="file">
                 <svgIcon iconClass={this.iconClass(params.row)} size={28} />
@@ -33,15 +63,16 @@ export default {
                     <span
                       class="directory"
                       onClick={e => {
+                        if (params.row._rename) return;
                         e.stopPropagation();
                         this.loading = true;
                         this.$store.dispatch(types.APP_NODES_FETCH, params.row);
                       }}
                     >
-                      {params.row.alias}
+                      {child}
                     </span>
                   ) : (
-                    <span>{params.row.alias}</span>
+                    child
                   )}
                 </span>
                 <ShortCut node={params.row} />
@@ -51,7 +82,7 @@ export default {
         },
         {
           title: '服务',
-          key: 'pubState',
+          key: '_pubState',
           width: 80,
           align: 'center',
           filters: [
@@ -79,7 +110,7 @@ export default {
         },
         {
           title: '大小',
-          key: 'size',
+          key: '_size',
           align: 'center',
           filters: [
             {
@@ -135,14 +166,14 @@ export default {
         },
         {
           title: '拥有者',
-          key: 'userName',
+          key: '_userName',
           align: 'center',
           sortable: true,
           sortMethod(a, b, type) {},
         },
         {
           title: '修改日期',
-          key: 'updateTime',
+          key: '_updateTime',
           align: 'center',
           filters: [
             {
@@ -269,11 +300,11 @@ export default {
     },
     handleData(data) {
       return data.map(item => {
-        item.alias = item.alias ? item.alias : item.name;
-        item.userName = item.userName ? item.userName : item.createusername || '-';
-        item.size = item.size != undefined ? filesize(item.size) : '-';
-        item.pubState = item.resourceTypeId == '2' ? item.pubState : '-';
-        item.updateTime = date.format(new Date(item.updateTime), 'YYYY-M-D HH:mm');
+        item._alias = item.alias ? item.alias : item.name;
+        item._userName = item.userName ? item.userName : item.createusername || '-';
+        item._size = item.size != undefined ? filesize(item.size) : '-';
+        item._pubState = item.resourceTypeId == '2' ? item.pubState : '-';
+        item._updateTime = date.format(new Date(item.updateTime), 'YYYY-M-D HH:mm');
         return item;
       });
     },
@@ -288,7 +319,9 @@ export default {
       this.$refs.table.toggleSelect(index);
     },
     selectRow(selection, row) {
-      this.$store.commit(types.SET_APP_SELECT_NODES, row);
+      if (!row._rename) {
+        this.$store.commit(types.SET_APP_SELECT_NODES, row);
+      }
     },
     cancelSelectRow(selection, row) {
       this.$store.commit(types.REMOVE_APP_SELECT_NODES, row);
@@ -368,6 +401,14 @@ export default {
       .directory:hover {
         color: #459aee;
         cursor: pointer;
+      }
+      .rename {
+        .k-input-wrapper {
+          width: 200px;
+        }
+        .k-icon {
+          margin-left: 14px;
+        }
       }
     }
     .shortcut {

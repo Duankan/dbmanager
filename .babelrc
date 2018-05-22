@@ -14,8 +14,8 @@
   ],
   "plugins": [
     "external-helpers",
-    "transform-vue-jsx",
     "jsx-v-model",
+    "transform-vue-jsx",
     [
       "import",
       {
@@ -33,8 +33,8 @@
     "test": {
       "presets": ["env", "stage-2"],
       "plugins": [
-        "transform-vue-jsx",
         "jsx-v-model",
+        "transform-vue-jsx",
         "transform-es2015-modules-commonjs",
         "dynamic-import-node"
       ]

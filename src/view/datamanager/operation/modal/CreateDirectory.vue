@@ -66,12 +66,8 @@ export default {
   <Modal
     :value="value"
     width="380"
+    title="新建文件夹"
     @on-visible-change="visibleChange">
-    <p
-      slot="header"
-      style="text-align:center">
-      <Icon type="information-circled"></Icon>
-      <span>新建文件夹</span>
     </p>
     <Form
       ref="form"

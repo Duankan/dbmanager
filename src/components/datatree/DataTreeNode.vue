@@ -277,7 +277,7 @@ export default {
   }
 
   .k-ellipsis {
-    vertical-align: middle;
+    vertical-align: text-bottom;
   }
 
   .k-datatree-node-button {

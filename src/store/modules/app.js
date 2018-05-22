@@ -1,6 +1,7 @@
 import * as types from '../types';
 import api from 'api';
 import { clone } from '@ktw/ktools';
+import { isDirectory, isFile, isSld, isGisResource } from '@/utils';
 
 const app = {
   state: {
@@ -23,6 +24,10 @@ const app = {
         const judge = (b[key] || 0) - (a[key] || 0);
         return desc ? judge : -judge;
       });
+    },
+    [types.UPDATE_APP_NODES](state, node) {
+      const index = state.nodes.findIndex(ele => ele.id === node.id);
+      state.nodes.splice(index, 1, node);
     },
     // 新增选择节点 根据id去重
     [types.SET_APP_SELECT_NODES](state, node) {
@@ -65,6 +70,24 @@ const app = {
       state.nodes = response.data.filter(item => item.typeId !== '20102');
       commit(types.SET_APP_CURRENT_DIRECTORY, clone(node));
       commit(types.REMOVE_APP_SELECT_NODES);
+    },
+    // 删除选择的节点数据
+    async [types.APP_SELECT_NODES_DELETE]({ state }) {
+      // 删除非空的目录
+      const directoryNode = state.selectNodes.filter(node => isDirectory(node));
+      if (directoryNode.length) {
+        directoryNode.forEach(node => api.db.deleteCatalog({ id: node.id }));
+      }
+      // 删除gis资源和业务文件
+      const resourceNode = state.selectNodes.filter(node => isGisResource(node) || isFile(node));
+      if (resourceNode.length) {
+        api.db.deleteResource(resourceNode.map(node => node.id));
+      }
+      // 删除样式文件
+      const styleNode = state.selectNodes.filter(node => isSld(node));
+      if (styleNode.length) {
+        styleNode.forEach(node => api.db.deleteStyle({ id: node.id }));
+      }
     },
   },
 };

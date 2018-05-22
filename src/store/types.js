@@ -7,6 +7,7 @@
 
 /* app modules */
 export const APP_NODES_FETCH = 'APP_NODES_FETCH';
+export const APP_SELECT_NODES_DELETE = 'APP_SELECT_NODES_DELETE';
 
 /* -------------------------------------------------------------------------------------------------------- */
 
@@ -22,6 +23,7 @@ export const SET_APP_CURRENT_DIRECTORY = 'SET_APP_CURRENT_DIRECTORY';
 export const SET_APP_SELECT_NODES = 'SET_APP_SELECT_NODES';
 
 export const SORT_APP_NODES = 'SORT_APP_NODES';
+export const UPDATE_APP_NODES = 'UPDATE_APP_NODES';
 
 export const REMOVE_APP_SELECT_NODES = 'REMOVE_APP_SELECT_NODES';
 

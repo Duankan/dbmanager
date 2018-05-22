@@ -1,10 +1,14 @@
 <script>
+import BatchPublish from './BatchPublish';
 import api from 'api';
 
 const REMOVE_BUS_PUBLISH = 'REMOVE_BUS_PUBLISH';
 
 export default {
   name: 'Publish',
+  components: {
+    BatchPublish,
+  },
   data() {
     return {
       showModel: false,
@@ -39,33 +43,6 @@ export default {
         ],
       },
       tableData: [],
-      columns: [
-        {
-          type: 'selection',
-          width: 60,
-          align: 'center',
-        },
-        {
-          title: '服务标题',
-          key: 'title',
-        },
-        {
-          title: '服务名称',
-          key: 'name',
-        },
-        {
-          title: '空间参考',
-          key: 'crs',
-        },
-        {
-          title: '渲染样式',
-          key: 'style',
-        },
-        {
-          title: '服务类型',
-          key: 'serviceType',
-        },
-      ],
     };
   },
   computed: {
@@ -302,12 +279,9 @@ export default {
         type="minus-round"
         size="16"></Icon>
     </div>
-    <Table
+    <BatchPublish
       v-else
-      :columns="columns"
-      :data="tableData"
-      size="small"
-    ></Table>
+      :value="tableData"></BatchPublish>
   </Modal>
 </template>
 

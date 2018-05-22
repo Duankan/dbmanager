@@ -118,6 +118,9 @@ export default {
         this.checkNode(node);
       }
     },
+    upload() {
+      this.$events.emit('on-upload', 'file');
+    },
   },
 };
 </script>
@@ -170,7 +173,9 @@ export default {
       <img
         src="~assets/datamanager/empty-file.png"
         alt="">
-      <span class="tips">您还没上传过文件哦，点击 <a href="#">上传</a> 按钮～</span>
+      <span class="tips">您还没上传过文件哦，点击 <a
+        href="#"
+        @click="upload">上传</a> 按钮～</span>
     </div>
   </div>
 </template>

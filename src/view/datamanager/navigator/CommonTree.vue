@@ -59,18 +59,23 @@ export default {
     v-on="$listeners"></Tree>
 </template>
 
-<style lang="less">
-.common-tree-node {
-  display: flex;
-  &-title {
-    flex: 1;
-    margin-left: 6px;
+<style lang="less" scoped>
+.k-tree {
+  /deep/ &-title-selected {
+    background: transparent;
   }
-  &-remove {
-    display: none;
-  }
-  &:hover &-remove {
-    display: block;
+  /deep/ .common-tree-node {
+    display: flex;
+    &-title {
+      flex: 1;
+      margin-left: 6px;
+    }
+    &-remove {
+      display: none;
+    }
+    &:hover .common-tree-node-remove {
+      display: block;
+    }
   }
 }
 </style>
