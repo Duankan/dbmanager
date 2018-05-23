@@ -1,26 +1,11 @@
 import * as types from '../types';
-import { cloneDeep } from '@ktw/ktools';
 
 const bus = {
   state: {
-    // 存储系统需要发布的资源信息
-    publish: [],
     // 存储系统查询属性信息对象
     attribute: [],
   },
   mutations: {
-    // 服务发布提交
-    [types.SET_BUS_PUBLISH](state, resources) {
-      if (Array.isArray(resources)) {
-        state.publish = state.publish.concat(cloneDeep(resources));
-      } else {
-        state.publish.push(cloneDeep(resources));
-      }
-    },
-    // 移除所有需要发布的资源信息
-    [types.REMOVE_BUS_PUBLISH](state) {
-      state.publish = [];
-    },
     // 添加属性表查询对象信息
     [types.SET_BUS_ATTRIBUTE](state, options) {
       if (!options.url) throw new Error('wfs查询参数 url 缺失');

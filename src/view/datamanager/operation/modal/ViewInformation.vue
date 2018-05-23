@@ -1,10 +1,16 @@
 <script>
+import { isVector } from '@/utils';
+
 export default {
   name: 'ViewInformation',
   props: {
     value: {
       type: Boolean,
       default: false,
+    },
+    node: {
+      type: Object,
+      required: true,
     },
   },
   data() {
@@ -32,13 +38,8 @@ export default {
     };
   },
   computed: {
-    selectNodes() {
-      return this.$store.state.app.selectNodes;
-    },
-  },
-  watch: {
-    value(val) {
-      document.body.style.overflow = val ? 'auto' : 'hidden';
+    isVector() {
+      return isVector(this.node);
     },
   },
   methods: {
@@ -53,7 +54,7 @@ export default {
     async toggle(name) {
       if (name === 'spatial') {
         const response = await api.db.findSrsById({
-          id: this.selectNodes[0].crs.split(':')[1],
+          id: this.node.crs.split(':')[1],
         });
         this.spatial = response.data;
       }
@@ -66,6 +67,7 @@ export default {
   <Modal
     :value="value"
     width="400"
+    scrollable
     @on-visible-change="visibleChange">
     <Tabs
       v-if="value"
@@ -77,6 +79,7 @@ export default {
 
       </TabPane>
       <TabPane
+        v-if="isVector"
         label="空间信息"
         name="spatial">
         <table class="spatial-information">
@@ -90,7 +93,7 @@ export default {
           </tr>
           <tr>
             <th>范围:</th>
-            <td @click="copy">{{ selectNodes[0].bbox }}</td>
+            <td @click="copy">{{ node.bbox }}</td>
           </tr>
           <tr>
             <th>WKT:</th>
@@ -99,11 +102,12 @@ export default {
         </table>
       </TabPane>
       <TabPane
+        v-if="isVector"
         label="属性信息"
         name="fields">
         <Table
           :columns="columns"
-          :data="selectNodes[0].schema"
+          :data="node.schema"
           :height="400"
           size="small"
           stripe></Table>

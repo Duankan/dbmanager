@@ -8,6 +8,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    nodes: {
+      type: Array,
+      required: true,
+    },
   },
   data() {
     return {
@@ -41,17 +45,13 @@ export default {
       ],
     };
   },
-  computed: {
-    selectNodes() {
-      return this.$store.state.app.selectNodes;
-    },
-  },
   methods: {
     visibleChange(visible) {
       this.$emit('input', visible);
     },
-    deleteNode() {
-      this.$store.dispatch(types.APP_SELECT_NODES_DELETE);
+    async deleteNode() {
+      await this.$store.dispatch(types.APP_SELECT_NODES_DELETE);
+      // 提示删除成功 隐藏modal
       this.$Message.success('资源删除成功！');
       this.visibleChange(false);
     },
@@ -63,6 +63,7 @@ export default {
   <Modal
     :value="value"
     width="500"
+    scrollable
     @on-visible-change="visibleChange">
     <p
       slot="header"
@@ -74,8 +75,8 @@ export default {
       <p class="tip">删除操作不可逆，确认删除后，文件将无法被找回！</p>
       <Table
         :columns="columns"
-        :data="selectNodes"
-        :height="selectNodes.length > 5 ? '230' : 'auto'"
+        :data="nodes"
+        :height="nodes.length > 5 ? '230' : 'auto'"
         size="small"></Table>
     </div>
     <div slot="footer">

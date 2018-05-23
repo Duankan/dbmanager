@@ -1,4 +1,5 @@
 <script>
+import * as types from '@/store/types';
 import api from 'api';
 
 export default {
@@ -8,6 +9,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    nodes: {
+      type: [Object, Array],
+      required: true,
+    },
   },
   data() {
     return {
@@ -15,40 +20,26 @@ export default {
     };
   },
   computed: {
-    selectNodes() {
-      return this.$store.state.app.selectNodes;
-    },
-    currentNode() {
+    current() {
       return this.$store.state.app.currentDirectory;
-    },
-  },
-  watch: {
-    value(val) {
-      document.body.style.overflow = val ? 'auto' : 'hidden';
     },
   },
   methods: {
     visibleChange(visible) {
       this.$emit('input', visible);
     },
-    moveNode() {
-      api.fetch
-        .all(
-          this.selectNodes.map(node => {
-            return api.db.moveCatalog({
-              catalogId: node.childId, //  迁移目录ID，即选中节点的childId
-              fromId: node.parentId, //  原始父目录ID ,即选中节点的parentId
-              toId: this.moveToNode.childId, //  新的父目录ID ，即新目录节点的childId
-              toSort: 1, //  目标节点排列顺序（缺省值为最后）
-            });
+    async moveNode() {
+      await api.fetch.all(
+        this.nodes.map(node =>
+          api.db.moveCatalog({
+            catalogId: node.childId, //  迁移目录ID，即选中节点的childId
+            fromId: node.parentId, //  原始父目录ID ,即选中节点的parentId
+            toId: this.moveToNode.childId, //  新的父目录ID ，即新目录节点的childId
+            toSort: 1, //  目标节点排列顺序（缺省值为最后）
           })
         )
-        .then(
-          api.fetch.spread(function(...args) {
-            console.log(args);
-            this.$store.dispatch(types.APP_NODES_FETCH, this.currentNode);
-          })
-        );
+      );
+      this.$store.dispatch(types.APP_NODES_FETCH, this.current);
     },
   },
 };
@@ -60,6 +51,7 @@ export default {
     :mask-closable="false"
     width="400"
     title="移动到"
+    scrollable
     @on-ok="moveNode"
     @on-visible-change="visibleChange">
     <DataTree

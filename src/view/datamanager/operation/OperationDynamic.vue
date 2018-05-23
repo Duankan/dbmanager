@@ -17,9 +17,16 @@ export default {
   },
   data() {
     return {
+      publishModal: false,
+      publishNodes: [],
+      quickViewModal: false,
+      quickViewNode: {},
       moveToModal: false,
+      moveNodes: [],
       informationModal: false,
+      informationNode: {},
       deleteModal: false,
+      deleteNodes: [],
     };
   },
   computed: {
@@ -34,6 +41,13 @@ export default {
         return isGisResource(node) && !node.pubState;
       });
       return publishNode && publishNode.length;
+    },
+    showQuickView() {
+      return (
+        this.selectNodes[0] &&
+        isGisResource(this.selectNodes[0]) &&
+        canView(this.selectNodes[0].serviceList)
+      );
     },
     showMetaData() {
       return (
@@ -71,10 +85,21 @@ export default {
       return directoryNode.some(node => node.isChild === 'open');
     },
   },
-  methods: {
-    publish() {
-      this.$store.commit(types.SET_BUS_PUBLISH, this.selectNodes);
+  events: {
+    'on-quick-view': function(node) {
+      this.quickViewModal = true;
+      this.quickViewNode = node;
     },
+    'on-information': function(node) {
+      this.informationModal = true;
+      this.informationNode = node;
+    },
+    'on-delete': function(node) {
+      this.deleteModal = true;
+      this.deleteNodes = [node];
+    },
+  },
+  methods: {
     favor() {
       this.selectNodes.forEach(async node => {
         await api.db.addCommonCatalog({
@@ -106,6 +131,26 @@ export default {
         Object.assign(this.selectNodes[0], { _rename: true })
       );
     },
+    quickView() {
+      this.quickViewModal = true;
+      this.quickViewNode = this.selectNodes[0];
+    },
+    publish() {
+      this.publishModal = true;
+      this.publishNodes = this.selectNodes;
+    },
+    moveTo() {
+      this.moveToModal = true;
+      this.moveNodes = this.selectNodes;
+    },
+    information() {
+      this.informationModal = true;
+      this.informationNode = this.selectNodes[0];
+    },
+    deleteNode() {
+      this.deleteModal = true;
+      this.deleteNodes = this.selectNodes;
+    },
   },
 };
 </script>
@@ -136,6 +181,11 @@ export default {
     </Button>
     <ButtonGroup>
       <Button
+        v-if="showQuickView"
+        :disabled="!single"
+        type="ghost"
+        @click="quickView">快速浏览</Button>
+      <Button
         v-if="showMetaData"
         :disabled="!single"
         type="ghost">元数据补录</Button>
@@ -152,7 +202,7 @@ export default {
         v-if="showMoveTo"
         :disabled="!onlyDirectory"
         type="ghost"
-        @click="moveToModal = true">移动到</Button>
+        @click="moveTo">移动到</Button>
       <Button
         v-if="showDownload"
         :disabled="!single"
@@ -162,18 +212,28 @@ export default {
         v-if="showInformation"
         :disabled="!single"
         type="ghost"
-        @click="informationModal = true">属性</Button>
+        @click="information">属性</Button>
       <Button
         v-if="hasSelectNode"
         :disabled="forbidDelete"
         type="ghost"
-        @click="deleteModal = true">删除</Button>
+        @click="deleteNode">删除</Button>
     </ButtonGroup>
-    <Publish></Publish>
-    <!-- <QuickView></QuickView> -->
-    <MoveTo v-model="moveToModal"></MoveTo>
-    <ViewInformation v-model="informationModal"></ViewInformation>
-    <DeleteResource v-model="deleteModal"></DeleteResource>
+    <Publish
+      v-model="publishModal"
+      :nodes="publishNodes"></Publish>
+    <QuickView
+      v-model="quickViewModal"
+      :node="quickViewNode"></QuickView>
+    <ViewInformation
+      v-model="informationModal"
+      :node="informationNode"></ViewInformation>
+    <MoveTo
+      v-model="moveToModal"
+      :nodes="moveNodes"></MoveTo>
+    <DeleteResource
+      v-model="deleteModal"
+      :nodes="deleteNodes"></DeleteResource>
   </div>
 </template>
 

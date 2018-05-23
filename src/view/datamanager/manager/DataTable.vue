@@ -97,11 +97,11 @@ export default {
           ],
           filterMultiple: false,
           filterMethod(value, row) {
-            return value === row.pubState;
+            return value === row._pubState;
           },
           render: (h, params) => {
-            if (params.row.pubState == '-') return <span>-</span>;
-            return params.row.pubState ? (
+            if (params.row._pubState == '-') return <span>-</span>;
+            return params.row._pubState ? (
               <span class={['pubstate', 'published']} />
             ) : (
               <span class={['pubstate', 'unpublish']} />

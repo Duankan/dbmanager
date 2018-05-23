@@ -1,48 +1,48 @@
 <script>
+import * as types from '@/store/types';
 import BatchPublish from './BatchPublish';
 import api from 'api';
-
-const REMOVE_BUS_PUBLISH = 'REMOVE_BUS_PUBLISH';
 
 export default {
   name: 'Publish',
   components: {
     BatchPublish,
   },
+  props: {
+    value: {
+      type: Boolean,
+      default: false,
+    },
+    nodes: {
+      type: Array,
+      required: true,
+    },
+  },
   data() {
     return {
-      showModel: false,
       crsLoading: false,
       publishLoading: false,
       showMore: false, // 控制显示详细信息
       crsOptions: [],
       styleOptions: [],
-      formValidate: {
-        title: '',
-        crs: '',
-        style: '',
-        name: '',
-        serviceType: ['WMS', 'WFS'],
-        description: '',
-      },
+      tableData: [], // 多个服务发布对象
       ruleValidate: {
         title: [
           { required: true, message: '服务标题不能为空', trigger: 'blur' },
           // { type: /^[0-9]*$/, message: '不能以数字开头', trigger: 'change' },
-          {
-            type: /^[\u4e00-\u9fa5a-zA-Z0-9_]+$/,
-            message: '只能输入中文、字母、数字、下划线',
-            trigger: 'change',
-          },
+          // {
+          //   type: /^[\u4e00-\u9fa5a-zA-Z0-9_]+$/,
+          //   message: '只能输入中文、字母、数字、下划线',
+          //   trigger: 'change',
+          // },
         ],
         crs: [{ required: true, message: '空间参考值不能为空', trigger: 'blur' }],
-        style: [{ required: true, message: '渲染样式不能为空', trigger: 'blur' }],
-        name: [{ required: true, type: 'date', message: '服务名称不能为空', trigger: 'blur' }],
+        styles: [{ required: true, message: '渲染样式不能为空', trigger: 'blur' }],
+        name: [{ required: true, message: '服务名称不能为空', trigger: 'blur' }],
         serviceType: [
           { required: true, type: 'string', message: '服务类型不能为空', trigger: 'blur' },
         ],
       },
-      tableData: [],
     };
   },
   computed: {
@@ -64,39 +64,25 @@ export default {
           return 0;
       }
     },
-    publishResource() {
-      return this.$store.state.bus.publish;
-    },
   },
   watch: {
-    async publishResource(val) {
-      this.showModel = true;
-      if (val.length === 1) {
-        // todo 公共正则表达式
-        let serviceName = val[0].name;
-        if (/[\u4e00-\u9fa5]/.test(serviceName)) {
-          serviceName = await this.hz2py(val[0].name);
+    nodes(val) {
+      this.tableData = val.map(item => {
+        let serviceName = item.name;
+        if (!/^[a-zA-Z]/.test(item.name)) {
+          serviceName = `s${serviceName}`;
         }
-        this.formValidate.name = serviceName;
-        this.formValidate.title = val[0].name;
-      } else {
-        const template = {
-          title: '',
+        // if (/[\u4e00-\u9fa5]/.test(serviceName)) {
+        //   serviceName = await this.hz2py(val[0].name);
+        // }
+        return {
+          title: item.name,
           crs: '',
-          style: '',
-          name: '',
-          serviceType: ['WMS', 'WFS'],
+          styles: '',
+          name: serviceName,
+          serviceType: ['12', '6'],
         };
-        val.forEach(async item => {
-          let serviceName = item.name;
-          if (/[\u4e00-\u9fa5]/.test(serviceName)) {
-            serviceName = await this.hz2py(val[0].name);
-          }
-          template.name = serviceName;
-          template.title = item.name;
-          this.tableData.push(template);
-        });
-      }
+      });
     },
   },
   async created() {
@@ -111,39 +97,35 @@ export default {
   },
   methods: {
     // 点击发布按钮，发布服务，并将axios对象添加到任务队列
-    async publish() {
-      if (this.publishResource.length === 1) {
-        const params = Object.assign(
-          {
-            catalogId: this.publishResource[0].catalogId,
-            resourceId: this.publishResource[0].resourceId,
-            userId: this.$user.id,
-            userName: this.$user.name,
-            limits: 1,
-          },
-          this.formValidate
-        );
+    publish() {
+      this.nodes.forEach(async (item, index) => {
+        const { serviceType, ...rest } = this.tableData[index];
+        const params = {
+          catalogId: item.catalogId,
+          resourceId: item.resourceId,
+          userId: this.$user.id,
+          userName: this.$user.name,
+          orgId: this.$user.orgid,
+          orgName: this.$user.orgname,
+          limits: 1,
+          serviceType: serviceType.join(','),
+          ...rest,
+        };
+        if (!params.crs) delete params.crs;
         const response = await api.db.publishService(params);
-      } else {
-        this.publishResource.forEach(async (item, index) => {
-          const params = Object.assign(
-            {
-              catalogId: item.catalogId,
-              resourceId: item.resourceId,
-              userId: this.$user.id,
-              userName: this.$user.name,
-              limits: 1,
-            },
-            this.tableData[index]
-          );
-          const response = await api.db.publishService(params);
-        });
-      }
-      this.cancel();
+      });
+      // 刷新当前页面
+      const currentNode = this.$store.state.app.currentDirectory;
+      this.$store.dispatch(types.APP_NODES_FETCH, currentNode);
+      // 关闭modal窗口
+      this.visibleChange(false);
     },
-    // 取消服务发布，清除bus store中publish存储的资源信息对象
-    cancel() {
-      this.$store.commit(REMOVE_BUS_PUBLISH);
+    visibleChange(visible) {
+      if (!visible) {
+        this.tableData = [];
+        this.$refs['form'] && this.$refs['form'].resetFields();
+      }
+      this.$emit('input', visible);
     },
     // 资源名称转拼音，作为默认服务标题和服务名称
     async hz2py(str) {
@@ -158,7 +140,7 @@ export default {
           authSrId: query, // 坐标系统id
         },
         pageIndex: 1, // 分页索引
-        pageSize: 50, // 分页大小
+        pageSize: 10, // 分页大小
       });
       this.$nextTick(() => {
         this.crsOptions = response.data.dataSource;
@@ -171,10 +153,10 @@ export default {
 
 <template>
   <Modal
-    v-model="showModel"
+    :value="value"
     :mask-closable="false"
     title="服务发布"
-    @on-cancel="cancel"
+    @on-visible-change="visibleChange"
   >
     <div slot="footer">
       <Button
@@ -185,21 +167,21 @@ export default {
         @click="publish">发布</Button>
     </div>
     <Form
-      v-if="publishResource.length === 1"
-      ref="formValidate"
-      :model="formValidate"
+      v-if="nodes.length === 1"
+      ref="form"
+      :model="tableData[0]"
       :rules="ruleValidate"
       :label-width="80">
       <FormItem
         label="服务标题"
         prop="title">
-        <Input v-model="formValidate.title"></Input>
+        <Input v-model="tableData[0].title"></Input>
       </FormItem>
       <FormItem
         label="空间参考"
         prop="crs">
         <Select
-          v-model="formValidate.crs"
+          v-model="tableData[0].crs"
           :remote-method="remoteMethod"
           :loading="crsLoading"
           filterable
@@ -217,9 +199,9 @@ export default {
       </FormItem>
       <FormItem
         label="渲染样式"
-        prop="style">
+        prop="styles">
         <Select
-          v-model="formValidate.style"
+          v-model="tableData[0].styles"
           filterable>
           <Option
             v-for="option in styleOptions"
@@ -243,20 +225,25 @@ export default {
         v-show="showMore"
         label="服务名称"
         prop="name">
-        <Input v-model="formValidate.name"></Input>
+        <Input v-model="tableData[0].name"></Input>
       </FormItem>
       <FormItem
         v-show="showMore"
         label="服务类型"
         prop="serviceType">
-        <CheckboxGroup v-model="formValidate.serviceType">
+        <CheckboxGroup v-model="tableData[0].serviceType">
           <Checkbox
-            label="WMS"
-            disabled></Checkbox>
+            label="12"
+            disabled>WMS</Checkbox>
           <Checkbox
-            label="WFS"
-            disabled></Checkbox>
-            <!-- <Checkbox label="WFS-G" disabled></Checkbox> -->
+            label="6"
+            disabled>WFS</Checkbox>
+          <Checkbox
+            label="20"
+            disabled>WFS-G</Checkbox>
+          <Checkbox
+            label="5"
+            disabled>WMTS</Checkbox>
         </CheckboxGroup>
       </FormItem>
       <FormItem
@@ -264,7 +251,7 @@ export default {
         label="服务描述"
         prop="description">
         <Input
-          v-model="formValidate.description"
+          v-model="tableData[0].description"
           :autosize="{minRows: 2,maxRows: 5}"
           type="textarea"
           placeholder="请输入服务描述信息..."></Input>
@@ -272,12 +259,10 @@ export default {
     </Form>
     <!-- 控制是否显示服务发布详细信息 -->
     <div
-      v-if="publishResource.length === 1"
+      v-if="nodes.length === 1"
       class="show-more"
       @click="showMore = !showMore">
-      <Icon
-        type="minus-round"
-        size="16"></Icon>
+      <Icon :type="showMore ? 'chevron-up' : 'chevron-down'"></Icon>
     </div>
     <BatchPublish
       v-else
@@ -300,7 +285,6 @@ export default {
     &:hover {
       cursor: pointer;
       transform: scale(1.5);
-      color: #318cf0;
     }
   }
 }

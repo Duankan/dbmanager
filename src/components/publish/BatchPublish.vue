@@ -11,11 +11,6 @@ export default {
     return {
       columns: [
         {
-          type: 'selection',
-          width: 60,
-          align: 'center',
-        },
-        {
           title: '服务标题',
           key: 'title',
         },

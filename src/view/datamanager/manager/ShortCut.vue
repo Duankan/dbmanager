@@ -1,6 +1,7 @@
 <script>
 import config from 'config';
 import api from 'api';
+import * as types from '@/store/types';
 import { isDirectory, isGisResource, isFile, canView } from '@/utils';
 
 export default {
@@ -53,10 +54,19 @@ export default {
       link.click();
       link.remove();
     },
-    deleteNode() {},
     quickPublish() {},
-    quickView() {},
-    information() {},
+    rename() {
+      this.$store.commit(types.UPDATE_APP_NODES, Object.assign(this.node, { _rename: true }));
+    },
+    quickView() {
+      this.$events.emit('on-quick-view', this.node);
+    },
+    information() {
+      this.$events.emit('on-information', this.node);
+    },
+    deleteNode() {
+      this.$events.emit('on-delete', this.node);
+    },
   },
 };
 </script>
@@ -101,13 +111,13 @@ export default {
       @click.native.stop="information"></Icon>
     <Dropdown
       v-if="isGisResource"
-      @on-click="clickMore">
+      @on-click="clickMore"
+      @click.native.stop>
       <Icon
         type="more"
         size="20"
         color="#358CF0" />
       <DropdownMenu slot="list">
-        <DropdownItem name="move">移动到</DropdownItem>
         <DropdownItem name="rename">重命名</DropdownItem>
         <DropdownItem name="deleteNode">删除</DropdownItem>
       </dropdownMenu>
