@@ -22,7 +22,7 @@ export default {
   },
   methods: {
     upload(name) {
-      this.$events.emit('on-upload', name);
+      this.$events.emit('on-upload', { dictionary: name === 'dictionary' });
     },
     sort(key) {
       this.$store.commit(types.SORT_APP_NODES, { key });

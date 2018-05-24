@@ -18,7 +18,9 @@ export default {
   data() {
     return {
       publishModal: false,
-      publishNodes: [],
+      publishNode: {},
+      batchPublishModal: false,
+      batchPublishNodes: [],
       quickViewModal: false,
       quickViewNode: {},
       moveToModal: false,
@@ -136,8 +138,19 @@ export default {
       this.quickViewNode = this.selectNodes[0];
     },
     publish() {
-      this.publishModal = true;
-      this.publishNodes = this.selectNodes;
+      if (this.single) {
+        this.publishModal = true;
+        this.publishNode = this.selectNodes[0];
+      } else {
+        this.batchPublishModal = true;
+        this.batchPublishNodes = this.selectNodes;
+      }
+    },
+    metaData() {
+      this.$events.emit('on-upload', { title: '元数据补录', type: 'metaData' });
+    },
+    appendData() {
+      this.$events.emit('on-upload', { title: '数据追加', node: this.selectNodes[0] });
     },
     moveTo() {
       this.moveToModal = true;
@@ -188,11 +201,13 @@ export default {
       <Button
         v-if="showMetaData"
         :disabled="!single"
-        type="ghost">元数据补录</Button>
+        type="ghost"
+        @click="metaData">元数据补录</Button>
       <Button
         v-if="showAppendData"
         :disabled="!single"
-        type="ghost">数据追加</Button>
+        type="ghost"
+        @click="appendData">数据追加</Button>
       <Button
         v-if="showRename"
         :disabled="!single"
@@ -221,7 +236,10 @@ export default {
     </ButtonGroup>
     <Publish
       v-model="publishModal"
-      :nodes="publishNodes"></Publish>
+      :node="publishNode"></Publish>
+    <BatchPublish
+      v-model="batchPublishModal"
+      :nodes="batchPublishNodes"></BatchPublish>
     <QuickView
       v-model="quickViewModal"
       :node="quickViewNode"></QuickView>

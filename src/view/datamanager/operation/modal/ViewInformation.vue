@@ -1,4 +1,5 @@
 <script>
+import { date } from '@ktw/ktools';
 import { isVector } from '@/utils';
 
 export default {
@@ -41,6 +42,40 @@ export default {
     isVector() {
       return isVector(this.node);
     },
+    nodeInformation() {
+      const {
+        name,
+        _alias,
+        _size,
+        shapeType,
+        typeName,
+        _pubState,
+        tag,
+        hasMetadata,
+        catalogName,
+        _userName,
+        orgName,
+        createTime,
+        updateTime,
+        description,
+      } = this.node;
+      return [
+        { field: '名称', value: name },
+        { field: '别名', value: _alias },
+        { field: '大小', value: _size },
+        { field: '类型', value: shapeType },
+        { field: '类型名称', value: typeName },
+        { field: '发布状态', value: _pubState ? '已发布' : '未发布' },
+        // { field: '标签', value: tag },
+        { field: '元数据', value: hasMetadata },
+        { field: '所属目录', value: catalogName },
+        { field: '所属用户', value: _userName },
+        { field: '所属组织', value: orgName },
+        { field: '创建时间', value: date.format(new Date(createTime), 'YYYY-M-D HH:mm') },
+        { field: '更新时间', value: date.format(new Date(updateTime), 'YYYY-M-D HH:mm') },
+        // { field: '描述', value: description ? description : '暂无描述' },
+      ];
+    },
   },
   methods: {
     visibleChange(visible) {
@@ -76,27 +111,34 @@ export default {
       <TabPane
         label="基本信息"
         name="base">
-
+        <table class="information-table">
+          <tr
+            v-for="item in nodeInformation"
+            :key="item.field">
+            <th>{{ item.field }}</th>
+            <td>{{ item.value }}</td>
+          </tr>
+        </table>
       </TabPane>
       <TabPane
         v-if="isVector"
         label="空间信息"
         name="spatial">
-        <table class="spatial-information">
+        <table class="information-table">
           <tr>
-            <th>编号:</th>
+            <th>编号 :</th>
             <td @click="copy">{{ `${spatial.authName}:${spatial.authSrId}` }}</td>
           </tr>
           <tr>
-            <th>名称:</th>
+            <th>名称 :</th>
             <td @click="copy">{{ spatial.srName }}</td>
           </tr>
           <tr>
-            <th>范围:</th>
+            <th>范围 :</th>
             <td @click="copy">{{ node.bbox }}</td>
           </tr>
           <tr>
-            <th>WKT:</th>
+            <th>WKT :</th>
             <td @click="copy">{{ spatial.srText }}</td>
           </tr>
         </table>
@@ -118,8 +160,16 @@ export default {
 </template>
 
 <style lang="less" scoped>
-.spatial-information {
+.information-table {
   table-layout: fixed;
+  width: 100%;
+  th,
+  td {
+    height: 40px;
+    line-height: 2.5;
+    vertical-align: top;
+    word-break: break-all;
+  }
   th {
     width: 60px;
   }

@@ -76,7 +76,7 @@ const app = {
       // 删除非空的目录
       const directoryNode = state.selectNodes.filter(node => isDirectory(node));
       if (directoryNode.length) {
-        await api.fetch.all(directoryNode.map(node => api.db.deleteCatalog({ id: node.id })));
+        await Promise.all(directoryNode.map(node => api.db.deleteCatalog({ id: node.id })));
       }
       // 删除gis资源和业务文件
       const resourceNode = state.selectNodes.filter(node => isGisResource(node) || isFile(node));
@@ -86,7 +86,7 @@ const app = {
       // 删除样式文件
       const styleNode = state.selectNodes.filter(node => isSld(node));
       if (styleNode.length) {
-        await api.fetch.all(styleNode.map(node => api.db.deleteStyle({ id: node.id })));
+        await Promise.all(styleNode.map(node => api.db.deleteStyle({ id: node.id })));
       }
       commit(types.APP_NODES_FETCH, state.currentDirectory);
     },

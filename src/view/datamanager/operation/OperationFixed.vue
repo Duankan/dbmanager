@@ -11,19 +11,25 @@ export default {
   data() {
     return {
       dictionary: false,
+      type: 'normal',
+      title: '文件上传',
       uploaderModal: false,
       directoryModal: false,
     };
   },
   events: {
-    'on-upload': function(name) {
-      this.upload(name);
+    'on-upload': function(params) {
+      if (params) {
+        for (const key in params) {
+          this[key] = params[key];
+        }
+      }
+      this.uploaderModal = true;
     },
   },
   methods: {
     upload(name) {
-      this.dictionary = name === 'dictionary';
-      this.uploaderModal = true;
+      this.$events.emit('on-upload', { dictionary: name === 'dictionary' });
     },
   },
 };
@@ -72,7 +78,9 @@ export default {
     </Button>
     <Uploader
       v-model="uploaderModal"
-      :dictionary="dictionary"/>
+      :title="title"
+      :dictionary="dictionary"
+      :type="type"/>
     <CreateDirectory v-model="directoryModal"/>
   </div>
 </template>

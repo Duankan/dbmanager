@@ -41,7 +41,7 @@ const router = new Router({
   9.导航被确认。
   10.调用全局的 afterEach 守卫。
   11.触发 DOM 更新。
-  12。用创建好的实例调用 beforeRouteEnter 守卫中传给 next 的回调函数。
+  12.用创建好的实例调用 beforeRouteEnter 守卫中传给 next 的回调函数。
 
 路由守卫hook函数中传入的 to, from 为 route对象，拥有以下属性：
   name: 当前路由的名称，如果有的话

@@ -1,5 +1,6 @@
 <script>
 import * as types from '@/store/types';
+import { filesize, date } from '@ktw/ktools';
 import { isDirectory } from '@/utils';
 
 export default {
@@ -95,9 +96,19 @@ export default {
         },
       ];
     },
+    handleData(nodes) {
+      return nodes.map(item => {
+        item._alias = item.alias ? item.alias : item.name;
+        item._userName = item.userName ? item.userName : item.createusername || '-';
+        item._size = item.size != undefined ? filesize(item.size) : '-';
+        item._pubState = item.resourceTypeId == '2' ? item.pubState : '-';
+        item._updateTime = date.format(new Date(item.updateTime), 'YYYY-M-D HH:mm');
+        return item;
+      });
+    },
     checkAll(checked) {
       if (checked) {
-        this.$store.commit(types.SET_APP_SELECT_NODES, this.nodes);
+        this.$store.commit(types.SET_APP_SELECT_NODES, this.handleData(this.nodes));
       } else {
         this.$store.commit(types.REMOVE_APP_SELECT_NODES);
       }
@@ -107,7 +118,7 @@ export default {
       if (index > -1) {
         this.$store.commit(types.REMOVE_APP_SELECT_NODES, node);
       } else {
-        this.$store.commit(types.SET_APP_SELECT_NODES, node);
+        this.$store.commit(types.SET_APP_SELECT_NODES, this.handleData([node]));
       }
     },
     clickNode(node, index) {
@@ -119,7 +130,7 @@ export default {
       }
     },
     upload() {
-      this.$events.emit('on-upload', 'file');
+      this.$events.emit('on-upload');
     },
   },
 };

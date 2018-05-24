@@ -73,7 +73,7 @@ export default {
       ref="form"
       :model="form"
       :rules="rules"
-      :label-width="60">
+      :label-width="70">
       <FormItem
         label="名称"
         prop="name">

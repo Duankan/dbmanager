@@ -29,7 +29,7 @@ export default {
       this.$emit('input', visible);
     },
     async moveNode() {
-      await api.fetch.all(
+      await Promise.all(
         this.nodes.map(node =>
           api.db.moveCatalog({
             catalogId: node.childId, //  迁移目录ID，即选中节点的childId

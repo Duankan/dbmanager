@@ -1,20 +1,16 @@
 <script>
 import * as types from '@/store/types';
-import BatchPublish from './BatchPublish';
 import api from 'api';
 
 export default {
   name: 'Publish',
-  components: {
-    BatchPublish,
-  },
   props: {
     value: {
       type: Boolean,
       default: false,
     },
-    nodes: {
-      type: Array,
+    node: {
+      type: Object,
       required: true,
     },
   },
@@ -25,7 +21,13 @@ export default {
       showMore: false, // 控制显示详细信息
       crsOptions: [],
       styleOptions: [],
-      tableData: [], // 多个服务发布对象
+      publishForm: {
+        title: '',
+        crs: '',
+        styles: '',
+        name: '',
+        serviceType: ['12', '6'],
+      },
       ruleValidate: {
         title: [
           { required: true, message: '服务标题不能为空', trigger: 'blur' },
@@ -36,19 +38,49 @@ export default {
           //   trigger: 'change',
           // },
         ],
-        crs: [{ required: true, message: '空间参考值不能为空', trigger: 'blur' }],
-        styles: [{ required: true, message: '渲染样式不能为空', trigger: 'blur' }],
         name: [{ required: true, message: '服务名称不能为空', trigger: 'blur' }],
-        serviceType: [
-          { required: true, type: 'string', message: '服务类型不能为空', trigger: 'blur' },
-        ],
       },
     };
   },
   computed: {
-    styleType() {
-      const shapeType = 'POLYGON';
-      switch (shapeType.toUpperCase()) {
+    current() {
+      return this.$store.state.app.currentDirectory;
+    },
+  },
+  watch: {
+    async node(val) {
+      if (val) {
+        const name = await this.handleServiceName(val.name);
+        this.publishForm = Object.assign(this.publishForm, {
+          title: val.name,
+          name,
+        });
+        this.getStyle(val);
+      }
+    },
+  },
+  created() {
+    // 获取空间参考
+    this.remoteMethod('');
+  },
+  methods: {
+    visibleChange(visible) {
+      if (!visible) {
+        this.$refs['form'] && this.$refs['form'].resetFields();
+      }
+      this.$emit('input', visible);
+    },
+    // 获取样式信息
+    async getStyle(node) {
+      const response = await api.db.findSyleByType({
+        orgId: this.$user.orgid,
+        type: this._getStyleType(node),
+      });
+      this.styleOptions = response.data;
+    },
+    // 获取资源节点样式类别
+    _getStyleType(node) {
+      switch (node.shapeType.toUpperCase()) {
         case 'DEM':
           return 4;
         case 'POLYGON':
@@ -64,73 +96,42 @@ export default {
           return 0;
       }
     },
-  },
-  watch: {
-    nodes(val) {
-      this.tableData = val.map(item => {
-        let serviceName = item.name;
-        if (!/^[a-zA-Z]/.test(item.name)) {
-          serviceName = `s${serviceName}`;
-        }
-        // if (/[\u4e00-\u9fa5]/.test(serviceName)) {
-        //   serviceName = await this.hz2py(val[0].name);
-        // }
-        return {
-          title: item.name,
-          crs: '',
-          styles: '',
-          name: serviceName,
-          serviceType: ['12', '6'],
-        };
-      });
-    },
-  },
-  async created() {
-    // 获取空间参考
-    this.remoteMethod('');
-    // 获取样式信息
-    const response = await api.db.findSyleByType({
-      orgId: this.$user.orgid,
-      type: this.styleType,
-    });
-    this.styleOptions = response.data;
-  },
-  methods: {
     // 点击发布按钮，发布服务，并将axios对象添加到任务队列
-    publish() {
-      this.nodes.forEach(async (item, index) => {
-        const { serviceType, ...rest } = this.tableData[index];
-        const params = {
-          catalogId: item.catalogId,
-          resourceId: item.resourceId,
-          userId: this.$user.id,
-          userName: this.$user.name,
-          orgId: this.$user.orgid,
-          orgName: this.$user.orgname,
-          limits: 1,
-          serviceType: serviceType.join(','),
-          ...rest,
-        };
-        if (!params.crs) delete params.crs;
-        const response = await api.db.publishService(params);
-      });
+    async publish() {
+      this.publishLoading = true;
+
+      const { serviceType, ...rest } = this.publishForm;
+      const params = {
+        catalogId: item.catalogId,
+        resourceId: item.resourceId,
+        userId: this.$user.id,
+        userName: this.$user.name,
+        orgId: this.$user.orgid,
+        orgName: this.$user.orgname,
+        limits: 1,
+        serviceType: serviceType.join(','),
+        ...rest,
+      };
+      if (!params.crs) delete params.crs;
+      await api.db.publishService(params);
+
+      this.publishLoading = false;
       // 刷新当前页面
       const currentNode = this.$store.state.app.currentDirectory;
       this.$store.dispatch(types.APP_NODES_FETCH, currentNode);
       // 关闭modal窗口
       this.visibleChange(false);
     },
-    visibleChange(visible) {
-      if (!visible) {
-        this.tableData = [];
-        this.$refs['form'] && this.$refs['form'].resetFields();
+    // 处理服务名称
+    async handleServiceName(name) {
+      if (/[\u4e00-\u9fa5]/.test(name)) {
+        const response = await api.db.findChar(name);
+        name = response.data;
       }
-      this.$emit('input', visible);
-    },
-    // 资源名称转拼音，作为默认服务标题和服务名称
-    async hz2py(str) {
-      const response = await api.db.findChar(str);
-      return response.data;
+      if (!/^[a-zA-Z]/.test(name)) {
+        name = `s${name}`;
+      }
+      return name;
     },
     // crs远程查询
     async remoteMethod(query) {
@@ -146,6 +147,38 @@ export default {
         this.crsOptions = response.data.dataSource;
         this.crsLoading = false;
       });
+    },
+    // 样式文件临时上传
+    async styleUpload(e) {
+      const file = e.target.files[0];
+      const alias = file.name.match(/(.*)\.sld$/)[1];
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append(
+        'data',
+        JSON.stringify({
+          name: file.name,
+          alias,
+          description: '',
+          classify: '',
+          typeId: '20102',
+          TypeName: 'sld',
+          catalogId: this.current.childId,
+          userId: this.$user.id,
+          userName: this.$user.name,
+          orgId: this.$user.orgid,
+          orgName: this.$user.orgname,
+        })
+      );
+      const response = await api.db.addStyle({}, formData);
+      this.$Message.success('样式上传成功！');
+      await this.getStyle(this.node);
+      const style = this.styleOptions.find(item => item.id === response.data);
+      if (style) {
+        this.publishForm.styles = style.name;
+      } else {
+        this.$Message.warning('样式类别与资源类别不一致');
+      }
     },
   },
 };
@@ -167,21 +200,20 @@ export default {
         @click="publish">发布</Button>
     </div>
     <Form
-      v-if="nodes.length === 1"
       ref="form"
-      :model="tableData[0]"
+      :model="publishForm"
       :rules="ruleValidate"
       :label-width="80">
       <FormItem
         label="服务标题"
         prop="title">
-        <Input v-model="tableData[0].title"></Input>
+        <Input v-model="publishForm.title"></Input>
       </FormItem>
       <FormItem
         label="空间参考"
         prop="crs">
         <Select
-          v-model="tableData[0].crs"
+          v-model="publishForm.crs"
           :remote-method="remoteMethod"
           :loading="crsLoading"
           filterable
@@ -201,7 +233,7 @@ export default {
         label="渲染样式"
         prop="styles">
         <Select
-          v-model="tableData[0].styles"
+          v-model="publishForm.styles"
           filterable>
           <Option
             v-for="option in styleOptions"
@@ -212,26 +244,31 @@ export default {
             <span class="style-info">{{ new Date(option.updateTime).toLocaleDateString() }}</span>
           </Option>
         </Select>
-        <!-- <Upload
-          multiple
-          action="//jsonplaceholder.typicode.com/posts/">
+        <label for="style">
           <SvgIcon
             icon-class="upload"
             size="18"
-            color="#318CF0"></SvgIcon>
-        </Upload> -->
+            color="#318CF0">
+          </SvgIcon>
+        </label>
+        <input
+          id="style"
+          hidden
+          type="file"
+          name="file"
+          @input="styleUpload">
       </FormItem>
       <FormItem
         v-show="showMore"
         label="服务名称"
         prop="name">
-        <Input v-model="tableData[0].name"></Input>
+        <Input v-model="publishForm.name"></Input>
       </FormItem>
       <FormItem
         v-show="showMore"
         label="服务类型"
         prop="serviceType">
-        <CheckboxGroup v-model="tableData[0].serviceType">
+        <CheckboxGroup v-model="publishForm.serviceType">
           <Checkbox
             label="12"
             disabled>WMS</Checkbox>
@@ -251,7 +288,7 @@ export default {
         label="服务描述"
         prop="description">
         <Input
-          v-model="tableData[0].description"
+          v-model="publishForm.description"
           :autosize="{minRows: 2,maxRows: 5}"
           type="textarea"
           placeholder="请输入服务描述信息..."></Input>
@@ -259,18 +296,23 @@ export default {
     </Form>
     <!-- 控制是否显示服务发布详细信息 -->
     <div
-      v-if="nodes.length === 1"
       class="show-more"
       @click="showMore = !showMore">
       <Icon :type="showMore ? 'chevron-up' : 'chevron-down'"></Icon>
     </div>
-    <BatchPublish
-      v-else
-      :value="tableData"></BatchPublish>
   </Modal>
 </template>
 
 <style lang="less" scoped>
+.k-form-item {
+  /deep/ &-content {
+    display: flex;
+    .k-svgicon {
+      padding: 2px 10px 0 10px;
+      cursor: pointer;
+    }
+  }
+}
 .crs-info,
 .style-info {
   float: right;
