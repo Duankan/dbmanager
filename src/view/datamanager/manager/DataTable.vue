@@ -131,9 +131,11 @@ export default {
             },
           ],
           filterMethod(value, row) {
-            if (row.size === '-') return false;
+            if (row._size === '-') return false;
             const sizeArr = value.split(',').map(item => Number(item));
-            return sizeArr[0] <= filesize.parse(row.size) && filesize.parse(row.size) <= sizeArr[1];
+            return (
+              sizeArr[0] <= filesize.parse(row._size) && filesize.parse(row._size) <= sizeArr[1]
+            );
           },
           sortable: true,
           sortMethod(a, b, type) {},
@@ -168,8 +170,6 @@ export default {
           title: '拥有者',
           key: '_userName',
           align: 'center',
-          sortable: true,
-          sortMethod(a, b, type) {},
         },
         {
           title: '修改日期',
@@ -195,7 +195,7 @@ export default {
           ],
           filterMultiple: false,
           filterMethod(value, row) {
-            const updateTimeStamp = date.parse(row.updateTime, 'YYYY-M-D HH:mm').getTime();
+            const updateTimeStamp = date.parse(row._updateTime, 'YYYY-M-D HH:mm').getTime();
             return updateTimeStamp >= utils.getTimeStamp(value);
           },
           sortable: true,
