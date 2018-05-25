@@ -37,6 +37,7 @@ export default {
         <Tag type="border">wms</Tag>
       </div>
       <Poptip
+        popper-class="filter-poptip"
         placement="right"
         transfer>
         <span class="advance-filter">高级过滤</span>
@@ -54,9 +55,11 @@ export default {
           @on-change="(val) => showList = !val"></Switch>
       </Tooltip>
     </div>
-    <div class="service-list">
+    <div class="service-container">
       <keep-alive>
-        <component :is="componentId"></component>
+        <component
+          :is="componentId"
+          :condition="{title: filterText}"></component>
       </keep-alive>
     </div>
   </div>
@@ -92,9 +95,17 @@ export default {
       float: right;
     }
   }
-  .service-list {
-    height: calc(~'100% - 80px');
+  .service-container {
+    height: calc(~'100% - 100px');
     overflow: auto;
+  }
+}
+</style>
+
+<style lang="less">
+.filter-poptip {
+  .k-poptip-body {
+    padding: 0;
   }
 }
 </style>

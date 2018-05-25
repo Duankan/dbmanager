@@ -66,7 +66,8 @@ export default {
   methods: {
     visibleChange(visible) {
       if (!visible) {
-        this.$refs['form'] && this.$refs['form'].resetFields();
+        this.publishForm.crs = '';
+        this.publishForm.styles = '';
       }
       this.$emit('input', visible);
     },

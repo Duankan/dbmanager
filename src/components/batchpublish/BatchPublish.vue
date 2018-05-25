@@ -16,7 +16,6 @@ export default {
   data() {
     return {
       publishLoading: false,
-      crsLoading: false,
       crsOptions: [],
       styleOptions: [],
       tableData: [],
@@ -29,7 +28,7 @@ export default {
             return (
               <Input
                 value={params.row.title}
-                onOn-change={e => (params.row.title = e.target.value)}
+                onOn-change={e => (this.tableData[params.index].title = e.target.value)}
               />
             );
           },
@@ -42,7 +41,7 @@ export default {
             return (
               <Input
                 value={params.row.name}
-                onOn-change={e => (params.row.name = e.target.value)}
+                onOn-change={e => (this.tableData[params.index].name = e.target.value)}
               />
             );
           },
@@ -51,7 +50,7 @@ export default {
           title: '空间参考',
           key: 'crs',
           align: 'center',
-          width: 140,
+          width: 150,
           render: (h, params) => {
             return (
               <Select
@@ -60,19 +59,19 @@ export default {
                 loading={this.crsLoading}
                 filterable
                 remote
-                onOn-change={val => (params.row.crs = val)}
+                onOn-change={val => {
+                  this.remoteMethod('');
+                  console.log(params);
+                  this.tableData[params.index].crs = val;
+                }}
               >
-                {this.crsOptions.map(option => {
-                  return (
-                    <Option
-                      label={`${option.authName}:${option.authSrId}`}
-                      value={option.authSrId}
-                      key={option.id}
-                    >
-                      {`${option.authName}:${option.authSrId}`}
-                    </Option>
-                  );
-                })}
+                {this.crsOptions.map(option => (
+                  <Option
+                    label={`${option.authName}:${option.authSrId}`}
+                    value={option.authSrId}
+                    key={option.id}
+                  />
+                ))}
               </Select>
             );
           },
@@ -88,15 +87,13 @@ export default {
               <Select
                 value={params.row.styles}
                 filterable
-                onOn-change={val => (params.row.styles = val)}
+                onOn-change={val => (this.tableData[params.index].styles = val)}
               >
-                {styleOptions.map(style => {
-                  return (
-                    <Option label={style.alias} value={style.name} key={style.id}>
-                      {style.alias}
-                    </Option>
-                  );
-                })}
+                {styleOptions.map(style => (
+                  <Option label={style.alias} value={style.name} key={style.id}>
+                    {style.alias}
+                  </Option>
+                ))}
               </Select>
             );
           },
@@ -111,7 +108,7 @@ export default {
               <Select
                 value={params.row.serviceType}
                 multiple
-                onOn-change={val => (params.row.serviceType = val)}
+                onOn-change={val => (this.tableData[params.index].serviceType = val)}
               >
                 <Option value="12">WMS</Option>
                 <Option value="6">WFS</Option>
@@ -209,7 +206,7 @@ export default {
       this.publishLoading = true;
       await Promise.all(
         this.nodes.map(async (item, index) => {
-          const { serviceType, ...rest } = this.tableData[index];
+          const { serviceType, shapeType, ...rest } = this.tableData[index];
           const params = {
             catalogId: item.catalogId,
             resourceId: item.resourceId,
@@ -242,6 +239,7 @@ export default {
     :mask-closable="false"
     :width="800"
     title=""
+    scrollable
     @on-visible-change="visibleChange"
   >
     <div slot="footer">

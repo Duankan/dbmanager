@@ -178,9 +178,9 @@ export default {
         [layers]: this.currentNode.serviceList,
       });
       // 查询
-      const queryUrl = this.currentNode.serviceList.filter(service => service.servicestype === 6)[0]
-        .servicesurl;
-      this.$store.commit(SET_BUS_ATTRIBUTE, { title: this.nodeData.alias, url: queryUrl });
+      // const queryUrl = this.currentNode.serviceList.filter(service => service.servicestype === 6)[0]
+      //   .servicesurl;
+      // this.$store.commit(SET_BUS_ATTRIBUTE, { title: this.nodeData.alias, url: queryUrl });
     },
     // 浏览元数据
     async viewMeta() {

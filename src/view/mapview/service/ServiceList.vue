@@ -1,45 +1,74 @@
 <script>
 import api from 'api';
+import ServiceListItem from './ServiceListItem';
 
 export default {
   name: 'ServiceList',
+  components: {
+    ServiceListItem,
+  },
   props: {
-    filter: {
-      type: String,
-      default: 'time',
+    condition: {
+      type: Object,
+      default: () => {},
     },
   },
   data() {
     return {
+      showMore: true, // 控制是否显示底部提示文字
+      loadAll: false, // 是否已全部加载完成
       height: 0,
+      pageIndex: 1,
+      pageSize: 20,
       serviceList: [],
     };
   },
-  async beforeCreate() {
-    const response = await api.db.findSevicePageList({
-      objCondition: {
-        userId: this.$user.id,
+  watch: {
+    condition: {
+      async handler() {
+        this.pageIndex = 1;
+        this.loadAll = false;
+        this.showMore = false;
+        this.serviceList = await this.fetchData();
+        this.showMore = true;
+        if (this.serviceList.length < this.pageSize) {
+          this.loadAll = true;
+        }
       },
-      pageIndex: 1, // 当前页索引（必填）
-      pageSize: 20, // 每页显示条数（必填）
-      orderby: 'createTime_desc', // 排序（选填）
-    });
-    // 聚合查询
-    // console.log(response.data.dataSource);
-    this.serviceList = response.data.dataSource;
-    // this.serviceList = {
-    //   '今天': {
-    //     [图层名]: [wms, wfs]
-    //   }
-    // };
+      immediate: true,
+    },
   },
   mounted() {
     this.height = parseInt(this.$el.parentNode.offsetHeight);
   },
   methods: {
-    transferData() {},
-    handleBottomEdge(dir) {
-      return new Promise(resolve => {
+    async fetchData() {
+      const response = await api.db.findSevicePageList({
+        objCondition: Object.assign(
+          {
+            userId: this.$user.id,
+            serviceType: '12,5',
+          },
+          this.condition
+        ),
+        pageIndex: this.pageIndex, // 当前页索引（必填）
+        pageSize: this.pageSize, // 每页显示条数（必填）
+      });
+      return response.data.dataSource;
+    },
+    handleBottomEdge() {
+      return new Promise(async resolve => {
+        if (!this.loadAll) {
+          this.showMore = false;
+          this.pageIndex++;
+          const serviceList = await this.fetchData();
+          if (serviceList.length) {
+            this.serviceList = this.serviceList.concat(serviceList);
+          } else {
+            this.loadAll = true;
+          }
+          this.showMore = true;
+        }
         resolve();
       });
     },
@@ -50,30 +79,25 @@ export default {
 <template>
   <Scroll
     :on-reach-bottom="handleBottomEdge"
+    :distance-to-edge="[10,10]"
     :height="height">
-    <div>
-      <div>今天</div>
-      <div>
-        <Card
-          v-for="service in serviceList"
-          :key="service.id">
-          <h4>{{ service.title }}</h4>
-          <span>{{ service.userName }}</span>
-          <Icon type="information"></Icon>
-          <Timeago :since="service.updateTime"></Timeago>
-        </Card>
-      </div>
-    </div>
+    <ServiceListItem
+      v-for="service in serviceList"
+      :key="service.serviceId"
+      :node="service"></ServiceListItem>
+    <a
+      v-show="showMore"
+      class="more"
+      @click="handleBottomEdge">{{ loadAll ? '没有更多数据' : '点击加载更多...' }}</a>
   </Scroll>
 </template>
 
 <style lang="less" scoped>
-.k-card {
-  margin-bottom: 8px;
-  cursor: pointer;
-
-  /deep/ .k-card-body {
-    padding: 4px 12px;
-  }
+.more {
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+  height: 24px;
+  line-height: 24px;
 }
 </style>

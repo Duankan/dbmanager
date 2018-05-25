@@ -82,6 +82,9 @@ export default {
     onlyGisResource() {
       return this.selectNodes.every(node => isGisResource(node));
     },
+    forbidPublish() {
+      return this.selectNodes.some(node => !isGisResource(node) || node.pubState);
+    },
     forbidDelete() {
       const directoryNode = this.selectNodes.filter(node => isDirectory(node));
       return directoryNode.some(node => node.isChild === 'open');
@@ -172,7 +175,7 @@ export default {
   <div class="operation-dynamic">
     <Button
       v-if="showPublish"
-      :disabled="!onlyGisResource"
+      :disabled="forbidPublish"
       type="primary"
       @click="publish">
       <Icon
