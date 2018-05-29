@@ -1,6 +1,10 @@
 <script>
+import PlanExtract from '@/components/extra/PlanExtract';
 export default {
   name: 'DashBoardMenu',
+  components: {
+    PlanExtract,
+  },
   data() {
     return {
       showWindow: false,
@@ -17,7 +21,7 @@ export default {
     },
   },
   methods: {
-    selectMenuItem(name) {
+    async selectMenuItem(name) {
       this.showWindow = false;
       this.type = name;
       switch (name) {
@@ -32,6 +36,27 @@ export default {
         case 'composite':
           this.title = '复合查询';
           this.showWindow = true;
+          break;
+        case 'extra':
+          const response = await api.db.findResourcePlan({
+            pageIndex: 1,
+            pageSize: 10,
+            objCondition: { applyOrganization: this.$user.orgid },
+          });
+          this.$Modal.confirm({
+            render: h => {
+              return h(
+                PlanExtract,
+                {
+                  props: {
+                    value: response.data,
+                  },
+                },
+                [this.$scopedSlots.default]
+              );
+            },
+            width: 1160,
+          });
           break;
         default:
           break;
