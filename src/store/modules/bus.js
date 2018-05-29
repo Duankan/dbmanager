@@ -4,6 +4,8 @@ const bus = {
   state: {
     // 存储系统查询属性信息对象
     attribute: [],
+    //存储字段信息
+    field: [],
   },
   mutations: {
     // 添加属性表查询对象信息
@@ -21,6 +23,14 @@ const bus = {
     // 移除所有的查询对象信息
     [types.REMOVE_BUS_ATTRIBUTE](state) {
       state.attribute = [];
+    },
+    // 增加字段信息
+    [types.SET_BUS_FIELD](state, field) {
+      state.field = field;
+    },
+    // 移除所有的字段信息
+    [types.REMOVE_BUS_FIELD](state) {
+      state.field = [];
     },
   },
 };
