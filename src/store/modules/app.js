@@ -72,7 +72,7 @@ const app = {
       commit(types.REMOVE_APP_SELECT_NODES);
     },
     // 删除选择的节点数据
-    async [types.APP_SELECT_NODES_DELETE]({ commit, state }) {
+    async [types.APP_SELECT_NODES_DELETE]({ dispatch, state }) {
       // 删除非空的目录
       const directoryNode = state.selectNodes.filter(node => isDirectory(node));
       if (directoryNode.length) {
@@ -88,7 +88,8 @@ const app = {
       if (styleNode.length) {
         await Promise.all(styleNode.map(node => api.db.deleteStyle({ id: node.id })));
       }
-      commit(types.APP_NODES_FETCH, state.currentDirectory);
+      // 重新获取当前目录下节点
+      dispatch(types.APP_NODES_FETCH, state.currentDirectory);
     },
   },
 };

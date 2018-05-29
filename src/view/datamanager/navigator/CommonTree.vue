@@ -42,7 +42,10 @@ export default {
             class="common-tree-node-remove"
             icon-class="delete"
             size="16"
-            nativeOnClick={() => this.removeFavor(data)}
+            nativeOnClick={e => {
+              e.stopPropagation();
+              this.removeFavor(data);
+            }}
           />
         </div>
       );
@@ -56,6 +59,7 @@ export default {
     :data="common"
     :render="renderContent"
     v-bind="$attrs"
+    empty-text="暂无收藏目录"
     v-on="$listeners"></Tree>
 </template>
 

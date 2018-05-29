@@ -178,7 +178,8 @@ export default {
         if (this.nodeType(node) === 'directory' || (node.children && node.children.length)) {
           const serviceObject = node.children.reduce((previous, current) => {
             if (current.isView) {
-              const search = url.parse(current.serviceList[0].servicesurl).search;
+              const service = current.serviceList.find(service => service.servicestype === 12);
+              const { search } = url.parse(service.servicesurl);
               const layers = search.layers ? search.layers : search.typeName;
               previous[layers] = current.serviceList;
             }
@@ -186,10 +187,11 @@ export default {
           }, {});
           this.$store.commit(SET_MAP_SERVICELIST, serviceObject);
         } else {
-          const search = url.parse(node.serviceList[0].servicesurl).search;
-          const layers = search.layers ? search.layers : search.typeName;
+          const service = node.serviceList.find(service => service.servicestype === 12);
+          const { search } = url.parse(service.servicesurl);
+          this.layerName = search.layers ? search.layers : search.typeName;
           this.$store.commit(SET_MAP_SERVICELIST, {
-            [layers]: node.serviceList,
+            [this.layerName]: node.serviceList,
           });
         }
       }

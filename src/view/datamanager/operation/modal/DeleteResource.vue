@@ -51,6 +51,8 @@ export default {
     },
     async deleteNode() {
       await this.$store.dispatch(types.APP_SELECT_NODES_DELETE);
+      // 更新目录收藏
+      this.$events.emit('on-common-tree-update');
       // 提示删除成功 隐藏modal
       this.$Message.success('资源删除成功！');
       this.visibleChange(false);

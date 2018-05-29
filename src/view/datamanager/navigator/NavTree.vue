@@ -1,6 +1,9 @@
 <script>
 export default {
   name: 'NavTree',
+  events: {
+    'on-nav-tree-update': function() {},
+  },
   methods: {
     select(node) {
       this.$emit('on-current-select', node);

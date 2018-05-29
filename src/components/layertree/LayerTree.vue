@@ -40,6 +40,21 @@ export default {
       return layerData;
     },
   },
+  watch: {
+    ogcLayers() {
+      this.showPanel = true;
+    },
+  },
+  async created() {
+    const response = await api.public.findCatalog({
+      owner: 1,
+      ownerId: this.$user.orgid,
+      access: 1,
+      hasChild: false,
+      orderby: 'sort_asc',
+    });
+    this.catalogId = response.data[0].childId;
+  },
   methods: {
     renderTreeNode(h, { root, node, data }) {
       if (data.children) {
@@ -58,7 +73,7 @@ export default {
       } else {
         return (
           <div class={'k-tree-group'}>
-            <span class={'k-tree-title-name'}>{data.title}</span>
+            <ellipsis length={18}>{data.title}</ellipsis>
             <span class={'k-tree-more'}>
               <svg-icon
                 size={16}
@@ -140,6 +155,7 @@ export default {
         if (valid) {
           const response = await api.db.createMapLayer({
             infoEntity: {
+              catalogId: this.catalogId, // 目录id
               name: form.name, // 地图文档名称
               description: form.description, // 描述
               info: {}, // 地图文档信息对象
@@ -158,7 +174,7 @@ export default {
 <template>
   <div class="k-layer-tree">
     <Tooltip
-      content="地图图层"
+      content="图层"
       placement="left">
       <div
         class="layer-control"
@@ -187,6 +203,7 @@ export default {
           v-show="showTree"
           :data="layerData"
           :render="renderTreeNode"
+          :click-node-expand="false"
           show-checkbox
           only-sort
           draggable
@@ -200,7 +217,7 @@ export default {
           :rules="rule"
           :label-width="60">
           <FormItem
-            label="图层名"
+            label="图层集"
             prop="name">
             <Input v-model="form.name"></Input>
           </FormItem>
@@ -272,23 +289,32 @@ export default {
   }
 
   .k-tree {
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     max-height: 300px;
     padding-right: 16px;
-  }
 
-  /deep/ .k-tree-more {
-    float: right;
-    > .k-svgicon {
-      margin-left: 6px;
+    /deep/ .k-tree-arrow {
+      visibility: hidden;
     }
-  }
 
-  /deep/ .k-tree-title:hover {
-    .k-slider {
-      height: auto;
-      margin: 8px 0;
-      opacity: 1;
+    /deep/ .k-tree-children {
+      padding: 0;
+    }
+
+    /deep/ .k-tree-more {
+      float: right;
+      > .k-svgicon {
+        margin-left: 6px;
+      }
+    }
+
+    /deep/ .k-tree-title:hover {
+      .k-slider {
+        height: auto;
+        margin: 8px 0;
+        opacity: 1;
+      }
     }
   }
 

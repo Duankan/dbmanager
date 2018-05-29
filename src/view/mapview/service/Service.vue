@@ -37,6 +37,7 @@ export default {
         <Tag type="border">wms</Tag>
       </div>
       <Poptip
+        v-show="showList"
         popper-class="filter-poptip"
         placement="right"
         transfer>
@@ -59,7 +60,8 @@ export default {
       <keep-alive>
         <component
           :is="componentId"
-          :condition="{title: filterText}"></component>
+          :condition="{title: filterText}"
+          :filter-text="filterText"></component>
       </keep-alive>
     </div>
   </div>

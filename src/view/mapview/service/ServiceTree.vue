@@ -1,10 +1,14 @@
 <script>
 import { isDirectory, isGisResource, canView } from '@/utils';
+import { StringDecoder } from 'string_decoder';
 
 export default {
   name: 'ServiceTree',
-  data() {
-    return {};
+  props: {
+    filterText: {
+      type: String,
+      default: '',
+    },
   },
   methods: {
     filterNode(node) {
@@ -18,7 +22,9 @@ export default {
 <template>
   <DataTree
     :filter-type="['sld', 'file']"
-    :filter-node="filterNode"></DataTree>
+    :filter-text="filterText"
+    :filter-node="filterNode"
+    draggable></DataTree>
 </template>
 
 <style lang="less" scoped>

@@ -1,13 +1,13 @@
 <script>
+import api from 'api';
+
 export default {
   name: 'LayerCollect',
   props: {},
   data() {
     return {
       showPanel: false,
-      editState: false,
       treeData: [],
-      name: '',
     };
   },
   watch: {
@@ -23,29 +23,41 @@ export default {
     },
   },
   methods: {
-    // 更新地图文档名称
-    update() {
-      this.editState = false;
+    // 更新图层集名称
+    async update(data) {
+      await api.db.updateMapLayer({});
+      // this.editState = false;
     },
-    delete() {},
+    // 删除图层集
+    async delete(data) {
+      await api.db.deleteMapLayer({
+        id: data.id,
+      });
+      this.$Message.success('图层集删除成功！');
+    },
     renderContent(h, { root, node, data }) {
       return (
         <div>
           <svg-icon size="16" iconClass="maps" />
-          {this.editState ? (
+          {data.editState ? (
             <span class="layer-collect-wrap">
               <Input value={data.name} size="small" style={{ width: '120px' }} />
-              <icon type="checkmark" color="#19be6b" nativeOnClick={this.update} />
+              <icon type="checkmark" color="#19be6b" nativeOnClick={() => this.update(data)} />
             </span>
           ) : (
             <span class="layer-collect-wrap">
               <span class="layer-collect-name">{data.name}</span>
-              <icon type="edit" nativeOnClick={() => (this.editState = true)} />
+              <icon type="edit" nativeOnClick={() => this.$set(data, 'editState', true)} />
             </span>
           )}
           <span class="layer-collect-button">
             <svg-icon size="16" iconClass="view" />
-            <poptip confirm transfer title="确定要删除该图层收藏吗?" onOn-ok={this.delete}>
+            <poptip
+              confirm
+              transfer
+              title="确定要删除该图层收藏吗?"
+              onOn-ok={() => this.delete(data)}
+            >
               <svg-icon size="16" iconClass="delete" />
             </poptip>
           </span>
@@ -59,7 +71,7 @@ export default {
 <template>
   <div class="k-layer-collect">
     <Tooltip
-      content="地图文档"
+      content="图层集"
       placement="left">
       <div
         class="layer-collect"
@@ -76,7 +88,7 @@ export default {
         v-show="showPanel"
         :bordered="false"
         dis-hover>
-        <p slot="title">地图文档</p>
+        <p slot="title">图层集</p>
         <Tree
           :data="treeData"
           :render="renderContent"></Tree>
