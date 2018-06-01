@@ -13,26 +13,34 @@ export default {
   watch: {
     async showPanel(val) {
       if (val) {
-        const response = await api.db.findMapLayer({
-          organizationId: this.$user.orgid,
-          userId: this.$user.id,
-          typeId: '50002',
-        });
-        this.treeData = response.data;
+        this.init();
       }
     },
   },
   methods: {
+    // 获取图层集列表
+    async init() {
+      const response = await api.db.findMapLayer({
+        organizationId: this.$user.orgid,
+        userId: this.$user.id,
+        typeId: '50002',
+      });
+      this.treeData = response.data;
+    },
     // 更新图层集名称
     async update(data) {
       await api.db.updateMapLayer({});
-      // this.editState = false;
+      this.$Message.success('重命名成功！');
+      this.$set(data, 'editState', false);
     },
+    // 浏览图层集
+    view(data) {},
     // 删除图层集
     async delete(data) {
       await api.db.deleteMapLayer({
         id: data.id,
       });
+      await this.init();
       this.$Message.success('图层集删除成功！');
     },
     renderContent(h, { root, node, data }) {
@@ -41,8 +49,13 @@ export default {
           <svg-icon size="16" iconClass="maps" />
           {data.editState ? (
             <span class="layer-collect-wrap">
-              <Input value={data.name} size="small" style={{ width: '120px' }} />
+              <Input value={data.name} size="small" style={{ width: '100px' }} />
               <icon type="checkmark" color="#19be6b" nativeOnClick={() => this.update(data)} />
+              <icon
+                type="close-round"
+                color="#000"
+                nativeOnClick={() => this.$set(data, 'editState', false)}
+              />
             </span>
           ) : (
             <span class="layer-collect-wrap">
@@ -51,7 +64,7 @@ export default {
             </span>
           )}
           <span class="layer-collect-button">
-            <svg-icon size="16" iconClass="view" />
+            <svg-icon size="16" iconClass="view" nativeOnClick={() => this.view(data)} />
             <poptip
               confirm
               transfer

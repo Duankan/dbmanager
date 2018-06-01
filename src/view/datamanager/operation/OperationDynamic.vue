@@ -95,6 +95,10 @@ export default {
       this.quickViewModal = true;
       this.quickViewNode = node;
     },
+    'on-quick-publish': function(node) {
+      this.publishModal = true;
+      this.publishNode = node;
+    },
     'on-information': function(node) {
       this.informationModal = true;
       this.informationNode = node;
