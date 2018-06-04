@@ -1,16 +1,4 @@
-<!--
- * @Author: 黄龙/蒋伟
- * @pageName: 'tree-grid  树型表格'
- * @Date: 2018-05-22 16:48:44
- * @Last Modified by:   蒋伟
- * @Last Modified time: 2018-05-22 16:48:44
- * @events  @on-row-click 单击行或者单击操作按钮方法
-            @on-selection-change  多选模式下 选中项变化时触发
-            @on-sort-change  排序时有效，当点击排序时触发
-   @props   items 显示的结构化数据
-            columns 表格列的配置描述 sortable:true 开启排序功能
-            type: 'selection'为多选功能 type: 'action' 为操作功能 actions:[{}] 操作按钮
- -->
+
 <template>
   <div
     :style="{width:tableWidth}"
@@ -436,18 +424,24 @@ export default {
           }
         } else {
           for (var i = 0; i < this.checkGroup.length; i++) {
-            if (this.checkGroup[i] == data.id) {
+            if (this.checkGroup[i].id == data.id) {
               this.checkGroup.splice(i, 1);
             }
             for (var j = 0; j < arr.length; j++) {
-              if (this.checkGroup[i] == arr[j].id) {
+              if (this.checkGroup[i].id == arr[j].id) {
                 this.checkGroup.splice(i, 1);
               }
             }
           }
         }
       } else {
-        this.checkGroup.push({ id: data.id, name: data.name });
+        if (!data.isChecked) {
+          for (var i = 0; i < this.checkGroup.length; i++) {
+            if (this.checkGroup[i].id == data.id) {
+              this.checkGroup.splice(i, 1);
+            }
+          }
+        }
       }
     },
     //checkbox 全选 选择事件
