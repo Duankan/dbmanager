@@ -44,6 +44,7 @@ export default {
   height: 100%;
   padding: 10px 15px;
   border-right: 1px solid #eee;
+  overflow-y: auto;
 
   h4 {
     margin: 16px 0 8px 0;

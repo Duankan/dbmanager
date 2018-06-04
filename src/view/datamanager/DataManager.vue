@@ -79,7 +79,7 @@ export default {
   height: 100%;
   .manager-container {
     flex: 1;
-    max-height: 100%;
+    height: 100%;
     padding: 15px 25px;
   }
 }

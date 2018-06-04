@@ -1,5 +1,7 @@
 <script>
 import PlanExtract from '@/components/extra/PlanExtract';
+import * as types from '@/store/types';
+
 export default {
   name: 'DashBoardMenu',
   components: {
@@ -27,18 +29,31 @@ export default {
       switch (name) {
         case 'attribute':
           this.title = '属性查询';
+          this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.showWindow = true;
           break;
         case 'space':
           this.title = '空间查询';
+          this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.showWindow = true;
           break;
         case 'composite':
           this.title = '复合查询';
+          this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.showWindow = true;
           break;
         case 'extra':
-          const response = await api.db.findResourcePlan({
+          this.$store.commit(types.SET_APP_DATATABLE, 'PlanExtract');
+          this.$store.dispatch(types.SET_BUS_SELECT_PLANDATA, {
+            pageIndex: 1, // 分页索引
+            pageSize: 5, // 分页大小
+            objCondition: {
+              applyOrganization: this.$user.orgid, // 组织id
+            },
+          });
+          //console.log(this.$store.state.bus.plandata[0]);
+          //this.$store.commit(types.SET_BUS_SELECT_PLANDATA);
+          /* const response = await api.db.findResourcePlan({
             pageIndex: 1,
             pageSize: 10,
             objCondition: { applyOrganization: this.$user.orgid },
@@ -56,7 +71,7 @@ export default {
               );
             },
             width: 1160,
-          });
+          }); */
           break;
         default:
           break;
@@ -84,7 +99,7 @@ export default {
       </Submenu>
       <MenuItem name="extra">
       <Icon type="archive"></Icon>
-      数据提取
+      自定义方案提取
     </MenuItem>
       <Submenu name="analysis">
         <template slot="title">

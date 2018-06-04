@@ -7,8 +7,8 @@ export default {
   components: { TreeGrid, AttributeFilter },
   props: {
     value: {
-      type: Array,
-      default: () => [],
+      type: Object,
+      default: () => {},
     },
     // 只显示目录
     directory: {
@@ -43,7 +43,6 @@ export default {
     return {
       rootNode: '数据目录',
       planname: '方案',
-      tableCss: 'table-div',
       resdata: [], //过滤查询字段信息
       checkList: [], //勾选资源列表
       scaleArray: [], //保存查询到的图幅比例尺数组
@@ -83,7 +82,7 @@ export default {
       requestdata: {
         //planid: null,//方案编号
         restype: 0, //方案方式： 0为矢量数据提取  1为影像数据提取
-        planname: null, //方案名称
+        planname: 'null', //方案名称
         createperson: this.$user.id, //方案创建者
         createorganization: this.$user.orgid, //创建组织
         //createtime: null,//创建时间；
@@ -91,7 +90,7 @@ export default {
         //updatetime: null,//修改时间；
         applyorganization: null, //方案指定组织；
         coordinate: null, //坐标范围；
-        splacetype: -1, //-1：默认全图；0:代表行政区；1:代表图幅范围；2:代表坐标范围；
+        splacetype: '-1', //-1：默认全图；0:代表行政区；1:代表图幅范围；2:代表坐标范围；
         splaceremark: null, //空间描述；
         extract: 0, //提取方式；0:代表裁剪；1代表相交；2:代表包含；
         projid: null, //投影编号
@@ -275,100 +274,148 @@ export default {
       });
     },
     selectionClick(arr) {
-      console.log(arr);
+      if (arr.length) {
+        this.checkList = arr;
+      }
+    },
+    async savePlanData() {
+      if (!this.requestdata.planname) {
+        this.$Message.warning('请检查方案名称是否正确输入！');
+        return;
+      }
+
+      if (this.checkList.length == 0) {
+        this.$Message.warning('请选择资源！');
+        return;
+      }
+      //遍历选择资源集合，提示未保存状态
+      for (var item of this.checkList) {
+        if (!item.value) {
+          this.$Message.warning('资源' + item.name + '尚未选择字段！');
+          break;
+        }
+      }
+      //全图范围
+      if (this.requestdata.splacetype === '-1') {
+        this.requestdata.splaceremark = '根据全图范围提取';
+      } else if (this.requestdata.splacetype === 0) {
+      } else if (this.requestdata.splacetype === 1) {
+      } else if (this.requestdata.splacetype === 2) {
+      }
+      //默认指定本组织
+      if (!this.requestdata.applyorganization) {
+        this.requestdata.applyorganization = this.$user.orgid;
+      }
+      const res = await api.db.addPlanResource(this.requestdata);
+      if (res.statusCode == 200) {
+        this.$Message.success('方案创建成功！');
+      } else {
+        this.$Message.error('方案创建失败！');
+      }
     },
   },
 };
 </script>
 <template>
   <div>
-    <Input
-      v-model="requestdata.planname"
-      class="nameclass">
-    <span slot="prepend">方案名称</span>
+    <div class="planclass">
+      <Input
+        v-model="requestdata.planname"
+        class="nameclass">
+      <span slot="prepend">方案名称</span>
     </Input>
-    <div :class="tableCss">
-      <tree-grid
-        ref="treegrid"
-        :items="treeData"
-        :load-data="loadData"
-        :columns="columns"
-        :highlight-row="true"
-        :combo-data="getSchemalist"
-        @on-selection-change="selectionClick"
-        @on-button-click="filterData">
-      </tree-grid>
-    </div>
-    <div class="radiodiv" >
-      <RadioGroup
-        v-model="requestdata.splacetype">
-        <Radio label="-1">默认</Radio>
-        <Radio label="0">行政区</Radio>
-        <Radio label="1">图幅</Radio>
-        <Radio label="2">坐标文件</Radio>
-    </RadioGroup></div>
-    <div>
-      <div v-if="requestdata.splacetype==-1"></div>
-      <div
-        v-if="requestdata.splacetype==0"
-        class="citydiv">
-        <label>行政区：</label>
-        <label></label>
-        <Select
-          v-model="model12"
-          filterable
-          multiple>
-          <Option
-            v-for="item in cityList"
-            :value="item.value"
-            :key="item.value">{{ item.label }}</Option>
-        </Select>
+      <div>
+        <tree-grid
+          ref="treegrid"
+          :items="treeData"
+          :load-data="loadData"
+          :columns="columns"
+          :highlight-row="true"
+          :combo-data="getSchemalist"
+          @on-selection-change="selectionClick"
+          @on-button-click="filterData">
+        </tree-grid>
       </div>
-      <div v-if="requestdata.splacetype==1">
-        <div>
-          <label>选择比例尺： </label>
+      <div class="radiodiv" >
+        <RadioGroup
+          v-model="requestdata.splacetype">
+          <Radio label="-1">默认</Radio>
+          <Radio label="0">行政区</Radio>
+          <Radio label="1">图幅</Radio>
+          <Radio label="2">坐标文件</Radio>
+      </RadioGroup></div>
+      <div>
+        <div v-if="requestdata.splacetype==-1"></div>
+        <div
+          v-if="requestdata.splacetype==0"
+          class="citydiv">
+          <label>行政区：</label>
+          <label></label>
           <Select
-            v-model="plotting"
-            style="width:250px">
+            v-model="model12"
+            filterable
+            multiple>
             <Option
               v-for="item in cityList"
               :value="item.value"
               :key="item.value">{{ item.label }}</Option>
-        </Select></div>
-        <div>
-          <label>输入图符号：</label>
-          <Input
-            v-model="mapNumber"
-            placeholder="请输入图幅号"
-            style="width: 190px;  margin: 8px 2px 8px 2px;"></Input>
-          <Button
-            type="ghost"
-            @click="add" >添加</Button></div>
-        <div style="position: absolute;left:350px;top:60px;">
-          <Table
-            v-if="showTable"
-            :columns="columns1"
-            :data="data2"
-            width= "400">
-          </Table>
+          </Select>
         </div>
+        <div v-if="requestdata.splacetype==1">
+          <div>
+            <label>选择比例尺： </label>
+            <Select
+              v-model="plotting"
+              style="width:250px">
+              <Option
+                v-for="item in cityList"
+                :value="item.value"
+                :key="item.value">{{ item.label }}</Option>
+          </Select></div>
+          <div>
+            <label>输入图符号：</label>
+            <Input
+              v-model="mapNumber"
+              placeholder="请输入图幅号"
+              style="width: 190px;  margin: 8px 2px 8px 2px;"></Input>
+            <Button
+              type="ghost"
+              @click="add" >添加</Button></div>
+          <div style="position: absolute;left:350px;top:60px;">
+            <Table
+              v-if="showTable"
+              :columns="columns1"
+              :data="data2"
+              width= "400">
+            </Table>
+          </div>
+        </div>
+        <div v-if="requestdata.splacetype==2"></div>
       </div>
-      <div v-if="requestdata.splacetype==2"></div>
+    </div>
+    <div class="planfoot">
+      <Button
+        type="success"
+        @click="savePlanData">保存</Button>
+      <Button type="warning">取消</Button>
     </div>
   </div>
 </template>
 <style lang="less" scoped>
 .planclass {
+  height: 520px;
   overflow-y: scroll;
+}
+.planfoot {
+  position: fixed;
+  bottom: 0;
+  right: 40px;
+  height: 46px;
 }
 .nameclass {
   margin-top: 10px;
   margin-bottom: 10px;
   width: 400px;
-}
-.table-div {
-  max-height: 480px;
-  overflow-y: scroll;
 }
 .radiodiv {
   margin-top: 10px;

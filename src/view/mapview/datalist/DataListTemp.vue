@@ -1,6 +1,10 @@
 <script>
+import DataTable from '@/components/datatable/DataTable';
+import PlanTable from '@/components/extra/PlanTable';
+
 export default {
   name: 'Attribute',
+  components: { PlanTable, DataTable },
   data() {
     return {
       expand: false,
@@ -10,8 +14,20 @@ export default {
     // style() {
     //   return this.expand ? { height: '280px' } : { height: 'calc(100% - 33px)' };
     // },
-    queryOptions() {
-      return this.$store.state.bus.attribute;
+    dataTable() {
+      return this.$store.state.app.currentDataTable;
+    },
+    queryState() {
+      switch (this.dataTable) {
+        case 'PlanExtract':
+          return this.$store.state.bus.plandata;
+          break;
+        case 'AttributeTable':
+          return this.$store.state.bus.attribute.length;
+          break;
+        default:
+          break;
+      }
     },
   },
   methods: {
@@ -23,7 +39,7 @@ export default {
 <template>
   <transition name="slide">
     <div
-      v-show="queryOptions.length"
+      v-show="queryState"
       class="attribute-table" >
       <Card dis-hover>
         <p slot="title">数据属性</p>
@@ -35,7 +51,8 @@ export default {
             type="close"
             @click.native="close"></Icon>
         </div>
-        <DataTable/>
+        <PlanTable v-if = "dataTable==='PlanExtract'"/>
+        <DataTable v-if ="dataTable==='AttributeTable'"/>
       </Card>
     </div>
   </transition>

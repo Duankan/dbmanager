@@ -1,5 +1,8 @@
 <script>
 import config from 'config';
+import PlanCreate from './PlanCreate';
+import * as types from '@/store/types';
+
 export default {
   name: 'PlanTable',
   props: {
@@ -85,8 +88,19 @@ export default {
     };
   },
   computed: {
-    getPlanData() {
-      return this.value.dataSource.map(item => {
+    planData() {
+      return this.$store.state.bus.plandata;
+    },
+  },
+  watch: {
+    planData(newdatas) {
+      if (newdatas && newdatas.dataSource) return this.getPlanData(newdatas);
+      else return [];
+    },
+  },
+  methods: {
+    getPlanData(response) {
+      return response.dataSource.map(item => {
         item.resType = this.formatRestype(item.resType);
         item.spaceType = this.formatExtractType(item.spaceType);
         item.extract = this.formatExtract(item.extract);
@@ -94,8 +108,6 @@ export default {
         return item;
       });
     },
-  },
-  methods: {
     formatRestype(type) {
       switch (type) {
         case 0:
@@ -142,7 +154,9 @@ export default {
     },
     addPlan() {
       //this.$Modal.remove();
-      this.$Modal.confirm({
+      this.$window({
+        title: '方案搭建',
+        footerHide: true,
         render: h => {
           return h(
             PlanCreate,
@@ -154,7 +168,8 @@ export default {
             [this.$scopedSlots.default]
           );
         },
-        width: 1160,
+        width: 960,
+        height: 630,
       });
     },
     async showPlanInfo() {},
@@ -175,15 +190,15 @@ export default {
     <Table
       :columns="columns"
       :height="height"
-      :data="getPlanData">
+      :data="planData.dataSource">
     </Table>
     <div class="foot-div">
-      <!-- <Button
+      <Button
         type="primary"
-        @click="addPlan">新增方案</Button> -->
+        @click="addPlan">新增方案</Button>
       <div class="foot-div-page">
         <Page
-          :total="value.pageInfo.totalCount"
+          :total="planData.pageInfo.totalCount"
           :current="1"
           :page-size="10"
           size="small"

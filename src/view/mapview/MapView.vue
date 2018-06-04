@@ -1,13 +1,13 @@
 <script>
 import Service from './service/Service';
-import AttributeTable from './attribute/Attribute';
+import DataListTemp from './datalist/DataListTemp';
 import Map from './map/Map';
 
 export default {
   name: 'MapView',
   components: {
     Service,
-    AttributeTable,
+    DataListTemp,
     Map,
   },
 };
@@ -18,7 +18,7 @@ export default {
     <Service/>
     <div class="map-container">
       <Map/>
-      <AttributeTable/>
+      <DataListTemp/>
     </div>
   </div>
 </template>

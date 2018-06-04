@@ -1,4 +1,6 @@
 import * as types from '../types';
+import api from 'api';
+import { cloneDeep } from '@ktw/ktools';
 
 const bus = {
   state: {
@@ -6,6 +8,10 @@ const bus = {
     attribute: [],
     //存储字段信息
     field: [],
+    //选择方案列表信息
+    selectplandata: [],
+    //存储方案列表信息
+    plandata: {},
   },
   mutations: {
     // 添加属性表查询对象信息
@@ -31,6 +37,21 @@ const bus = {
     // 移除所有的字段信息
     [types.REMOVE_BUS_FIELD](state) {
       state.field = [];
+    },
+    // 添加属性表查询对象信息
+    [types.SET_BUS_PLANDATA](state, data) {
+      state.plandata = data;
+    },
+  },
+  actions: {
+    async [types.SET_BUS_SELECT_PLANDATA]({ commit, state, rootState }, options) {
+      const response = await api.db.findResourcePlan(options);
+      if (response.status === 200) {
+        commit(types.SET_BUS_PLANDATA, cloneDeep(response.data));
+      } else {
+        commit(types.SET_BUS_PLANDATA, [response, 'dd']);
+      }
+      //commit(types.SET_BUS_PLANDATA, state.plandata);
     },
   },
 };

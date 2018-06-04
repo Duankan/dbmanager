@@ -1,10 +1,9 @@
 <script>
 import PlanTable from './PlanTable';
-import PlanCreate from './PlanCreate';
 
 export default {
   name: 'PlanExtract',
-  components: { PlanTable, PlanCreate },
+  components: { PlanTable },
   props: {
     value: {
       type: Object,
@@ -40,31 +39,53 @@ export default {
 };
 </script>
 <template>
-  <div id="plan-div">
-    <p>当前正在进行第 {{ current + 1 }} 步</p>
-    <Steps :current="current">
-      <Step title="方案列表"></Step>
-      <Step title="方案搭建"></Step>
-    </Steps>
-    <PlanTable
-      v-if="current==0"
-      :value="value"></PlanTable>
-    <PlanCreate
-      v-if="current==1"
-      :value="catalog"></PlanCreate>
-    <div class="btnclass">
-      <Button
-        type="primary"
-        @click="next">{{ btnContent }}</Button></div>
-  </div>
+  <transition name="slide">
+    <div
+      v-show="queryOptions.length"
+      class="attribute-table" >
+      <Card dis-hover>
+        <p slot="title">自定义提取方案</p>
+        <div slot="extra">
+          <Icon
+            :type="expand ? 'chevron-down' : 'chevron-up'"
+            @click.native="expand = !expand"></Icon>
+          <Icon
+            type="close"
+            @click.native="close"></Icon>
+        </div>
+        <PlanTable
+          :value="value"></PlanTable>
+      </Card>
+    </div>
+  </transition>
 </template>
 <style lang="less" scoped>
-@maxheight: 550px;
-#plan-div {
-  height: @maxheight;
-  overflow-y: scroll;
-}
+.attribute-table {
+  z-index: 1000;
 
+  .k-card {
+    height: 100%;
+  }
+  /deep/ .k-card-head {
+    padding: 4px 16px;
+    background-color: #358cf0;
+    p {
+      color: #fff;
+    }
+  }
+  /deep/ .k-card-extra {
+    right: 16px;
+    top: 6px;
+    cursor: pointer;
+    .k-icon {
+      color: #fff;
+      margin-left: 6px;
+    }
+  }
+  /deep/ .k-card-body {
+    padding: 0 16px;
+  }
+}
 .btnclass {
   margin-top: 10px;
 }

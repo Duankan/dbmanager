@@ -9,7 +9,7 @@ export default {
   name: 'DataTable',
   data() {
     return {
-      height: 760,
+      height: 610,
       isActive: true,
       loading: true,
       columns: [
