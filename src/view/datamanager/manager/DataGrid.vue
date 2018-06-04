@@ -1,7 +1,8 @@
 <script>
+import api from 'api';
 import * as types from '@/store/types';
 import { filesize, date } from '@ktw/ktools';
-import { isDirectory } from '@/utils';
+import { isDirectory, isGisResource } from '@/utils';
 
 export default {
   name: 'DataGrid',
@@ -129,6 +130,34 @@ export default {
         this.checkNode(node);
       }
     },
+    rename(e) {
+      this.alias = e.target.value;
+    },
+    async confirm(node) {
+      if (!this.alias) return;
+      if (isDirectory(node)) {
+        await api.db.updateCatalog({
+          name: this.alias, //  目录名称
+          id: node.childId, // 目录childId
+        });
+      }
+      if (isGisResource(node)) {
+        await api.db.updateResourceInfo({
+          id: node.id, // 资源id
+          alias: this.alias, // 资源别名
+        });
+      }
+      this.$Message.success('重命名操作成功！');
+      this.$events.emit('on-common-tree-update');
+      this.$store.commit(
+        types.UPDATE_APP_NODES,
+        Object.assign(node, { alias: this.alias, _rename: false })
+      );
+    },
+    cancel(node) {
+      this.alias = '';
+      this.$store.commit(types.UPDATE_APP_NODES, Object.assign(node, { _rename: false }));
+    },
     upload() {
       this.$events.emit('on-upload');
     },
@@ -168,7 +197,27 @@ export default {
             :icon-class="iconClass(node)"
             size="60">
           </SvgIcon>
+          <div
+            v-if="node._rename"
+            class="rename">
+            <Input
+              :value="node.alias || node.name"
+              size="small"
+              @input.native="rename"
+              @click.native.stop/>
+            <Icon
+              type="checkmark-round"
+              color="#19be6b"
+              size="14"
+              @click.native.stop="confirm(node)"/>
+            <Icon
+              type="close-round"
+              color="#000"
+              size="14"
+              @click.native.stop="cancel(node)"/>
+          </div>
           <Ellipsis
+            v-else
             :class="isDirectory(node) ? 'directory' : ''"
             :length="10">{{ node.alias || node.name }}</Ellipsis>
         </div>
@@ -250,7 +299,17 @@ export default {
       }
     }
 
-    .k-icon {
+    .rename {
+      .k-input-wrapper {
+        width: 60%;
+      }
+      .k-icon {
+        margin-left: 4px;
+        cursor: pointer;
+      }
+    }
+
+    > .k-icon {
       position: absolute;
       top: 5px;
       left: 5px;

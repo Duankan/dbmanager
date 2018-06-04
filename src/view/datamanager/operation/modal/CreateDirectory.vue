@@ -68,7 +68,6 @@ export default {
     width="380"
     title="新建文件夹"
     @on-visible-change="visibleChange">
-    </p>
     <Form
       ref="form"
       :model="form"

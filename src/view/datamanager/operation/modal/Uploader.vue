@@ -1,4 +1,5 @@
 <script>
+import * as types from '@/store/types';
 import config from 'config';
 import api from 'api';
 
@@ -27,6 +28,7 @@ export default {
   },
   data() {
     return {
+      loading: false,
       resourceType: [],
       styleType: [],
       style: {
@@ -49,7 +51,7 @@ export default {
       return this.resourceType.filter(item => item.parentId === '2');
     },
     action() {
-      return `${config.project.YunServicesUrl}/clouddisk/gisserver/upload`;
+      return `${config.project.YunServicesUrl}/clouddisk/gisserver/taskupload`;
     },
     multiple() {
       return this.type !== 'metaData';
@@ -115,8 +117,32 @@ export default {
       });
     },
 
-    // 数据追加
-    upload() {},
+    // 点击上传按钮
+    upload() {
+      this.loading = true;
+      this.$refs.upload.upload();
+    },
+
+    // 上传成功触发回调 测试单个文件上传流程
+    async uploadSuccess(rootFile, file, message, chunk) {
+      message = JSON.parse(message);
+      await api.db.addresource({
+        alias: file.name.slice(0, file.name.lastIndexOf('.')),
+        typeId: this.resource.typeId,
+        classify: '',
+        description: '',
+        catalogId: this.current.childId,
+        userId: this.$user.id,
+        userName: this.$user.name,
+        orgId: this.$user.orgid,
+        orgName: this.$user.orgname,
+        ...message.data,
+      });
+      await this.$store.dispatch(types.APP_NODES_FETCH, this.current);
+      this.loading = false;
+      this.visibleChange(false);
+      this.$Message.success('文件上传成功！');
+    },
   },
 };
 </script>
@@ -174,6 +200,7 @@ export default {
       :dictionary="dictionary"
       :multiple="multiple"
       :action="action"
+      :on-success="uploadSuccess"
       type="drag">
       <div style="padding: 60px 0">
         <Icon
@@ -185,6 +212,7 @@ export default {
     </Uploader>
     <div slot="footer">
       <Button
+        :loading="loading"
         type="success"
         size="large"
         long

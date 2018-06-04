@@ -109,6 +109,13 @@ export default {
         <MenuItem name="overlay">叠加分析</MenuItem>
         <MenuItem name="statistics">基础统计</MenuItem>
       </Submenu>
+      <Submenu name="configure">
+        <template slot="title">
+          <Icon type="gear-a"></Icon>
+          配置管理
+        </template>
+        <MenuItem name="stylecfg">样式配置</MenuItem>
+      </Submenu>
     </Menu>
     <keep-alive>
       <component

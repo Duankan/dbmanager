@@ -54,7 +54,9 @@ export default {
       link.click();
       link.remove();
     },
-    quickPublish() {},
+    quickPublish() {
+      this.$events.emit('on-quick-publish', this.node);
+    },
     rename() {
       this.$store.commit(types.UPDATE_APP_NODES, Object.assign(this.node, { _rename: true }));
     },

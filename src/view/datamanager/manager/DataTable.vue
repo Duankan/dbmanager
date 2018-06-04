@@ -32,25 +32,45 @@ export default {
                   <Input
                     value={params.row._alias}
                     nativeOnInput={e => (params.row.alias = e.target.value)}
+                    nativeOnClick={e => e.stopPropagation()}
                   />
                   <icon
                     type="checkmark-round"
                     color="#19be6b"
                     size="14"
-                    nativeOnClick={() => {
-                      console.log(params.row);
+                    nativeOnClick={async e => {
+                      e.stopPropagation();
+                      if (utils.isDirectory(params.row)) {
+                        await api.db.updateCatalog({
+                          name: params.row.alias, //  目录名称
+                          id: params.row.childId, // 目录childId
+                        });
+                      }
+                      if (utils.isGisResource(params.row)) {
+                        await api.db.updateResourceInfo({
+                          id: params.row.id, // 资源id
+                          alias: params.row.alias, // 资源别名
+                        });
+                      }
+                      this.$Message.success('重命名操作成功！');
+                      this.$events.emit('on-common-tree-update');
+                      this.$store.commit(
+                        types.UPDATE_APP_NODES,
+                        Object.assign(params.row, { alias: params.row.alias, _rename: false })
+                      );
                     }}
                   />
                   <icon
                     type="close-round"
                     color="#000"
                     size="14"
-                    nativeOnClick={() =>
+                    nativeOnClick={e => {
+                      e.stopPropagation();
                       this.$store.commit(
                         types.UPDATE_APP_NODES,
                         Object.assign(params.row, { _rename: false })
-                      )
-                    }
+                      );
+                    }}
                   />
                 </div>
               );
