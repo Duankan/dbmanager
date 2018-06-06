@@ -1,21 +1,24 @@
 <script>
+import PlanExtract from '@/components/extra/PlanExtract';
+import QueryModules from '../mapview/query/QueryModules';
 import * as types from '@/store/types';
 
 export default {
   name: 'DashBoardMenu',
+  components: {
+    PlanExtract,
+    QueryModules,
+  },
   data() {
     return {
       showWindow: false,
       type: 'composite',
       title: '复合查询',
-      styleObject: {
-        margin: '60px 0 0 310px',
-      },
     };
   },
   computed: {
     show() {
-      return this.showWindow ? 'Query' : '';
+      return this.showWindow ? 'QueryModules' : '';
     },
   },
   methods: {
@@ -23,17 +26,17 @@ export default {
       this.showWindow = false;
       this.type = name;
       switch (name) {
-        case 'attribute':
+        case 'QueryAttrs':
           this.title = '属性查询';
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.showWindow = true;
           break;
-        case 'space':
+        case 'QuerySpace':
           this.title = '空间查询';
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.showWindow = true;
           break;
-        case 'composite':
+        case 'QueryCompound':
           this.title = '复合查询';
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.showWindow = true;
@@ -52,6 +55,9 @@ export default {
           break;
       }
     },
+    changeVisible() {
+      this.showWindow = false;
+    },
   },
 };
 </script>
@@ -68,14 +74,14 @@ export default {
           <Icon type="ios-search"></Icon>
           查询检索
         </template>
-        <MenuItem name="attribute">属性查询</MenuItem>
-        <MenuItem name="space">空间查询</MenuItem>
-        <MenuItem name="composite">复合查询</MenuItem>
+        <MenuItem name="QueryAttrs">属性查询</MenuItem>
+        <MenuItem name="QuerySpace">空间查询</MenuItem>
+        <MenuItem name="QueryCompound">复合查询</MenuItem>
       </Submenu>
       <MenuItem name="extra">
       <Icon type="archive"></Icon>
       自定义方案提取
-    </MenuItem>
+      </MenuItem>
       <Submenu name="analysis">
         <template slot="title">
           <Icon type="stats-bars"></Icon>
@@ -95,16 +101,30 @@ export default {
     <keep-alive>
       <component
         :is="show"
-        :visible.sync="showWindow"
-        :type="type"
-        :title="title"
-        :styles="styleObject"></component>
+        :is-visible.sync="showWindow"
+        :modules-type="type"
+        :modules-title="title"
+        class="db-query"
+        @on-change-visible="changeVisible"
+      ></component>
     </keep-alive>
   </Row>
 </template>
 
 <style lang="less" scoped>
+.k-row:hover {
+  z-index: 1003;
+}
+
 .k-menu {
   display: inline-block;
+}
+
+.db-query {
+  margin: 68px 0 0 320px;
+
+  /deep/ .k-window {
+    top: 59px;
+  }
 }
 </style>

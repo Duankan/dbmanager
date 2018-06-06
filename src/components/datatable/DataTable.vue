@@ -23,11 +23,10 @@ export default {
   },
   computed: {
     columns() {
-      // return createTableHeader(this.tableData);
       return this.$store.state.bus.field;
     },
     queryOptions() {
-      return this.$store.state.bus.attribute;
+      return this.$store.getters.attribute;
     },
   },
   watch: {
@@ -36,7 +35,6 @@ export default {
         this.title = option.title;
         delete option.title;
         const response = await this.$store.dispatch(MAP_WFS_QUERY, option);
-        console.log(response);
         this.tableData = [];
         this.features = response.features;
         this.total = response.totalFeatures;
