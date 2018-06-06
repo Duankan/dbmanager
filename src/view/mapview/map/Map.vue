@@ -1,4 +1,6 @@
 <script>
+const REFS = ['polygon', 'rectangle', 'marker', 'polyline', 'circle'];
+
 export default {
   name: 'Map',
   events: {
@@ -6,8 +8,14 @@ export default {
       this.$refs.map.setBounds(val);
     },
   },
+  mounted() {
+    this.$events.emit('on-getdraw-refs', { drawRefs: this.$refs, REFS });
+  },
   methods: {
     handleClick() {},
+    drawGeometry(layers) {
+      this.$events.emit('on-get-drawlayer', layers);
+    },
   },
 };
 </script>
@@ -43,8 +51,25 @@ export default {
       <LayerCollect/>
       <TileWMSLayer/>
       <BaseLayer/>
-      <GeoJson/>
+      <GeoJson
+        ref="geojson"
+        light-geometry/>
       <MousePosition/>
+      <MapPolygon
+        ref="polygon"
+        @on-draw-polygon="drawGeometry"></MapPolygon>
+      <MapRectangle
+        ref="rectangle"
+        @on-draw-rectangle="drawGeometry"></MapRectangle>
+      <MapMarker
+        ref="marker"
+        @on-draw-marker="drawGeometry"></MapMarker>
+      <MapPolyLine
+        ref="polyline"
+        @on-draw-polyline="drawGeometry"></MapPolyLine>
+      <MapCircle
+        ref="circle"
+        @on-draw-circle="drawGeometry"></MapCircle>
     </BaseMap>
   </div>
 </template>

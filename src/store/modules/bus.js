@@ -1,6 +1,7 @@
 import * as types from '../types';
 import api from 'api';
 import { cloneDeep } from '@ktw/ktools';
+import FunManager from '../../utils/function-manager';
 
 const bus = {
   state: {
@@ -13,22 +14,34 @@ const bus = {
     //存储方案列表信息
     plandata: {},
   },
+  getters: {
+    attribute: state => FunManager.getQueryOptions(state.attribute),
+  },
   mutations: {
     // 添加属性表查询对象信息
-    [types.SET_BUS_ATTRIBUTE](state, options) {
+    [types.SET_BUS_ATTRIBUTE](state, { options, queryOptions }) {
       if (!options.url) throw new Error('wfs查询参数 url 缺失');
       const index = state.attribute.findIndex(item => item.url === options.url);
+      // 把queryOptions参数放在中间件中存放
+      const attribute = cloneDeep(state.attribute);
+      const deepOptions = cloneDeep(options);
+      deepOptions.options = queryOptions;
       if (index > 0) {
         // 当attribute数组中存在url与options.url一致的查询对象时，替换该查询对象为传入的options对象
+        attribute.splice(index, 1, deepOptions);
+        FunManager.setQueryOptions(attribute);
         state.attribute.splice(index, 1, options);
       } else {
         // 不存在时，则将options对象添加在数组的末端
+        attribute.push(deepOptions);
+        FunManager.setQueryOptions(attribute);
         state.attribute.push(options);
       }
     },
     // 移除所有的查询对象信息
     [types.REMOVE_BUS_ATTRIBUTE](state) {
       state.attribute = [];
+      FunManager.setQueryOptions([]);
     },
     // 增加字段信息
     [types.SET_BUS_FIELD](state, field) {
