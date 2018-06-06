@@ -440,7 +440,7 @@ export default {
   line-height: 46px;
   text-align: right;
   background-color: #ffffff;
-  .nextclass{
+  .nextclass {
     text-align: left;
   }
 }
