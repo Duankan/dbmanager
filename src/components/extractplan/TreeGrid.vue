@@ -55,6 +55,7 @@
             <div v-if="column.type === 'caction'">
               <Button
                 v-for="caction in (column.actions)"
+                :style="{'display':showTemplete(item)}"
                 :type="caction.type"
                 :key="caction.text"
                 :disabled="item.typeId=='20003'||item.typeId=='20007'||item.typeId=='20008'||item.typeId=='20009'"
@@ -142,6 +143,9 @@ export default {
       return this.tdsWidth > this.screenWidth && this.screenWidth > 0
         ? this.screenWidth + 'px'
         : '100%';
+    },
+    isShowData(typeid) {
+      return [20001, 20010, 20011, 20012, 20002, 20016].includes(typeid);
     },
   },
   watch: {

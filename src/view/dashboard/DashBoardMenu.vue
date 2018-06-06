@@ -1,12 +1,8 @@
 <script>
-import PlanExtract from '@/components/extra/PlanExtract';
 import * as types from '@/store/types';
 
 export default {
   name: 'DashBoardMenu',
-  components: {
-    PlanExtract,
-  },
   data() {
     return {
       showWindow: false,
@@ -43,7 +39,7 @@ export default {
           this.showWindow = true;
           break;
         case 'extra':
-          this.$store.commit(types.SET_APP_DATATABLE, 'PlanExtract');
+          this.$store.commit(types.SET_APP_DATATABLE, 'ExtractPlan');
           this.$store.dispatch(types.SET_BUS_SELECT_PLANDATA, {
             pageIndex: 1, // 分页索引
             pageSize: 5, // 分页大小
@@ -51,27 +47,6 @@ export default {
               applyOrganization: this.$user.orgid, // 组织id
             },
           });
-          //console.log(this.$store.state.bus.plandata[0]);
-          //this.$store.commit(types.SET_BUS_SELECT_PLANDATA);
-          /* const response = await api.db.findResourcePlan({
-            pageIndex: 1,
-            pageSize: 10,
-            objCondition: { applyOrganization: this.$user.orgid },
-          });
-          this.$Modal.confirm({
-            render: h => {
-              return h(
-                PlanExtract,
-                {
-                  props: {
-                    value: response.data,
-                  },
-                },
-                [this.$scopedSlots.default]
-              );
-            },
-            width: 1160,
-          }); */
           break;
         default:
           break;
