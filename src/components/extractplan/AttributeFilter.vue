@@ -23,14 +23,14 @@ export default {
 </script>
 <template>
   <Form
-    :model="formItem"
-    :label-width="80">
+    :model="formItem">
     <FormItem>
       <div>
         <div class="schemadiv">
           <div
             v-for="item in (value.schemas.split(','))"
-            :key="item">{{ item }}</div>
+            :key="item"
+            class = "schemaitem">{{ item }}</div>
         </div>
         <div class="btnclass">
           <div class="opclass">
@@ -89,14 +89,21 @@ export default {
       </FormItem>
   </formitem></Form>
 </template>
-<style>
+<style  lang="less" scoped>
 .schemadiv {
-  width: 230px;
+  width: 310px;
   height: 160px;
   float: left;
   overflow-y: auto;
   overflow-x: hidden;
   border: 1px solid #dddddd;
+  .schemaitem {
+    height: 25px;
+    margin-left: 5px;
+  }
+  .schemaitem:hover {
+    background-color: #f3f3f3;
+  }
 }
 .btnclass {
   height: 160px;

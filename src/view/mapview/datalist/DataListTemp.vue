@@ -1,11 +1,6 @@
 <script>
-import DataTable from '@/components/datatable/DataTable';
-import PlanTable from '@/components/extra/PlanTable';
-import StyleTable from '@/components/configmanage/StyleTable';
-
 export default {
-  name: 'Attribute',
-  components: { PlanTable, DataTable, StyleTable },
+  name: 'DataListTemp',
   data() {
     return {
       expand: false,
@@ -20,7 +15,7 @@ export default {
     },
     queryState() {
       switch (this.dataTable) {
-        case 'PlanExtract':
+        case 'ExtractPlan':
           return this.$store.state.bus.plandata;
           break;
         case 'AttributeTable':
@@ -55,9 +50,8 @@ export default {
             type="close"
             @click.native="close"></Icon>
         </div>
-        <PlanTable v-if = "dataTable==='PlanExtract'"/>
+        <ExtractPlan v-if = "dataTable==='ExtractPlan'"/>
         <DataTable v-if = "dataTable==='AttributeTable'"/>
-        <StyleTable v-if = "dataTable==='StyleTable'"/>
       </Card>
     </div>
   </transition>

@@ -4,7 +4,10 @@ import PlanCreate from './PlanCreate';
 import * as types from '@/store/types';
 
 export default {
-  name: 'PlanTable',
+  name: 'ExtractPlan',
+  comments: {
+    PlanCreate,
+  },
   props: {
     value: {
       type: Object,
@@ -70,7 +73,7 @@ export default {
                   style: { marginRight: '5px' },
                   on: {
                     click: () => {
-                      this.deletePlan(params.row);
+                      this.deleteConfirm(params.row);
                     },
                   },
                 },
@@ -90,23 +93,6 @@ export default {
   computed: {
     planData() {
       return this.$store.state.bus.plandata;
-    },
-  },
-  watch: {
-    planData(newdatas) {
-      if (newdatas && newdatas.dataSource) return this.getPlanData(newdatas);
-      else return [];
-    },
-  },
-  methods: {
-    getPlanData(response) {
-      return response.dataSource.map(item => {
-        item.resType = this.formatRestype(item.resType);
-        item.spaceType = this.formatExtractType(item.spaceType);
-        item.extract = this.formatExtract(item.extract);
-        item.updateTime = new Date(item.updateTime).toLocaleDateString();
-        return item;
-      });
     },
     formatRestype(type) {
       switch (type) {
@@ -144,6 +130,23 @@ export default {
           return extract;
       }
     },
+  },
+  watch: {
+    planData(newdatas) {
+      if (newdatas && newdatas.dataSource) return this.getPlanData(newdatas);
+      else return [];
+    },
+  },
+  methods: {
+    getPlanData(response) {
+      return response.dataSource.map(item => {
+        item.resType = this.formatRestype(item.resType);
+        item.spaceType = this.formatExtractType(item.spaceType);
+        item.extract = this.formatExtract(item.extract);
+        item.updateTime = new Date(item.updateTime).toLocaleDateString();
+        return item;
+      });
+    },
     async changePage(index) {
       const response = await api.db.findResourcePlan({
         pageIndex: index,
@@ -152,7 +155,7 @@ export default {
       });
       this.value = response.data;
     },
-    addPlan() {
+    addVectorPlan() {
       //this.$Modal.remove();
       this.$window({
         title: '方案搭建',
@@ -162,7 +165,27 @@ export default {
             PlanCreate,
             {
               props: {
-                value: {},
+                value: { tag: 'vector' },
+              },
+            },
+            [this.$scopedSlots.default]
+          );
+        },
+        width: 960,
+        height: 630,
+      });
+    },
+    addRasterPlan() {
+      //this.$Modal.remove();
+      this.$window({
+        title: '方案搭建',
+        footerHide: true,
+        render: h => {
+          return h(
+            PlanCreate,
+            {
+              props: {
+                value: { tag: 'raster' },
               },
             },
             [this.$scopedSlots.default]
@@ -178,9 +201,40 @@ export default {
       const response = await api.db.extractResourcePlan({
         id: row.id,
       });
-      window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
+      if (response.statusCode !== 200 || response.data == null) {
+        this.$Message.error('方案提取失败！');
+      } else if (row.resType === 0) {
+        window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
+      } else {
+        if (response.statusCode === 200) {
+          window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
+        } else {
+          this.$Message.error(response.data);
+        }
+      }
     },
-    async deletePlan() {},
+    deleteConfirm(row) {
+      this.$Modal.confirm({
+        title: '提示信息',
+        content: '<p>是否删除该方案？</p>',
+        onOk: () => {
+          this.deletePlan(row);
+        },
+      });
+    },
+    async deletePlan(row) {
+      const result = await api.db.deleteResourcePlan({ id: row.id });
+      if (result.data.statusCode == 200) {
+        this.$Message.success('删除成功！');
+        this.$store.dispatch(types.SET_BUS_SELECT_PLANDATA, {
+          pageIndex: 1, // 分页索引
+          pageSize: 5, // 分页大小
+          objCondition: {
+            applyOrganization: this.$user.orgid, // 组织id
+          },
+        });
+      } else this.$Message.error('删除失败，请稍后重试！');
+    },
   },
 };
 </script>
@@ -195,7 +249,12 @@ export default {
     <div class="foot-div">
       <Button
         type="primary"
-        @click="addPlan">新新增方案</Button>
+        icon="plus-round"
+        @click="addVectorPlan">矢量提取案</Button>
+      <Button
+        type="primary"
+        icon="plus-round"
+        @click="addRasterPlan">影像提取方案</Button>
       <div class="foot-div-page">
         <Page
           :total="planData.pageInfo.totalCount"

@@ -1,9 +1,9 @@
 <script>
-import PlanTable from './PlanTable';
+import ExtractPlan from './ExtractPlan';
 
 export default {
   name: 'PlanExtract',
-  components: { PlanTable },
+  components: { ExtractPlan },
   props: {
     value: {
       type: Object,
@@ -53,8 +53,8 @@ export default {
             type="close"
             @click.native="close"></Icon>
         </div>
-        <PlanTable
-          :value="value"></PlanTable>
+        <ExtractPlan
+          :value="value"></ExtractPlan>
       </Card>
     </div>
   </transition>
