@@ -195,7 +195,7 @@ export default {
     <div class="foot-div">
       <Button
         type="primary"
-        @click="addPlan">新增方案</Button>
+        @click="addPlan">新新增方案</Button>
       <div class="foot-div-page">
         <Page
           :total="planData.pageInfo.totalCount"

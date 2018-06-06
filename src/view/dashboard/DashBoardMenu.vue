@@ -1,6 +1,7 @@
 <script>
 import PlanExtract from '@/components/extra/PlanExtract';
 import * as types from '@/store/types';
+import StyleTable from '@/components/configmanage/StyleTable';
 
 export default {
   name: 'DashBoardMenu',
@@ -41,6 +42,25 @@ export default {
           this.title = '复合查询';
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.showWindow = true;
+          break;
+        case 'stylecfg':
+          this.$window({
+            title: '样式文件管理',
+            footerHide: true,
+            render: h => {
+              return h(
+                StyleTable,
+                {
+                  props: {
+                    value: {},
+                  },
+                },
+                [this.$scopedSlots.default]
+              );
+            },
+            width: 960,
+            height: 600,
+          });
           break;
         case 'extra':
           this.$store.commit(types.SET_APP_DATATABLE, 'PlanExtract');

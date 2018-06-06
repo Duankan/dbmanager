@@ -1,10 +1,11 @@
 <script>
 import DataTable from '@/components/datatable/DataTable';
 import PlanTable from '@/components/extra/PlanTable';
+import StyleTable from '@/components/configmanage/StyleTable';
 
 export default {
   name: 'Attribute',
-  components: { PlanTable, DataTable },
+  components: { PlanTable, DataTable, StyleTable },
   data() {
     return {
       expand: false,
@@ -24,6 +25,9 @@ export default {
           break;
         case 'AttributeTable':
           return this.$store.state.bus.attribute.length;
+          break;
+        case 'StyleTable':
+          return true;
           break;
         default:
           break;
@@ -52,7 +56,8 @@ export default {
             @click.native="close"></Icon>
         </div>
         <PlanTable v-if = "dataTable==='PlanExtract'"/>
-        <DataTable v-if ="dataTable==='AttributeTable'"/>
+        <DataTable v-if = "dataTable==='AttributeTable'"/>
+        <StyleTable v-if = "dataTable==='StyleTable'"/>
       </Card>
     </div>
   </transition>
