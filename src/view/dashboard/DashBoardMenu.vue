@@ -50,31 +50,17 @@ export default {
               applyOrganization: this.$user.orgid, // 组织id
             },
           });
-          //console.log(this.$store.state.bus.plandata[0]);
-          //this.$store.commit(types.SET_BUS_SELECT_PLANDATA);
-          /* const response = await api.db.findResourcePlan({
-            pageIndex: 1,
-            pageSize: 10,
-            objCondition: { applyOrganization: this.$user.orgid },
-          });
-          this.$Modal.confirm({
-            render: h => {
-              return h(
-                PlanExtract,
-                {
-                  props: {
-                    value: response.data,
-                  },
-                },
-                [this.$scopedSlots.default]
-              );
-            },
-            width: 1160,
-          }); */
+          break;
+        case 'Statistics':
+          this.title = '基础统计';
+          this.openWindow();
           break;
         default:
           break;
       }
+    },
+    openWindow() {
+      this.showWindow = true;
     },
     changeVisible() {
       this.showWindow = false;
@@ -109,7 +95,7 @@ export default {
           统计分析
         </template>
         <MenuItem name="overlay">叠加分析</MenuItem>
-        <MenuItem name="statistics">基础统计</MenuItem>
+        <MenuItem name="Statistics">基础统计</MenuItem>
       </Submenu>
       <Submenu name="configure">
         <template slot="title">
