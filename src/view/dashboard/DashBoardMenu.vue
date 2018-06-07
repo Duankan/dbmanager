@@ -1,5 +1,4 @@
 <script>
-import PlanExtract from '@/components/extra/PlanExtract';
 import QueryModules from '../mapview/query/QueryModules';
 import * as types from '@/store/types';
 import StyleTable from '@/components/configmanage/StyleTable';
@@ -7,7 +6,6 @@ import StyleTable from '@/components/configmanage/StyleTable';
 export default {
   name: 'DashBoardMenu',
   components: {
-    PlanExtract,
     QueryModules,
   },
   data() {
