@@ -1,12 +1,11 @@
 <script>
-import PlanExtract from '@/components/extra/PlanExtract';
 import QueryModules from '../mapview/query/QueryModules';
 import * as types from '@/store/types';
+import StyleTable from '@/components/configmanage/StyleTable';
 
 export default {
   name: 'DashBoardMenu',
   components: {
-    PlanExtract,
     QueryModules,
   },
   data() {
@@ -41,8 +40,27 @@ export default {
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.showWindow = true;
           break;
+        case 'stylecfg':
+          this.$window({
+            title: '样式文件管理',
+            footerHide: true,
+            render: h => {
+              return h(
+                StyleTable,
+                {
+                  props: {
+                    value: {},
+                  },
+                },
+                [this.$scopedSlots.default]
+              );
+            },
+            width: 960,
+            height: 600,
+          });
+          break;
         case 'extra':
-          this.$store.commit(types.SET_APP_DATATABLE, 'PlanExtract');
+          this.$store.commit(types.SET_APP_DATATABLE, 'ExtractPlan');
           this.$store.dispatch(types.SET_BUS_SELECT_PLANDATA, {
             pageIndex: 1, // 分页索引
             pageSize: 5, // 分页大小

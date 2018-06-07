@@ -51,7 +51,7 @@ const bus = {
     [types.REMOVE_BUS_FIELD](state) {
       state.field = [];
     },
-    // 添加属性表查询对象信息
+    // 添加方案列表查询对象信息
     [types.SET_BUS_PLANDATA](state, data) {
       state.plandata = data;
     },
@@ -64,7 +64,6 @@ const bus = {
       } else {
         commit(types.SET_BUS_PLANDATA, [response, 'dd']);
       }
-      //commit(types.SET_BUS_PLANDATA, state.plandata);
     },
   },
 };
