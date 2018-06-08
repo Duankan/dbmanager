@@ -3,6 +3,7 @@ import QueryBase from '../querybase/querybase.js';
 import { CitySelect } from '@ktw/kbus';
 import * as types from '@/store/types';
 import config from 'config';
+import * as filterConfig from './utils.js';
 
 export default {
   name: 'Statistics',
@@ -11,7 +12,6 @@ export default {
   props: {},
   data() {
     return {
-      serviseUrl: '',
       // 表单数值
       statisticsItem: {
         layers: '',
@@ -21,28 +21,26 @@ export default {
         classicField: '',
         classicFieldNum: 1,
       },
+      queryItems: [
+        {
+          operate: '',
+          field: '',
+        },
+      ],
       // 表单验证
       ruleValidate: {
         layers: [{ required: true, message: '请选择一个或多个图层！', trigger: 'change' }],
         classicField: [{ required: true, message: '请选择分类字段！', trigger: 'change' }],
         classicFieldNum: [{ required: true, message: '请选择分段数！' }],
         type: [{ required: true, message: '请选择统计类型！', trigger: 'change' }],
-        statisticsField: [{ required: true, message: '请选择统计字段！', trigger: 'change' }],
       },
       // 表单所需要的数据
       layerData: [],
       crsData: [],
       schema: [],
-
-      layerCrs: null,
-      queryItems: [
-        {
-          field: '',
-          operate: '',
-        },
-      ],
-      queryOperates: [],
+      queryType: [],
       queryFields: [],
+      layerCrs: null,
       // 功能参数
       disabledCrs: true,
       disabledDefault: true,
@@ -51,6 +49,7 @@ export default {
   },
   computed: {
     statisticsType() {
+      this.filterCommonField();
       if (this.statisticsItem.type === 'classify') {
         return '分类字段：';
       } else {
@@ -58,33 +57,66 @@ export default {
       }
     },
   },
+  watch: {
+    queryItems: {
+      handler(newVal, oldVal) {
+        for (const key in newVal) {
+          const fields = this.filterStatistics(newVal[key].operate);
+          if (newVal[key].operate && newVal[key].field === '') {
+            if (this.queryFields[key]) {
+              this.queryFields[key] = fields;
+            } else {
+              this.queryFields.push(fields);
+            }
+          } else if (newVal[key].operate === oldVal[key].operate) {
+            this.queryFields[key] = fields;
+          }
+        }
+      },
+      deep: true,
+    },
+  },
+  mounted() {
+    this.queryType = Object.values(filterConfig.statisticsConfig);
+  },
   methods: {
     //新增查询项
     addQueryItem() {
       this.queryItems.push({
-        field: '',
         operate: '',
+        field: '',
       });
     },
     //删除查询项
     deleteQueryItem(index) {
       this.queryItems.splice(index, 1);
     },
+    // 过滤公共参数
+    filterCommonField() {
+      if (this.allschema) {
+        this.schema = filterConfig.filterClassic(this.allschema, this.statisticsItem.type);
+        this.schema = this.schema.filter(item => !this.commonParams.includes(item.name));
+      }
+    },
+    // 过滤统计字段
+    filterStatistics(type) {
+      let statisticsField = [];
+      if (this.allschema) {
+        statisticsField = filterConfig.filterStatistics(this.allschema, type);
+        statisticsField = statisticsField.filter(item => !this.commonParams.includes(item.name));
+      }
+      return statisticsField;
+    },
     // 图层选择
     async selectLayer(layerData) {
       if (layerData.value !== '' && layerData.label !== '') {
         this.disabledDefault = false;
-        this.serviseUrl = layerData.value;
-        const url = new URL(this.serviseUrl);
-        this.queryUrl = url.origin + '/master/ows';
         // 过滤字段,取参数
         if (this.layerData.length !== 0) {
           const totalParams = this.layerData.filter(item => item.label === layerData.label);
-          this.fieldList = this.getColums(totalParams[0].schema);
           this.layerCrs = totalParams[0].crs;
-          this.schema = totalParams[0].schema.filter(
-            item => !this.commonParams.includes(item.name)
-          );
+          this.allschema = totalParams[0].schema;
+          this.filterCommonField();
           // 请求平面坐标
           this.crsplaceholder = '正在查询中...';
           const crs = this.layerCrs.split(':');
@@ -95,16 +127,86 @@ export default {
         }
       }
     },
+    // 处理请求参数
+    setParams() {
+      let statistics;
+      // 处理统计字段
+      const statisticsFields = [];
+      this.queryItems.forEach(item => {
+        if (item.operate !== '' && item.field !== '') {
+          const queryType = this.queryType.filter(querykey => querykey.text === item.operate);
+          statisticsFields.push({
+            field: item.field,
+            operate: queryType[0].key,
+          });
+        }
+      });
+      // 公共字段
+      statistics = {
+        typename: this.statisticsItem.layers,
+        destcrs: this.statisticsItem.crs === '' ? this.layerCrs : this.statisticsItem.crs,
+        statisticsFields,
+      };
+      // 分类统计
+      if (this.statisticsItem.type === 'classify') {
+        statistics = {
+          ...statistics,
+          groupFields: this.statisticsItem.classicField,
+          type: 'string',
+        };
+      } else {
+        // 分段统计
+        statistics = {
+          ...statistics,
+          sub: {
+            subField: this.statisticsItem.classicField,
+            section: String(this.statisticsItem.classicFieldNum),
+          },
+          sort: 'RANGE', //TODO: 可增加排序方式供用户选择或者直接在表格中做排序
+        };
+      }
+      return statistics;
+      // return { statistics: JSON.stringify(statistics) };
+    },
     startQuery() {
-      this.$refs['dbstatistics'].validate(valid => {
+      if (this.queryItems[0].operate === '' && this.queryItems[0].field === '')
+        this.$Message.error('请填写统计字段！');
+      this.$refs['dbstatistics'].validate(async valid => {
         if (valid) {
+          // 验证成功
+          const params = this.setParams();
+          // let fd = new FormData();
+          // fd.append('statistics', JSON.stringify(params));
+          // const response = await api.db.aggregate({}, fd);
+          L.ajax({
+            url: `${config.project.highgisUrl}/master/ows?service=wps&request=aggregate`,
+            success: this.success,
+            dataType: 'json',
+            fail: this.errback,
+            type: 'POST',
+            data: params,
+          });
         } else {
           this.$Message.error('请按要求填写表单！');
         }
       });
     },
+    success(data) {
+      // debugger;
+    },
+    errback() {
+      this.$Message.error('分析失败！');
+    },
     reset() {
       this.$refs['dbstatistics'].resetFields();
+      this.crsplaceholder = '请先选择图层！';
+      this.disabledCrs = true;
+      this.queryItems = [
+        {
+          operate: '',
+          field: '',
+        },
+      ];
     },
   },
 };
@@ -128,7 +230,7 @@ export default {
         @on-change="selectLayer">
         <Option
           v-for="(item,index) in layerData"
-          :value="item.servicesurl"
+          :value="item.label"
           :key="index">{{ item.label }}</Option>
       </Select>
     </FormItem>
@@ -137,7 +239,9 @@ export default {
     </FormItem>
     <FormItem
       label="选择参考系："
-      class="db-choose-crs">
+      class="db-choose-crs"
+      prop="crs"
+    >
       <Select
         v-model="statisticsItem.crs"
         :disabled="disabledCrs"
@@ -180,7 +284,6 @@ export default {
           :value="item.name"
           :key="index">{{ item.name }}</Option>
       </Select>
-      </Select>
     </FormItem>
     <FormItem
       label="统计字段："
@@ -192,27 +295,27 @@ export default {
         class="field-item">
         <div class="item-content">
           <Select
-            v-model="item.field"
+            v-model="item.operate"
             :disabled="disabledDefault"
             size="small"
             placeholder="统计方式"
             transfer>
             <Option
-              v-for="item in queryFields"
-              :key="item.filename"
-              :value="item.filename">{{ item.filename }}</Option>
+              v-for="(typeItem,itemIndex) in queryType"
+              :key="itemIndex"
+              :value="typeItem.text">{{ typeItem.text }}</Option>
           </Select>
           <Select
-            v-model="item.operate"
+            v-model="item.field"
             :disabled="disabledDefault"
             size="small"
             placeholder="统计字段"
             transfer
           >
             <Option
-              v-for="item in queryOperates"
-              :key="item.value"
-              :value="item.value">{{ item.label }}</Option>
+              v-for="(field,fieldIndex) in queryFields[index]"
+              :key="fieldIndex"
+              :value="field.name">{{ field.name }}</Option>
           </Select>
         </div>
         <div class="item-operate">
@@ -276,11 +379,11 @@ export default {
     .item-content {
       margin-right: 5px;
       .k-select:first-child {
-        width: 48%;
+        width: 38%;
       }
 
       .k-select:last-child {
-        width: 38%;
+        width: 48%;
         margin-left: 2%;
       }
     }

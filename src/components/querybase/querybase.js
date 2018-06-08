@@ -2,7 +2,7 @@
  * @Author: huangge
  * @Date: 2018-06-06 11:43:59
  * @Last Modified by: huangge
- * @Last Modified time: 2018-06-07 11:45:02
+ * @Last Modified time: 2018-06-07 13:51:22
  */
 import * as types from '@/store/types';
 
@@ -62,6 +62,8 @@ export default {
             title: item.name,
             key: item.name,
             align: 'center',
+            width: 100,
+            maxWidth: 200,
           });
         }
       });
