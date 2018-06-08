@@ -52,7 +52,7 @@ export default {
         return;
       }
       const params = this.getParams();
-      this.showTable(this.fieldList, params);
+      this.showTable(this.fieldList, params, 'wfsQuery');
     },
     // 处理参数
     getParams() {
