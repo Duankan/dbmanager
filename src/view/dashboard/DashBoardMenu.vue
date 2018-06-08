@@ -69,9 +69,16 @@ export default {
             },
           });
           break;
+        case 'Statistics':
+          this.title = '基础统计';
+          this.openWindow();
+          break;
         default:
           break;
       }
+    },
+    openWindow() {
+      this.showWindow = true;
     },
     changeVisible() {
       this.showWindow = false;
@@ -106,7 +113,7 @@ export default {
           统计分析
         </template>
         <MenuItem name="overlay">叠加分析</MenuItem>
-        <MenuItem name="statistics">基础统计</MenuItem>
+        <MenuItem name="Statistics">基础统计</MenuItem>
       </Submenu>
       <Submenu name="configure">
         <template slot="title">
