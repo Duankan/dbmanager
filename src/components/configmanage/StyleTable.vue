@@ -1,4 +1,5 @@
 <script>
+import config from 'config';
 export default {
   name: 'StyleTable',
   data() {
@@ -37,11 +38,11 @@ export default {
                   style: { marginRight: '5px' },
                   on: {
                     click: () => {
-                      this.deletePlan(params.row);
+                      this.downloadPlan(params.row);
                     },
                   },
                 },
-                '删除'
+                '下载'
               ),
               h(
                 'Button',
@@ -53,23 +54,18 @@ export default {
                   style: { marginRight: '5px' },
                   on: {
                     click: () => {
-                      this.downloadPlan(params.row);
+                      this.deletePlan(params.row);
                     },
                   },
                 },
-                '下载'
+                '删除'
               ),
             ]);
           },
         },
       ],
-      data1: [], //data1为查询出分页数据
-      vmtype: '', //vm开头为绑定的值
+      datas: [], //datas为查询出分页数据
       PageCount: 100,
-      vmclassify: '',
-      vmalias: '',
-      vmetime: '',
-      vmitime: '',
       dataCondition: {
         objCondition: {
           // 查询条件
@@ -85,6 +81,10 @@ export default {
       },
       type: [
         //样式类型
+        {
+          value: ' ',
+          label: '全部类型',
+        },
         {
           value: '1',
           label: '点类型',
@@ -104,6 +104,10 @@ export default {
       ],
       classify: [
         //样式分类
+        {
+          value: ' ',
+          label: '全部分类',
+        },
       ],
     };
   },
@@ -121,11 +125,11 @@ export default {
     async getData() {
       //查询后端table数据方法
       const response = await api.db.findStyle(this.dataCondition);
-      this.data1 = response.data.dataSource;
-      this.changeTime(this.data1);
-      this.changeType(this.data1);
-      this.changeStyleType(this.data1);
-      this.PageCount = response.data.pageInfo.totalCount * 2;
+      this.datas = response.data.dataSource;
+      this.changeTime(this.datas);
+      this.changeType(this.datas);
+      this.changeStyleType(this.datas);
+      this.PageCount = response.data.pageInfo.totalCount;
     },
     async setStyleTypes() {
       //查询后端数据设置样式分类的下拉框
@@ -143,15 +147,15 @@ export default {
         label: '其他类型',
       });
     },
-    changeTime(data1) {
+    changeTime(datas) {
       //转换时间方法
-      for (let item of data1) {
+      for (let item of datas) {
         item.createTime = new Date(item.createTime).toLocaleDateString();
       }
     },
-    changeType(data1) {
+    changeType(datas) {
       //把后端查询到的数据 类型int转换成中文方法
-      for (let item of data1) {
+      for (let item of datas) {
         switch (item.type) {
           case 0:
             item.type = '未知类型';
@@ -168,9 +172,9 @@ export default {
         }
       }
     },
-    changeStyleType(data1) {
+    changeStyleType(datas) {
       //把后端查询到的数据 样式类型转换成中文方法
-      for (let item of data1) {
+      for (let item of datas) {
         for (let item2 of this.classify) {
           if (item.classify == item2.value) {
             item.classify = item2.label;
@@ -179,32 +183,24 @@ export default {
       }
     },
     async deletePlan(evt) {
-      //删除方法借口   deleteStyle
-      await api.db.deleteStyle({ id: evt.id });
-      this.getData();
+      //删除方法接口   deleteStyle
+      const result = await api.db.deleteStyle({ id: evt.id });
+      if (result.data.statusCode == 200) {
+        this.$Message.success('删除成功！');
+        this.getData();
+      } else this.$Message.error('删除失败，请稍后重试！');
     },
     downloadPlan(evt) {
-      //下载方法借口   deleteStyle
-      alert('ss');
-      api.db.downloadStyle({ id: evt.id });
+      //下载方法接口   deleteStyle
+      window.open(`${config.project.basicUrl}/resource/styles/download/${evt.id}`);
     },
     search() {
       //查询功能
-      this.pageIndex = 1;
-      this.dataCondition.objCondition.type = this.vmtype;
-      this.dataCondition.objCondition.alias = this.vmalias;
-      this.dataCondition.objCondition.classify = this.vmclassify;
-      this.dataCondition.objCondition.start = new Date(this.vmetime);
-      this.dataCondition.objCondition.end = new Date(this.vmitime);
+      this.dataCondition.pageIndex = 1;
       this.getData();
     },
     reset() {
       //重置功能
-      this.vmetime = '';
-      this.vmitime = '';
-      this.vmalias = '';
-      this.vmtype = '';
-      this.vmclassify = '';
       this.dataCondition.objCondition.type = '';
       this.dataCondition.objCondition.alias = '';
       this.dataCondition.objCondition.classify = '';
@@ -218,67 +214,48 @@ export default {
 
 <template>
   <div>
-
-    <div style="position:  absolute;top: 58px;left:  1.8%;height: 110px;width:  97%;">
-      <div style="position:  absolute;top: 0px;height: 55px;width:  100%;" >
-        <div style="position:  absolute;top: 0px;left:  0%;" >
-          <span
-            style="
-    float:  left;
-    font-size: 14px;
-    line-height: 32px;
-" >入库时间:</span>
+    <div class="Hdev">
+      <div class="Hdev-one" >
+        <div class="Hdev-one-1" >
+          <span class="Hdev-span">入库时间:</span>
           <Row>
             <Col span="12">
             <DatePicker
-              v-model="vmetime"
+              v-model="dataCondition.objCondition.start"
               type="date"
               placeholder="2018-06-13"
               style="width: 200px"></DatePicker>
         </Col>
           </Row>
         </div>
-        <div style="position:  absolute;top: 0px;left:  35%;" >
+        <div class="Hdev-one-2" >
           <span
-            style="
-    float:  left;
-    font-size: 14px;
-    line-height: 32px;
-" >出库时间:</span>
+            class="Hdev-span"
+          >出库时间:</span>
           <Row >
             <Col span="12">
             <DatePicker
-              v-model="vmitime"
+              v-model="dataCondition.objCondition.end"
               type="date"
               placeholder="2018-06-13"
               style="width: 200px"></DatePicker>
         </Col>
           </Row>
         </div>
-        <div style="position:  absolute;top: 0px;left:  70%;" >
-          <span
-            style="
-    float:  left;
-    font-size: 14px;
-    line-height: 32px;
-" >样式别名:</span>
+        <div class="Hdev-one-3" >
+          <span class="Hdev-span" >样式别名:</span>
           <Input
-            v-model="vmalias"
+            v-model="dataCondition.objCondition.alias"
             placeholder="default_point"
             clearable
             style="width: 215px"></Input>
         </div>
       </div>
-      <div style="position:  absolute;top: 50px;height: 55px;width:  100%;" >
-        <div style="position:  absolute;top: 0px;left:  0%;" >
-          <span
-            style="
-    float:  left;
-    font-size: 14px;
-    line-height: 32px;
-" >样式类型:</span>
+      <div class="Hdev-two" >
+        <div class="Hdev-two-1">
+          <span class="Hdev-span" >样式类型:</span>
           <Select
-            v-model="vmtype"
+            v-model="dataCondition.objCondition.type"
             style="width:200px">
             <Option
               v-for="item in type"
@@ -286,15 +263,10 @@ export default {
               :key="item.value">{{ item.label }}</Option>
           </Select>
         </div>
-        <div style="position:  absolute;top: 0px;left:  35%;" >
-          <span
-            style="
-    float:  left;
-    font-size: 14px;
-    line-height: 32px;
-" >样式分类:</span>
+        <div class="Hdev-two-2" >
+          <span class="Hdev-span">样式分类:</span>
           <Select
-            v-model="vmclassify"
+            v-model="dataCondition.objCondition.classify"
             style="width:200px">
             <Option
               v-for="item in classify"
@@ -302,7 +274,7 @@ export default {
               :key="item.value">{{ item.label }}</Option>
           </Select>
         </div>
-        <div style="position:  absolute;top: 0px;right:  0%;" >
+        <div class="Hdev-two-3" >
           <Button
             type="primary"
             icon="ios-search"
@@ -313,31 +285,90 @@ export default {
         </div>
       </div>
     </div>
-
-    <div style="position: absolute;top: 170px;width: 97%;">
+    <div class="Bdiv">
       <Table
         :columns="tableColumns"
-        :data="data1"
+        :data="datas"
       >
       </Table>
     </div>
-    <div style="margin: 10px;overflow: hidden ;position:  absolute;top: 464px;right:  0%;">
+    <div class="Fdiv" >
       <div style="float: right;">
-
-
         <Page
           :total="PageCount"
-
+          :page-size="dataCondition.pageSize"
           show-elevator
-
           @on-change="changePage"></Page>
-
-
-
-
       </div>
     </div>
-
-
   </div>
 </template>
+
+<style scoped>
+.Hdev {
+  position: absolute;
+  top: 58px;
+  left: 1.8%;
+  height: 110px;
+  width: 97%;
+}
+.Hdev-span {
+  float: left;
+  font-size: 14px;
+  line-height: 32px;
+}
+.Hdev-one {
+  position: absolute;
+  top: 0px;
+  height: 55px;
+  width: 100%;
+}
+.Hdev-one-1 {
+  position: absolute;
+  top: 0px;
+  left: 0%;
+}
+.Hdev-one-2 {
+  position: absolute;
+  top: 0px;
+  left: 35%;
+}
+.Hdev-one-3 {
+  position: absolute;
+  top: 0px;
+  left: 70%;
+}
+.Hdev-two {
+  position: absolute;
+  top: 50px;
+  height: 55px;
+  width: 100%;
+}
+.Hdev-two-1 {
+  position: absolute;
+  top: 0px;
+  left: 0%;
+}
+.Hdev-two-2 {
+  position: absolute;
+  top: 0px;
+  left: 35%;
+}
+.Hdev-two-3 {
+  position: absolute;
+  top: 0px;
+  right: 0%;
+}
+.Bdiv {
+  position: absolute;
+  top: 170px;
+  width: 97%;
+}
+.Fdiv {
+  margin: 10px;
+  overflow: hidden;
+  position: absolute;
+  top: 464px;
+  right: 0%;
+}
+</style>
