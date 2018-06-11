@@ -248,7 +248,7 @@ export default {
             v-model="dataCondition.objCondition.alias"
             placeholder="default_point"
             clearable
-            style="width: 215px"></Input>
+            style="width: 200px"></Input>
         </div>
       </div>
       <div class="Hdev-two" >
