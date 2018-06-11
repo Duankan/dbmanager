@@ -195,7 +195,9 @@ export default {
       });
     },
     success(data) {
-      // debugger;
+      const response = JSON.parse(data);
+      const fieldList = this.getTableColumns(response);
+      const list = this.getTableRows(response);
     },
     errback() {
       this.$Message.error('分析失败！');

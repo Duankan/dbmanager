@@ -5,7 +5,9 @@ export default {
     modulesType: {
       type: String,
       validator(value) {
-        return ['QueryAttrs', 'QuerySpace', 'QueryCompound', 'Statistics'].includes(value);
+        return ['QueryAttrs', 'QuerySpace', 'QueryCompound', 'Statistics', 'Overlay'].includes(
+          value
+        );
       },
       default: '',
     },

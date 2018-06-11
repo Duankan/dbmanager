@@ -2,6 +2,9 @@
 import { createTableHeader } from './utils';
 import config from 'config';
 const MAP_WFS_QUERY = 'MAP_WFS_QUERY';
+const MAP_WPS_OVERLAP = 'MAP_WPS_OVERLAP';
+const SET_MAP_TEMPORARYLAYERS = 'SET_MAP_TEMPORARYLAYERS';
+const SET_MAP_TEMPORARYLAYERS_DELETE = 'SET_MAP_TEMPORARYLAYERS_DELETE';
 import * as types from '@/store/types';
 
 export default {
@@ -60,10 +63,14 @@ export default {
         },
         statisticsQuery() {},
       };
-      state[currentRow.attributeType].call(this);
+      if (currentRow.attributeType !== 'statisticsQuery') {
+        state['wfsQuery'].call(this);
+      } else {
+        state[currentRow.attributeType].call(this);
+      }
     },
     // 很不同类型做查询
-    async wfsQuery(option) {
+    async wfsQuery(option, isShowColumns) {
       delete option.attributeType;
       const response = await this.$store.dispatch(MAP_WFS_QUERY, option);
       this.tableData = [];
@@ -71,6 +78,21 @@ export default {
       this.total = response.totalFeatures;
       for (let i = 0; i < response.features.length; i++) {
         this.tableData.push({ ...response.features[i].properties, attributeType: 'wfsQuery' });
+      }
+      if (isShowColumns) {
+        if (response.features.length == 0) {
+          return [];
+        }
+        let cols = Object.keys(response.features[0].properties).map(p => {
+          return {
+            title: p,
+            key: p,
+            align: 'center',
+            width: 100,
+            maxWidth: 200,
+          };
+        });
+        this.$store.commit(types.SET_BUS_FIELD, cols);
       }
     },
     async statisticsQuery(option) {
@@ -103,6 +125,37 @@ export default {
     },
     errback() {
       this.$Message.error('分析失败！');
+    },
+    async overlayQuery(option) {
+      const baseUrl = option.baseUrl;
+      delete option.attributeType;
+      const response = await this.$store.dispatch(MAP_WPS_OVERLAP, option);
+      const analysData = {
+        ...JSON.parse(response),
+        baseUrl: option.url,
+      };
+      this.setLayer(analysData);
+      this.overLapLayerData = analysData;
+    },
+    setLayer(analysData) {
+      if (this.overLapLayerData && this.overLapLayerData.layers !== analysData.layers) {
+        this.$store.commit(SET_MAP_TEMPORARYLAYERS_DELETE, [this.overLapLayerData.layers]);
+      }
+      this.$nextTick(() => {
+        delete this.$store.commit(SET_MAP_TEMPORARYLAYERS, {
+          [this.overLapLayerData.layers]: {
+            ...this.overLapLayerData,
+            url: this.overLapLayerData.baseUrl,
+          },
+        });
+        // 参数处理
+        const wfsParams = {
+          url: `${this.overLapLayerData.baseUrl}?typeName=${this.overLapLayerData.layers}`,
+          pageIndex: 1,
+          pageSize: 10,
+        };
+        this.wfsQuery(wfsParams, true);
+      });
     },
   },
 };
