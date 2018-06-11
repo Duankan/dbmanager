@@ -30,7 +30,6 @@ export default {
       this.queryItem.geometry = layers;
     },
     selectLayer(layerData) {
-      console.log(layerData);
       if (layerData.value !== '' && layerData.label !== '') {
         this.serviseUrl = layerData.value;
         const url = new URL(this.serviseUrl);

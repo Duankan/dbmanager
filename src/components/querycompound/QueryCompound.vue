@@ -3,6 +3,7 @@ import QueryBase from '../querybase/querybase.js';
 import DrawTools from '../drawtools/DrawTools';
 import { CitySelect } from '@ktw/kbus';
 import config from 'config';
+import * as filterConfig from '../statistics/utils.js';
 
 export default {
   name: 'QuerySpace',
@@ -30,8 +31,7 @@ export default {
       this.queryItem.geometry = layers;
     },
     selectLayer(layerData) {
-      console.log(layerData);
-
+      filterConfig.filterClassic(this.allschema, this.statisticsItem.type);
       if (layerData.value !== '' && layerData.label !== '') {
         this.serviseUrl = layerData.value;
         const url = new URL(this.serviseUrl);
@@ -142,6 +142,85 @@ export default {
           :key="index">{{ item.label }}</Option>
       </Select>
     </FormItem>
+
+    <FormItem
+      label="选择条件："
+      style="    height: 90px;">
+
+      <div style="width: 100%;">
+
+        <div style=" width: 50%;">
+          <Select
+            size="small"
+            placeholder="请选择字段">
+            <Option
+              value="米">米</Option>
+          </Select>
+        </div>
+        <div
+          style=" width: 35%;
+           position: absolute;
+           top: 0%;
+           right: 0%;">
+          <Select
+            size="small"
+
+            placeholder="比较符">
+            <Option
+              value="米">米</Option>
+          </Select>
+        </div>
+
+        <div
+          style="width: 50%;
+    position: absolute;
+    top: 50px;
+    left: 0%;">
+          <Input
+            size="small"
+            type="text"
+            placeholder="比较值"></Input>
+        </div>
+
+        <div
+          style="width: 30%;
+    position: absolute;
+    top: 50px;
+    left: 55%;">
+          <Select
+            size="small"
+            placeholder="逻辑符"
+          >
+            <Option
+              selected = "selected"
+              value="且">且</Option>
+            <Option
+              value="或">或</Option>
+          </Select>
+        </div>
+
+        <div
+          style="
+    position: absolute;
+    top: 50px;
+    right: 0%;">
+          <Icon
+            type="ios-plus-outline"
+            size="29"
+          ></Icon>
+        </div>
+
+
+
+      </div>
+
+
+
+
+
+    </FormItem>
+
+
     <FormItem
       label="设置缓冲范围："
       class="db-query-buffer">
@@ -178,7 +257,7 @@ export default {
         @click="reset"
       >重置</Button>
     </FormItem>
-  </Form>
+  </select></formitem></Form>
 </template>
 
 <style lang="less" scoped>

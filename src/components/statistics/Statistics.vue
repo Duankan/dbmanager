@@ -94,8 +94,10 @@ export default {
     // 过滤公共参数
     filterCommonField() {
       if (this.allschema) {
+        console.log(this.allschema);
         this.schema = filterConfig.filterClassic(this.allschema, this.statisticsItem.type);
         this.schema = this.schema.filter(item => !this.commonParams.includes(item.name));
+        console.log(this.schema);
       }
     },
     // 过滤统计字段
@@ -109,6 +111,7 @@ export default {
     },
     // 图层选择
     async selectLayer(layerData) {
+      console.log(this.statisticsItem.classicField);
       if (layerData.value !== '' && layerData.label !== '') {
         this.disabledDefault = false;
         // 过滤字段,取参数
@@ -175,28 +178,24 @@ export default {
         if (valid) {
           // 验证成功
           const params = this.setParams();
-          this.showTable([], { options: { ...params, title: '基础统计' } }, 'statisticsQuery');
           // let fd = new FormData();
           // fd.append('statistics', JSON.stringify(params));
           // const response = await api.db.aggregate({}, fd);
-          // L.ajax({
-          //   url: `${config.project.highgisUrl}/master/ows?service=wps&request=aggregate`,
-          //   success: this.success,
-          //   dataType: 'json',
-          //   fail: this.errback,
-          //   type: 'POST',
-          //   data: params,
-          // });
+          L.ajax({
+            url: `${config.project.highgisUrl}/master/ows?service=wps&request=aggregate`,
+            success: this.success,
+            dataType: 'json',
+            fail: this.errback,
+            type: 'POST',
+            data: params,
+          });
         } else {
           this.$Message.error('请按要求填写表单！');
         }
       });
     },
     success(data) {
-      const response = JSON.parse(data);
-      const fieldList = this.getTableColumns(response);
-      const list = this.getTableRows(response);
-      debugger;
+      // debugger;
     },
     errback() {
       this.$Message.error('分析失败！');
