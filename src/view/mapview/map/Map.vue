@@ -51,6 +51,7 @@ export default {
       <LayerCollect/>
       <TileWMSLayer/>
       <BaseLayer/>
+      <TemporaryLayers></TemporaryLayers>
       <GeoJson
         ref="geojson"
         light-geometry/>

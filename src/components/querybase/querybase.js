@@ -36,15 +36,31 @@ export default {
   watch: {
     wfsLayerData: {
       handler(newVal) {
-        this.layerData = [];
+        if (this.layerDataConfig) {
+          this.layerData1 = [];
+          this.layerData2 = [];
+        } else {
+          this.layerData = [];
+        }
         if (Object.keys(newVal).length !== 0) {
           for (const key in newVal) {
-            this.layerData.push({
-              servicesurl: newVal[key].servicesurl,
-              label: key,
-              schema: newVal[key].schema,
-              crs: newVal[key].csys,
-            });
+            if (this.layerDataConfig) {
+              this.layerDataConfig.forEach(item => {
+                this[item].push({
+                  servicesurl: newVal[key].servicesurl,
+                  label: key,
+                  schema: newVal[key].schema,
+                  crs: newVal[key].csys,
+                });
+              });
+            } else {
+              this.layerData.push({
+                servicesurl: newVal[key].servicesurl,
+                label: key,
+                schema: newVal[key].schema,
+                crs: newVal[key].csys,
+              });
+            }
           }
         }
       },
@@ -97,8 +113,8 @@ export default {
     },
     // 列表展示
     showTable(fieldList, params, attributeType) {
-      this.$store.commit(types.REMOVE_BUS_FIELD);
-      this.$store.commit(types.REMOVE_BUS_ATTRIBUTE);
+      // this.$store.commit(types.REMOVE_BUS_FIELD);
+      // this.$store.commit(types.REMOVE_BUS_ATTRIBUTE);
       this.$store.commit(types.SET_BUS_FIELD, fieldList);
       this.$store.commit(types.SET_BUS_ATTRIBUTE, { ...params, attributeType });
     },

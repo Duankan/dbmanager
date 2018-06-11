@@ -196,7 +196,6 @@ export default {
       const response = JSON.parse(data);
       const fieldList = this.getTableColumns(response);
       const list = this.getTableRows(response);
-      debugger;
     },
     errback() {
       this.$Message.error('分析失败！');
