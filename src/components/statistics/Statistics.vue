@@ -175,24 +175,28 @@ export default {
         if (valid) {
           // 验证成功
           const params = this.setParams();
+          this.showTable([], { options: { ...params, title: '基础统计' } }, 'statisticsQuery');
           // let fd = new FormData();
           // fd.append('statistics', JSON.stringify(params));
           // const response = await api.db.aggregate({}, fd);
-          L.ajax({
-            url: `${config.project.highgisUrl}/master/ows?service=wps&request=aggregate`,
-            success: this.success,
-            dataType: 'json',
-            fail: this.errback,
-            type: 'POST',
-            data: params,
-          });
+          // L.ajax({
+          //   url: `${config.project.highgisUrl}/master/ows?service=wps&request=aggregate`,
+          //   success: this.success,
+          //   dataType: 'json',
+          //   fail: this.errback,
+          //   type: 'POST',
+          //   data: params,
+          // });
         } else {
           this.$Message.error('请按要求填写表单！');
         }
       });
     },
     success(data) {
-      // debugger;
+      const response = JSON.parse(data);
+      const fieldList = this.getTableColumns(response);
+      const list = this.getTableRows(response);
+      debugger;
     },
     errback() {
       this.$Message.error('分析失败！');
