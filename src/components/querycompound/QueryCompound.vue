@@ -5,8 +5,40 @@ import { CitySelect } from '@ktw/kbus';
 import config from 'config';
 import * as filterConfig from '../statistics/utils.js';
 
+const stringCompare = [
+  {
+    value: '=',
+    label: '等于',
+  },
+  {
+    value: '<>',
+    label: '不等于',
+  },
+  {
+    value: 'LIKE',
+    label: '包含',
+  },
+];
+const numberCompare = [
+  {
+    value: '=',
+    label: '等于',
+  },
+  {
+    value: '<>',
+    label: '不等于',
+  },
+  {
+    value: '>',
+    label: '大于',
+  },
+  {
+    value: '<',
+    label: '小于',
+  },
+];
 export default {
-  name: 'QuerySpace',
+  name: 'QueryCompound',
   components: { DrawTools, CitySelect },
   mixins: [QueryBase],
   props: {},
@@ -24,14 +56,42 @@ export default {
       layerData: [],
       layerCrs: null,
       schema: 'the_geom',
+      //这个是属性查询需要的参数
+      schema2: [],
+      field: '',
+      compareList: [],
+      condition: '"长度" > 70000', //这个是属性查询拼的字符串
     };
   },
   methods: {
     getDrawLayer(layers) {
       this.queryItem.geometry = layers;
     },
+    //这个是给选择字段赋值
+    filterCommonField() {
+      if (this.allschema) {
+        this.schema2 = filterConfig.filterClassic(this.allschema, 'classify');
+        this.schema2 = this.schema2.filter(item => !this.commonParams.includes(item.name));
+      }
+    },
+    //这个是给比较符号辅助赋值   console.log(this.field);
+    comparesymbol(data) {
+      const type = data.slice(0, 6);
+      this.compareList = [];
+      if (type == 'String') {
+        this.compareList = stringCompare;
+      } else {
+        this.compareList = numberCompare;
+      }
+    },
+
     selectLayer(layerData) {
-      filterConfig.filterClassic(this.allschema, this.statisticsItem.type);
+      if (this.layerData.length !== 0) {
+        const totalParams = this.layerData.filter(item => item.label === layerData.label);
+        this.allschema = totalParams[0].schema;
+        this.filterCommonField();
+      }
+
       if (layerData.value !== '' && layerData.label !== '') {
         this.serviseUrl = layerData.value;
         const url = new URL(this.serviseUrl);
@@ -54,6 +114,9 @@ export default {
         return;
       }
       const params = this.getParams();
+
+      //params.queryOptions.cql_filter = this.condition;
+      console.log(params);
       this.showTable(this.fieldList, params);
     },
     // 处理参数
@@ -71,7 +134,9 @@ export default {
             : this.queryItem.buffer / 111194.872221777,
         spatialRelationship: this.queryItem.relationship,
         geometry: this.queryItem.geometry,
+        cql_filter: '"AREA" > 70000',
       };
+      //设置属性的参数传递
       return {
         options,
         queryOptions,
@@ -99,6 +164,7 @@ export default {
         return;
       }
       const loadParams = this.setLoadPrams();
+
       const response = await api.db.batchwebrequest([loadParams]);
       window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
     },
@@ -151,10 +217,15 @@ export default {
 
         <div style=" width: 50%;">
           <Select
+            v-model="field"
             size="small"
-            placeholder="请选择字段">
+            placeholder="请选择字段"
+            @on-change="comparesymbol(field)">
             <Option
-              value="米">米</Option>
+              v-for="(item,index) in schema2"
+              :value="item.type+index"
+              :key="index"
+            >{{ item.name }}</Option>
           </Select>
         </div>
         <div
@@ -167,7 +238,9 @@ export default {
 
             placeholder="比较符">
             <Option
-              value="米">米</Option>
+              v-for="item in compareList"
+              :value="item.value"
+              :key="item.value">{{ item.label }}</Option>
           </Select>
         </div>
 
