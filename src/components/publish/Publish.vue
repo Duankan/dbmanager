@@ -103,8 +103,8 @@ export default {
 
       const { serviceType, ...rest } = this.publishForm;
       const params = {
-        catalogId: item.catalogId,
-        resourceId: item.resourceId,
+        catalogId: this.node.catalogId,
+        resourceId: this.node.resourceId,
         userId: this.$user.id,
         userName: this.$user.name,
         orgId: this.$user.orgid,
@@ -117,6 +117,7 @@ export default {
       await api.db.publishService(params);
 
       this.publishLoading = false;
+      this.$Message.success('服务发布成功！');
       // 刷新当前页面
       const currentNode = this.$store.state.app.currentDirectory;
       this.$store.dispatch(types.APP_NODES_FETCH, currentNode);

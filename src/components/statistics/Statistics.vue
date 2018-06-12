@@ -94,10 +94,8 @@ export default {
     // 过滤公共参数
     filterCommonField() {
       if (this.allschema) {
-        console.log(this.allschema);
         this.schema = filterConfig.filterClassic(this.allschema, this.statisticsItem.type);
         this.schema = this.schema.filter(item => !this.commonParams.includes(item.name));
-        console.log(this.schema);
       }
     },
     // 过滤统计字段
@@ -111,7 +109,6 @@ export default {
     },
     // 图层选择
     async selectLayer(layerData) {
-      console.log(this.statisticsItem.classicField);
       if (layerData.value !== '' && layerData.label !== '') {
         this.disabledDefault = false;
         // 过滤字段,取参数
