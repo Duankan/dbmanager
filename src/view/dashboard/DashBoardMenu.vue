@@ -69,9 +69,22 @@ export default {
             },
           });
           break;
+        case 'Statistics':
+          this.title = '基础统计';
+          this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
+          this.openWindow();
+          break;
+        case 'Overlay':
+          this.title = '叠加分析';
+          this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
+          this.openWindow();
+          break;
         default:
           break;
       }
+    },
+    openWindow() {
+      this.showWindow = true;
     },
     changeVisible() {
       this.showWindow = false;
@@ -105,8 +118,8 @@ export default {
           <Icon type="stats-bars"></Icon>
           统计分析
         </template>
-        <MenuItem name="overlay">叠加分析</MenuItem>
-        <MenuItem name="statistics">基础统计</MenuItem>
+        <MenuItem name="Overlay">叠加分析</MenuItem>
+        <MenuItem name="Statistics">基础统计</MenuItem>
       </Submenu>
       <Submenu name="configure">
         <template slot="title">

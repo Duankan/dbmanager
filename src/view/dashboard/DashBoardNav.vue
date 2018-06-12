@@ -8,12 +8,10 @@ export default {
   name: 'DashBoardNav',
   components: { DashBoardMenu },
   methods: {
-    click(name) {
-      if (name === 'logout') {
-        this.$store.dispatch(USER_LOGOUT).then(() => {
-          this.$router.replace('/login');
-        });
-      }
+    click() {
+      this.$store.dispatch(USER_LOGOUT).then(() => {
+        this.$router.replace('/login');
+      });
     },
   },
 };

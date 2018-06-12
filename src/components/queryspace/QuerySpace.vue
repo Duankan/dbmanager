@@ -1,13 +1,13 @@
 <script>
+import QueryBase from '../querybase/querybase.js';
 import DrawTools from '../drawtools/DrawTools';
 import { CitySelect } from '@ktw/kbus';
-import * as utils from './utils.js';
-import * as types from '@/store/types';
 import config from 'config';
 
 export default {
   name: 'QuerySpace',
   components: { DrawTools, CitySelect },
+  mixins: [QueryBase],
   props: {},
   data() {
     return {
@@ -25,29 +25,6 @@ export default {
       schema: 'the_geom',
     };
   },
-  computed: {
-    wfsLayerData() {
-      return this.$store.getters.wfsLayerData;
-    },
-  },
-  watch: {
-    wfsLayerData: {
-      handler(newVal) {
-        this.layerData = [];
-        if (Object.keys(newVal).length !== 0) {
-          for (const key in newVal) {
-            this.layerData.push({
-              servicesurl: newVal[key].servicesurl,
-              label: key,
-              schema: newVal[key].schema,
-              crs: newVal[key].crs,
-            });
-          }
-        }
-      },
-      immediate: true,
-    },
-  },
   methods: {
     getDrawLayer(layers) {
       this.queryItem.geometry = layers;
@@ -60,7 +37,7 @@ export default {
         // 过滤字段
         if (this.layerData.length !== 0) {
           const totalParams = this.layerData.filter(item => item.label === layerData.label);
-          this.fieldList = utils.getColums(totalParams[0].schema);
+          this.fieldList = this.getColums(totalParams[0].schema);
           this.layerCrs = totalParams[0].crs;
           totalParams[0].schema.forEach(item => {
             this.schema = this.schema + ',' + item.name;
@@ -75,10 +52,7 @@ export default {
         return;
       }
       const params = this.getParams();
-      this.$store.commit(types.REMOVE_BUS_FIELD);
-      this.$store.commit(types.REMOVE_BUS_ATTRIBUTE);
-      this.$store.commit(types.SET_BUS_FIELD, this.fieldList);
-      this.$store.commit(types.SET_BUS_ATTRIBUTE, params);
+      this.showTable(this.fieldList, params, 'wfsQuery');
     },
     // 处理参数
     getParams() {
@@ -126,8 +100,8 @@ export default {
       const response = await api.db.batchwebrequest([loadParams]);
       window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
     },
+    // 参数处理
     setLoadPrams() {
-      // 参数处理
       let loadParams;
       const params = this.getParams();
       const queryPram = new L.QueryParameter.WfsQueryParameter({

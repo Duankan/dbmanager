@@ -108,6 +108,7 @@ export default {
     },
     //图层选择事件
     layerChange(layer) {
+      console.log(layer);
       this.formDynamic.layerTitle = layer.label;
       const layers = this.$store.getters.wfsLayerData[layer.value];
       this.formDynamic.wfsUrl = layers.wfsurl;
@@ -191,6 +192,7 @@ export default {
       const CQLFilter = this.getCondition(items);
       const options = { version: '1.0.0' };
       if (CQLFilter) options.cql_filter = CQLFilter;
+      console.log(options);
       this.$store.commit(types.REMOVE_BUS_FIELD);
       this.$store.commit(types.REMOVE_BUS_ATTRIBUTE);
       this.$store.commit(types.SET_BUS_FIELD, this.getColums());
