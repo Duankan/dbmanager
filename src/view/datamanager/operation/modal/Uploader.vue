@@ -123,11 +123,19 @@ export default {
       this.$refs.upload.upload();
     },
 
+    // 文件上传重命名检查
+    checkFileName() {},
+
     // 上传成功触发回调 测试单个文件上传流程
     async uploadSuccess(rootFile, file, message, chunk) {
       message = JSON.parse(message);
+      let { name, ...rest } = message.data;
+
+      const fileName = file.name.slice(0, file.name.lastIndexOf('.'));
+
       await api.db.addresource({
-        alias: file.name.slice(0, file.name.lastIndexOf('.')),
+        name: fileName,
+        alias: fileName,
         typeId: this.resource.typeId,
         classify: '',
         description: '',
@@ -136,7 +144,7 @@ export default {
         userName: this.$user.name,
         orgId: this.$user.orgid,
         orgName: this.$user.orgname,
-        ...message.data,
+        ...rest,
       });
       await this.$store.dispatch(types.APP_NODES_FETCH, this.current);
       this.loading = false;

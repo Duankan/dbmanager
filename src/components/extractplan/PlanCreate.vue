@@ -37,7 +37,6 @@ export default {
       extent: 'hide',
       resdata: [], //过滤查询字段信息
       checkList: [], //勾选资源列表
-      scaleArray: [], //保存查询到的图幅比例尺数组
       attribute: {
         stripe: true,
         border: true,
@@ -71,6 +70,16 @@ export default {
         },
       ],
       treeData: [],
+      scale: [],
+      process: { mapState: false },
+      initDatas: {
+        mapNum: [],
+        scaleArray: [], //保存查询到的图幅比例尺数组
+      },
+      submitData: {
+        secScale: '',
+        secMapNum: '',
+      },
       requestdata: {
         //planid: null,//方案编号
         restype: 0, //方案方式： 0为矢量数据提取  1为影像数据提取
@@ -113,16 +122,8 @@ export default {
     },
   },
   async mounted() {
-    const response = await api.db.findCatalog({
-      owner: 1,
-      ownerId: this.$user.orgid,
-      access: 1,
-      hasChild: false,
-      orderby: 'sort_asc',
-    });
-    response.data[0].children = [];
-    response.data[0].title = this.rootNode;
-    this.treeData.push(response.data[0]);
+    this.initData();
+    this.loadScale();
   },
   methods: {
     // 判断是否是目录节点
@@ -166,6 +167,33 @@ export default {
         return node.typeId < 5;
       } else if (this.value.tag && this.value.tag == nodeType) {
         return node.typeId > 8;
+      }
+    },
+    async initData() {
+      const response = await api.db.findCatalog({
+        owner: 1,
+        ownerId: this.$user.orgid,
+        access: 1,
+        hasChild: false,
+        orderby: 'sort_asc',
+      });
+      response.data[0].children = [];
+      response.data[0].title = this.rootNode;
+      this.treeData.push(response.data[0]);
+    },
+    async loadScale() {
+      const response = await api.db.findSpecialLayer({ type: 2 });
+      if (response.status === 200) this.scale = response.data;
+    },
+    async remoteMapUnit(va) {
+      if (va != '') {
+        this.process.mapState = true;
+        const response = await api.db.findMapUnit({
+          unit: this.submitData.secMapNum,
+          scale: this.submitData.secScale,
+        });
+        if (response.status === 200) this.initDatas.scaleArray = response.data;
+        this.process.mapState = false;
       }
     },
     async loadData(row, callback) {
@@ -314,6 +342,13 @@ export default {
         this.$Message.error('方案创建失败！');
       }
     },
+    async addMapUnit() {
+      if (!this.submitData.secMapNum) {
+        this.$Message.error('图幅号不能为空！');
+        return;
+      } else {
+      }
+    },
     next() {
       if (this.current == 1) {
         this.current = 0;
@@ -386,19 +421,26 @@ export default {
                 v-model="plotting"
                 style="width:250px">
                 <Option
-                  v-for="item in cityList"
-                  :value="item.value"
-                  :key="item.value">{{ item.label }}</Option>
+                  v-for="item in scale"
+                  :value="item.code"
+                  :key="item.code">{{ item.name }}</Option>
             </Select></div>
             <div>
               <label>输入图符号：</label>
-              <Input
-                v-model="mapNumber"
-                placeholder="请输入图幅号"
-                style="width: 190px;  margin: 8px 2px 8px 2px;"></Input>
+              <Select
+                v-model="submitData.secMapNum"
+                :remote-method="remoteMapUnit"
+                :loading="process.mapState"
+                filterable
+                remote>
+                <Option
+                  v-for="(option, index) in initDatas"
+                  :value="option.tfName"
+                  :key="index">{{ option.tfName }}</Option>
+              </Select>
               <Button
                 type="ghost"
-                @click="add" >添加</Button></div>
+                @click="addMapUnit" >添加</Button></div>
             <div style="position: absolute;left:350px;top:60px;">
               <Table
                 v-if="showTable"
