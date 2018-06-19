@@ -60,6 +60,7 @@ export default {
           tolerance: '0.000001',
           geombuffer: '0.000001',
           layers,
+          wkt: this.overlayItem.geometry,
         },
       };
       return {
@@ -81,7 +82,13 @@ export default {
     reset() {
       this.$refs['analysform'].resetFields();
     },
-    getDrawLayer(geometry) {},
+    getDrawLayer(geo) {
+      const geometry = geo.toGeoJSON();
+      let wktStr = L.Wkt.Wkt.prototype.fromObject(geometry.geometry, true);
+      wktStr = wktStr.write();
+      wktStr = wktStr.replace(/undefined/g, ' ');
+      this.overlayItem.geometry = wktStr;
+    },
   },
 };
 </script>

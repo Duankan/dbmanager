@@ -23,6 +23,7 @@ export default {
       total: 0,
       features: [],
       title: '',
+      tableLoading: false,
     };
   },
   computed: {
@@ -38,6 +39,7 @@ export default {
       options.forEach(option => {
         this.title = option.title;
         delete option.title;
+        this.tableLoading = true;
         if (this[option.attributeType]) {
           this[option.attributeType](option);
         } else {
@@ -73,6 +75,7 @@ export default {
     async wfsQuery(option, isShowColumns) {
       delete option.attributeType;
       const response = await this.$store.dispatch(MAP_WFS_QUERY, option);
+      this.tableLoading = false;
       this.tableData = [];
       this.features = response.features;
       this.total = response.totalFeatures;
@@ -89,7 +92,7 @@ export default {
             key: p,
             align: 'center',
             width: 100,
-            maxWidth: 200,
+            maxWidth: 300,
           };
         });
         this.$store.commit(types.SET_BUS_FIELD, cols);
@@ -107,6 +110,7 @@ export default {
       });
     },
     statisticsSuccess(data) {
+      this.tableLoading = false;
       const response = JSON.parse(data);
       const columns = Object.keys(response[0]).map(p => {
         return {
@@ -130,6 +134,7 @@ export default {
       const baseUrl = option.baseUrl;
       delete option.attributeType;
       const response = await this.$store.dispatch(MAP_WPS_OVERLAP, option);
+      this.tableLoading = false;
       const analysData = {
         ...JSON.parse(response),
         baseUrl: option.url,
@@ -172,6 +177,7 @@ export default {
           :columns="columns"
           :data="tableData"
           :height="height"
+          :loading="tableLoading"
           stripe
           border
           highlight-row

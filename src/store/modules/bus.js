@@ -34,7 +34,7 @@ const bus = {
         // 当attribute数组中存在url与options.url一致的查询对象时，替换该查询对象为传入的options对象
         attribute.splice(index, 1, deepOptions);
         FunManager.setQueryOptions(attribute);
-        state.attribute.splice(index, 1, options);
+        state.attribute.splice(index, 1, { options, attributeType });
       } else {
         // 不存在时，则将options对象添加在数组的末端
         attribute.push(deepOptions);
