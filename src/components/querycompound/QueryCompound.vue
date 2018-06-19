@@ -4,6 +4,7 @@ import DrawTools from '../drawtools/DrawTools';
 import { CitySelect } from '@ktw/kbus';
 import config from 'config';
 import * as filterConfig from '../statistics/utils.js';
+import * as types from '@/store/types';
 
 const stringCompare = [
   {
@@ -38,12 +39,36 @@ const numberCompare = [
   },
 ];
 export default {
-  name: 'QueryCompound',
+  name: 'QuerySpace',
   components: { DrawTools, CitySelect },
   mixins: [QueryBase],
   props: {},
   data() {
     return {
+      formDynamic: {
+        items: [
+          {
+            field: '',
+            fieldType: '',
+            compare: '',
+            compareList: [],
+            value: '',
+            logic: 'AND',
+          },
+        ],
+      },
+      fieldList2: [],
+      logicList: [
+        {
+          value: 'AND',
+          label: '且',
+        },
+        {
+          value: 'OR',
+          label: '或',
+        },
+      ],
+      //空间的参数
       serviseUrl: '',
       queryItem: {
         layers: '',
@@ -56,35 +81,92 @@ export default {
       layerData: [],
       layerCrs: null,
       schema: 'the_geom',
-      //这个是属性查询需要的参数
-      schema2: [],
-      field: '',
-      compareList: [],
-      condition: '"长度" > 70000', //这个是属性查询拼的字符串
     };
   },
   methods: {
-    getDrawLayer(layers) {
-      this.queryItem.geometry = layers;
-    },
-    //这个是给选择字段赋值
     filterCommonField() {
       if (this.allschema) {
-        this.schema2 = filterConfig.filterClassic(this.allschema, 'classify');
-        this.schema2 = this.schema2.filter(item => !this.commonParams.includes(item.name));
+        this.fieldList2 = filterConfig.filterClassic(this.allschema, 'classify');
+        this.fieldList2 = this.fieldList2.filter(item => !this.commonParams.includes(item.name));
       }
     },
-    //这个是给比较符号辅助赋值   console.log(this.field);
     comparesymbol(data) {
       const type = data.slice(0, 6);
       this.compareList = [];
       if (type == 'String') {
-        this.compareList = stringCompare;
+        this.formDynamic.items.compareList = stringCompare;
       } else {
-        this.compareList = numberCompare;
+        this.formDynamic.items.compareList = numberCompare;
       }
     },
+    compareChange(compare) {},
+    logicChange(logic) {},
+    //增加一组查询条件
+    handleAdd(item) {
+      if (this.formDynamic.items.length > 5) {
+        this.$Message.info('属性查询最多指定6个字段！');
+        return;
+      }
+      const index = this.formDynamic.items.findIndex(node => node === item);
+      this.formDynamic.items.splice(index + 1, 0, {
+        field: '',
+        fieldType: '',
+        compare: '',
+        compareList: [],
+        value: '',
+        logic: 'AND',
+      });
+    },
+    //删除一组查询条件
+    handleRemove(item) {
+      const index = this.formDynamic.items.findIndex(node => node === item);
+      this.formDynamic.items.splice(index, 1);
+    },
+    //字段选择事件
+    fieldChange(item) {
+      const type = item.field.slice(0, 6);
+      this.compareList = [];
+      if (type == 'String') {
+        item.compareList = stringCompare;
+      } else {
+        item.compareList = numberCompare;
+      }
+    },
+    getCondition(items) {
+      let cql = '';
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].value || items[i].field || items[i].compare) {
+          const fields = items[i].field.split(':');
+          if (fields.length == 2) {
+            items[i].field = fields[1];
+          } else {
+            items[i].field = fields[0];
+          }
+          if (items[i].field === '' || items[i].compare === '' || items[i].value === '') continue;
+          cql += ` ${i >= 1 ? items[i - 1].logic : ''} "${items[i].field}" ${items[i].compare} ${
+            items[i].compare === 'LIKE'
+              ? "'%"
+              : items[i].fieldType.toLowerCase() === 'double'
+                ? ''
+                : "'"
+          }${items[i].value}${
+            items[i].compare === 'LIKE'
+              ? "%'"
+              : items[i].fieldType.toLowerCase() === 'double'
+                ? ''
+                : "'"
+          }`;
+        } else {
+          break;
+        }
+      }
+      return cql.trim();
+    },
 
+    //下面是空间查询的方法
+    getDrawLayer(layers) {
+      this.queryItem.geometry = layers;
+    },
     selectLayer(layerData) {
       if (this.layerData.length !== 0) {
         const totalParams = this.layerData.filter(item => item.label === layerData.label);
@@ -108,16 +190,29 @@ export default {
       }
     },
     // 发起请求
-    startQuery() {
+    startQuery(name) {
+      const items = this.$refs[name].model.items;
+      const CQLFilter = this.getCondition(items);
       if (this.queryItem.layers === '') {
         this.$Message.error('请选择一个图层');
         return;
       }
       const params = this.getParams();
-
-      //params.queryOptions.cql_filter = this.condition;
-      console.log(params);
-      this.showTable(this.fieldList, params);
+      if (params.queryOptions.geometry) {
+        let geometrys = params.queryOptions.geometry.toGeoJSON();
+        let wktStr = L.Wkt.Wkt.prototype.fromObject(geometrys.geometry, false);
+        wktStr = wktStr.write();
+        wktStr = wktStr.replace(/undefined/g, ' ');
+        //SHAPE_AREA >= 2
+        params.queryOptions.cql_filter = CQLFilter
+          ? CQLFilter + 'and' + ' INTERSECTS(the_geom, ' + wktStr + ')'
+          : '' + ' INTERSECTS(the_geom, ' + wktStr + ')';
+      } else {
+        if (CQLFilter) {
+          params.queryOptions.cql_filter = CQLFilter;
+        }
+      }
+      this.showTable(this.fieldList, params, 'wfsQuery');
     },
     // 处理参数
     getParams() {
@@ -134,9 +229,7 @@ export default {
             : this.queryItem.buffer / 111194.872221777,
         spatialRelationship: this.queryItem.relationship,
         geometry: this.queryItem.geometry,
-        cql_filter: '"AREA" > 70000',
       };
-      //设置属性的参数传递
       return {
         options,
         queryOptions,
@@ -164,7 +257,6 @@ export default {
         return;
       }
       const loadParams = this.setLoadPrams();
-
       const response = await api.db.batchwebrequest([loadParams]);
       window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
     },
@@ -187,11 +279,13 @@ export default {
     },
   },
 };
+////queryItem
 </script>
 
 <template>
   <Form
-    :model="queryItem"
+    ref="formDynamic"
+    :model="formDynamic"
     :label-width="100"
     :label-position="'left'"
   >
@@ -209,89 +303,98 @@ export default {
       </Select>
     </FormItem>
 
-    <FormItem
-      label="选择条件："
-      style="    height: 90px;">
+    <Row class="condition">
+      <FormItem
+        v-for="(item, index) in formDynamic.items"
+        :key="index"
+        label="查询条件：">
 
-      <div style="width: 100%;">
 
-        <div style=" width: 50%;">
-          <Select
-            v-model="field"
-            size="small"
-            placeholder="请选择字段"
-            @on-change="comparesymbol(field)">
-            <Option
-              v-for="(item,index) in schema2"
-              :value="item.type+index"
-              :key="index"
-            >{{ item.name }}</Option>
-          </Select>
-        </div>
-        <div
-          style=" width: 35%;
-           position: absolute;
-           top: 0%;
-           right: 0%;">
-          <Select
-            size="small"
-
-            placeholder="比较符">
-            <Option
-              v-for="item in compareList"
-              :value="item.value"
-              :key="item.value">{{ item.label }}</Option>
-          </Select>
-        </div>
-
-        <div
-          style="width: 50%;
-    position: absolute;
-    top: 50px;
-    left: 0%;">
-          <Input
-            size="small"
-            type="text"
-            placeholder="比较值"></Input>
-        </div>
-
-        <div
-          style="width: 30%;
-    position: absolute;
-    top: 50px;
-    left: 55%;">
-          <Select
-            size="small"
-            placeholder="逻辑符"
-          >
-            <Option
-              selected = "selected"
-              value="且">且</Option>
-            <Option
-              value="或">或</Option>
-          </Select>
-        </div>
-
-        <div
-          style="
-    position: absolute;
-    top: 50px;
-    right: 0%;">
-          <Icon
-            type="ios-plus-outline"
-            size="29"
-          ></Icon>
+        <div style="width: 100%;">
+          <div style="width: 60%;float: left;">
+            <FormItem>
+              <Select
+                v-model="item.field"
+                class="left"
+                size="small"
+                placeholder="请选择字段"
+                @on-change="fieldChange(item)"
+              >
+                <Option
+                  v-for="item in fieldList2"
+                  :value="item.type+':'+item.name"
+                  :key="item.name"
+                >{{ item.name }}
+                </Option>
+              </Select>
+            </FormItem>
+          </div>
+          <div style="width: 40%;float: left;">
+            <FormItem>
+              <Select
+                v-model="item.compare"
+                class="right"
+                size="small"
+                placeholder="比较符"
+              >
+                <Option
+                  v-for="item in item.compareList"
+                  :value="item.value"
+                  :key="item.value">{{ item.label }}</Option>
+              </Select>
+            </FormItem>
+          </div>
         </div>
 
 
+        <div style="width: 100%;">
+          <div style="width: 60%;float: left;">
+            <FormItem
+            >
+              <Input
+                v-model="item.value"
+                class="left"
+                size="small"
+                type="text"
+                placeholder="比较值"></Input>
+            </FormItem>
+          </div>
+          <div style="width: 40%;float: left;">
+            <FormItem>
+              <Select
+                v-model="item.logic"
+                class="right"
+                size="small"
+                placeholder="逻辑符"
+                @on-change="logicChange">
+                <Option
+                  v-for="item in logicList"
+                  :value="item.value"
+                  :key="item.value">{{ item.label }}</Option>
+              </Select>
+            </FormItem>
+          </div>
+        </div>
 
-      </div>
+        <Icon
+          type="ios-plus-outline"
+          size="24"
+          @click.native.stop="handleAdd(item)"></Icon>
+
+        <Icon
+          v-show="formDynamic.items.length > 1"
+          type="ios-minus-outline"
+          size="24"
+          @click.native.stop="handleRemove(item)"></Icon>
+
+
+    </formitem></Row>
 
 
 
 
 
-    </FormItem>
+
 
 
     <FormItem
@@ -321,7 +424,7 @@ export default {
     <FormItem>
       <Button
         type="primary"
-        @click="startQuery">查询</Button>
+        @click="startQuery('formDynamic')">查询</Button>
       <Button
         type="primary"
         @click="loadQueryData">数据提取</Button>
@@ -330,7 +433,7 @@ export default {
         @click="reset"
       >重置</Button>
     </FormItem>
-  </select></formitem></Form>
+  </Form>
 </template>
 
 <style lang="less" scoped>

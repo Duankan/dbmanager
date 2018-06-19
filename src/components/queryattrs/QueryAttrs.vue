@@ -108,7 +108,6 @@ export default {
     },
     //图层选择事件
     layerChange(layer) {
-      console.log(layer);
       this.formDynamic.layerTitle = layer.label;
       const layers = this.$store.getters.wfsLayerData[layer.value];
       this.formDynamic.wfsUrl = layers.wfsurl;
@@ -190,9 +189,9 @@ export default {
       }
       const items = this.$refs[name].model.items;
       const CQLFilter = this.getCondition(items);
+      console.log(CQLFilter);
       const options = { version: '1.0.0' };
       if (CQLFilter) options.cql_filter = CQLFilter;
-      console.log(options);
       this.$store.commit(types.REMOVE_BUS_FIELD);
       this.$store.commit(types.REMOVE_BUS_ATTRIBUTE);
       this.$store.commit(types.SET_BUS_FIELD, this.getColums());
@@ -268,6 +267,7 @@ export default {
           :key="item.value">{{ item.label }}</Option>
       </Select>
     </FormItem>
+
     <Row class="condition">
       <FormItem
         v-for="(item, index) in formDynamic.items"
@@ -332,6 +332,8 @@ export default {
           @click.native.stop="handleAdd(item)"></Icon>
       </FormItem>
     </Row>
+
+
     <FormItem>
       <Button
         type="primary"

@@ -213,162 +213,88 @@ export default {
 </script>
 
 <template>
-  <div>
-    <div class="Hdev">
-      <div class="Hdev-one" >
-        <div class="Hdev-one-1" >
-          <span class="Hdev-span">入库时间:</span>
-          <Row>
-            <Col span="12">
-            <DatePicker
-              v-model="dataCondition.objCondition.start"
-              type="date"
-              placeholder="2018-06-13"
-              style="width: 200px"></DatePicker>
-        </Col>
-          </Row>
-        </div>
-        <div class="Hdev-one-2" >
-          <span
-            class="Hdev-span"
-          >出库时间:</span>
-          <Row >
-            <Col span="12">
-            <DatePicker
-              v-model="dataCondition.objCondition.end"
-              type="date"
-              placeholder="2018-06-13"
-              style="width: 200px"></DatePicker>
-        </Col>
-          </Row>
-        </div>
-        <div class="Hdev-one-3" >
-          <span class="Hdev-span" >样式别名:</span>
-          <Input
-            v-model="dataCondition.objCondition.alias"
-            placeholder="default_point"
-            clearable
-            style="width: 200px"></Input>
-        </div>
-      </div>
-      <div class="Hdev-two" >
-        <div class="Hdev-two-1">
-          <span class="Hdev-span" >样式类型:</span>
-          <Select
-            v-model="dataCondition.objCondition.type"
-            style="width:200px">
-            <Option
-              v-for="item in type"
-              :value="item.value"
-              :key="item.value">{{ item.label }}</Option>
-          </Select>
-        </div>
-        <div class="Hdev-two-2" >
-          <span class="Hdev-span">样式分类:</span>
-          <Select
-            v-model="dataCondition.objCondition.classify"
-            style="width:200px">
-            <Option
-              v-for="item in classify"
-              :value="item.value"
-              :key="item.value">{{ item.label }}</Option>
-          </Select>
-        </div>
-        <div class="Hdev-two-3" >
-          <Button
-            type="primary"
-            icon="ios-search"
-            @click="search">查询</Button>
-          <Button
-            type="primary"
-            @click="reset">重置</Button>
-        </div>
-      </div>
-    </div>
-    <div class="Bdiv">
+  <Form
+    ref="formInline"
+    inline>
+    <FormItem class="ff" >
+      <span >入库时间:</span>
+      <DatePicker
+        v-model="dataCondition.objCondition.start"
+        type="date"
+        placeholder="2018-06-13"
+      ></DatePicker>
+      <span>至:</span>
+      <DatePicker
+        v-model="dataCondition.objCondition.end"
+        type="date"
+        placeholder="2018-06-13"
+      ></DatePicker>
+      <span >样式别名:</span>
+      <Input
+        v-model="dataCondition.objCondition.alias"
+        placeholder="default_point"
+        clearable
+      ></Input>
+    </FormItem>
+    <FormItem class="fo">
+      <span class="Hdev-span" >样式类型:</span>
+      <Select
+        v-model="dataCondition.objCondition.type"
+        style="width:200px">
+        <Option
+          v-for="item in type"
+          :value="item.value"
+          :key="item.value">{{ item.label }}</Option>
+      </Select>
+      <span class="Hdev-span">样式分类:</span>
+      <Select
+        v-model="dataCondition.objCondition.classify"
+        style="width:200px">
+        <Option
+          v-for="item in classify"
+          :value="item.value"
+          :key="item.value">{{ item.label }}</Option>
+      </Select>
+      <Button
+        type="primary"
+        icon="ios-search"
+        @click="search">查询</Button>
+      <Button
+        type="primary"
+        @click="reset">重置</Button>
+    </FormItem>
+    <FormItem>
       <Table
         :columns="tableColumns"
         :data="datas"
       >
       </Table>
-    </div>
-    <div class="Fdiv" >
-      <div style="float: right;">
-        <Page
-          :total="PageCount"
-          :page-size="dataCondition.pageSize"
-          show-elevator
-          @on-change="changePage"></Page>
-      </div>
-    </div>
-  </div>
+    </FormItem>
+    <FormItem>
+      <Page
+        :total="PageCount"
+        :page-size="dataCondition.pageSize"
+        show-elevator
+        @on-change="changePage"></Page>
+    </FormItem>
+  </Form>
 </template>
 
-<style scoped>
-.Hdev {
-  position: absolute;
-  top: 58px;
-  left: 1.8%;
-  height: 110px;
-  width: 97%;
+<style lang="less" scoped>
+@w: 200px;
+@fw: 100%;
+.ff {
+  width: @fw;
+  * {
+    width: @w;
+  }
 }
-.Hdev-span {
-  float: left;
-  font-size: 14px;
-  line-height: 32px;
-}
-.Hdev-one {
-  position: absolute;
-  top: 0px;
-  height: 55px;
-  width: 100%;
-}
-.Hdev-one-1 {
-  position: absolute;
-  top: 0px;
-  left: 0%;
-}
-.Hdev-one-2 {
-  position: absolute;
-  top: 0px;
-  left: 35%;
-}
-.Hdev-one-3 {
-  position: absolute;
-  top: 0px;
-  left: 70%;
-}
-.Hdev-two {
-  position: absolute;
-  top: 50px;
-  height: 55px;
-  width: 100%;
-}
-.Hdev-two-1 {
-  position: absolute;
-  top: 0px;
-  left: 0%;
-}
-.Hdev-two-2 {
-  position: absolute;
-  top: 0px;
-  left: 35%;
-}
-.Hdev-two-3 {
-  position: absolute;
-  top: 0px;
-  right: 0%;
-}
-.Bdiv {
-  position: absolute;
-  top: 170px;
-  width: 97%;
-}
-.Fdiv {
-  margin: 10px;
-  overflow: hidden;
-  position: absolute;
-  top: 464px;
-  right: 0%;
+
+.fo {
+  width: @fw;
+  button {
+    float: right;
+    margin: 0 10px 0 0;
+  }
 }
 </style>
