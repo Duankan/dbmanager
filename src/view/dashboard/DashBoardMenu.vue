@@ -126,7 +126,7 @@ export default {
           <Icon type="gear-a"></Icon>
           配置管理
         </template>
-        <MenuItem name="stylecfg">样式配置</MenuItem>
+        <MenuItem name="stylecfg">样式管理</MenuItem>
       </Submenu>
     </Menu>
     <keep-alive>

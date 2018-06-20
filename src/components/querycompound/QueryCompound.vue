@@ -192,7 +192,10 @@ export default {
     // 发起请求
     startQuery(name) {
       const items = this.$refs[name].model.items;
-      const CQLFilter = this.getCondition(items);
+      let CQLFilter = this.getCondition(items);
+      if (CQLFilter.substr(0, 3) == 'AND') {
+        CQLFilter = CQLFilter.slice(3);
+      }
       if (this.queryItem.layers === '') {
         this.$Message.error('请选择一个图层');
         return;
@@ -203,7 +206,6 @@ export default {
         let wktStr = L.Wkt.Wkt.prototype.fromObject(geometrys.geometry, false);
         wktStr = wktStr.write();
         wktStr = wktStr.replace(/undefined/g, ' ');
-        //SHAPE_AREA >= 2
         params.queryOptions.cql_filter = CQLFilter
           ? CQLFilter + 'and' + ' INTERSECTS(the_geom, ' + wktStr + ')'
           : '' + ' INTERSECTS(the_geom, ' + wktStr + ')';
@@ -245,6 +247,16 @@ export default {
         relationship: 'Intersects',
         geometry: null,
       };
+      this.formDynamic.items = [
+        {
+          field: '',
+          fieldType: '',
+          compare: '',
+          compareList: [],
+          value: '',
+          logic: 'AND',
+        },
+      ];
     },
     // 数据提取
     async loadQueryData() {
@@ -279,7 +291,6 @@ export default {
     },
   },
 };
-////queryItem
 </script>
 
 <template>
@@ -294,6 +305,7 @@ export default {
       <Select
         v-model="queryItem.layers"
         :not-found-text="'请添加一个图层！'"
+        transfer
         label-in-value
         @on-change="selectLayer">
         <Option
@@ -302,19 +314,21 @@ export default {
           :key="index">{{ item.label }}</Option>
       </Select>
     </FormItem>
-
-    <Row class="condition">
-      <FormItem
-        v-for="(item, index) in formDynamic.items"
-        :key="index"
-        label="查询条件：">
-
-
-        <div style="width: 100%;">
-          <div style="width: 60%;float: left;">
-            <FormItem>
+    <FormItem label="查询条件：">
+      <Row class="condition">
+        <FormItem
+          v-for="(item, index) in formDynamic.items"
+          :key="index"
+        >
+          <Form
+            ref="formInline"
+            inline>
+            <FormItem
+              prop="user"
+              style="width: 130px">
               <Select
                 v-model="item.field"
+                transfer
                 class="left"
                 size="small"
                 placeholder="请选择字段"
@@ -328,11 +342,12 @@ export default {
                 </Option>
               </Select>
             </FormItem>
-          </div>
-          <div style="width: 40%;float: left;">
-            <FormItem>
+            <FormItem
+              style="width: 80px"
+            >
               <Select
                 v-model="item.compare"
+                transfer
                 class="right"
                 size="small"
                 placeholder="比较符"
@@ -343,13 +358,16 @@ export default {
                   :key="item.value">{{ item.label }}</Option>
               </Select>
             </FormItem>
-          </div>
-        </div>
-
-
-        <div style="width: 100%;">
-          <div style="width: 60%;float: left;">
+            <Icon
+              type="ios-plus-outline"
+              size="25"
+              @click.native.stop="handleAdd(item)"></Icon>
+          </Form>
+          <Form
+            ref="formInline"
+            inline>
             <FormItem
+              style="width: 130px"
             >
               <Input
                 v-model="item.value"
@@ -358,13 +376,13 @@ export default {
                 type="text"
                 placeholder="比较值"></Input>
             </FormItem>
-          </div>
-          <div style="width: 40%;float: left;">
             <FormItem>
               <Select
                 v-model="item.logic"
+                transfer
                 class="right"
                 size="small"
+                style="width: 80px"
                 placeholder="逻辑符"
                 @on-change="logicChange">
                 <Option
@@ -373,30 +391,14 @@ export default {
                   :key="item.value">{{ item.label }}</Option>
               </Select>
             </FormItem>
-          </div>
-        </div>
-
-        <Icon
-          type="ios-plus-outline"
-          size="24"
-          @click.native.stop="handleAdd(item)"></Icon>
-
-        <Icon
-          v-show="formDynamic.items.length > 1"
-          type="ios-minus-outline"
-          size="24"
-          @click.native.stop="handleRemove(item)"></Icon>
-
-
-    </formitem></Row>
-
-
-
-
-
-
-
-
+            <Icon
+              v-show="formDynamic.items.length > 1"
+              type="ios-minus-outline"
+              size="25"
+              @click.native.stop="handleRemove(item)"></Icon>
+          </Form>
+      </formitem></Row>
+    </FormItem>
     <FormItem
       label="设置缓冲范围："
       class="db-query-buffer">
@@ -438,8 +440,8 @@ export default {
 
 <style lang="less" scoped>
 .k-form-item {
-  margin-bottom: 15px;
-
+  // margin-bottom: 15px;
+  margin-bottom: 0px;
   /deep/.k-form-item-label {
     width: 100px;
   }
@@ -457,5 +459,11 @@ export default {
       float: left;
     }
   }
+}
+
+.condition {
+  height: auto;
+  max-height: 155px;
+  overflow-y: auto;
 }
 </style>

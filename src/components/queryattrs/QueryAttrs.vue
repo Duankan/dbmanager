@@ -268,71 +268,79 @@ export default {
       </Select>
     </FormItem>
 
-    <Row class="condition">
-      <FormItem
-        v-for="(item, index) in formDynamic.items"
-        :key="index"
-        label="查询条件：">
-        <FormItem>
-          <Select
-            v-model="item.field"
-            class="left"
-            size="small"
-            placeholder="请选择字段"
-            @on-change="fieldChange(item)">
-            <Option
-              v-for="item in fieldList"
-              :value="item.value"
-              :key="item.value">{{ item.label }}</Option>
-          </Select>
-        </FormItem>
-        <FormItem>
-          <Select
-            v-model="item.compare"
-            class="right"
-            size="small"
-            placeholder="比较符"
-            @on-change="compareChange">
-            <Option
-              v-for="item in item.compareList"
-              :value="item.value"
-              :key="item.value">{{ item.label }}</Option>
-          </Select>
-        </FormItem>
-        <Icon
-          v-show="formDynamic.items.length > 1"
-          type="ios-minus-outline"
-          size="24"
-          @click.native.stop="handleRemove(item)"></Icon>
+    <FormItem label="查询条件：">
+      <Row class="condition">
         <FormItem
-          :prop="'items.' + index + '.value'">
-          <Input
-            v-model="item.value"
-            class="left"
-            size="small"
-            type="text"
-            placeholder="比较值"></Input>
+          v-for="(item, index) in formDynamic.items"
+          :key="index"
+        >
+          <FormItem>
+            <Select
+              v-model="item.field"
+              transfer
+              class="left"
+              size="small"
+              style="width: 130px"
+              placeholder="请选择字段"
+              @on-change="fieldChange(item)">
+              <Option
+                v-for="item in fieldList"
+                :value="item.value"
+                :key="item.value">{{ item.label }}</Option>
+            </Select>
+          </FormItem>
+          <FormItem>
+            <Select
+              v-model="item.compare"
+              transfer
+              class="right"
+              size="small"
+              placeholder="比较符"
+              style="width: 80px"
+              @on-change="compareChange">
+              <Option
+                v-for="item in item.compareList"
+                :value="item.value"
+                :key="item.value">{{ item.label }}</Option>
+            </Select>
+          </FormItem>
+          <Icon
+            v-show="formDynamic.items.length > 1"
+            type="ios-minus-outline"
+            size="25"
+            @click.native.stop="handleRemove(item)"></Icon>
+          <FormItem
+            :prop="'items.' + index + '.value'">
+            <Input
+              v-model="item.value"
+              class="left"
+              size="small"
+              type="text"
+              style="width: 130px"
+              placeholder="比较值"></Input>
+          </FormItem>
+          <FormItem>
+            <Select
+              v-model="item.logic"
+              transfer
+              class="right"
+              size="small"
+              style="width: 80px"
+              placeholder="逻辑符"
+              @on-change="logicChange">
+              <Option
+                v-for="item in logicList"
+                :value="item.value"
+                :key="item.value">{{ item.label }}</Option>
+            </Select>
+          </FormItem>
+          <Icon
+            type="ios-plus-outline"
+            size="25"
+            @click.native.stop="handleAdd(item)"></Icon>
         </FormItem>
-        <FormItem>
-          <Select
-            v-model="item.logic"
-            class="right"
-            size="small"
-            placeholder="逻辑符"
-            @on-change="logicChange">
-            <Option
-              v-for="item in logicList"
-              :value="item.value"
-              :key="item.value">{{ item.label }}</Option>
-          </Select>
-        </FormItem>
-        <Icon
-          type="ios-plus-outline"
-          size="24"
-          @click.native.stop="handleAdd(item)"></Icon>
-      </FormItem>
-    </Row>
-
+      </Row>
+    </FormItem>
 
     <FormItem>
       <Button
@@ -343,7 +351,7 @@ export default {
         style="margin-left: 8px"
         @click="handleReset('formDynamic')">重置</Button>
     </FormItem>
-  </Form>
+  </formitem></Form>
 </template>
 
 <style lang="less" scoped>
@@ -355,7 +363,7 @@ export default {
 .k-form-item {
   margin-bottom: 15px;
 }
-
+/*李兴成改之前
 .condition {
   height: auto;
   width: 100%;
@@ -375,5 +383,11 @@ export default {
     cursor: pointer;
     margin-top: 5px;
   }
+}*/
+//改之后
+.condition {
+  height: auto;
+  max-height: 205px;
+  overflow-y: auto;
 }
 </style>
