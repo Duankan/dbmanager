@@ -269,7 +269,7 @@ export default {
   </div>
 </template>
 
-<style>
+<style lang="less" scoped>
 .foot-div {
   margin: 10px;
   overflow: hidden;
