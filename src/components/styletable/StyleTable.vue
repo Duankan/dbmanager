@@ -1,5 +1,29 @@
 <script>
 import config from 'config';
+//样式类型
+const styleType = [
+  {
+    value: ' ',
+    label: '全部类型',
+  },
+  {
+    value: '1',
+    label: '点类型',
+  },
+  {
+    value: '2',
+    label: '线类型',
+  },
+  {
+    value: '3',
+    label: '面类型',
+  },
+  {
+    value: '0',
+    label: '未知类型',
+  },
+];
+
 export default {
   name: 'StyleTable',
   data() {
@@ -27,82 +51,37 @@ export default {
           width: 170,
           align: 'center',
           render: (h, params) => {
-            return h('div', { style: { width: '150px' } }, [
-              h(
-                'Button',
-                {
-                  props: {
-                    type: 'success',
-                    size: 'small',
-                  },
-                  style: { marginRight: '5px' },
-                  on: {
-                    click: () => {
-                      this.downloadPlan(params.row);
-                    },
-                  },
-                },
-                '下载'
-              ),
-              h(
-                'Button',
-                {
-                  props: {
-                    type: 'error',
-                    size: 'small',
-                  },
-                  style: { marginRight: '5px' },
-                  on: {
-                    click: () => {
-                      this.deletePlan(params.row);
-                    },
-                  },
-                },
-                '删除'
-              ),
-            ]);
+            return (
+              <div class="db-style-table-handler">
+                <Button type="success" size="small">
+                  预览
+                </Button>
+                <Button type="success" size="small" on-click={downloadPlan(params.row)}>
+                  下载
+                </Button>
+                <Button type="error" size="small" on-click={deletePlan(params.row)}>
+                  删除
+                </Button>
+              </div>
+            );
           },
         },
       ],
       datas: [], //datas为查询出分页数据
-      PageCount: 100,
+      pageCount: 0,
       alltime: '',
+      // 查询条件
       dataCondition: {
-        objCondition: {
-          // 查询条件
-          orgId: this.$user.orgid, // 组织id
-          start: '', // 样式上传时间 (可选)
-          end: '', // 样式上传时间 (可选)
-          alias: '', // 样式别名 (可选)
-          type: '', // 样式类型(-1 全部 0 未知 1 点 2 线 3 面 4 dem类型) (可选)
-          classify: '', // 样式分类(见styleTypes) (可选)
-        },
-        pageIndex: 1, // 分页索引
-        pageSize: 5, // 分页大小
+        orgId: this.$user.orgid, // 组织id
+        start: '', // 样式上传时间 (可选)
+        end: '', // 样式上传时间 (可选)
+        alias: '', // 样式别名 (可选)
+        type: '', // 样式类型(-1 全部 0 未知 1 点 2 线 3 面 4 dem类型) (可选)
+        classify: '', // 样式分类(见styleTypes) (可选)
+        // pageIndex: 1, // 分页索引
+        // pageSize: 5, // 分页大小
       },
-      type: [
-        //样式类型
-        {
-          value: ' ',
-          label: '全部类型',
-        },
-        {
-          value: '1',
-          label: '点类型',
-        },
-        {
-          value: '2',
-          label: '线类型',
-        },
-        {
-          value: '3',
-          label: '面类型',
-        },
-        {
-          value: '0',
-          label: '未知类型',
-        },
-      ],
+      styleType,
       classify: [
         //样式分类
         {
@@ -110,20 +89,26 @@ export default {
           label: '全部分类',
         },
       ],
+      // 表单验证
+      ruleValidate: {
+        time: [{ required: true, message: '请选择一个或多个图层！', trigger: 'change' }],
+        classicField: [{ required: true, message: '请选择分类字段！', trigger: 'change' }],
+        classicFieldNum: [{ required: true, message: '请选择分段数！' }],
+        type: [{ required: true, message: '请选择统计类型！', trigger: 'change' }],
+      },
     };
   },
-  async created() {
+  created() {
     //创建模板完成
     this.getData();
     this.setStyleTypes();
   },
   methods: {
     allocationTime() {
-      console.log(this.alltime[0]);
-      this.dataCondition.objCondition.start = this.alltime[0];
-      this.dataCondition.objCondition.end = this.alltime[1];
+      this.dataCondition.start = this.alltime[0];
+      this.dataCondition.end = this.alltime[1];
     },
-    async changePage(evt) {
+    changePage(evt) {
       //跳转页面方法
       this.dataCondition.pageIndex = evt;
       this.getData();
@@ -135,7 +120,7 @@ export default {
       this.changeTime(this.datas);
       this.changeType(this.datas);
       this.changeStyleType(this.datas);
-      this.PageCount = response.data.pageInfo.totalCount;
+      this.pageCount = response.data.pageInfo.totalCount;
     },
     async setStyleTypes() {
       //查询后端数据设置样式分类的下拉框
@@ -208,11 +193,11 @@ export default {
     },
     reset() {
       //重置功能
-      this.dataCondition.objCondition.type = '';
-      this.dataCondition.objCondition.alias = '';
-      this.dataCondition.objCondition.classify = '';
-      this.dataCondition.objCondition.start = '';
-      this.dataCondition.objCondition.end = '';
+      // this.dataCondition.objCondition.type = '';
+      // this.dataCondition.objCondition.alias = '';
+      // this.dataCondition.objCondition.classify = '';
+      // this.dataCondition.objCondition.start = '';
+      // this.dataCondition.objCondition.end = '';
       this.getData();
     },
   },
@@ -221,36 +206,35 @@ export default {
 
 <template>
   <Form
-    ref="formInline"
-    inline>
-    <FormItem class="ff" >
+  >
+    <FormItem class="style-time" >
       <span >入库时间:</span>
       <DatePicker
         v-model="alltime"
         type="daterange"
         split-panels
-        placeholder="Select date"
+        placeholder="请选择入库时间"
         @on-change="allocationTime" ></DatePicker>
       <span >样式别名:</span>
       <Input
-        v-model="dataCondition.objCondition.alias"
+        v-model="dataCondition.alias"
         placeholder="default_point"
         clearable
       ></Input>
     </FormItem>
     <FormItem class="fo">
-      <span class="Hdev-span" >样式类型:</span>
+      <span>样式类型:</span>
       <Select
-        v-model="dataCondition.objCondition.type"
+        v-model="dataCondition.type"
       >
         <Option
-          v-for="item in type"
+          v-for="item in styleType"
           :value="item.value"
           :key="item.value">{{ item.label }}</Option>
       </Select>
-      <span class="Hdev-span">样式分类:</span>
+      <span>样式分类:</span>
       <Select
-        v-model="dataCondition.objCondition.classify"
+        v-model="dataCondition.classify"
       >
         <Option
           v-for="item in classify"
@@ -274,8 +258,11 @@ export default {
     </FormItem>
     <FormItem>
       <Page
-        :total="PageCount"
-        :page-size="dataCondition.pageSize"
+        :total="pageCount"
+        :page-size="10"
+        :page-size-opts="[10, 20, 30, 40]"
+        size="small"
+        show-total
         show-elevator
         @on-change="changePage"></Page>
     </FormItem>
@@ -285,7 +272,7 @@ export default {
 <style lang="less" scoped>
 @w: 250px;
 @fw: 100%;
-.ff {
+.style-time {
   width: @fw;
   * {
     width: @w;

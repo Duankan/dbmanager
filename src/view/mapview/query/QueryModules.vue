@@ -5,9 +5,14 @@ export default {
     modulesType: {
       type: String,
       validator(value) {
-        return ['QueryAttrs', 'QuerySpace', 'QueryCompound', 'Statistics', 'Overlay'].includes(
-          value
-        );
+        return [
+          'QueryAttrs',
+          'QuerySpace',
+          'QueryCompound',
+          'Statistics',
+          'Overlay',
+          'StyleTable',
+        ].includes(value);
       },
       default: '',
     },
@@ -18,6 +23,14 @@ export default {
     isVisible: {
       type: Boolean,
       default: false,
+    },
+    width: {
+      type: [Number, String],
+      default: 420,
+    },
+    height: {
+      type: [Number, String],
+      default: 200,
     },
   },
   data() {
@@ -43,9 +56,8 @@ export default {
   <Window
     v-model="visible"
     :title="modulesTitle"
-    :resizable="false"
-    :draggable="false"
     footer-hide
+    transfer
     @on-hidden="hidden">
     <component
       :is="modulesType"

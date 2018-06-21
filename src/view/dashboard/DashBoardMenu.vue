@@ -1,7 +1,6 @@
 <script>
 import QueryModules from '../mapview/query/QueryModules';
 import * as types from '@/store/types';
-import StyleTable from '@/components/configmanage/StyleTable';
 
 export default {
   name: 'DashBoardMenu',
@@ -28,36 +27,27 @@ export default {
         case 'QueryAttrs':
           this.title = '属性查询';
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
-          this.showWindow = true;
+          this.openWindow();
           break;
         case 'QuerySpace':
           this.title = '空间查询';
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
-          this.showWindow = true;
+          this.openWindow();
           break;
         case 'QueryCompound':
           this.title = '复合查询';
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
-          this.showWindow = true;
+          this.openWindow();
           break;
-        case 'stylecfg':
-          this.$window({
-            title: '样式文件管理',
-            footerHide: true,
-            render: h => {
-              return h(
-                StyleTable,
-                {
-                  props: {
-                    value: {},
-                  },
-                },
-                [this.$scopedSlots.default]
-              );
-            },
-            width: 960,
-            height: 600,
-          });
+        case 'StyleTable':
+          this.title = '样式文件管理';
+          this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
+          this.openWindow();
+          break;
+        case 'ManageCRS':
+          this.title = '空间参考管理';
+          this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
+          this.openWindow();
           break;
         case 'extra':
           this.$store.commit(types.SET_APP_DATATABLE, 'ExtractPlan');
@@ -126,7 +116,8 @@ export default {
           <Icon type="gear-a"></Icon>
           配置管理
         </template>
-        <MenuItem name="stylecfg">样式管理</MenuItem>
+        <MenuItem name="StyleTable">样式管理</MenuItem>
+        <MenuItem name="ManageCRS">空间参考管理</MenuItem>
       </Submenu>
     </Menu>
     <keep-alive>
