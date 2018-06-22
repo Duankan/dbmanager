@@ -25,7 +25,7 @@ const styleType = [
 ];
 
 export default {
-  name: 'StyleTable',
+  name: 'ManageStyle',
   data() {
     return {
       tableColumns: [
@@ -139,7 +139,6 @@ export default {
       });
     },
     changeTime(datas) {
-      console.log(datas);
       //转换时间方法
       for (let item of datas) {
         item.createTime = new Date(item.createTime).toLocaleDateString();

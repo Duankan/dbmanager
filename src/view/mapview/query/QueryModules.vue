@@ -11,7 +11,8 @@ export default {
           'QueryCompound',
           'Statistics',
           'Overlay',
-          'StyleTable',
+          'ManageStyle',
+          'ManageCRS',
         ].includes(value);
       },
       default: '',

@@ -39,7 +39,7 @@ export default {
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.openWindow();
           break;
-        case 'StyleTable':
+        case 'ManageStyle':
           this.title = '样式文件管理';
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.openWindow();
@@ -116,7 +116,7 @@ export default {
           <Icon type="gear-a"></Icon>
           配置管理
         </template>
-        <MenuItem name="StyleTable">样式管理</MenuItem>
+        <MenuItem name="ManageStyle">样式管理</MenuItem>
         <MenuItem name="ManageCRS">空间参考管理</MenuItem>
       </Submenu>
     </Menu>

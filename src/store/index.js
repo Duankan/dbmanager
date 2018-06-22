@@ -23,10 +23,10 @@ export default new Vuex.Store({
   getters,
   modules,
   plugins: [
-    // Cache({
-    //   key: 'datamanager',
-    //   paths: ['app'],
-    // }),
+    Cache({
+      key: 'datamanager',
+      paths: ['app'],
+    }),
     User,
     // Bus,
     Message,

@@ -79,3 +79,33 @@ export function getTimeStamp(day = 0) {
   const todayTimeStamp = date.getTime() - date.getTime() % BASE;
   return todayTimeStamp - day * BASE;
 }
+
+// 样式文件管理
+export const styleType = [
+  {
+    value: ' ',
+    label: '全部',
+  },
+  {
+    value: '1',
+    label: '点类型',
+  },
+  {
+    value: '2',
+    label: '线类型',
+  },
+  {
+    value: '3',
+    label: '面类型',
+  },
+  {
+    value: '0',
+    label: '未知类型',
+  },
+];
+export function getStyleType(type) {
+  const filterStyle = styleType.filter(item => item.value === String(type));
+  if (filterStyle.length !== 0) {
+    return filterStyle[0].label;
+  }
+}
