@@ -104,6 +104,7 @@ export const styleType = [
   },
 ];
 export function getStyleType(type) {
+  if (type === '') type = ' ';
   const filterStyle = styleType.filter(item => item.value === String(type));
   if (filterStyle.length !== 0) {
     return filterStyle[0].label;
