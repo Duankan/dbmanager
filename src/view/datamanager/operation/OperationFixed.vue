@@ -1,12 +1,14 @@
 <script>
 import Uploader from './modal/Uploader';
 import CreateDirectory from './modal/CreateDirectory';
+import LinkThirdPartService from './modal/LinkThirdPartService';
 
 export default {
   name: 'OperationFixed',
   components: {
     Uploader,
     CreateDirectory,
+    LinkThirdPartService,
   },
   data() {
     return {
@@ -15,6 +17,7 @@ export default {
       title: '文件上传',
       uploaderModal: false,
       directoryModal: false,
+      linkServiceModal: false,
     };
   },
   events: {
@@ -30,6 +33,9 @@ export default {
   methods: {
     upload(name) {
       this.$events.emit('on-upload', { dictionary: name === 'dictionary' });
+    },
+    linkService() {
+      this.linkServiceModal = true;
     },
   },
 };
@@ -63,10 +69,11 @@ export default {
         连接
       </Button>
       <DropdownMenu slot="list">
-        <DropdownItem>第三方服务</DropdownItem>
+        <DropdownItem @click.native="linkService">第三方服务</DropdownItem>
         <DropdownItem>空间数据库</DropdownItem>
       </DropdownMenu>
     </Dropdown>
+    <LinkThirdPartService v-model="linkServiceModal" />
     <Button
       type="ghost"
       @click="directoryModal = true">
