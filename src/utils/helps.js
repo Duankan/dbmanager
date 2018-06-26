@@ -99,6 +99,10 @@ export const styleType = [
     label: '面类型',
   },
   {
+    value: '4',
+    label: 'DEM类型',
+  },
+  {
     value: '0',
     label: '未知类型',
   },

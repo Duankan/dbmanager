@@ -153,8 +153,10 @@ export default {
     reset() {
       this.getStyleData(1);
     },
-    // 新增样式文件
-    addStyle() {},
+    closeAddStyle(isClose) {
+      this.isAddStyle = isClose;
+      this.getStyleData(1);
+    },
   },
 };
 </script>
@@ -223,8 +225,7 @@ export default {
         <Button
           type="info"
           icon="plus-round"
-          @click="isAddStyle=true">新增</Button>
-        <Button type="info">批量新增</Button>
+          @click="isAddStyle=true">新增样式</Button>
         <Button
           type="info"
           icon="close-round">批量删除</Button>
@@ -254,8 +255,11 @@ export default {
     <Modal
       v-model="isAddStyle"
       title="增加样式文件"
-      @on-ok="addStyle">
-      <AddStyle :classify="classify"></AddStyle>
+      @on-cancel="getStyleData(1)"
+    >
+      <AddStyle
+        :classify="classify"
+        @on-close-addstyle="closeAddStyle"></AddStyle>
       <div slot="footer">
       </div>
     </Modal>
