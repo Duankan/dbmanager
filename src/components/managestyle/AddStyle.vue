@@ -40,7 +40,6 @@ export default {
       fileID: '',
       uploadFile: [],
       upLoadList: [],
-      styleParams: {},
       action: `${config.project.baseUrl}/resource/resource/addstyle`,
       isUpload: false,
       isUploadSuccess: false,
@@ -200,7 +199,7 @@ export default {
       this.isUploadSuccess = false;
       this.isUpload = false;
       this.upLoadList = this.$refs.upload.fileList = [];
-      this.$emit('on-close-addstyle', false);
+      this.$emit('on-close-style', false);
     },
     // 初始化处理
     firstLoad() {
@@ -265,7 +264,6 @@ export default {
       :model="styleCondition"
       :rules="ruleValidate"
       :label-width="90"
-      class="db-add-style"
     >
       <FormItem
         label="样式名称："
@@ -345,6 +343,9 @@ export default {
 
 <style lang="less" scoped>
 .db-add-style {
+  .k-form {
+    margin-top: 5px;
+  }
   /deep/.k-form-item {
     margin-bottom: 20px;
   }
