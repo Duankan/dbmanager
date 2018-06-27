@@ -196,7 +196,11 @@ export default {
           this.deleteStyleData = [];
         });
       } else {
-        this.$Message.info('请先选择表格中要被删除的样式信息，直接操作表格上的复选框即可');
+        this.$Message.info({
+          top: 250,
+          duration: 5,
+          content: '请先选择表格中要被删除的样式信息，直接操作表格上的复选框即可',
+        });
       }
     },
     // 保存批量删除信息
