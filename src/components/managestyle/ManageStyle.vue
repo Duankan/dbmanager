@@ -3,10 +3,11 @@ import config from 'config';
 import { date } from '@ktw/ktools';
 import { styleType, getStyleType } from '@/utils/helps';
 import AddStyle from './AddStyle';
+import DeleteStyle from './DeleteStyle';
 
 export default {
   name: 'ManageStyle',
-  components: { AddStyle },
+  components: { AddStyle, DeleteStyle },
   data() {
     return {
       //样式分类
@@ -29,6 +30,11 @@ export default {
       end: '',
       // 表列字段
       tableColumns: [
+        {
+          type: 'selection',
+          width: 60,
+          align: 'center',
+        },
         {
           title: '样式别名',
           ellipsis: true,
@@ -73,7 +79,12 @@ export default {
       tableData: [],
       pageCount: 0,
       tableLoading: false,
-      isAddStyle: false,
+      isComputedStyle: false,
+      modalTitle: '增加样式文件',
+      modalName: '',
+      deleteStyleData: [],
+      deleteError: [],
+      spinShow: false,
     };
   },
   created() {
@@ -136,8 +147,8 @@ export default {
       [this.start, this.end] = time;
     },
     //删除样式文件
-    async deleteStyle(evt) {
-      const result = await api.db.deleteStyle({ id: evt.id });
+    async deleteStyle(styleData) {
+      const result = await api.db.deleteStyle({ id: styleData.id });
       if (result.data.statusCode == 200) {
         this.$Message.success('删除成功！');
         this.getStyleData(1);
@@ -154,13 +165,64 @@ export default {
       this.getStyleData(1);
     },
     // 新增样式文件
-    addStyle() {},
+    addNewStyle() {
+      this.isComputedStyle = true;
+      this.modalTitle = '增加样式文件';
+      this.modalName = 'AddStyle';
+    },
+    // 批量删除样式文件
+    async deleteBatchStyle() {
+      if (this.deleteStyleData.length !== 0) {
+        this.spinShow = true;
+        this.deleteError = [];
+        await Promise.all(
+          this.deleteStyleData.map(styleData => api.db.deleteStyle({ id: styleData.id }))
+        ).then(response => {
+          this.spinShow = false;
+          for (let i = 0; i < response.length; i++) {
+            if (response[i].data.statusCode !== 200) {
+              this.deleteStyleData[i]['errorCallback'] = response[i].data;
+              this.deleteError.push(this.deleteStyleData[i]);
+            }
+          }
+          if (this.deleteError.length !== 0) {
+            this.isComputedStyle = true;
+            this.modalTitle = '批量删除失败';
+            this.modalName = 'DeleteStyle';
+          } else {
+            this.$Message.success('删除成功！');
+            this.getStyleData(1);
+          }
+          this.deleteStyleData = [];
+        });
+      } else {
+        this.$Message.info({
+          top: 250,
+          duration: 5,
+          content: '请先选择表格中要被删除的样式信息，直接操作表格上的复选框即可',
+        });
+      }
+    },
+    // 保存批量删除信息
+    batchDelete(selection) {
+      this.deleteStyleData = selection;
+    },
+    // 关闭新增弹窗
+    closeStyle(isClose) {
+      this.isComputedStyle = isClose;
+      this.getStyleData(1);
+    },
   },
 };
 </script>
 
 <template>
   <div class="db-manage-style">
+    <Spin
+      v-if="spinShow"
+      fix>
+      <loading type="ball-grid-pulse" />
+    </Spin>
     <Form
       ref="managestyle"
       :model="dataCondition"
@@ -223,11 +285,11 @@ export default {
         <Button
           type="info"
           icon="plus-round"
-          @click="isAddStyle=true">新增</Button>
-        <Button type="info">批量新增</Button>
+          @click="addNewStyle">新增样式</Button>
         <Button
           type="info"
-          icon="close-round">批量删除</Button>
+          icon="close-round"
+          @click="deleteBatchStyle">批量删除</Button>
       </FormItem>
     </Form>
     <div class="style-table">
@@ -240,6 +302,7 @@ export default {
         border
         highlight-row
         size="small"
+        @on-selection-change="batchDelete"
       >
       </Table>
       <Page
@@ -252,10 +315,16 @@ export default {
         @on-change="getStyleData"></Page>
     </div>
     <Modal
-      v-model="isAddStyle"
-      title="增加样式文件"
-      @on-ok="addStyle">
-      <AddStyle :classify="classify"></AddStyle>
+      v-model="isComputedStyle"
+      :title="modalTitle"
+      @on-cancel="getStyleData(1)"
+    >
+      <component
+        :is="modalName"
+        :classify="classify"
+        :error-data="deleteError"
+        @on-close-style="closeStyle"
+      ></component>
       <div slot="footer">
       </div>
     </Modal>
@@ -264,6 +333,7 @@ export default {
 
 <style lang="less" scoped>
 .db-manage-style {
+  position: reletive;
   /deep/.k-form-item {
     min-width: 277px;
     margin-bottom: 15px;
@@ -289,5 +359,9 @@ export default {
 /deep/.k-modal-wrap,
 /deep/.k-modal-mask {
   z-index: 1002;
+}
+
+.k-spin-fix {
+  background-color: rgba(28, 36, 56, 0.5);
 }
 </style>

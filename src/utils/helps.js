@@ -163,6 +163,10 @@ export const styleType = [
     label: '面类型',
   },
   {
+    value: '4',
+    label: 'DEM类型',
+  },
+  {
     value: '0',
     label: '未知类型',
   },
@@ -187,4 +191,38 @@ export function filterSchema(schemas) {
     }
   });
   return fields;
+}
+
+export const deleteStatus = [
+  {
+    value: '200',
+    label: '删除成功',
+  },
+  {
+    value: '35271',
+    label: '样式被占用',
+  },
+  {
+    value: '400',
+    label: '删除失败',
+  },
+  {
+    value: '404',
+    label: '样式已被删除',
+  },
+  {
+    value: '403',
+    label: '用户信息失效',
+  },
+  {
+    value: '500',
+    label: '服务器异常',
+  },
+];
+
+export function getDelelteStatus(type) {
+  const filterStyle = deleteStatus.filter(item => item.value === String(type));
+  if (filterStyle.length !== 0) {
+    return filterStyle[0].label;
+  }
 }

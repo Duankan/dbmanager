@@ -28,7 +28,7 @@ const bus = {
       // 把queryOptions参数放在中间件中存放
       const attribute = cloneDeep(state.attribute);
       const deepOptions = cloneDeep(options);
-      deepOptions.options = queryOptions;
+      if (deepOptions.options) deepOptions.options = queryOptions;
       deepOptions.attributeType = attributeType;
       if (index >= 0) {
         // 当attribute数组中存在url与options.url一致的查询对象时，替换该查询对象为传入的options对象

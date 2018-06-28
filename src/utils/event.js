@@ -14,10 +14,8 @@ class Event {
         return;
       }
     }
-
     options.priority = options.priority == undefined ? 0 : options.priority;
     callback._options = options;
-
     if (!this._events[eventName]) {
       this._events[eventName] = [callback];
     } else if (this._events[eventName].payload) {
@@ -104,7 +102,7 @@ class Event {
 }
 
 export default {
-  install(Vue, options) {
+  install(Vue, options = { ignore: false }) {
     const event = new Event();
 
     Vue.mixin({
@@ -121,9 +119,13 @@ export default {
       created() {
         for (const eventName in this.$events._events) {
           if (this.$events._events[eventName].callback) {
-            const payload = this.$events._events[eventName].payload;
-            this.$events._events[eventName] = [this.$events._events[eventName].callback];
-            this.$events.emit(eventName, payload);
+            if (options.ignore) {
+              delete this.$events._events[eventName];
+            } else {
+              const payload = this.$events._events[eventName].payload;
+              this.$events._events[eventName] = [this.$events._events[eventName].callback];
+              this.$events.emit(eventName, payload);
+            }
           }
         }
       },
@@ -131,6 +133,7 @@ export default {
         if (this.$options.events) {
           for (const eventName in this.$options.events) {
             this.$events.off(eventName, this.$options.events[eventName]);
+            this.$events.off(eventName);
           }
         }
       },
