@@ -5,7 +5,7 @@
 */
 
 /* 数据类型判断 */
-function nodeType(node) {
+export function nodeType(node) {
   switch (node.typeId) {
     case '1':
     case '2':
@@ -17,10 +17,12 @@ function nodeType(node) {
     case '8':
       return 'directory';
     case '20001': //点线面
+    case '20002': //地名地址
+    case '20005': //接图表Shapezip
     case '20010': //csv
     case '20011': //csv dataset
     case '20012': //csv zip
-    case '20002': //地名地址
+    case '20016': //地名地址csvzip
       return 'vector';
     case '20003': //dom tiff
     case '20007': //dom 影像图幅文件
@@ -36,6 +38,8 @@ function nodeType(node) {
     case '10009': //zip
     case '10010': //pdf
       return 'file';
+    case '20099': //第三方服务
+      return 'service';
   }
 }
 
@@ -61,7 +65,12 @@ export function isFile(node) {
 
 // 第三方服务及gis数据类型
 export function isService(node) {
-  return false;
+  return nodeType(node) === 'service';
+}
+
+//是否是资源
+export function isResource(node) {
+  return parseInt(node.typeId) > 8;
 }
 
 export function isGisResource(node) {
@@ -70,6 +79,61 @@ export function isGisResource(node) {
 
 export function canView(serviceList) {
   return serviceList.length >= 2 || (serviceList.length === 1 && serviceList[0].servicestype === 5);
+}
+
+//获取资源图标
+export function iconClass(node) {
+  switch (node.typeId) {
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+      return node.expand ? 'folder-open' : 'folder';
+    case '20001': //点线面
+    case '20010': //csv
+    case '20011': //csv dataset
+    case '20012': //csv zip
+      switch (node.shapeType.toUpperCase()) {
+        case 'POINT':
+          return 'point';
+        case 'POLYLINE':
+        case 'LINESTRING':
+        case 'MULTILINESTRING':
+          return 'line';
+        case 'POLYGON':
+        case 'MULTIPOLYGON':
+          return 'polygon';
+      }
+    case '20002': //地名地址
+      return 'dmdz';
+    case '20003': //dom tiff
+    case '20007': //dom 影像图幅文件
+      return 'dom';
+    case '20008': //dem tiff
+    case '20009': //dem 影像图幅文件
+      return 'dem';
+    case '20005': //接图表shapezip
+      return 'grid';
+    case '20014': //controlcsvzip dataset
+      return 'point';
+    case '10005': //doc
+      return 'doc';
+    case '10006': //txt
+      return 'txt';
+    case '10007': //csv
+      return 'csv';
+    case '10008': //xls
+      return 'xls';
+    case '10009': //zip
+      return 'zip';
+    case '10010': //pdf
+      return 'pdf';
+    default:
+      return 'other';
+  }
 }
 
 /* 时间函数 */
@@ -99,6 +163,10 @@ export const styleType = [
     label: '面类型',
   },
   {
+    value: '4',
+    label: 'DEM类型',
+  },
+  {
     value: '0',
     label: '未知类型',
   },
@@ -106,6 +174,54 @@ export const styleType = [
 export function getStyleType(type) {
   if (type === '') type = ' ';
   const filterStyle = styleType.filter(item => item.value === String(type));
+  if (filterStyle.length !== 0) {
+    return filterStyle[0].label;
+  }
+}
+
+//schema保留字段
+const reservedFileds = ['geom', 'gid', 'x1', 'y1', 'x2', 'y2', 'Shape_Leng', 'Shape_Area'];
+
+//过滤schema字段，去掉保留字段
+export function filterSchema(schemas) {
+  let fields = [];
+  schemas.forEach(p => {
+    if (reservedFileds.indexOf(p) < 0) {
+      fields.push(p);
+    }
+  });
+  return fields;
+}
+
+export const deleteStatus = [
+  {
+    value: '200',
+    label: '删除成功',
+  },
+  {
+    value: '35271',
+    label: '样式被占用',
+  },
+  {
+    value: '400',
+    label: '删除失败',
+  },
+  {
+    value: '404',
+    label: '样式已被删除',
+  },
+  {
+    value: '403',
+    label: '用户信息失效',
+  },
+  {
+    value: '500',
+    label: '服务器异常',
+  },
+];
+
+export function getDelelteStatus(type) {
+  const filterStyle = deleteStatus.filter(item => item.value === String(type));
   if (filterStyle.length !== 0) {
     return filterStyle[0].label;
   }

@@ -12,6 +12,7 @@ import router from '@/router';
 import App from './App';
 import '@/components';
 import '@/config/system/k-config-api';
+import '@/config/system/axios-config-api';
 import '@/styles/index.less';
 
 Vue.config.devtools = true;

@@ -179,14 +179,7 @@ export default {
           // let fd = new FormData();
           // fd.append('statistics', JSON.stringify(params));
           // const response = await api.db.aggregate({}, fd);
-          L.ajax({
-            url: `${config.project.highgisUrl}/master/ows?service=wps&request=aggregate`,
-            success: this.success,
-            dataType: 'json',
-            fail: this.errback,
-            type: 'POST',
-            data: params,
-          });
+          this.showTable([], { options: params }, 'statisticsQuery');
         } else {
           this.$Message.error('请按要求填写表单！');
         }
