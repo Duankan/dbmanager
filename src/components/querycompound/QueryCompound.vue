@@ -214,12 +214,13 @@ export default {
           params.queryOptions.cql_filter = CQLFilter;
         }
       }
+      console.log(params);
       this.showTable(this.fieldList, params, 'wfsQuery');
     },
     // 处理参数
     getParams() {
       const options = {
-        title: '空间查询',
+        title: '复合查询',
         pageIndex: 1,
         pageSize: 10,
         url: this.serviseUrl,

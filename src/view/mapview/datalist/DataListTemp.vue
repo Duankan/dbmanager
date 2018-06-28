@@ -41,11 +41,13 @@ export default {
       v-show="queryState"
       class="attribute-table" >
       <Card dis-hover>
+
         <p slot="title">数据属性</p>
         <div slot="extra">
           <Icon
             :type="expand ? 'chevron-down' : 'chevron-up'"
-            @click.native="expand = !expand"></Icon>
+            @click.native="expand = !expand">
+          </Icon>
           <Icon
             type="close"
             @click.native="close"></Icon>
