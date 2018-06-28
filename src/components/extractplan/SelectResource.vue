@@ -1,0 +1,149 @@
+<script>
+import * as helps from '@/utils/helps';
+
+/*
+ * 选择提取资源模块
+ */
+export default {
+  name: 'SelectResource',
+  props: {
+    //提取模式：0：矢量提取，1：影像提取
+    extractMode: {
+      type: Number,
+      default: 0,
+    },
+    //绑定数据
+    model: {
+      type: Array,
+      default: () => {
+        return [];
+      },
+    },
+  },
+  data() {
+    return {
+      //资源表格列
+      layerColumns: [
+        {
+          type: 'selection',
+          width: 60,
+          align: 'center',
+        },
+        {
+          title: '资源名称',
+          key: 'name',
+        },
+        {
+          title: '中文别名',
+          key: 'alias',
+        },
+      ],
+      //当前目录资源数据
+      catalogLayers: [],
+      //选择的资源
+      selectLayers: [...this.model],
+    };
+  },
+  methods: {
+    //获取目录下发布的资源
+    async getCatalogLayers(catalog) {
+      const response = await api.public.findCatalog({
+        owner: 1,
+        ownerId: this.$user.orgid,
+        access: 1,
+        hasChild: false,
+        relatedType: 1,
+        orderby: 'sort_asc',
+        getmode: 'all',
+        resourceTypeId: '1,2',
+        parentId: catalog.childId,
+      });
+      //资源类型过滤
+      const filterFunc = this.extractMode == 0 ? helps.isVector : helps.isRaster;
+      let layers = response.data.filter(p => filterFunc(p) && p.pubState == 1);
+      //资源选择过滤
+      layers.forEach(p => {
+        if (this.selectLayers.find(m => m.resid == p.id)) {
+          p._checked = true;
+        }
+      });
+      this.catalogLayers = layers;
+    },
+    //选择资源
+    selectLayer(layers, current) {
+      this.addSelect(current);
+    },
+    //取消选择资源
+    cancelLayer(layers, current) {
+      this.removeSelect(current);
+    },
+    //添加资源
+    addSelect(layer) {
+      let queryLayer = this.selectLayers.find(p => p.resid == layer.id);
+      if (!queryLayer) {
+        let item = {
+          resid: layer.id,
+          resname: layer.name,
+        };
+        //如果是矢量图层，写入schema参数
+        if (layer.schema) {
+          item.schema = helps.filterSchema(layer.schema.map(m => m.name)).join(',');
+          item.filter = null;
+        }
+        this.selectLayers.push(item);
+      }
+    },
+    //删除选择
+    removeSelect(layer) {
+      let queryLayer = this.selectLayers.find(p => p.resid == layer.id);
+      if (queryLayer) {
+        let layerIdx = this.selectLayers.indexOf(queryLayer);
+        this.selectLayers.splice(layerIdx, 1);
+      }
+    },
+    //获取选择的资源
+    getResources() {
+      return this.selectLayers;
+    },
+  },
+};
+</script>
+<template>
+  <div class="select-resource-wrapper">
+    <div class="tree-wrapper">
+      <DataTree
+        :click-node-expand="false"
+        directory
+        accordion
+        @on-current-select="getCatalogLayers">
+      </DataTree>
+    </div>
+    <div class="table-wrapper">
+      <Table
+        :columns="layerColumns"
+        :data="catalogLayers"
+        height="350"
+        size="small"
+        border
+        @on-select="selectLayer"
+        @on-select-cancel="cancelLayer"></Table>
+    </div>
+  </div>
+</template>
+
+<style lang="less" scoped>
+.select-resource-wrapper {
+  display: flex;
+
+  .tree-wrapper {
+    width: 250px;
+  }
+  .table-wrapper {
+    flex: 1;
+    margin-right: 10px;
+  }
+  /deep/ .k-table-small td {
+    height: 30px;
+  }
+}
+</style>

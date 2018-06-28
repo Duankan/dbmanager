@@ -1,7 +1,6 @@
 <script>
 import api from 'api';
 import * as types from '@/store/types';
-import { cloneDeep } from '@ktw/ktools';
 
 const typeIds = ['5', '6', '10', '11', '12', '21', '22', '23', '73100'];
 

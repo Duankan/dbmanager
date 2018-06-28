@@ -3,6 +3,7 @@
 import Vue from 'vue';
 import { url } from '@ktw/ktools';
 import api from '@ktw/api';
+import * as helps from '@/utils/helps';
 import DataTreeNode from './DataTreeNode.vue';
 // import * as types from '../../store/types';
 
@@ -79,40 +80,6 @@ export default {
     this.$refs.tree.$children[0].handleExpand();
   },
   methods: {
-    // 判断是否是目录节点
-    nodeType(node) {
-      switch (node.typeId) {
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-          return 'directory';
-        case '20001': //点线面
-        case '20010': //csv
-        case '20011': //csv dataset
-        case '20012': //csv zip
-        case '20002': //地名地址
-          return 'vector';
-        case '20003': //dom tiff
-        case '20007': //dom 影像图幅文件
-        case '20008': //dem tiff
-        case '20009': //dem 影像图幅文件
-          return 'raster';
-        case '20102': //sld 样式文件
-          return 'sld';
-        case '10005': //doc
-        case '10006': //txt
-        case '10007': //csv
-        case '10008': //xls
-        case '10009': //zip
-        case '10010': //pdf
-          return 'file';
-      }
-    },
     // 获取根节点信息
     async loadRootNode() {
       const response = await api.public.findCatalog({
@@ -143,7 +110,7 @@ export default {
       });
       const children = [];
       response.data.forEach(node => {
-        const nodeType = this.nodeType(node);
+        const nodeType = helps.nodeType(node);
         if (this.directory) {
           if (nodeType === 'directory') {
             if (node.isChild === 'open') {
@@ -168,14 +135,14 @@ export default {
       callback(children);
     },
     beforeDrop(dragNode, dragOverNode) {
-      return this.nodeType(dragOverNode.node) === 'directory' ? true : false;
+      return helps.nodeType(dragOverNode.node) === 'directory' ? true : false;
     },
     dragEnd(event, node) {
       const { top, left, right, bottom } = document
         .getElementsByClassName('k-map-container')[0]
         .getBoundingClientRect();
       if (left <= event.clientX <= right && top <= event.clientY <= bottom) {
-        if (this.nodeType(node) === 'directory' || (node.children && node.children.length)) {
+        if (helps.nodeType(node) === 'directory' || (node.children && node.children.length)) {
           const serviceObject = node.children.reduce((previous, current) => {
             if (current.isView) {
               const service = current.serviceList.find(service => service.servicestype === 12);
