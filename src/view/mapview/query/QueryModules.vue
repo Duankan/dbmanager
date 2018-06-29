@@ -35,14 +35,7 @@ export default {
     },
   },
   data() {
-    return {
-      visible: this.isVisible,
-    };
-  },
-  watch: {
-    isVisible(newVal) {
-      this.visible = newVal;
-    },
+    return {};
   },
   methods: {
     //窗口关闭事件
@@ -55,7 +48,7 @@ export default {
 
 <template>
   <Window
-    v-model="visible"
+    v-model="isVisible"
     :title="modulesTitle"
     :width="width"
     :height="height"
@@ -69,8 +62,4 @@ export default {
 </template>
 
 <style lang="less" scoped>
-// /deep/.k-window {
-//   min-width: 420px;
-//   height: auto !important;
-// }
 </style>
