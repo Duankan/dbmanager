@@ -29,6 +29,12 @@ export default {
   },
   methods: {
     addField(field) {
+      if (this.value.filter && this.panduan) {
+        this.addFieldNUM += 1;
+        this.addSymbolNUM += 1;
+        this.addNumberNUM += 1;
+        this.panduan = false;
+      }
       //在文本域中添加字段
       field = field.trim();
       if (
@@ -52,6 +58,12 @@ export default {
       }
     },
     addSymbol(symbol) {
+      if (this.value.filter && this.panduan) {
+        this.addFieldNUM += 1;
+        this.addSymbolNUM += 1;
+        this.addNumberNUM += 1;
+        this.panduan = false;
+      }
       //在文本域中添加逻辑符
       if (this.addFieldNUM > this.addSymbolNUM && this.addSymbolNUM == this.addNumberNUM) {
         this.formItem.textarea += ' ' + symbol + ' ';
@@ -64,6 +76,12 @@ export default {
       }
     },
     addNumber(number) {
+      if (this.value.filter && this.panduan) {
+        this.addFieldNUM += 1;
+        this.addSymbolNUM += 1;
+        this.addNumberNUM += 1;
+        this.panduan = false;
+      }
       //在文本域中添加输入的值
       if (this.addFieldNUM > this.addNumberNUM && this.addSymbolNUM > this.addNumberNUM) {
         this.formItem.textarea += " '" + number + "' ";
@@ -76,12 +94,14 @@ export default {
       }
     },
     addConect(conect) {
-      //在文本域中添加连接符
-
       if (this.value.filter && this.panduan) {
-        this.addConectNUM -= 1;
+        this.addFieldNUM += 1;
+        this.addSymbolNUM += 1;
+        this.addNumberNUM += 1;
         this.panduan = false;
       }
+      //在文本域中添加连接符
+
       if (
         this.addFieldNUM > this.addConectNUM &&
         this.addSymbolNUM > this.addConectNUM &&
