@@ -23,6 +23,7 @@ export default {
         pageSize: 5,
       },
       desc: '',
+      pageCount: 0,
     };
   },
   created() {
@@ -55,24 +56,25 @@ export default {
 <template>
   <Form
     ref="formValidate"
-    :model="formValidate"
-    :rules="ruleValidate"
+    :model="dataCondition"
+    :label-width="125"
+    label-position="left"
+    class="db-manager-crs"
   >
     <FormItem
       label="空间参考系统："
-      prop="name">
+    >
       <Input
         v-model="dataCondition.objCondition.authSrId"
         placeholder="请输入您需要查询的空间参考"
         @on-change="getData"></Input>
     </FormItem>
-    <FormItem>
+    <FormItem class="show-crs">
       <Table
         :columns="tableColumns"
         :data="datas"
-        @on-row-click="getWKTInfo"></Table>
-    </FormItem>
-    <FormItem>
+        @on-row-click="getWKTInfo">
+      </Table>
       <Page
         :total="pageCount"
         :page-size="10"
@@ -84,7 +86,7 @@ export default {
     </FormItem>
     <FormItem
       label="空间参考系统WKT："
-      prop="desc">
+    >
       <Input
         v-model="desc"
         :autosize="{minRows: 2,maxRows: 5}"
@@ -96,4 +98,16 @@ export default {
 </template>
 
 <style lang="less" scoped>
+.db-manager-crs {
+  .show-crs /deep/.k-form-item-content {
+    margin-left: 0 !important;
+  }
+  .k-page {
+    margin-top: 10px;
+  }
+
+  /deep/textarea {
+    height: 115px !important;
+  }
+}
 </style>

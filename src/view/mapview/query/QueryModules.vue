@@ -57,6 +57,8 @@ export default {
   <Window
     v-model="visible"
     :title="modulesTitle"
+    :width="width"
+    :height="height"
     footer-hide
     transfer
     @on-hidden="hidden">
@@ -67,8 +69,8 @@ export default {
 </template>
 
 <style lang="less" scoped>
-/deep/.k-window {
-  min-width: 420px;
-  height: auto !important;
-}
+// /deep/.k-window {
+//   min-width: 420px;
+//   height: auto !important;
+// }
 </style>
