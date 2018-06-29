@@ -8,7 +8,7 @@ export default {
   data() {
     return {
       number: '',
-      formItem: {
+      div: {
         input: '',
         select: 'beijing',
         textarea: this.value.filter || '',
@@ -22,9 +22,15 @@ export default {
       panduan: true,
     };
   },
+  computed: {
+    schemas() {
+      let fields = this.value ? this.value.schemas.split(',') : [];
+      return fields;
+    },
+  },
   watch: {
     value(newVal) {
-      this.formItem.textarea = newVal.filter || '';
+      this.div.textarea = newVal.filter || '';
     },
   },
   methods: {
@@ -36,7 +42,7 @@ export default {
         this.addFieldNUM == this.addNumberNUM &&
         this.addNumberNUM == this.addConectNUM
       ) {
-        this.formItem.textarea += ' "' + field + '" ';
+        this.div.textarea += ' "' + field + '" ';
         this.addFieldNUM += 1;
         this.$Message.success('添加成功！');
       } else if (this.addFieldNUM == this.addSymbolNUM && this.addFieldNUM > this.addNumberNUM) {
@@ -54,7 +60,7 @@ export default {
     addSymbol(symbol) {
       //在文本域中添加逻辑符
       if (this.addFieldNUM > this.addSymbolNUM && this.addSymbolNUM == this.addNumberNUM) {
-        this.formItem.textarea += ' ' + symbol + ' ';
+        this.div.textarea += ' ' + symbol + ' ';
         this.addSymbolNUM += 1;
         this.$Message.success('添加成功！');
       } else if (this.addFieldNUM == this.addSymbolNUM && this.addFieldNUM == this.addNumberNUM) {
@@ -66,7 +72,7 @@ export default {
     addNumber(number) {
       //在文本域中添加输入的值
       if (this.addFieldNUM > this.addNumberNUM && this.addSymbolNUM > this.addNumberNUM) {
-        this.formItem.textarea += " '" + number + "' ";
+        this.div.textarea += " '" + number + "' ";
         this.addNumberNUM += 1;
         this.$Message.success('添加成功！');
       } else if (this.addFieldNUM == this.addSymbolNUM && this.addFieldNUM == this.addNumberNUM) {
@@ -87,7 +93,7 @@ export default {
         this.addSymbolNUM > this.addConectNUM &&
         this.addNumberNUM > this.addConectNUM
       ) {
-        this.formItem.textarea += ' ' + conect + ' ';
+        this.div.textarea += ' ' + conect + ' ';
         this.addConectNUM += 1;
         this.$Message.success('添加成功！');
       } else if (this.addFieldNUM == this.addSymbolNUM && this.addFieldNUM == this.addNumberNUM) {
@@ -100,7 +106,7 @@ export default {
     },
     empty() {
       //清空方法
-      this.formItem.textarea = ' ';
+      this.div.textarea = ' ';
       this.addFieldNUM = 0;
       this.addSymbolNUM = 0;
       this.addNumberNUM = 0;
@@ -110,7 +116,7 @@ export default {
       console.log(this.value);
       //点击查询按钮，把文本域中的数据穿给DataTable.vue中，在那里面获取参数，修改原先参数，然后在继续查询
       //把文本域中的值全部取出来分析判断是否符合。//把文本域中的值全部取出来分析判断是否符合。
-      let arr = this.formItem.textarea.split('  ');
+      let arr = this.div.textarea.split('  ');
       if (arr.length < 3) {
         this.$Message.error('请输入完整查询条件！');
       } else {
@@ -121,45 +127,44 @@ export default {
         this.$emit('lxc', textareaFiltration);
       }
     },
+    getFilter() {
+      return this.div.textarea;
+    },
   },
 };
 </script>
 <template >
-  <Form
-    :model="formItem"
-  >
-    <FormItem>
-      <div>
-        <div class="schemadiv">
-          <div
-            v-for="item in (value.schemas.split(','))"
-            :key="item"
-            class = "schemaitem"
-            @click="addField(item)">{{ item }}</div>
+  <div class="attribute-filter-wrapper">
+    <div class="form-row clearfix">
+      <div class="schemadiv">
+        <div
+          v-for="(item,index) in schemas"
+          :key="index"
+          class = "schemaitem"
+          @click="addField(item)">{{ item }}</div>
+      </div>
+      <div class="btnclass">
+        <div class="opclass">
+          <Button
+            v-for="(op,index) in div.operate"
+            :key="index"
+            class="opbtnclass"
+            @click="addSymbol(op)">
+            {{ op }}
+          </Button>
         </div>
-        <div class="btnclass">
-          <div class="opclass">
-            <Button
-              v-for="(op,index) in formItem.operate"
-              :key="index"
-              class="opbtnclass"
-              @click="addSymbol(op)">
-              {{ op }}
-            </Button>
-          </div>
-          <div class="conectclass">
-            <Button
-              v-for="(op,index) in formItem.connect"
-              :key="index"
-              class="ctbtnclass"
-              @click="addConect(op)">
-              {{ op }}
-            </Button>
-          </div>
+        <div class="conectclass">
+          <Button
+            v-for="(op,index) in div.connect"
+            :key="index"
+            class="ctbtnclass"
+            @click="addConect(op)">
+            {{ op }}
+          </Button>
         </div>
       </div>
-    </FormItem>
-    <FormItem>
+    </div>
+    <div class="form-row">
       <Input
         v-model="number"
         class="valueclass"
@@ -168,35 +173,42 @@ export default {
       <Button
         type="primary"
         @click="addNumber(number)">添加比较值</Button>
-    </FormItem>
-    <FormItem>
+    </div>
+    <div class="form-row">
       <div>SELECT * FROM {{ value.name }} WHERE</div>
-    </FormItme>
-      <FormItem>
-        <Input
-          v-model="formItem.textarea"
-          :autosize="{minRows: 2,maxRows: 2}"
-          width="510px"
-          readonly
-          type="textarea"></Input>
-      </FormItem>
-      <FormItem v-if="value.showButton">
-        <div class="sbtnclass">
-          <Button
-            v-if="value.showButton"
-            type="warning"
-            @click="empty()">清空</Button>
-          <Button
-            type="primary"
-            @click="btnOk">查询</Button>
-          <Button
-            type="ghost"
-            style="margin-left: 8px;">取消</Button>
-        </div>
-      </FormItem>
-  </formitem></Form>
+    </div>
+    <div class="form-row">
+      <Input
+        v-model="div.textarea"
+        :autosize="{minRows: 2,maxRows: 2}"
+        width="510px"
+        readonly
+        type="textarea"></Input>
+    </div>
+    <div
+      v-if="value.showButton"
+      class="form-row">
+      <div class="sbtnclass">
+        <Button
+          v-if="value.showButton"
+          type="warning"
+          @click="empty()">清空</Button>
+        <Button
+          type="primary"
+          @click="btnOk">查询</Button>
+        <Button
+          type="ghost"
+          style="margin-left: 8px;">取消</Button>
+      </div>
+    </div>
+  </div>
 </template>
 <style  lang="less" scoped>
+.attribute-filter-wrapper {
+  .form-row {
+    margin-bottom: 10px;
+  }
+}
 .schemadiv {
   width: 310px;
   height: 160px;
@@ -214,7 +226,7 @@ export default {
 }
 .btnclass {
   height: 160px;
-  margin-left: 2px;
+  margin-left: 5px;
   padding-top: 4px;
   float: left;
   border: 1px solid #dddddd;

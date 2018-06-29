@@ -50,19 +50,50 @@ export default {
     //切换编辑资源
     async changeEditLayer(index) {
       let layer = this.selectLayers[index];
-      this.currentId = layer.resid;
       //查询资源schema信息
-      const response = await api.db.findResourceInfo({ id: this.currentId });
+      const response = await api.db.findResourceInfo({ id: layer.resid });
       this.currentSchemas = helps.filterSchema(response.data.schema.map(p => p.name));
       this.currentFilter = {
         schemas: this.currentSchemas.join(','),
         name: layer.resname,
         filter: layer.filter,
       };
+      this.selectSchemas = layer.schema.split(',');
+      this.currentId = layer.resid;
+      //下一个刷新周期更新选中字段
       this.$nextTick(() => {
         this.selectSchemas = layer.schema.split(',');
         this.selectSchemasChange(this.selectSchemas);
       });
+    },
+    //应用编辑更改
+    async applyEditLayer(index) {
+      //数据检查
+      const isValid = await this.checkBeforeApply();
+      if (!isValid) return;
+      //应用更改
+      let layer = this.selectLayers.find(p => p.resid == this.currentId);
+      layer.schema = this.selectSchemas.join(',');
+      layer.filter = this.$refs.filterEditor.getFilter();
+      //切换编辑资源
+      this.changeEditLayer(index);
+    },
+    //应用更改前进行数据检查
+    async checkBeforeApply() {
+      //验证提取字段
+      if (this.selectSchemas.length == 0) {
+        this.$Message.error('应用更改失败，请至少选择一个提取字段!');
+        return false;
+      }
+      //验证过滤条件
+      let where = this.$refs.filterEditor.getFilter();
+      if (!where) return true;
+      const resSQL = await api.db.validateSqlFilter(where);
+      if (resSQL.data !== true) {
+        this.$Message.error('应用更改失败，验证过滤条件失败，请修改!');
+        return false;
+      }
+      return true;
     },
     //字段全选
     handleCheckAll() {
@@ -96,7 +127,19 @@ export default {
       this.$refs.filterEditor.empty();
     },
     //验证条件
-    verifyFilter() {},
+    async verifyFilter() {
+      let where = this.$refs.filterEditor.getFilter();
+      const resSQL = await api.db.validateSqlFilter(where);
+      if (resSQL.data === true) {
+        this.$Message.success('条件验证成功！');
+      } else {
+        this.$Message.error('条件验证失败！');
+      }
+    },
+    //获取选择的资源
+    getResources() {
+      return this.selectLayers;
+    },
   },
 };
 </script>
@@ -114,7 +157,7 @@ export default {
               :key="index"
               :class="{actived:layer.resid==currentId}"
               class="res-item"
-              @click="changeEditLayer(index)">
+              @click="applyEditLayer(index)">
               <span class="item-index">{{ index+1 }}</span>
               <span class="item-text">{{ layer.resname }}</span>
             </li>
@@ -161,7 +204,8 @@ export default {
               @click="clearFilter">清空</Button>
             <Button
               type="warning"
-              size="small">验证</Button>
+              size="small"
+              @click="verifyFilter">验证</Button>
           </div>
         </div>
       </div>
