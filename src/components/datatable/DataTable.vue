@@ -119,7 +119,7 @@ export default {
       const state = {
         wfsQuery() {
           const row = JSON.parse(JSON.stringify(this.features[index]));
-          this.$store.commit('SET_MAP_GEOJSON', row);
+          this.$store.commit('SET_MAP_GEOJSON', { geojson: row, type: 'once' });
         },
         statisticsQuery() {},
       };
@@ -175,20 +175,23 @@ export default {
     statisticsSuccess(data) {
       this.tableLoading = false;
       const response = JSON.parse(data);
-      const columns = Object.keys(response[0]).map(p => {
-        return {
-          title: p,
-          key: p,
-          align: 'center',
-        };
-      });
-      this.$store.commit(types.SET_BUS_FIELD, columns);
-      this.tableData = response.map(p => {
-        return {
-          ...p,
-          attributeType: 'statisticsQuery',
-        };
-      });
+      if (response.length !== 0) {
+        this.total = response.length;
+        const columns = Object.keys(response[0]).map(p => {
+          return {
+            title: p,
+            key: p,
+            align: 'center',
+          };
+        });
+        this.$store.commit(types.SET_BUS_FIELD, columns);
+        this.tableData = response.map(p => {
+          return {
+            ...p,
+            attributeType: 'statisticsQuery',
+          };
+        });
+      }
     },
     errback() {
       this.$Message.error('分析失败！');

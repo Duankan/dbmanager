@@ -14,12 +14,12 @@ export default {
         textarea: this.value.filter || '',
         operate: ['=', '<>', '>', '>=', '<', '<=', '_', '%', 'like', 'is', 'in', 'not'],
         connect: ['and', 'or'],
+        panduan: true,
+        addFieldNUM: 0,
+        addSymbolNUM: 0,
+        addNumberNUM: 0,
+        addConectNUM: 0,
       },
-      addFieldNUM: 0,
-      addSymbolNUM: 0,
-      addNumberNUM: 0,
-      addConectNUM: 0,
-      panduan: true,
     };
   },
   computed: {
@@ -32,106 +32,126 @@ export default {
     value(newVal) {
       this.empty();
       this.div.textarea = newVal.filter || '';
+      if (this.div.textarea != '' && this.div.panduan) {
+        this.div.addConectNUM = this.div.addFieldNUM - 1;
+      } else if (this.div.textarea == '') {
+        this.empty();
+      }
     },
   },
   methods: {
     addField(field) {
-      if (this.value.filter && this.panduan) {
-        this.addFieldNUM += 1;
-        this.addSymbolNUM += 1;
-        this.addNumberNUM += 1;
-        this.panduan = false;
-      }
       //在文本域中添加字段
       field = field.trim();
       if (
-        this.addFieldNUM == this.addSymbolNUM &&
-        this.addFieldNUM == this.addNumberNUM &&
-        this.addNumberNUM == this.addConectNUM
+        this.div.addFieldNUM == this.div.addSymbolNUM &&
+        this.div.addFieldNUM == this.div.addNumberNUM &&
+        this.div.addFieldNUM == this.div.addConectNUM
       ) {
         this.div.textarea += ' "' + field + '" ';
-        this.addFieldNUM += 1;
+        this.div.addFieldNUM += 1;
         this.$Message.success('添加成功！');
-      } else if (this.addFieldNUM == this.addSymbolNUM && this.addFieldNUM > this.addNumberNUM) {
+      } else if (
+        this.div.addFieldNUM == this.addSymbolNUM &&
+        this.div.addFieldNUM > this.addNumberNUM
+      ) {
         this.$Message.error('添加失败，请添加比较值！');
-      } else if (this.addFieldNUM > this.addSymbolNUM && this.addFieldNUM > this.addNumberNUM) {
+      } else if (
+        this.div.addFieldNUM > this.addSymbolNUM &&
+        this.div.addFieldNUM > this.addNumberNUM
+      ) {
         this.$Message.error('添加失败，字段值后请跟逻辑符！');
       } else if (
-        this.addFieldNUM == this.addSymbolNUM &&
-        this.addFieldNUM == this.addNumberNUM &&
-        this.addFieldNUM > this.addConectNUM
+        this.div.addFieldNUM == this.div.addSymbolNUM &&
+        this.div.addFieldNUM == this.div.addNumberNUM &&
+        this.div.addFieldNUM > this.div.addConectNUM
       ) {
         this.$Message.error('添加失败，请添加连接符号，或查询！');
       }
     },
     addSymbol(symbol) {
-      if (this.value.filter && this.panduan) {
-        this.addFieldNUM += 1;
-        this.addSymbolNUM += 1;
-        this.addNumberNUM += 1;
-        this.panduan = false;
-      }
       //在文本域中添加逻辑符
-      if (this.addFieldNUM > this.addSymbolNUM && this.addSymbolNUM == this.addNumberNUM) {
+      if (
+        this.div.addFieldNUM > this.div.addSymbolNUM &&
+        this.div.addSymbolNUM == this.div.addNumberNUM
+      ) {
         this.div.textarea += ' ' + symbol + ' ';
-        this.addSymbolNUM += 1;
+        this.div.addSymbolNUM += 1;
         this.$Message.success('添加成功！');
-      } else if (this.addFieldNUM == this.addSymbolNUM && this.addFieldNUM == this.addNumberNUM) {
+      } else if (
+        this.div.addFieldNUM == this.div.addSymbolNUM &&
+        this.div.addFieldNUM == this.div.addNumberNUM
+      ) {
         this.$Message.error('添加失败，请添加连接符或查询！');
-      } else if (this.addFieldNUM == this.addSymbolNUM && this.addFieldNUM > this.addNumberNUM) {
+      } else if (
+        this.div.addFieldNUM == this.div.addSymbolNUM &&
+        this.div.addFieldNUM > this.div.addNumberNUM
+      ) {
         this.$Message.error('添加失败，逻辑符后请跟比较值');
       }
     },
     addNumber(number) {
-      if (this.value.filter && this.panduan) {
+      /* if (this.value.filter && this.panduan) {
         this.addFieldNUM += 1;
         this.addSymbolNUM += 1;
         this.addNumberNUM += 1;
         this.panduan = false;
-      }
+      }*/
       //在文本域中添加输入的值
-      if (this.addFieldNUM > this.addNumberNUM && this.addSymbolNUM > this.addNumberNUM) {
+      if (
+        this.div.addFieldNUM > this.div.addNumberNUM &&
+        this.div.addSymbolNUM > this.div.addNumberNUM
+      ) {
         this.div.textarea += " '" + number + "' ";
-        this.addNumberNUM += 1;
+        this.div.addNumberNUM += 1;
         this.$Message.success('添加成功！');
-      } else if (this.addFieldNUM == this.addSymbolNUM && this.addFieldNUM == this.addNumberNUM) {
+      } else if (
+        this.div.addFieldNUM == this.div.addSymbolNUM &&
+        this.div.addFieldNUM == this.div.addNumberNUM
+      ) {
         this.$Message.error('添加失败，请添连接符！');
-      } else if (this.addFieldNUM > this.addSymbolNUM && this.addSymbolNUM == this.addNumberNUM) {
+      } else if (
+        this.div.addFieldNUM > this.div.addSymbolNUM &&
+        this.div.addSymbolNUM == this.div.addNumberNUM
+      ) {
         this.$Message.error('添加失败，请添逻辑符！');
       }
     },
     addConect(conect) {
-      if (this.value.filter && this.panduan) {
-        this.addFieldNUM += 1;
-        this.addSymbolNUM += 1;
-        this.addNumberNUM += 1;
-        this.panduan = false;
-      }
       //在文本域中添加连接符
 
       if (
-        this.addFieldNUM > this.addConectNUM &&
-        this.addSymbolNUM > this.addConectNUM &&
-        this.addNumberNUM > this.addConectNUM
+        this.div.addFieldNUM > this.div.addConectNUM &&
+        this.div.addSymbolNUM > this.div.addConectNUM &&
+        this.div.addNumberNUM > this.div.addConectNUM
       ) {
         this.div.textarea += ' ' + conect + ' ';
-        this.addConectNUM += 1;
+        this.div.addConectNUM += 1;
         this.$Message.success('添加成功！');
-      } else if (this.addFieldNUM == this.addSymbolNUM && this.addFieldNUM == this.addNumberNUM) {
+      } else if (
+        this.div.addFieldNUM == this.div.addSymbolNUM &&
+        this.div.addFieldNUM == this.div.addNumberNUM
+      ) {
         this.$Message.error('添加失败，请添字段值！');
-      } else if (this.addFieldNUM > this.addSymbolNUM && this.addSymbolNUM == this.addNumberNUM) {
+      } else if (
+        this.div.addFieldNUM > this.div.addSymbolNUM &&
+        this.div.addSymbolNUM == this.div.addNumberNUM
+      ) {
         this.$Message.error('添加失败，请添逻辑符！');
-      } else if (this.addFieldNUM > this.addConectNUM && this.addSymbolNUM > this.addConectNUM) {
+      } else if (
+        this.div.addFieldNUM > this.div.addConectNUM &&
+        this.div.addSymbolNUM > this.div.addConectNUM
+      ) {
         this.$Message.error('添加失败，请比较值！');
       }
     },
     empty() {
       //清空方法
-      this.div.textarea = ' ';
-      this.addFieldNUM = 0;
-      this.addSymbolNUM = 0;
-      this.addNumberNUM = 0;
-      this.addConectNUM = 0;
+      this.div.textarea = '';
+      this.div.addFieldNUM = 0;
+      this.div.addSymbolNUM = 0;
+      this.div.addNumberNUM = 0;
+      this.div.addConectNUM = 0;
     },
     btnOk() {
       console.log(this.value);
