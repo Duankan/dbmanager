@@ -47,10 +47,6 @@ export default {
     this.changeEditLayer(0);
   },
   methods: {
-    //编辑过滤器
-    editFilter(layer, index) {
-      this.changeEditLayer(index);
-    },
     //切换编辑资源
     async changeEditLayer(index) {
       let layer = this.selectLayers[index];
@@ -95,6 +91,12 @@ export default {
         this.checkAll = false;
       }
     },
+    //清空条件
+    clearFilter() {
+      this.$refs.filterEditor.empty();
+    },
+    //验证条件
+    verifyFilter() {},
   },
 };
 </script>
@@ -112,7 +114,7 @@ export default {
               :key="index"
               :class="{actived:layer.resid==currentId}"
               class="res-item"
-              @click="editFilter(layer,index)">
+              @click="changeEditLayer(index)">
               <span class="item-index">{{ index+1 }}</span>
               <span class="item-text">{{ layer.resname }}</span>
             </li>
@@ -149,7 +151,18 @@ export default {
           <h4 class="region-title">设置过滤条件</h4>
         </div>
         <div class="region-content">
-          <AttributeFilter :value="currentFilter"></AttributeFilter>
+          <AttributeFilter
+            ref="filterEditor"
+            :value="currentFilter"></AttributeFilter>
+          <div class="button-groups">
+            <Button
+              type="primary"
+              size="small"
+              @click="clearFilter">清空</Button>
+            <Button
+              type="warning"
+              size="small">验证</Button>
+          </div>
         </div>
       </div>
     </div>
@@ -231,6 +244,9 @@ export default {
   }
   .k-form-item {
     margin-bottom: 5px;
+  }
+  .button-groups {
+    text-align: right;
   }
 }
 </style>
