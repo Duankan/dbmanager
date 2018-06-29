@@ -174,17 +174,15 @@ export default {
           readonly
           type="textarea"></Input>
       </FormItem>
-      <FormItem >
+      <FormItem v-if="value.showButton">
         <div class="sbtnclass">
           <Button
             type="warning"
             @click="empty()">清空</Button>
           <Button
-            v-if="value.showButton"
             type="primary"
             @click="btnOk">查询</Button>
           <Button
-            v-if="value.showButton"
             type="ghost"
             style="margin-left: 8px;">取消</Button>
         </div>
