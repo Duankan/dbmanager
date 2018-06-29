@@ -6,6 +6,9 @@ const MAP_WPS_OVERLAP = 'MAP_WPS_OVERLAP';
 const SET_MAP_TEMPORARYLAYERS = 'SET_MAP_TEMPORARYLAYERS';
 const SET_MAP_TEMPORARYLAYERS_DELETE = 'SET_MAP_TEMPORARYLAYERS_DELETE';
 import * as types from '@/store/types';
+import AttributeFilter from '@/./components/extractplan/AttributeFilter';
+import StatisticsFilter from '@/./components/extractplan/StatisticsFilter';
+import { cloneDeep } from '@ktw/ktools';
 
 export default {
   name: 'DataTable',
@@ -24,10 +27,13 @@ export default {
       features: [],
       title: '',
       tableLoading: false,
+      opt: '', //存储其他查询的初始值。
+      optNum: '', //用来判断是二次过滤查询的还是点击其他组件查询的，好用来存储 其他组件查询初始值
     };
   },
   computed: {
     columns() {
+      console.log(this.$store.state.bus.field);
       return this.$store.state.bus.field;
     },
     queryOptions() {
@@ -49,6 +55,58 @@ export default {
     },
   },
   methods: {
+    popup() {
+      let field = '';
+      for (let item of this.$store.state.bus.field) {
+        field += item.key + ' ,';
+      }
+      this.vm = this.$window({
+        title: '属性过滤',
+        footerHide: true,
+        render: h => {
+          return h(
+            AttributeFilter,
+            {
+              props: {
+                value: { schemas: field, showButton: true },
+              },
+              on: {
+                lxc: this.query,
+              },
+            },
+            [this.$scopedSlots.default]
+          );
+        },
+        width: 550,
+        height: 460,
+      });
+    },
+    popupStatistics() {
+      console.log(this.$store);
+      console.log(this.opt);
+      let field = '';
+      for (let item of this.$store.state.bus.field) {
+        field += item.key + ' ,';
+      }
+      field = field.substring(0, field.length - 1);
+      this.vm = this.$window({
+        title: '结果统计',
+        footerHide: true,
+        render: h => {
+          return h(
+            StatisticsFilter,
+            {
+              props: {
+                value: { schemas: field, condition: this.opt, showButton: true },
+              },
+            },
+            [this.$scopedSlots.default]
+          );
+        },
+        width: 300,
+        height: 400,
+      });
+    },
     label(h) {
       return (
         <span>
@@ -72,7 +130,12 @@ export default {
       }
     },
     // 很不同类型做查询
+
     async wfsQuery(option, isShowColumns) {
+      if (this.optNum != 2) {
+        this.opt = option; //等于先查询的条件
+      }
+      this.optNum = 1;
       delete option.attributeType;
       const response = await this.$store.dispatch(MAP_WFS_QUERY, option);
       this.tableLoading = false;
@@ -165,12 +228,53 @@ export default {
         this.wfsQuery(wfsParams, true);
       });
     },
+    query(msg) {
+      let cql_filterCopy = this.opt.options.cql_filter;
+      this.opt.options.cql_filter = '';
+      this.opt.options.geometry = null;
+      this.optNum = 2;
+      let copyopt = cloneDeep(this.opt);
+      copyopt.options.cql_filter = cql_filterCopy;
+      if (copyopt.options.cql_filter) {
+        console.log(copyopt.options.cql_filter);
+        let cqlfs = copyopt.options.cql_filter.split('INTERSECTS');
+        if (cqlfs.length == 2) {
+          let cqlf = cqlfs[0] + ' ' + msg + ' and ' + 'INTERSECTS' + cqlfs[1];
+          copyopt.options.cql_filter = cqlf;
+          this.wfsQuery(copyopt);
+        } else {
+          copyopt.options.cql_filter += ' and ' + msg;
+          this.wfsQuery(copyopt);
+        }
+      } else {
+        copyopt.options.cql_filter = msg;
+        this.wfsQuery(copyopt);
+      }
+      this.opt.options.cql_filter = cql_filterCopy;
+    },
   },
 };
 </script>
 
 <template>
+
   <div class="datatable">
+    <Button
+      type="warning"
+      style="position: absolute;
+          top: 30px;
+          left: 125px;
+          z-index: 999;"
+      @click="popup()"
+    >二次过滤</Button>
+    <Button
+      type="warning"
+      style="position: absolute;
+          top: 30px;
+          left: 215px;
+          z-index: 999;"
+      @click="popupStatistics()"
+    >结果统计</Button>
     <Tabs
       value="name1">
       <TabPane

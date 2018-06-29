@@ -1,12 +1,18 @@
 <script>
 import config from 'config';
 import PlanCreate from './PlanCreate';
+import ExtractRange from './ExtractRange';
+import SelectResource from './SelectResource';
+import FilterResource from './FilterResource';
 import * as types from '@/store/types';
 
 export default {
   name: 'ExtractPlan',
   comments: {
     PlanCreate,
+    ExtractRange,
+    SelectResource,
+    FilterResource,
   },
   props: {
     value: {
@@ -156,23 +162,59 @@ export default {
       this.value = response.data;
     },
     addVectorPlan() {
-      //this.$Modal.remove();
+      this.$Modal.remove();
+      // this.$window({
+      //   title: '方案搭建',
+      //   footerHide: true,
+      //   render: h => {
+      //     return h(
+      //       PlanCreate,
+      //       {
+      //         props: {
+      //           value: { tag: 'vector' },
+      //         },
+      //       },
+      //       [this.$scopedSlots.default]
+      //     );
+      //   },
+      //   width: 960,
+      //   height: 630,
+      // });
+
+      // this.$window({
+      //   title: '提取范围',
+      //   footerHide: true,
+      //   render: h => {
+      //     return h(
+      //       ExtractRange,
+      //       {
+      //         props: {
+      //           mode: 0,
+      //         },
+      //       },
+      //       [this.$scopedSlots.default]
+      //     );
+      //   },
+      //   width: 700,
+      //   height: 400,
+      // });
+
       this.$window({
-        title: '方案搭建',
+        title: '提取范围',
         footerHide: true,
         render: h => {
           return h(
-            PlanCreate,
+            FilterResource,
             {
               props: {
-                value: { tag: 'vector' },
+                mode: 0,
               },
             },
             [this.$scopedSlots.default]
           );
         },
-        width: 960,
-        height: 630,
+        width: 900,
+        height: 600,
       });
     },
     addRasterPlan() {

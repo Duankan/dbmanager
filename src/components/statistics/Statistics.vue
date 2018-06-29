@@ -174,6 +174,7 @@ export default {
           sort: 'RANGE', //TODO: 可增加排序方式供用户选择或者直接在表格中做排序
         };
       }
+      console.log(statistics);
       return statistics;
       // return { statistics: JSON.stringify(statistics) };
     },

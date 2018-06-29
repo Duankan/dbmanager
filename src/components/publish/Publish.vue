@@ -19,26 +19,23 @@ export default {
       crsLoading: false,
       publishLoading: false,
       showMore: false, // 控制显示详细信息
+      isImage: false, //是否是影像服务
       crsOptions: [],
       styleOptions: [],
+      levels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+      plotTypes: ['1.0', '2.0'],
+      plotPlans: ['rasterPlotWorld', 'rasterPlotRect'],
+      serviceTypes: [],
       publishForm: {
         title: '',
         crs: '',
         styles: '',
         name: '',
         serviceType: ['12', '6'],
-      },
-      ruleValidate: {
-        title: [
-          { required: true, message: '服务标题不能为空', trigger: 'blur' },
-          // { type: /^[0-9]*$/, message: '不能以数字开头', trigger: 'change' },
-          // {
-          //   type: /^[\u4e00-\u9fa5a-zA-Z0-9_]+$/,
-          //   message: '只能输入中文、字母、数字、下划线',
-          //   trigger: 'change',
-          // },
-        ],
-        name: [{ required: true, message: '服务名称不能为空', trigger: 'blur' }],
+        minLevel: 8,
+        maxLevel: 17,
+        rasterPlotPlan: 'rasterPlotWorld',
+        rasterRplotType: '2.0',
       },
     };
   },
@@ -51,11 +48,20 @@ export default {
     async node(val) {
       if (val) {
         const name = await this.handleServiceName(val.name);
-        this.publishForm = Object.assign(this.publishForm, {
+        this.publishForm = {
           title: val.name,
           name,
-        });
+          crs: '',
+          styles: '',
+          serviceType: ['12', '6'],
+          minLevel: 8,
+          maxLevel: 17,
+          rasterPlotPlan: 'rasterPlotWorld',
+          rasterRplotType: '2.0',
+        };
+        this.showMore = false;
         this.getStyle(val);
+        this.getType(val);
       }
     },
   },
@@ -97,12 +103,52 @@ export default {
           return 0;
       }
     },
+    //获取节点类型
+    getType(node) {
+      switch (node.typeId) {
+        case '20003': //dom tiff
+        case '20007': //dom 影像图幅文件
+        case '20008': //dem tiff
+        case '20009': //dem 影像图幅文件
+          this.isImage = true;
+          this.serviceTypes = [{ key: 'WMTS', value: '5' }];
+          break;
+        default:
+          this.isImage = false;
+          this.serviceTypes = [{ key: 'WMS', value: '12' }, { key: 'WFS', value: '6' }];
+          break;
+      }
+      this.publishForm.serviceType = this.serviceTypes.map(p => p.value);
+    },
+    //校验表单
+    validateData() {
+      if (!this.publishForm.title) {
+        this.$Message.info('请输入服务标题');
+        return false;
+      }
+      if (!this.publishForm.crs) {
+        this.$Message.info('请选择空间参考');
+        return false;
+      }
+      if (!this.publishForm.name) {
+        this.$Message.info('请选择服务名称');
+        return false;
+      }
+      if (!this.isImage) {
+        return true;
+      }
+      if (this.publishForm.minLevel >= this.publishForm.maxLevel) {
+        this.$Message.info('最大分层等级不能小于最小分层等级');
+        return false;
+      }
+      return true;
+    },
     // 点击发布按钮，发布服务，并将axios对象添加到任务队列
     async publish() {
-      this.publishLoading = true;
+      if (!this.validateData()) return;
 
-      const { serviceType, ...rest } = this.publishForm;
-      const params = {
+      this.publishLoading = true;
+      let params = {
         catalogId: this.node.catalogId,
         resourceId: this.node.resourceId,
         userId: this.$user.id,
@@ -110,19 +156,34 @@ export default {
         orgId: this.$user.orgid,
         orgName: this.$user.orgname,
         limits: 1,
-        serviceType: serviceType.join(','),
-        ...rest,
+        crs: this.publishForm.crs,
+        serviceType: this.publishForm.serviceType.join(','),
+        name: this.publishForm.name,
+        title: this.publishForm.title,
+        styles: this.publishForm.styles,
       };
-      if (!params.crs) delete params.crs;
-      await api.db.publishService(params);
-
-      this.publishLoading = false;
-      this.$Message.success('服务发布成功！');
-      // 刷新当前页面
-      const currentNode = this.$store.state.app.currentDirectory;
-      this.$store.dispatch(types.APP_NODES_FETCH, currentNode);
-      // 关闭modal窗口
-      this.visibleChange(false);
+      if (this.isImage) {
+        params.inputTransparentColor = '#FFFFFFFF';
+        params.outputTransparentColor = '#FFFFFFFF';
+        params.levelNum = this.publishForm.maxLevel - this.publishForm.minLevel + 1;
+        params.maxLevel = this.publishForm.maxLevel;
+        params.rasterPlotPlan = this.publishForm.rasterPlotPlan;
+        params.rasterRplotType = this.publishForm.rasterRplotType;
+      }
+      api.db
+        .publishService(params)
+        .then(p => {
+          this.publishLoading = false;
+          this.$Message.success('服务发布成功！');
+          // 刷新当前页面
+          const currentNode = this.$store.state.app.currentDirectory;
+          this.$store.dispatch(types.APP_NODES_FETCH, currentNode);
+          // 关闭modal窗口
+          this.visibleChange(false);
+        })
+        .catch(p => {
+          this.publishLoading = false;
+        });
     },
     // 处理服务名称
     async handleServiceName(name) {
@@ -191,8 +252,7 @@ export default {
     :value="value"
     :mask-closable="false"
     title="服务发布"
-    @on-visible-change="visibleChange"
-  >
+    @on-visible-change="visibleChange">
     <div slot="footer">
       <Button
         :loading="publishLoading"
@@ -204,23 +264,19 @@ export default {
     <Form
       ref="form"
       :model="publishForm"
-      :rules="ruleValidate"
       :label-width="80">
       <FormItem
-        label="服务标题"
-        prop="title">
+        label="服务标题：">
         <Input v-model="publishForm.title"></Input>
       </FormItem>
       <FormItem
-        label="空间参考"
-        prop="crs">
+        label="空间参考：">
         <Select
           v-model="publishForm.crs"
           :remote-method="remoteMethod"
           :loading="crsLoading"
           filterable
-          remote
-        >
+          remote>
           <Option
             v-for="option in crsOptions"
             :label="`${option.authName}:${option.authSrId}`"
@@ -232,8 +288,7 @@ export default {
         </Select>
       </FormItem>
       <FormItem
-        label="渲染样式"
-        prop="styles">
+        label="渲染样式：">
         <Select
           v-model="publishForm.styles"
           filterable>
@@ -262,33 +317,79 @@ export default {
       </FormItem>
       <FormItem
         v-show="showMore"
-        label="服务名称"
-        prop="name">
+        label="服务名称：">
         <Input v-model="publishForm.name"></Input>
       </FormItem>
       <FormItem
         v-show="showMore"
-        label="服务类型"
-        prop="serviceType">
+        label="服务类型：">
         <CheckboxGroup v-model="publishForm.serviceType">
           <Checkbox
-            label="12"
-            disabled>WMS</Checkbox>
-          <Checkbox
-            label="6"
-            disabled>WFS</Checkbox>
-          <Checkbox
-            label="20"
-            disabled>WFS-G</Checkbox>
-          <Checkbox
-            label="5"
-            disabled>WMTS</Checkbox>
+            v-for="item in serviceTypes"
+            :label="item.value"
+            :key="item.key"
+            disabled>{{ item.key }}</Checkbox>
         </CheckboxGroup>
       </FormItem>
       <FormItem
+        v-show="showMore&&isImage"
+        label="分层级别：">
+        <label>最小</label>
+        <Select
+          v-model="publishForm.minLevel"
+          class="inline-select">
+          <Option
+            v-for="(item,index) in levels"
+            :label="item"
+            :value="item"
+            :key="index">
+            {{ item }}
+          </Option>
+        </Select>
+        <label>最大</label>
+        <Select
+          v-model="publishForm.maxLevel"
+          class="inline-select">
+          <Option
+            v-for="(item,index) in levels"
+            :label="item"
+            :value="item"
+            :key="index">
+            {{ item }}
+          </Option>
+        </Select>
+      </FormItem>
+      <FormItem
+        v-show="showMore&&isImage"
+        label="裁剪方式：">
+        <Select
+          v-model="publishForm.rasterRplotType">
+          <Option
+            v-for="(item,index) in plotTypes"
+            :label="item"
+            :value="item"
+            :key="index">
+            {{ item }}
+          </Option>
+        </Select>
+      </FormItem>
+      <FormItem
+        v-show="showMore&&isImage"
+        label="裁剪方案：">
+        <Select
+          v-model="publishForm.rasterPlotPlan">
+          <Option
+            v-for="(item,index) in plotPlans"
+            :label="item"
+            :value="item"
+            :key="index">
+            {{ item }}
+          </Option>
+        </Select>
+      </FormItem>
+      <FormItem
         v-show="showMore"
-        label="服务描述"
-        prop="description">
+        label="服务描述：">
         <Input
           v-model="publishForm.description"
           :autosize="{minRows: 2,maxRows: 5}"
@@ -307,6 +408,7 @@ export default {
 
 <style lang="less" scoped>
 .k-form-item {
+  margin-bottom: 15px;
   /deep/ &-content {
     display: flex;
     .k-svgicon {
@@ -315,11 +417,13 @@ export default {
     }
   }
 }
+
 .crs-info,
 .style-info {
   float: right;
   color: #bbbec4;
 }
+
 .show-more {
   height: 16px;
   margin-bottom: -16px;
@@ -331,5 +435,10 @@ export default {
       transform: scale(1.5);
     }
   }
+}
+
+.inline-select {
+  width: 160px;
+  margin: 0 10px;
 }
 </style>

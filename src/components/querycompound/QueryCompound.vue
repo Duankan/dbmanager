@@ -213,7 +213,7 @@ export default {
     getParams() {
       let queryOptions;
       const options = {
-        title: '空间查询',
+        title: '复合查询',
         pageIndex: 1,
         pageSize: 10,
         url: this.serviseUrl,
