@@ -1,12 +1,12 @@
 <script>
 import QueryBase from '../querybase/querybase.js';
 import DrawTools from '../drawtools/DrawTools';
-import { CitySelect } from '@ktw/kbus';
+import AreaSelect from '../areaselect/AreaSelect';
 import config from 'config';
 
 export default {
   name: 'QuerySpace',
-  components: { DrawTools, CitySelect },
+  components: { DrawTools, AreaSelect },
   mixins: [QueryBase],
   props: {},
   data() {
@@ -23,11 +23,20 @@ export default {
       layerData: [],
       layerCrs: null,
       schema: 'the_geom',
+      queryAreaUrl: '',
     };
   },
   methods: {
     getDrawLayer(layers) {
+      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
+      this.queryItem.place = '';
       this.queryItem.geometry = layers;
+    },
+    getAreaLayer(wkt) {
+      this.$refs.drawTools.clearToolLayer();
+      this.queryItem.geometry = null;
+      this.queryItem.place = wkt;
+      if (wkt === '') this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
     },
     selectLayer(layerData) {
       if (layerData.value !== '' && layerData.label !== '') {
@@ -43,6 +52,7 @@ export default {
             this.schema = this.schema + ',' + item.name;
           });
         }
+        this.queryAreaUrl = layerData.value;
       }
     },
     // 发起请求
@@ -56,20 +66,32 @@ export default {
     },
     // 处理参数
     getParams() {
+      let queryOptions;
       const options = {
         title: '空间查询',
         pageIndex: 1,
         pageSize: 10,
         url: this.serviseUrl,
       };
-      const queryOptions = {
+      const defaultOptions = {
         radius:
           this.queryItem.bufferUnit === '米'
             ? this.queryItem.buffer / 111194.872221777
             : this.queryItem.buffer / 111194.872221777,
         spatialRelationship: this.queryItem.relationship,
-        geometry: this.queryItem.geometry,
+        type: 'POST',
       };
+      if (this.queryItem.place === '') {
+        queryOptions = {
+          ...defaultOptions,
+          geometry: this.queryItem.geometry,
+        };
+      } else {
+        queryOptions = {
+          ...defaultOptions,
+          cql_filter: `${this.queryItem.relationship}(the_geom,${this.queryItem.place}) `,
+        };
+      }
       return {
         options,
         queryOptions,
@@ -150,10 +172,15 @@ export default {
       </Select>
     </FormItem>
     <FormItem label="选择行政区：">
-      <CitySelect v-model="queryItem.place"></CitySelect>
+      <AreaSelect
+        v-model="queryItem.place"
+        :wfs-url="queryAreaUrl"
+        @on-get-arealayer="getAreaLayer"
+      ></AreaSelect>
     </FormItem>
     <FormItem label="绘制方式：">
       <DrawTools
+        ref="drawTools"
         :layer-crs="layerCrs"
         @on-get-drawlayer="getDrawLayer"></DrawTools>
     </FormItem>

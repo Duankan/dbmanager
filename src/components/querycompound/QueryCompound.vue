@@ -1,7 +1,7 @@
 <script>
 import QueryBase from '../querybase/querybase.js';
 import DrawTools from '../drawtools/DrawTools';
-import { CitySelect } from '@ktw/kbus';
+import AreaSelect from '../areaselect/AreaSelect';
 import config from 'config';
 import * as filterConfig from '../statistics/utils.js';
 import * as types from '@/store/types';
@@ -40,7 +40,7 @@ const numberCompare = [
 ];
 export default {
   name: 'QuerySpace',
-  components: { DrawTools, CitySelect },
+  components: { DrawTools, AreaSelect },
   mixins: [QueryBase],
   props: {},
   data() {
@@ -81,6 +81,7 @@ export default {
       layerData: [],
       layerCrs: null,
       schema: 'the_geom',
+      queryAreaUrl: '',
     };
   },
   methods: {
@@ -165,7 +166,16 @@ export default {
 
     //下面是空间查询的方法
     getDrawLayer(layers) {
+      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
+      this.queryItem.place = '';
       this.queryItem.geometry = layers;
+    },
+    // 获取行政区
+    getAreaLayer(wkt) {
+      this.$refs.drawTools.clearToolLayer();
+      this.queryItem.geometry = null;
+      this.queryItem.place = wkt;
+      if (wkt === '') this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
     },
     selectLayer(layerData) {
       if (this.layerData.length !== 0) {
@@ -175,6 +185,7 @@ export default {
       }
 
       if (layerData.value !== '' && layerData.label !== '') {
+        this.queryAreaUrl = layerData.value;
         this.serviseUrl = layerData.value;
         const url = new URL(this.serviseUrl);
         this.queryUrl = url.origin + '/master/ows';
@@ -191,52 +202,67 @@ export default {
     },
     // 发起请求
     startQuery(name) {
-      const items = this.$refs[name].model.items;
-      let CQLFilter = this.getCondition(items);
-      if (CQLFilter.substr(0, 3) == 'AND') {
-        CQLFilter = CQLFilter.slice(3);
-      }
       if (this.queryItem.layers === '') {
         this.$Message.error('请选择一个图层');
         return;
       }
       const params = this.getParams();
-      if (params.queryOptions.geometry) {
-        let geometrys = params.queryOptions.geometry.toGeoJSON();
-        let wktStr = L.Wkt.Wkt.prototype.fromObject(geometrys.geometry, false);
-        wktStr = wktStr.write();
-        wktStr = wktStr.replace(/undefined/g, ' ');
-        params.queryOptions.cql_filter = CQLFilter
-          ? CQLFilter + 'and' + ' INTERSECTS(the_geom, ' + wktStr + ')'
-          : '' + ' INTERSECTS(the_geom, ' + wktStr + ')';
-      } else {
-        if (CQLFilter) {
-          params.queryOptions.cql_filter = CQLFilter;
-        }
-      }
-      console.log(params);
       this.showTable(this.fieldList, params, 'wfsQuery');
     },
     // 处理参数
     getParams() {
+      let queryOptions;
       const options = {
         title: '复合查询',
         pageIndex: 1,
         pageSize: 10,
         url: this.serviseUrl,
       };
-      const queryOptions = {
+      const defaultOptions = {
         radius:
           this.queryItem.bufferUnit === '米'
             ? this.queryItem.buffer / 111194.872221777
             : this.queryItem.buffer / 111194.872221777,
         spatialRelationship: this.queryItem.relationship,
-        geometry: this.queryItem.geometry,
+        type: 'POST',
+      };
+
+      const cql_filter = this.setCQLFilter();
+      queryOptions = {
+        ...defaultOptions,
+        cql_filter,
       };
       return {
         options,
         queryOptions,
       };
+    },
+    // 合并cql_filter
+    setCQLFilter() {
+      let queryCQLFilter;
+      const items = this.$refs['formDynamic'].model.items;
+      let CQLFilter = this.getCondition(items);
+      if (CQLFilter.substr(0, 3) == 'AND') CQLFilter = CQLFilter.slice(3);
+      if (this.queryItem.place === '') {
+        if (this.queryItem.geometry) {
+          let geometrys = this.queryItem.geometry.toGeoJSON();
+          let wktStr = L.Wkt.Wkt.prototype.fromObject(geometrys.geometry, false);
+          wktStr = wktStr.write();
+          wktStr = wktStr.replace(/undefined/g, ' ');
+          queryCQLFilter = CQLFilter
+            ? CQLFilter + 'and' + ' ' + this.queryItem.relationship + '(the_geom, ' + wktStr + ')'
+            : '' + ' ' + this.queryItem.relationship + '(the_geom, ' + wktStr + ')';
+        } else {
+          if (CQLFilter) {
+            queryCQLFilter = CQLFilter;
+          }
+        }
+      } else {
+        queryCQLFilter = CQLFilter
+          ? CQLFilter + 'and' + ` ${this.queryItem.relationship}(the_geom,${this.queryItem.place})`
+          : '' + ` ${this.queryItem.relationship}(the_geom,${this.queryItem.place})`;
+      }
+      return queryCQLFilter;
     },
     reset() {
       this.serviseUrl = '';
@@ -410,10 +436,15 @@ export default {
       </Select>
     </FormItem>
     <FormItem label="选择行政区：">
-      <CitySelect v-model="queryItem.place"></CitySelect>
+      <AreaSelect
+        v-model="queryItem.place"
+        :wfs-url="queryAreaUrl"
+        @on-get-arealayer="getAreaLayer"
+      ></AreaSelect>
     </FormItem>
     <FormItem label="绘制方式：">
       <DrawTools
+        ref="drawTools"
         :layer-crs="layerCrs"
         @on-get-drawlayer="getDrawLayer"></DrawTools>
     </FormItem>
@@ -441,8 +472,7 @@ export default {
 
 <style lang="less" scoped>
 .k-form-item {
-  // margin-bottom: 15px;
-  margin-bottom: 0px;
+  margin-bottom: 10px;
   /deep/.k-form-item-label {
     width: 100px;
   }
