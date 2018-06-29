@@ -111,24 +111,39 @@ export default {
 <template>
   <div class="select-resource-wrapper">
     <div class="tree-wrapper">
-      <DataTree
-        :click-node-expand="false"
-        directory
-        accordion
-        @on-current-select="getCatalogLayers">
-      </DataTree>
+      <div class="region-wrapper">
+        <div class="region-header">
+          <h4 class="region-title">数据目录</h4>
+        </div>
+        <div class="region-content">
+          <DataTree
+            :click-node-expand="false"
+            directory
+            accordion
+            @on-current-select="getCatalogLayers">
+          </DataTree>
+        </div>
+      </div>
     </div>
     <div class="table-wrapper">
-      <Table
-        :columns="layerColumns"
-        :data="catalogLayers"
-        height="350"
-        size="small"
-        border
-        @on-select="selectLayer"
-        @on-select-cancel="cancelLayer"></Table>
+      <div class="region-wrapper">
+        <div class="region-header">
+          <h4 class="region-title">资源列表</h4>
+        </div>
+        <div class="region-content">
+          <Table
+            :columns="layerColumns"
+            :data="catalogLayers"
+            height="390"
+            size="small"
+            border
+            @on-select="selectLayer"
+            @on-select-cancel="cancelLayer"></Table>
+        </div>
+      </div>
     </div>
   </div>
+</div>
 </template>
 
 <style lang="less" scoped>
@@ -140,10 +155,13 @@ export default {
   }
   .table-wrapper {
     flex: 1;
-    margin-right: 10px;
+    margin: 0 5px;
   }
   /deep/ .k-table-small td {
     height: 30px;
+  }
+  .region-content {
+    height: 400px;
   }
 }
 </style>

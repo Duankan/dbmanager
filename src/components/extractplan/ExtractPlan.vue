@@ -1,18 +1,14 @@
 <script>
 import config from 'config';
-import PlanCreate from './PlanCreate';
-import ExtractRange from './ExtractRange';
-import SelectResource from './SelectResource';
-import FilterResource from './FilterResource';
+// import PlanCreate from './PlanCreate';
+import ExtractWizard from './ExtractWizard';
 import * as types from '@/store/types';
 
 export default {
   name: 'ExtractPlan',
   comments: {
-    PlanCreate,
-    ExtractRange,
-    SelectResource,
-    FilterResource,
+    // PlanCreate,
+    ExtractWizard,
   },
   props: {
     value: {
@@ -163,48 +159,13 @@ export default {
     },
     addVectorPlan() {
       this.$Modal.remove();
-      // this.$window({
-      //   title: '方案搭建',
-      //   footerHide: true,
-      //   render: h => {
-      //     return h(
-      //       PlanCreate,
-      //       {
-      //         props: {
-      //           value: { tag: 'vector' },
-      //         },
-      //       },
-      //       [this.$scopedSlots.default]
-      //     );
-      //   },
-      //   width: 960,
-      //   height: 630,
-      // });
-
-      // this.$window({
-      //   title: '提取范围',
-      //   footerHide: true,
-      //   render: h => {
-      //     return h(
-      //       ExtractRange,
-      //       {
-      //         props: {
-      //           mode: 0,
-      //         },
-      //       },
-      //       [this.$scopedSlots.default]
-      //     );
-      //   },
-      //   width: 700,
-      //   height: 400,
-      // });
-
       this.$window({
         title: '提取范围',
         footerHide: true,
+        transfer: true,
         render: h => {
           return h(
-            FilterResource,
+            ExtractWizard,
             {
               props: {
                 mode: 0,
@@ -213,28 +174,29 @@ export default {
             [this.$scopedSlots.default]
           );
         },
-        width: 900,
-        height: 600,
+        width: 840,
+        height: 660,
       });
     },
     addRasterPlan() {
-      //this.$Modal.remove();
+      this.$Modal.remove();
       this.$window({
-        title: '方案搭建',
+        title: '提取范围',
         footerHide: true,
+        transfer: true,
         render: h => {
           return h(
-            PlanCreate,
+            ExtractWizard,
             {
               props: {
-                value: { tag: 'raster' },
+                mode: 1,
               },
             },
             [this.$scopedSlots.default]
           );
         },
-        width: 960,
-        height: 630,
+        width: 840,
+        height: 660,
       });
     },
     async showPlanInfo() {},

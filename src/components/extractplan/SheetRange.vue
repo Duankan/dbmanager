@@ -197,13 +197,12 @@ export default {
 };
 </script>
 <template>
-  <div class="sheet-range-wrapper">
+  <div class="sheet-range-wrapper clearfix">
     <div class="sheet-part">
       <div class="form-row">
         <label class="form-label">选择比例尺：</label>
         <Select
           v-model="selectScale"
-          size="small"
           style="width:250px">
           <Option
             v-for="scale in scales"
@@ -217,7 +216,6 @@ export default {
           v-model="selectAutoSheet"
           placeholder="输入图幅号..."
           style="width:250px"
-          size="small"
           @on-search="autoSearchSheet">
           <Option
             v-for="sheet in autoSheets"
@@ -225,7 +223,6 @@ export default {
             :key="sheet">{{ sheet }}</Option>
         </AutoComplete>
         <Button
-          size="small"
           type="primary"
           @click="addAutoSheet">添加</Button>
       </div>
@@ -234,7 +231,6 @@ export default {
         <Select
           v-model="selectCities"
           multiple
-          size="small"
           style="width:110px">
           <Option
             v-for="city in cities"
@@ -244,7 +240,6 @@ export default {
         <label>县：</label>
         <Select
           v-model="selectCoutries"
-          size="small"
           multiple
           style="width:110px">
           <Option
@@ -253,7 +248,6 @@ export default {
             :key="country.id">{{ country.data }}</Option>
         </Select>
         <Button
-          size="small"
           type="primary"
           @click="addBlockSheet">添加</Button>
       </div>
@@ -262,7 +256,6 @@ export default {
         <Input
           v-model="shapeFileName"
           readonly
-          size="small"
           style="width:240px"
           placeholder="导入Shape文件提取图幅"></Input>
         <Upload
@@ -276,7 +269,7 @@ export default {
           class="inline-upload">
           <Button
             type="primary"
-            size="small">上传</Button>
+          >上传</Button>
         </Upload>
       </div>
       <div class="form-row">
@@ -297,7 +290,6 @@ export default {
         <label class="form-label">影像输出：</label>
         <Input
           v-model="outputColor"
-          size="small"
           style="width:100px"
           placeholder="输入颜色参数"></Input>
       </div>
@@ -334,7 +326,7 @@ export default {
     float: left;
   }
   .sheet-result {
-    margin: 7px 0 0 25px;
+    margin: 7px 0 0 45px;
     height: 230px;
     overflow-y: auto;
     > ul {
