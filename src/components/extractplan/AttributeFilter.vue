@@ -19,6 +19,7 @@ export default {
       addSymbolNUM: 0,
       addNumberNUM: 0,
       addConectNUM: 0,
+      panduan: true,
     };
   },
   watch: {
@@ -76,6 +77,11 @@ export default {
     },
     addConect(conect) {
       //在文本域中添加连接符
+
+      if (this.value.filter && this.panduan) {
+        this.addConectNUM -= 1;
+        this.panduan = false;
+      }
       if (
         this.addFieldNUM > this.addConectNUM &&
         this.addSymbolNUM > this.addConectNUM &&
@@ -177,6 +183,7 @@ export default {
       <FormItem >
         <div class="sbtnclass">
           <Button
+            v-if="value.showButton"
             type="warning"
             @click="empty()">清空</Button>
           <Button
