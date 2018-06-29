@@ -41,7 +41,6 @@ export default {
     //上传坐标文件成功
     uploadSuccess(response) {
       this.coordinate = response.data[0];
-      debugger;
     },
     //上传坐标文件失败
     uploadError() {
@@ -58,7 +57,6 @@ export default {
       <Input
         v-model="shapeFileName"
         readonly
-        size="small"
         style="width:240px"
         placeholder="导入Shape坐标文件"></Input>
       <Upload
@@ -72,7 +70,7 @@ export default {
         class="inline-upload">
         <Button
           type="primary"
-          size="small">上传</Button>
+        >上传</Button>
       </Upload>
     </div>
     <div class="form-row">
@@ -96,7 +94,6 @@ export default {
       <label class="form-label">影像输出：</label>
       <Input
         v-model="outputColor"
-        size="small"
         style="width:100px"
         placeholder="输入颜色参数"></Input>
     </div>

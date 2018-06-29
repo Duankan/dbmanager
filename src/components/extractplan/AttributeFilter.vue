@@ -30,6 +30,7 @@ export default {
   },
   watch: {
     value(newVal) {
+      this.empty();
       this.div.textarea = newVal.filter || '';
     },
   },

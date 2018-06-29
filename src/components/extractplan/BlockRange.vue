@@ -95,7 +95,6 @@ export default {
       <Select
         v-model="selectCities"
         multiple
-        size="small"
         style="width:180px"
         @on-change="changeCity">
         <Option
@@ -107,7 +106,6 @@ export default {
         <label class="form-label">县：</label>
         <Select
           v-model="selectCoutries"
-          size="small"
           multiple
           style="width:200px"
           @on-change="getSelectBlocks">
@@ -139,7 +137,6 @@ export default {
       <label class="form-label">影像输出：</label>
       <Input
         v-model="outputColor"
-        size="small"
         style="width:100px"
         placeholder="输入颜色参数"></Input>
     </div>

@@ -32,50 +32,57 @@ export default {
 
 <template>
   <div class="extract-range-wrapper">
-    <div class="range-selectors">
-      <RadioGroup v-model="splaceType">
-        <Radio label="-1">
-          <span>默认</span>
-        </Radio>
-        <Radio label="0">
-          <span>行政区</span>
-        </Radio>
-        <Radio label="1">
-          <span>图幅范围</span>
-        </Radio>
-        <Radio label="2">
-          <span>坐标文件</span>
-        </Radio>
-      </RadioGroup>
-    </div>
-    <div class="range-content">
-      <div
-        v-show="splaceType=='-1'"
-        class="range-item">
+    <div class="region-wrapper">
+      <div class="region-header">
+        <h4 class="region-title">提取范围</h4>
       </div>
-      <div
-        v-show="splaceType=='0'"
-        class="range-item">
-        <BlockRange
-          :extract-mode="extractMode"
-          :model="model">
-        </BlockRange>
-      </div>
-      <div
-        v-show="splaceType=='1'"
-        class="range-item">
-        <SheetRange
-          :extract-mode="extractMode"
-          :model="model">
-        </SheetRange>
-      </div>
-      <div
-        v-show="splaceType=='2'"
-        class="range-item">
-        <CoordRange
-          :extract-mode="extractMode"
-          :model="model">
-        </CoordRange>
+      <div class="region-content">
+        <div class="range-selectors">
+          <RadioGroup v-model="splaceType">
+            <Radio label="-1">
+              <span>默认</span>
+            </Radio>
+            <Radio label="0">
+              <span>行政区</span>
+            </Radio>
+            <Radio label="1">
+              <span>图幅范围</span>
+            </Radio>
+            <Radio label="2">
+              <span>坐标文件</span>
+            </Radio>
+          </RadioGroup>
+        </div>
+        <div class="range-content">
+          <div
+            v-show="splaceType=='-1'"
+            class="range-item">
+          </div>
+          <div
+            v-show="splaceType=='0'"
+            class="range-item">
+            <BlockRange
+              :extract-mode="extractMode"
+              :model="model">
+            </BlockRange>
+          </div>
+          <div
+            v-show="splaceType=='1'"
+            class="range-item">
+            <SheetRange
+              :extract-mode="extractMode"
+              :model="model">
+            </SheetRange>
+          </div>
+          <div
+            v-show="splaceType=='2'"
+            class="range-item">
+            <CoordRange
+              :extract-mode="extractMode"
+              :model="model">
+            </CoordRange>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -99,6 +106,9 @@ export default {
   }
   .inline-upload {
     display: inline;
+  }
+  .range-selectors {
+    margin: 5px 0 0 10px;
   }
 }
 </style>

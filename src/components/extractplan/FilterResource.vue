@@ -16,7 +16,7 @@ export default {
     model: {
       type: Array,
       default: () => {
-        return [];
+        return {};
       },
     },
   },
@@ -215,36 +215,20 @@ export default {
 
 <style lang="less">
 .filter-resource-wrapper {
-  height: 400px;
   display: flex;
   .layer-wrapper {
     width: 240px;
   }
   .filter-wrapper {
     width: 550px;
-    margin-left: 15px;
+    margin-left: 10px;
   }
   .res-list {
     margin: 0;
     padding: 0;
     list-style: none;
     margin-top: 2px;
-    height: 460px;
-  }
-  .region-wrapper {
-    margin-bottom: 10px;
-    border: 1px solid #eeeeee;
-    border-radius: 2px;
-  }
-  .region-header {
-    padding: 6px 12px;
-    border-bottom: 1px solid #eeeeee;
-  }
-  .region-title {
-    color: #666666;
-  }
-  .region-content {
-    padding: 5px;
+    height: 450px;
   }
   .res-item {
     height: 26px;
