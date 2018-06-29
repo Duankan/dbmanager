@@ -11,7 +11,7 @@ export default {
       formItem: {
         input: '',
         select: 'beijing',
-        textarea: '',
+        textarea: this.value.filter || '',
         operate: ['=', '<>', '>', '>=', '<', '<=', '_', '%', 'like', 'is', 'in', 'not'],
         connect: ['and', 'or'],
       },
@@ -20,6 +20,11 @@ export default {
       addNumberNUM: 0,
       addConectNUM: 0,
     };
+  },
+  watch: {
+    value(newVal) {
+      this.formItem.textarea = newVal.filter || '';
+    },
   },
   methods: {
     addField(field) {
@@ -164,11 +169,10 @@ export default {
       <FormItem>
         <Input
           v-model="formItem.textarea"
-          :autosize="{minRows: 3,maxRows: 3}"
+          :autosize="{minRows: 2,maxRows: 2}"
+          width="510px"
           readonly
-          type="textarea"
-          class="textClass"
-          placeholder="Enter something..."></Input>
+          type="textarea"></Input>
       </FormItem>
       <FormItem >
         <div class="sbtnclass">
