@@ -1,13 +1,13 @@
 <script>
 import QueryBase from '../querybase/querybase.js';
-import { CitySelect } from '@ktw/kbus';
+import AreaSelect from '../areaselect/AreaSelect';
 import * as types from '@/store/types';
 import config from 'config';
 import * as filterConfig from './utils.js';
 
 export default {
   name: 'Statistics',
-  components: { CitySelect },
+  components: { AreaSelect },
   mixins: [QueryBase],
   props: {},
   data() {
@@ -41,6 +41,7 @@ export default {
       queryType: [],
       queryFields: [],
       layerCrs: null,
+      queryAreaUrl: '',
       // 功能参数
       disabledCrs: true,
       disabledDefault: true,
@@ -107,6 +108,11 @@ export default {
       }
       return statisticsField;
     },
+    // 行政区选择
+    getAreaLayer(wkt) {
+      this.statisticsItem.place = wkt;
+      if (wkt === '') this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
+    },
     // 图层选择
     async selectLayer(layerData) {
       if (layerData.value !== '' && layerData.label !== '') {
@@ -114,6 +120,7 @@ export default {
         // 过滤字段,取参数
         if (this.layerData.length !== 0) {
           const totalParams = this.layerData.filter(item => item.label === layerData.label);
+          this.queryAreaUrl = totalParams[0].servicesurl;
           this.layerCrs = totalParams[0].crs;
           this.allschema = totalParams[0].schema;
           this.filterCommonField();
@@ -146,6 +153,8 @@ export default {
         typename: this.statisticsItem.layers,
         destcrs: this.statisticsItem.crs === '' ? this.layerCrs : this.statisticsItem.crs,
         statisticsFields,
+        wkt: this.statisticsItem.place,
+        clip: this.statisticsItem.place ? 1 : 0,
       };
       // 分类统计
       if (this.statisticsItem.type === 'classify') {
@@ -230,7 +239,12 @@ export default {
       </Select>
     </FormItem>
     <FormItem label="选择行政区：">
-      <CitySelect v-model="statisticsItem.place"></CitySelect>
+      <AreaSelect
+        v-model="statisticsItem.place"
+        :wfs-url="queryAreaUrl"
+        :is-change-lat-lng="true"
+        @on-get-arealayer="getAreaLayer"
+      ></AreaSelect>
     </FormItem>
     <FormItem
       label="选择参考系："

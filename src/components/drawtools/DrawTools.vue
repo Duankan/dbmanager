@@ -73,7 +73,7 @@ export default {
     };
   },
   events: {
-    'on-getdraw-refs': function() {
+    'on-getdraw-refs': function(draw) {
       this.$drawRefs = draw.drawRefs;
       this.drawType = draw.REFS;
     },
