@@ -23,6 +23,7 @@ export default {
   },
   methods: {
     async selectMenuItem(name) {
+      this.$store.commit(types.CLOSE_BOTTOM_PANE);
       this.showWindow = false;
       this.type = name;
       switch (name) {
@@ -63,13 +64,7 @@ export default {
           break;
         case 'extra':
           this.$store.commit(types.SET_APP_DATATABLE, 'ExtractPlan');
-          this.$store.dispatch(types.SET_BUS_SELECT_PLANDATA, {
-            pageIndex: 1, // 分页索引
-            pageSize: 5, // 分页大小
-            objCondition: {
-              applyOrganization: this.$user.orgid, // 组织id
-            },
-          });
+          this.$store.commit(types.OPEN_BOTTOM_PANE);
           break;
         case 'Statistics':
           this.title = '基础统计';
