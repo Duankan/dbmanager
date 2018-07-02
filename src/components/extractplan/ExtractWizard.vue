@@ -6,15 +6,18 @@ import ExtractRange from './ExtractRange';
 //向导步骤列表
 const WIZARD_STEPS = [
   {
-    name: '选择资源',
+    name: 'selectCtrl',
+    title: '选择资源',
     component: 'SelectResource',
   },
   {
-    name: '提取过滤',
+    name: 'filterCtrl',
+    title: '提取过滤',
     component: 'FilterResource',
   },
   {
-    name: '提取范围',
+    name: 'rangeCtrl',
+    title: '提取范围',
     component: 'ExtractRange',
   },
 ];
@@ -42,6 +45,37 @@ export default {
       steps: [],
       //当前步骤
       current: 0,
+      //方案数据绑定
+      model: {
+        //方案方式： 0为矢量数据提取；1为影像数据提取
+        restype: this.extractMode,
+        //方案名称
+        planname: '',
+        //方案创建者
+        createperson: this.$user.id,
+        //创建组织
+        createorganization: this.$user.orgid,
+        //方案指定组织
+        applyorganization: this.$user.orgid,
+        //提取资源列表
+        schemalist: [],
+        //范围类型，-1：默认全图；0:代表行政区；1:代表图幅范围；2:代表坐标范围
+        splacetype: this.extractMode == 0 ? -1 : 0,
+        //行政编码集合，或者图幅集合
+        splacelist: [],
+        //空间描述
+        splaceremark: '',
+        //与splacetype组合使用，如果是按行政区就填写行政级别，如果是图幅就填写比例尺
+        extractlevel: 'City',
+        //空间关系，0:代表裁剪；1代表相交；2:代表包含
+        extract: 0,
+        //坐标范围
+        coordinate: null,
+        //投影编号
+        projid: null,
+        //更新类型，0:更新时不更新空间范围及相关字段；1:根据参数条件重新生成空间范围
+        updateType: 0,
+      },
     };
   },
   created() {
@@ -53,11 +87,25 @@ export default {
     }
   },
   methods: {
-    nextStep() {
-      this.current++;
+    //步骤跳转
+    async gotoStep(offset = 0) {
+      let step = this.steps[this.current];
+      let stepCtrl = this.$refs[step.name][0];
+      //校验步骤
+      let valid = await stepCtrl.validateStep();
+      //应用步骤更改
+      if (valid) {
+        let data = stepCtrl.getStepData();
+        Object.assign(this.model, data);
+        this.current += offset;
+      }
     },
-    prevStep() {
-      this.current--;
+    //新增提取方案
+    async addExtractPlan() {
+      await this.gotoStep();
+      api.db.addResourcePlan(this.model).then(p => {
+        this.$Message.success('保存提取方案成功！');
+      });
     },
   },
 };
@@ -69,8 +117,8 @@ export default {
         :current="current">
         <Step
           v-for="item in steps"
-          :key="item.name"
-          :title="item.name"></Step>
+          :key="item.title"
+          :title="item.title"></Step>
       </Steps>
     </div>
     <div class="step-content">
@@ -80,21 +128,24 @@ export default {
         :key="item.name">
         <component
           :is="item.component"
-          :extract-mode="extractMode"></component>
+          :extract-mode="extractMode"
+          :model="model"
+          :ref="item.name"></component>
       </div>
     </div>
     <div class="step-footer">
       <Button
         v-show="current>0"
         type="primary"
-        @click="prevStep">上一步</Button>
+        @click="gotoStep(-1)">上一步</Button>
       <Button
         v-show="current<steps.length-1"
         type="primary"
-        @click="nextStep">下一步</Button>
+        @click="gotoStep(1)">下一步</Button>
       <Button
         v-show="current==steps.length-1"
-        type="success">完成</Button>
+        type="success"
+        @click="addExtractPlan">完成</Button>
       <Button type="ghost">取消</Button>
     </div>
   </div>

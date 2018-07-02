@@ -17,12 +17,14 @@ export default {
     model: {
       type: Object,
       default: () => {
-        return null;
+        return {};
       },
     },
   },
   data() {
     return {
+      //提取模型
+      range: { ...this.model },
       //比例尺
       scales: [],
       //城市列表
@@ -42,7 +44,7 @@ export default {
       //已选择图幅号
       selectSheetNos: [],
       //提取方式
-      extract: '0',
+      extractTypes: ['单个文件', '多个文件'],
       //上传服务地址
       uploadUrl: `${config.project.basicUrl}/service/gisserver/getwktsbyshpzip?count=1`,
       //图幅shape文件名
@@ -55,7 +57,6 @@ export default {
     //初始化比例尺
     const scaleRes = await api.db.findSpecialLayer({ type: 2 });
     this.scales = scaleRes.data;
-    this.selectScale = this.scales[0].code;
     //初始化城市区县列表
     const cityRes = await api.db.findDictionary({
       dictionartyLevel: 1,
@@ -64,6 +65,13 @@ export default {
     this.cities = cityRes.data;
     this.selectCities.push(this.cities[0].id);
     this.getCityCounties(this.cities[0].id);
+    //绑定数据
+    if (this.range.splacetype == 1 && this.range.splacelist.length > 0) {
+      this.selectScale = this.range.extractlevel;
+      this.selectSheetNos = this.range.splacelist;
+    } else {
+      this.selectScale = this.scales[0].code;
+    }
   },
   methods: {
     //获取城市下的区县
@@ -193,6 +201,27 @@ export default {
       let sheetIdx = this.selectSheetNos.indexOf(sheetNo);
       this.selectSheetNos.splice(sheetIdx, 1);
     },
+    //校验提取范围
+    validateRange() {
+      if (this.selectSheetNos.length == 0) {
+        this.$Message.info('请选择提取图幅！');
+        return false;
+      }
+      return true;
+    },
+    //获取提取范围
+    getExtractRange() {
+      let names = this.selectSheetNos.join(',');
+      return {
+        splacetype: 1,
+        splacelist: this.selectSheetNos,
+        splaceremark: `根据图幅范围提取，提取图幅号：${names}`,
+        extractlevel: this.selectScale,
+        extract: this.range.extract,
+        coordinate: null,
+        projid: null,
+      };
+    },
   },
 };
 </script>
@@ -274,12 +303,12 @@ export default {
       </div>
       <div class="form-row">
         <label class="form-label">提取方式：</label>
-        <RadioGroup v-model="extract">
-          <Radio label="0">
-            <span>单个文件</span>
-          </Radio>
-          <Radio label="1">
-            <span>多个文件</span>
+        <RadioGroup v-model="range.extract">
+          <Radio
+            v-for="(item,index) in extractTypes"
+            :key="index"
+            :label="index">
+            <span>{{ item }}</span>
           </Radio>
         </RadioGroup>
       </div>
@@ -289,7 +318,7 @@ export default {
         <label class="form-label">提取参数：</label>
         <label class="form-label">影像输出：</label>
         <Input
-          v-model="outputColor"
+          v-model="range.outputColor"
           style="width:100px"
           placeholder="输入颜色参数"></Input>
       </div>

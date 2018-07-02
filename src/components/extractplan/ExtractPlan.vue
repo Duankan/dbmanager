@@ -168,7 +168,7 @@ export default {
             ExtractWizard,
             {
               props: {
-                mode: 0,
+                extractMode: 0,
               },
             },
             [this.$scopedSlots.default]
@@ -189,7 +189,7 @@ export default {
             ExtractWizard,
             {
               props: {
-                mode: 1,
+                extractMode: 1,
               },
             },
             [this.$scopedSlots.default]
