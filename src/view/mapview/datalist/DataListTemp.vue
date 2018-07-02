@@ -4,7 +4,7 @@ export default {
   name: 'DataListTemp',
   data() {
     return {
-      expand: false,
+      arrowStyle: 'chevron-down',
     };
   },
   computed: {
@@ -16,7 +16,7 @@ export default {
       } else if (paneState == 1) {
         height = '320px';
       } else {
-        height = 'calc(100% - 33px)';
+        height = '28px';
       }
       return { height };
     },
@@ -26,26 +26,21 @@ export default {
     paneState() {
       return this.$store.state.bus.bottomPaneState;
     },
-    // queryState() {
-    //   switch (this.dataTable) {
-    //     case 'ExtractPlan':
-    //       return this.$store.state.bus.plandata;
-    //       break;
-    //     case 'AttributeTable':
-    //       return this.$store.state.bus.attribute.length;
-    //       break;
-    //     case 'StyleTable':
-    //       return true;
-    //       break;
-    //     default:
-    //       break;
-    //   }
-    // },
   },
   methods: {
     //关闭面板
     close() {
       this.$store.commit(types.CLOSE_BOTTOM_PANE);
+    },
+    //展开折叠面板
+    toggle() {
+      if (this.paneState == 1) {
+        this.$store.commit(types.COLLAPSE_BOTTOM_PANE);
+        this.arrowStyle = 'chevron-up';
+      } else {
+        this.$store.commit(types.OPEN_BOTTOM_PANE);
+        this.arrowStyle = 'chevron-down';
+      }
     },
   },
 };
@@ -60,8 +55,8 @@ export default {
         <p slot="title">数据属性</p>
         <div slot="extra">
           <Icon
-            :type="expand ? 'chevron-down' : 'chevron-up'"
-            @click.native="expand = !expand">
+            :type="arrowStyle"
+            @click.native="toggle">
           </Icon>
           <Icon
             type="close"
