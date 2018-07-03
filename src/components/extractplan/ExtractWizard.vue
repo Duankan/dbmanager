@@ -38,6 +38,11 @@ export default {
       type: Number,
       default: 0,
     },
+    //方案ID，设置此值则为编辑模式
+    planId: {
+      type: String,
+      default: null,
+    },
   },
   data() {
     return {
@@ -85,8 +90,23 @@ export default {
     } else {
       this.steps = [...WIZARD_STEPS];
     }
+    this.initWizard();
   },
   methods: {
+    //初始化步骤
+    async initWizard() {
+      if (!this.planId) return;
+      const response = await api.db.findResourcePlanById({ id: this.planId });
+      let planData = response.data;
+      this.model.planname = planData.planname;
+      this.model.schemalist = planData.openCatalog.resources;
+      this.model.extract = planData.spatialRange.extract;
+      this.model.splacetype = planData.spatialRange.splacetype;
+      this.model.splaceremark = planData.spatialRange.splacemark;
+      let rangeInfo = JSON.parse(planData.spatialRange.rangeInfo);
+      this.model.splacelist = rangeInfo.mapnames || [];
+      this.model = { ...this.model };
+    },
     //步骤跳转
     async gotoStep(offset = 0) {
       let step = this.steps[this.current];
@@ -106,6 +126,10 @@ export default {
       api.db.addResourcePlan(this.model).then(p => {
         this.$Message.success('保存提取方案成功！');
       });
+    },
+    //关闭步骤控件
+    closeWizard() {
+      this.$events.emit('close-plan-window');
     },
   },
 };
@@ -146,7 +170,9 @@ export default {
         v-show="current==steps.length-1"
         type="success"
         @click="addExtractPlan">完成</Button>
-      <Button type="ghost">取消</Button>
+      <Button
+        type="ghost"
+        @click="closeWizard">取消</Button>
     </div>
   </div>
 </template>

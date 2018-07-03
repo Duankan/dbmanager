@@ -48,7 +48,12 @@ export default {
       selectLayers: [...this.model.schemalist],
     };
   },
-  created() {},
+  watch: {
+    model() {
+      this.planName = this.model.planname;
+      this.selectLayers = [...this.model.schemalist];
+    },
+  },
   methods: {
     //获取目录下发布的资源
     async getCatalogLayers(catalog) {

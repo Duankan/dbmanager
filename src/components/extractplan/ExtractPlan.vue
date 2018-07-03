@@ -87,7 +87,13 @@ export default {
       ],
       pageSize: 10,
       loading: false,
+      planWindow: null,
     };
+  },
+  events: {
+    'close-plan-window': function() {
+      this.planWindow.close();
+    },
   },
   created() {
     this.getPagedPlan();
@@ -153,7 +159,7 @@ export default {
     },
     addVectorPlan() {
       this.$Modal.remove();
-      this.$window({
+      this.planWindow = this.$window({
         title: '提取范围',
         footerHide: true,
         transfer: true,
@@ -174,7 +180,7 @@ export default {
     },
     addRasterPlan() {
       this.$Modal.remove();
-      this.$window({
+      this.planWindow = this.$window({
         title: '提取范围',
         footerHide: true,
         transfer: true,
@@ -195,13 +201,31 @@ export default {
     },
     async showPlanInfo() {},
     async editPlan(row) {
-      let id = row.id;
+      this.planWindow = this.$window({
+        title: '提取范围',
+        footerHide: true,
+        transfer: true,
+        render: h => {
+          return h(
+            ExtractWizard,
+            {
+              props: {
+                extractMode: row.resType,
+                planId: row.id,
+              },
+            },
+            [this.$scopedSlots.default]
+          );
+        },
+        width: 840,
+        height: 660,
+      });
     },
     async extractPlanSourse(row) {
       const response = await api.db.extractResourcePlan({
         id: row.id,
       });
-      if (response.statusCode !== 200 || response.data == null) {
+      if (response.status !== 200 || response.data == null) {
         this.$Message.error('方案提取失败！');
       } else if (row.resType === 0) {
         window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
