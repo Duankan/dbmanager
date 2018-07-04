@@ -119,12 +119,20 @@ export default {
         Object.assign(this.model, data);
         this.current += offset;
       }
+      return valid;
     },
-    //新增提取方案
-    async addExtractPlan() {
-      await this.gotoStep();
-      api.db.addResourcePlan(this.model).then(p => {
+    //新增或更新提取方案
+    async completeExtractPlan() {
+      const valid = await this.gotoStep();
+      if (!valid) return;
+      let saveResourceFun = api.db.addResourcePlan;
+      if (this.planId) {
+        this.model.planid = this.planId;
+        saveResourceFun = api.db.updateResourcePlan;
+      }
+      saveResourceFun(this.model).then(p => {
         this.$Message.success('保存提取方案成功！');
+        this.$events.emit('close-plan-window');
       });
     },
     //关闭步骤控件
@@ -169,7 +177,7 @@ export default {
       <Button
         v-show="current==steps.length-1"
         type="success"
-        @click="addExtractPlan">完成</Button>
+        @click="completeExtractPlan">完成</Button>
       <Button
         type="ghost"
         @click="closeWizard">取消</Button>
