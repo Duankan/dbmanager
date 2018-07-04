@@ -107,6 +107,10 @@ export default {
         this.opened = false;
       });
     },
+    //模态框显隐变化
+    visibleChange(val) {
+      this.$emit('input', val);
+    },
   },
 };
 </script>
@@ -114,7 +118,8 @@ export default {
   <Modal
     :value="opened"
     width="450"
-    title="连接三方服务">
+    title="连接三方服务"
+    @on-visible-change="visibleChange">
     <div class="step-header">
       <Steps
         :current="current"
@@ -229,7 +234,7 @@ export default {
         :loading="publishLoading"
         type="success"
         @click="publishService">发布</Button>
-      <Button @click="opened=false">取消</Button>
+      <Button @click="visibleChange(false)">取消</Button>
     </div>
   </Modal>
 </template>

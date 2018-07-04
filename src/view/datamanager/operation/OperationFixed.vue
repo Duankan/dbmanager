@@ -1,12 +1,12 @@
 <script>
-import Uploader from './modal/Uploader';
+import ResourceUploader from './modal/ResourceUploader';
 import CreateDirectory from './modal/CreateDirectory';
 import LinkThirdPartService from './modal/LinkThirdPartService';
 
 export default {
   name: 'OperationFixed',
   components: {
-    Uploader,
+    ResourceUploader,
     CreateDirectory,
     LinkThirdPartService,
   },
@@ -32,7 +32,8 @@ export default {
   },
   methods: {
     upload(name) {
-      this.$events.emit('on-upload', { dictionary: name === 'dictionary' });
+      // this.$events.emit('on-upload');
+      this.uploaderModal = true;
     },
     linkService() {
       this.linkServiceModal = true;
@@ -44,21 +45,16 @@ export default {
 <template>
   <div class="operation-fixed">
     <Dropdown
-      placement="bottom-start"
-      @on-click="upload">
+      placement="bottom-start">
       <Button
         type="primary"
-        @click="upload('file')">
+        @click="upload">
         <Icon
           type="upload"
           size="14"
           style="margin-right: 8px"></Icon>
         上传
       </Button>
-      <DropdownMenu slot="list">
-        <DropdownItem name="file">文件上传</DropdownItem>
-        <DropdownItem name="dictionary">文件夹上传</DropdownItem>
-      </DropdownMenu>
     </Dropdown>
     <Dropdown placement="bottom-start">
       <Button type="primary">
@@ -83,7 +79,7 @@ export default {
         style="margin-right: 8px"></Icon>
       新建文件夹
     </Button>
-    <Uploader
+    <ResourceUploader
       v-model="uploaderModal"
       :title="title"
       :dictionary="dictionary"

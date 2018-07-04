@@ -65,6 +65,9 @@ export default {
         case 'extra':
           this.$store.commit(types.SET_APP_DATATABLE, 'ExtractPlan');
           this.$store.commit(types.OPEN_BOTTOM_PANE);
+          this.openWindow();
+          this.width = 0;
+          this.height = 0;
           break;
         case 'Statistics':
           this.title = '基础统计';
@@ -95,9 +98,8 @@ export default {
 </script>
 
 <template>
-  <Row>
+  <Row v-if="$route.name === 'MapView'">
     <Menu
-      v-show="$route.name === 'MapView'"
       mode="horizontal"
       theme="primary"
       @on-select="selectMenuItem">
@@ -131,18 +133,16 @@ export default {
         <MenuItem name="ManageCRS">空间参考管理</MenuItem>
       </Submenu>
     </Menu>
-    <keep-alive>
-      <component
-        :is="show"
-        :is-visible.sync="showWindow"
-        :modules-type="type"
-        :modules-title="title"
-        :width="width"
-        :height="height"
-        class="db-query"
-        @on-change-visible="changeVisible"
-      ></component>
-    </keep-alive>
+    <component
+      :is="show"
+      :is-visible.sync="showWindow"
+      :modules-type="type"
+      :modules-title="title"
+      :width="width"
+      :height="height"
+      class="db-query"
+      @on-change-visible="changeVisible"
+    ></component>
   </Row>
 </template>
 
