@@ -80,12 +80,14 @@ export default {
                 icon-class={'position'}
                 nativeOnClick={() => this.positionLayer(root, node, data)}
               />
+
               <svg-icon
                 size={16}
                 icon-class={'delete'}
                 nativeOnClick={() => this.deleteLayer(root, node, data)}
               />
             </span>
+
             <slider
               value={data.opacity * 100}
               step={10}
@@ -173,6 +175,7 @@ export default {
 
 <template>
   <div class="k-layer-tree">
+
     <Tooltip
       content="图层"
       placement="left">

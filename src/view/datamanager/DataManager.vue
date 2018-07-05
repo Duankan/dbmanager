@@ -61,7 +61,7 @@ export default {
         @click="refresh">刷新</ContextMenuItem>
       <ContextMenuItem @click="overload">重新加载页面</ContextMenuItem>
     </ContextMenu>
-    <div
+    </p><div
       v-contextmenu:contextmenu
       class="manager-container">
       <Operation :component.sync="component"/>
