@@ -17,7 +17,6 @@ export default {
   },
   methods: {
     async fetchData() {
-      debugger;
       const response = await api.db.findCommonCatalog({
         userId: this.$appUser.id,
       });
