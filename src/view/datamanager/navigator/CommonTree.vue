@@ -13,9 +13,7 @@ export default {
     this.fetchData();
   },
   events: {
-    'on-common-tree-update': function() {
-      this.fetchData();
-    },
+    'on-common-tree-update': 'fetchData',
   },
   methods: {
     async fetchData() {

@@ -21,6 +21,14 @@ export default {
       return this.showWindow ? 'QueryModules' : '';
     },
   },
+  watch: {
+    //路由跳转时关闭window
+    $route(val) {
+      if (val.name != 'MapView') {
+        this.showWindow = false;
+      }
+    },
+  },
   methods: {
     async selectMenuItem(name) {
       this.$store.commit(types.CLOSE_BOTTOM_PANE);

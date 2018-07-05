@@ -91,24 +91,28 @@ export default {
     },
   },
   events: {
-    'on-quick-view': function(node) {
+    'on-quick-view': 'invokeQuickView',
+    'on-quick-publish': 'invokeQuickPublish',
+    'on-information': 'invokeInfomation',
+    'on-delete': 'invokeDelete',
+  },
+  methods: {
+    invokeQuickView(node) {
       this.quickViewModal = true;
       this.quickViewNode = node;
     },
-    'on-quick-publish': function(node) {
+    invokeQuickPublish(node) {
       this.publishModal = true;
       this.publishNode = node;
     },
-    'on-information': function(node) {
+    invokeInfomation(node) {
       this.informationModal = true;
       this.informationNode = node;
     },
-    'on-delete': function(node) {
+    invokeDelete(node) {
       this.deleteModal = true;
       this.deleteNodes = [node];
     },
-  },
-  methods: {
     favor() {
       this.selectNodes.forEach(async node => {
         await api.db.addCommonCatalog({
