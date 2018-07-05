@@ -21,9 +21,9 @@ export default {
   data() {
     return {
       tableData: [],
-      pageIndex: 0,
-      pageSize: 10,
       total: 0,
+      pageIndex: 0,
+      attributeType: 'wfsQuery',
       features: [],
       title: '',
       tableLoading: false,
@@ -33,7 +33,6 @@ export default {
   },
   computed: {
     columns() {
-      console.log(this.$store.state.bus.field);
       return this.$store.state.bus.field;
     },
     queryOptions() {
@@ -42,16 +41,7 @@ export default {
   },
   watch: {
     queryOptions(options) {
-      options.forEach(option => {
-        this.title = option.title;
-        delete option.title;
-        this.tableLoading = true;
-        if (this[option.attributeType]) {
-          this[option.attributeType](option);
-        } else {
-          this.wfsQuery(option);
-        }
-      });
+      this.doQuery(options);
     },
   },
   methods: {
@@ -82,8 +72,6 @@ export default {
       });
     },
     popupStatistics() {
-      console.log(this.$store);
-      console.log(this.opt);
       let field = '';
       for (let item of this.$store.state.bus.field) {
         field += item.key + ' ,';
@@ -130,7 +118,20 @@ export default {
       }
     },
     // 很不同类型做查询
-
+    doQuery(options) {
+      options.forEach(option => {
+        this.title = option.title;
+        delete option.title;
+        this.pageIndex = option.pageIndex;
+        this.attributeType = option.attributeType;
+        this.tableLoading = true;
+        if (this[option.attributeType]) {
+          this[option.attributeType](option);
+        } else {
+          this.wfsQuery(option);
+        }
+      });
+    },
     async wfsQuery(option, isShowColumns) {
       if (this.optNum != 2) {
         this.opt = option; //等于先查询的条件
@@ -156,6 +157,7 @@ export default {
             align: 'center',
             width: 100,
             maxWidth: 300,
+            ellipsis: true,
           };
         });
         this.$store.commit(types.SET_BUS_FIELD, cols);
@@ -236,7 +238,6 @@ export default {
       let copyopt = cloneDeep(this.opt);
       copyopt.options.cql_filter = cql_filterCopy;
       if (copyopt.options.cql_filter) {
-        console.log(copyopt.options.cql_filter);
         let cqlfs = copyopt.options.cql_filter.split('INTERSECTS');
         if (cqlfs.length == 2) {
           let cqlf = cqlfs[0] + ' ' + msg + ' and ' + 'INTERSECTS' + cqlfs[1];
@@ -251,6 +252,19 @@ export default {
         this.wfsQuery(copyopt);
       }
       this.opt.options.cql_filter = cql_filterCopy;
+    },
+    changePage(pageIdx) {
+      let options = [...this.queryOptions];
+      options[0].pageIndex = pageIdx;
+      options[0].attributeType = this.attributeType;
+      this.doQuery(options);
+    },
+    changePageSize(pageSize) {
+      let options = [...this.queryOptions];
+      options[0].pageIndex = 1;
+      options[0].pageSize = pageSize;
+      options[0].attributeType = this.attributeType;
+      this.doQuery(options);
     },
   },
 };
@@ -293,16 +307,16 @@ export default {
           @on-row-click="rowClick"
         ></Table>
         <Page
+          :current="pageIndex"
           :total="total"
           :page-size="10"
-          :page-size-opts="[10, 20, 30, 40]"
+          :show-sizer="false"
           size="small"
           placement="top"
           show-total
           show-elevator
-          show-sizer
-          @on-change="(val) => pageIndex = val"
-          @on-page-size-change="val => pageSize = val"
+          @on-change="changePage"
+          @on-page-size-change="changePageSize"
         ></Page>
       </TabPane>
     </Tabs>
