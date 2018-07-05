@@ -32,7 +32,7 @@ class Event {
     this.on(eventName, callback, { times: 1 });
   }
   emit(eventName, payload, payloadCached = false) {
-    if (this._events[eventName]) {
+    if (this._events[eventName] && this._events[eventName].hookers) {
       this._events[eventName].hookers.forEach(callback => {
         // 记录调用次数
         if (!callback._options.count) {
@@ -71,8 +71,11 @@ class Event {
       if (index > 0) {
         this._events[eventName].hookers.splice(index, 1);
       }
+      if (this._events[eventName].hookers.length == 0) {
+        delete this._events[eventName];
+      }
     } else {
-      this._events[eventName].hookers = [];
+      delete this._events[eventName];
     }
   }
   dispatch(componentName, eventName, params) {
