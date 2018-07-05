@@ -24,6 +24,9 @@ export default {
       search: '',
     };
   },
+  created() {
+    this.$store.state.app.copy = cloneDeep(this.$store.state.app.nodes);
+  },
   methods: {
     searchh() {
       let nodessss = cloneDeep(this.$store.state.app.nodes);
@@ -33,6 +36,7 @@ export default {
           nodessss.splice(i, 1);
         }
       }
+      console.log(nodessss);
       this.$store.state.app.copy = nodessss;
     },
     sort(key) {
