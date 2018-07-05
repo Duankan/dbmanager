@@ -73,17 +73,6 @@ export default {
       uploadAction: '#',
     };
   },
-  events: {
-    'on-getdraw-refs': function(draw) {
-      drawRefs = draw.drawRefs;
-      drawType = draw.REFS;
-    },
-    'on-get-drawlayer': function(layers) {
-      this.$nextTick(() => {
-        this.$emit('on-get-drawlayer', layers);
-      });
-    },
-  },
   watch: {
     layerCrs(newVal) {
       if (newVal !== '') {
@@ -92,6 +81,10 @@ export default {
         }/service/gisserver/getwktsbyshpzip?crs=${newVal}&count=1`;
       }
     },
+  },
+  events: {
+    'on-getdraw-refs': 'invokeGetDrawRefs',
+    'on-get-drawlayer': 'invokeGetDrawLayers',
   },
   mounted() {
     this.uploadAction = `${
@@ -102,6 +95,13 @@ export default {
     this.clearToolLayer();
   },
   methods: {
+    invokeGetDrawRefs(draw) {
+      this.$drawRefs = draw.drawRefs;
+      this.drawType = draw.REFS;
+    },
+    invokeGetDrawLayers(layers) {
+      this.$emit('on-get-drawlayer', layers);
+    },
     // 清除操作
     clearLayers() {
       if (drawType) {

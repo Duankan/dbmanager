@@ -14,12 +14,14 @@ export default {
     model: {
       type: Object,
       default: () => {
-        return null;
+        return {};
       },
     },
   },
   data() {
     return {
+      //提取模型
+      range: { ...this.model },
       //城市列表
       cities: [],
       //区县列表
@@ -31,9 +33,7 @@ export default {
       //选择的区域
       selectBlocks: [],
       //提取方式
-      extract: '0',
-      //影像输出颜色
-      outputColor: '#ffffffff',
+      extractTypes: ['相交', '裁剪', '包含'],
     };
   },
   async created() {
@@ -43,8 +43,21 @@ export default {
       order: 'asc',
     });
     this.cities = cityRes.data;
-    this.selectCities.push(this.cities[0].id);
-    this.getCityCounties(this.cities[0].id);
+    if (this.range.splacetype == 0 && this.range.splacelist.length > 0) {
+      //数据绑定
+      if (this.range.extractlevel == 'City') {
+        let ids = this.cities
+          .filter(p => this.range.splacelist.indexOf(p.code) >= 0)
+          .map(p => p.id);
+        this.selectCities = ids;
+      } else {
+        // this.selectCoutries = this.range.splacelist;
+      }
+    } else {
+      //默认初始化
+      this.selectCities.push(this.cities[0].id);
+      this.getCityCounties(this.cities[0].id);
+    }
   },
   methods: {
     //获取城市下的区县
@@ -75,6 +88,29 @@ export default {
         blocks = this.cities.filter(p => this.selectCities.indexOf(p.id) >= 0);
       }
       this.selectBlocks = blocks;
+    },
+    //校验提取范围
+    validateRange() {
+      if (this.selectBlocks.length == 0) {
+        this.$Message.info('请选择提取行政区！');
+        return false;
+      }
+      return true;
+    },
+    //获取提取范围
+    getExtractRange() {
+      let codes = this.selectBlocks.map(p => p.code);
+      let names = this.selectBlocks.map(p => p.data).join(',');
+      let level = this.selectBlocks.some(p => p.type == 'County') ? 'County' : 'City';
+      return {
+        splacetype: 0,
+        splacelist: codes,
+        splaceremark: `根据行政区范围提取，提取范围：${names}`,
+        extractlevel: level,
+        extract: this.range.extract,
+        coordinate: null,
+        projid: null,
+      };
     },
   },
 };
@@ -118,15 +154,12 @@ export default {
     </div>
     <div class="form-row">
       <label class="form-label">提取方式：</label>
-      <RadioGroup v-model="extract">
-        <Radio label="0">
-          <span>相交</span>
-        </Radio>
-        <Radio label="1">
-          <span>裁剪</span>
-        </Radio>
-        <Radio label="2">
-          <span>包含</span>
+      <RadioGroup v-model="range.extract">
+        <Radio
+          v-for="(item,index) in extractTypes"
+          :key="index"
+          :label="index">
+          <span>{{ item }}</span>
         </Radio>
       </RadioGroup>
     </div>
@@ -136,7 +169,7 @@ export default {
       <label class="form-label">提取参数：</label>
       <label class="form-label">影像输出：</label>
       <Input
-        v-model="outputColor"
+        v-model="range.outputColor"
         style="width:100px"
         placeholder="输入颜色参数"></Input>
     </div>

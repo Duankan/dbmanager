@@ -1,7 +1,36 @@
 <script>
+import DefaultRange from './DefaultRange';
 import BlockRange from './BlockRange';
 import SheetRange from './SheetRange';
 import CoordRange from './CoordRange';
+
+//范围类型
+const SPLACE_TYPES = [
+  {
+    name: 'defaultCtrl',
+    title: '默认',
+    value: -1,
+    component: 'DefaultRange',
+  },
+  {
+    name: 'blockCtrl',
+    title: '行政区',
+    value: 0,
+    component: 'BlockRange',
+  },
+  {
+    name: 'sheetCtrl',
+    title: '图幅范围',
+    value: 1,
+    component: 'SheetRange',
+  },
+  {
+    name: 'coordCtrl',
+    title: '坐标文件',
+    value: 2,
+    component: 'CoordRange',
+  },
+];
 
 /*
  * 选择提取范围模块
@@ -9,6 +38,7 @@ import CoordRange from './CoordRange';
 export default {
   name: 'ExtractRange',
   components: {
+    DefaultRange,
     BlockRange,
     SheetRange,
     CoordRange,
@@ -19,13 +49,44 @@ export default {
       type: Number,
       default: 0,
     },
+    //绑定数据
+    model: {
+      type: Object,
+      default: () => {
+        return {};
+      },
+    },
   },
   data() {
     return {
-      //范围类型，-1：默认全图；0:代表行政区；1:代表图幅范围；2:代表坐标范围；
-      splaceType: '0',
-      model: null,
+      //范围类型
+      splaceTypes: [],
     };
+  },
+  created() {
+    //影像没有默认范围
+    if (this.extractMode == 1) {
+      this.splaceTypes = SPLACE_TYPES.filter(p => p.component != 'DefaultRange');
+    } else {
+      this.splaceTypes = [...SPLACE_TYPES];
+    }
+  },
+  methods: {
+    //获取当前选择的部件
+    getCurPart() {
+      let part = this.splaceTypes.find(p => p.value == this.model.splacetype);
+      return this.$refs[part.name][0];
+    },
+    //校验步骤
+    async validateStep() {
+      let partCtrl = this.getCurPart();
+      return partCtrl.validateRange();
+    },
+    //获取步骤数据
+    getStepData() {
+      let partCtrl = this.getCurPart();
+      return partCtrl.getExtractRange();
+    },
   },
 };
 </script>
@@ -38,49 +99,27 @@ export default {
       </div>
       <div class="region-content">
         <div class="range-selectors">
-          <RadioGroup v-model="splaceType">
-            <Radio label="-1">
-              <span>默认</span>
-            </Radio>
-            <Radio label="0">
-              <span>行政区</span>
-            </Radio>
-            <Radio label="1">
-              <span>图幅范围</span>
-            </Radio>
-            <Radio label="2">
-              <span>坐标文件</span>
+          <RadioGroup v-model="model.splacetype">
+            <Radio
+              v-for="item in splaceTypes"
+              :key="item.name"
+              :label="item.value">
+              <span>{{ item.title }}</span>
             </Radio>
           </RadioGroup>
         </div>
         <div class="range-content">
           <div
-            v-show="splaceType=='-1'"
+            v-for="item in splaceTypes"
+            v-show="item.value==model.splacetype"
+            :key="item.key"
             class="range-item">
-          </div>
-          <div
-            v-show="splaceType=='0'"
-            class="range-item">
-            <BlockRange
-              :extract-mode="extractMode"
+            <component
+              :is="item.component"
+              :ref="item.name"
+              :extract-mode="item.extractMode"
               :model="model">
-            </BlockRange>
-          </div>
-          <div
-            v-show="splaceType=='1'"
-            class="range-item">
-            <SheetRange
-              :extract-mode="extractMode"
-              :model="model">
-            </SheetRange>
-          </div>
-          <div
-            v-show="splaceType=='2'"
-            class="range-item">
-            <CoordRange
-              :extract-mode="extractMode"
-              :model="model">
-            </CoordRange>
+            </component>
           </div>
         </div>
       </div>

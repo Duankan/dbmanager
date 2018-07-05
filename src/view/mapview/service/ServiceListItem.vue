@@ -1,6 +1,7 @@
 <script>
 import api from 'api';
 import { url } from '@ktw/ktools';
+import MapEdit from '@/./view/mapedit/MapEdit';
 
 const SET_MAP_SERVICELIST = 'SET_MAP_SERVICELIST';
 
@@ -15,6 +16,11 @@ export default {
   data() {
     return {
       thumbnail: true,
+      editshow:
+        this.node.resource.shapeType.toUpperCase() == 'POLYGON' ||
+        this.node.resource.shapeType.toUpperCase() == 'POINT' ||
+        this.node.resource.shapeType.toUpperCase() == 'LINESTRING' ||
+        this.node.resource.shapeType == 'polyline',
     };
   },
   computed: {
@@ -24,6 +30,8 @@ export default {
   },
   methods: {
     async view() {
+      //把显示的图层一个个的都丢到MapView.vue里面去。在哪个页面做修改
+      this.$events.emit('lxc', this.node);
       const response = await api.db.findService({
         resourceId: this.node.resourceId, // 资源id
         serivestatus: 0, // 服务状态(0 开启 1 关闭)
@@ -34,6 +42,25 @@ export default {
       const layers = search.layers ? search.layers : search.typeName;
       this.$store.commit(SET_MAP_SERVICELIST, {
         [layers]: response.data,
+      });
+    },
+    edit() {
+      this.vm = this.$window({
+        title: '图层编辑',
+        footerHide: true,
+        render: h => {
+          return h(
+            MapEdit,
+            {
+              props: {
+                value: { msg: this.node.resource },
+              },
+            },
+            [this.$scopedSlots.default]
+          );
+        },
+        width: 800,
+        height: 700,
       });
     },
   },
@@ -74,6 +101,13 @@ export default {
           size="28"
           color="#fff"></Icon>
         <span>|</span>
+        <Icon
+          v-if="editshow"
+          type="gear-b"
+          size="28"
+          color="#fff"
+          @click.native="edit"
+        ></Icon>
         <Icon
           type="ios-search-strong"
           size="32"

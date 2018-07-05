@@ -11,18 +11,12 @@ const app = {
     nodes: [],
     // 当前选择的节点对象列表
     selectNodes: [],
-    //当前数据列表
-    currentDataTable: '',
   },
   getters: {},
   mutations: {
     // 设置目录对象
     [types.SET_APP_CURRENT_DIRECTORY](state, directory) {
       state.currentDirectory = directory;
-    },
-    // 设置数据列表对象
-    [types.SET_APP_DATATABLE](state, table) {
-      state.currentDataTable = table;
     },
     // 对当前浏览的目录节点对象进行排序 默认降序排列
     [types.SORT_APP_NODES](state, { key, desc = true }) {

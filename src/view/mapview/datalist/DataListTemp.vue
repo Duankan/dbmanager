@@ -1,36 +1,47 @@
 <script>
+import * as types from '@/store/types';
 export default {
   name: 'DataListTemp',
   data() {
     return {
-      expand: false,
+      arrowStyle: 'chevron-down',
     };
   },
   computed: {
-    // style() {
-    //   return this.expand ? { height: '280px' } : { height: 'calc(100% - 33px)' };
-    // },
-    dataTable() {
-      return this.$store.state.app.currentDataTable;
-    },
-    queryState() {
-      switch (this.dataTable) {
-        case 'ExtractPlan':
-          return this.$store.state.bus.plandata;
-          break;
-        case 'AttributeTable':
-          return this.$store.state.bus.attribute.length;
-          break;
-        case 'StyleTable':
-          return true;
-          break;
-        default:
-          break;
+    style() {
+      let paneState = this.$store.state.bus.bottomPaneState;
+      let height = 0;
+      if (paneState == 0) {
+        height = 0;
+      } else if (paneState == 1) {
+        height = '320px';
+      } else {
+        height = '28px';
       }
+      return { height };
+    },
+    dataTable() {
+      return this.$store.state.bus.currentDataTable;
+    },
+    paneState() {
+      return this.$store.state.bus.bottomPaneState;
     },
   },
   methods: {
-    close() {},
+    //关闭面板
+    close() {
+      this.$store.commit(types.CLOSE_BOTTOM_PANE);
+    },
+    //展开折叠面板
+    toggle() {
+      if (this.paneState == 1) {
+        this.$store.commit(types.COLLAPSE_BOTTOM_PANE);
+        this.arrowStyle = 'chevron-up';
+      } else {
+        this.$store.commit(types.OPEN_BOTTOM_PANE);
+        this.arrowStyle = 'chevron-down';
+      }
+    },
   },
 };
 </script>
@@ -38,15 +49,14 @@ export default {
 <template>
   <transition name="slide">
     <div
-      v-show="queryState"
+      :style="style"
       class="attribute-table" >
       <Card dis-hover>
-
         <p slot="title">数据属性</p>
         <div slot="extra">
           <Icon
-            :type="expand ? 'chevron-down' : 'chevron-up'"
-            @click.native="expand = !expand">
+            :type="arrowStyle"
+            @click.native="toggle">
           </Icon>
           <Icon
             type="close"

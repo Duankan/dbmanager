@@ -227,7 +227,7 @@ export default {
   },
   computed: {
     tableData() {
-      return this.handleData(cloneDeep(this.$store.state.app.nodes));
+      return this.handleData(cloneDeep(this.$store.state.app.copy));
     },
     selectNodes() {
       return this.$store.state.app.selectNodes;
@@ -361,9 +361,6 @@ export default {
 
 <template>
   <div class="data-table">
-    <div
-      v-show="selectNodes.length"
-      class="select-count">已选择 {{ selectNodes.length }} 项</div>
     <Table
       ref="table"
       :columns="columns"

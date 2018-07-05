@@ -29,7 +29,11 @@ export default {
   },
   methods: {
     click(item) {
-      this.$router.push({ name: item.name });
+      if (item.title == '地图编辑') {
+        alert('s');
+      } else {
+        this.$router.push({ name: item.name });
+      }
     },
   },
 };
