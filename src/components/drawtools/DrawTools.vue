@@ -30,7 +30,6 @@ const iconConfig = [
     itemClass: 'draw-delete',
   },
 ];
-let drawRefs, drawType;
 export default {
   name: 'DrawTools',
   props: {
@@ -104,28 +103,28 @@ export default {
     },
     // 清除操作
     clearLayers() {
-      if (drawType) {
-        drawType.forEach(item => {
-          drawRefs[item].clearDrawLayer();
+      if (this.drawType) {
+        this.drawType.forEach(item => {
+          this.$drawRefs[item].clearDrawLayer();
         });
       }
     },
     drawGeometry(name) {
       this.clearToolLayer();
-      const type = name.split('-')[1];
-      if (drawType.includes(type)) {
-        drawRefs[type].drawGeometry();
+      const drawType = name.split('-')[1];
+      if (this.drawType.includes(drawType)) {
+        this.$drawRefs[drawType].drawGeometry();
       } else {
         const state = {
           defineline() {
-            drawRefs['polyline'].drawGeometry({ customDraw: true });
+            this.$drawRefs['polyline'].drawGeometry({ customDraw: true });
           },
           file() {},
           delete() {
             this.$emit('on-get-drawlayer', null);
           },
         };
-        state[type].call(this);
+        state[drawType].call(this);
       }
     },
     uploadSuccess(data) {
@@ -134,12 +133,12 @@ export default {
         wkt.read(data.data[0]);
         this.geometry = wkt.toObject(false);
         this.$emit('on-get-drawlayer', this.geometry);
-        this.geometry.addTo(drawRefs.geojson.$queryLayers);
+        this.geometry.addTo(this.$drawRefs.geojson.$queryLayers);
       }
     },
     clearToolLayer() {
       this.clearLayers();
-      if (this.geometry) drawRefs.geojson.$queryLayers.removeLayer(this.geometry);
+      if (this.geometry) this.$drawRefs.geojson.$queryLayers.removeLayer(this.geometry);
     },
   },
 };
