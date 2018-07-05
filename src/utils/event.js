@@ -17,12 +17,13 @@ class Event {
     options.priority = options.priority == undefined ? 0 : options.priority;
     callback._options = options;
     if (!this._events[eventName]) {
-      this._events[eventName] = [callback];
-    } else if (this._events[eventName].payload) {
-      this._events[eventName].callback = callback;
+      this._events[eventName] = { hookers: [callback] };
+    } else if (!this._events[eventName].hookers) {
+      this._events[eventName].hookers = [];
+      this._events[eventName].hookers.push(callback);
     } else {
-      this._events[eventName].push(callback);
-      this._events[eventName].sort((a, b) => {
+      this._events[eventName].hookers.push(callback);
+      this._events[eventName].hookers.sort((a, b) => {
         return b._options.priority - a._options.priority;
       });
     }
@@ -30,9 +31,9 @@ class Event {
   once(eventName, callback) {
     this.on(eventName, callback, { times: 1 });
   }
-  emit(eventName, payload) {
-    if (this._events[eventName] && Array.isArray(this._events[eventName])) {
-      this._events[eventName].forEach(callback => {
+  emit(eventName, payload, payloadCached = false) {
+    if (this._events[eventName]) {
+      this._events[eventName].hookers.forEach(callback => {
         // 记录调用次数
         if (!callback._options.count) {
           callback._options.count = 1;
@@ -59,17 +60,19 @@ class Event {
       });
     } else {
       // 缓存payload 等待事件监听时触发回调函数
-      this._events[eventName] = { payload };
+      if (payloadCached) {
+        this._events[eventName] = { payload };
+      }
     }
   }
   off(eventName, callback) {
     if (callback) {
-      const index = this._events[eventName].indexOf(callback);
+      const index = this._events[eventName].hookers.indexOf(callback);
       if (index > 0) {
-        this._events[eventName].splice(index, 1);
+        this._events[eventName].hookers.splice(index, 1);
       }
     } else {
-      this._events[eventName] = [];
+      this._events[eventName].hookers = [];
     }
   }
   dispatch(componentName, eventName, params) {
@@ -106,25 +109,25 @@ export default {
     const event = new Event();
 
     Vue.mixin({
-      beforeCreate() {
+      created() {
         if (this.$options.events) {
           for (const eventName in this.$options.events) {
-            this.$options.events[eventName] = this.$options.events[eventName].bind(this);
-            this.$events.on(eventName, this.$options.events[eventName]);
+            let target = this.$options.events[eventName];
+            if (this[target]) {
+              this.$events.on(eventName, this[target]);
+            }
           }
         }
         this.$events.dispatch = this.$events.dispatch.bind(this);
         this.$events.broadcast = this.$events.broadcast.bind(this);
       },
-      created() {
-        for (const eventName in this.$events._events) {
-          if (this.$events._events[eventName].callback) {
-            if (options.ignore) {
-              delete this.$events._events[eventName];
-            } else {
-              const payload = this.$events._events[eventName].payload;
-              this.$events._events[eventName] = [this.$events._events[eventName].callback];
-              this.$events.emit(eventName, payload);
+      mounted() {
+        if (this.$options.events) {
+          for (const eventName in this.$events._events) {
+            const payload = this.$events._events[eventName].payload;
+            let target = this.$options.events[eventName];
+            if (payload && target && this[target]) {
+              this[target](payload);
             }
           }
         }
@@ -132,8 +135,10 @@ export default {
       beforeDestroy() {
         if (this.$options.events) {
           for (const eventName in this.$options.events) {
-            this.$events.off(eventName, this.$options.events[eventName]);
-            this.$events.off(eventName);
+            let target = this.$options.events[eventName];
+            if (target && this[target]) {
+              this.$events.off(eventName, this[target]);
+            }
           }
         }
       },

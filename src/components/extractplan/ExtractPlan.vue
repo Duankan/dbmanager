@@ -91,14 +91,16 @@ export default {
     };
   },
   events: {
-    'close-plan-window': function() {
-      this.planWindow.close();
-    },
+    'close-plan-window': 'closePlanWindow',
   },
   created() {
     this.getPagedPlan();
   },
   methods: {
+    //关闭Window
+    closePlanWindow() {
+      this.planWindow.close();
+    },
     //获取分页方案数据
     async getPagedPlan(pageIdx = 1) {
       this.loading = false;

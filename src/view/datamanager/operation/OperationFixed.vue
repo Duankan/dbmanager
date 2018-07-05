@@ -21,7 +21,10 @@ export default {
     };
   },
   events: {
-    'on-upload': function(params) {
+    'on-upload': 'invokeUpload',
+  },
+  methods: {
+    invokeUpload(params) {
       if (params) {
         for (const key in params) {
           this[key] = params[key];
@@ -29,8 +32,6 @@ export default {
       }
       this.uploaderModal = true;
     },
-  },
-  methods: {
     upload(name) {
       // this.$events.emit('on-upload');
       this.uploaderModal = true;

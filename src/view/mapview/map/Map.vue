@@ -9,7 +9,7 @@ export default {
     },
   },
   mounted() {
-    this.$events.emit('on-getdraw-refs', { drawRefs: this.$refs, REFS });
+    this.$events.emit('on-getdraw-refs', { drawRefs: this.$refs, REFS }, true);
   },
   methods: {
     handleClick() {},
