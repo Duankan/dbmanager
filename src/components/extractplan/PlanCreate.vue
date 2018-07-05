@@ -84,8 +84,8 @@ export default {
         //planid: null,//方案编号
         restype: 0, //方案方式： 0为矢量数据提取  1为影像数据提取
         planname: 'null', //方案名称
-        createperson: this.$user.id, //方案创建者
-        createorganization: this.$user.orgid, //创建组织
+        createperson: this.$store.state.user.info.id, //方案创建者
+        createorganization: this.$store.state.user.info.orgid, //创建组织
         //createtime: null,//创建时间；
         //updateperson: null,//修改人名称；
         //updatetime: null,//修改时间；
@@ -172,7 +172,7 @@ export default {
     async initData() {
       const response = await api.db.findCatalog({
         owner: 1,
-        ownerId: this.$user.orgid,
+        ownerId: this.$store.state.user.info.orgid,
         access: 1,
         hasChild: false,
         orderby: 'sort_asc',
@@ -199,7 +199,7 @@ export default {
     async loadData(row, callback) {
       const response = await api.db.findCatalog({
         owner: 1,
-        ownerId: this.$user.orgid,
+        ownerId: this.$store.state.user.info.orgid,
         access: 1,
         hasChild: false,
         orderby: 'sort_asc',
@@ -333,7 +333,7 @@ export default {
       }
       //默认指定本组织
       if (!this.requestdata.applyorganization) {
-        this.requestdata.applyorganization = this.$user.orgid;
+        this.requestdata.applyorganization = this.$store.state.user.info.orgid;
       }
       const res = await api.db.addResourcePlan(this.requestdata);
       if (res.status == 200) {

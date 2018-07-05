@@ -49,7 +49,7 @@ export default {
             describe: this.form.description, //描述(可选)
             access: 1, //访问权限(0:公开 1:私有)
             parentId: this.current.childId, //父childId
-            ownerId: this.$user.orgid, //拥有者ID
+            ownerId: this.$store.state.user.info.orgid, //拥有者ID
             owner: 1, //拥有者类型(0:用户 1:组织)
           });
           this.$store.dispatch(types.APP_NODES_FETCH, this.current);

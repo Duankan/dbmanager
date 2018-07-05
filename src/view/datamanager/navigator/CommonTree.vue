@@ -18,7 +18,7 @@ export default {
   methods: {
     async fetchData() {
       const response = await api.db.findCommonCatalog({
-        userId: this.$user.id,
+        userId: this.$store.state.user.info.id,
       });
       this.common = response.data;
     },
@@ -26,7 +26,7 @@ export default {
       await api.db.deleteCommonCatalog({
         ids: [data.id], // ids为[]，清除所有
         type: '1001', // 1001:目录 1002:服务 1003:数据
-        userId: this.$user.id, // 用户id
+        userId: this.$store.state.user.info.id, // 用户id
       });
       const deleteIndex = this.common.findIndex(item => item.id === data.id);
       this.common.splice(deleteIndex, 1);

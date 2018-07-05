@@ -116,7 +116,7 @@ export default {
     getParams(pageIndex) {
       const params = {
         objCondition: {
-          orgId: this.$user.orgid,
+          orgId: this.$store.state.user.info.orgid,
           start: this.start,
           end: this.end,
           alias: this.dataCondition.alias,

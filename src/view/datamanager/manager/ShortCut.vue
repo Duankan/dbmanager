@@ -36,7 +36,7 @@ export default {
         favoriteId: this.node.id, //目录id
         name: this.node.name, //目录名称（可自定）
         type: '1001', // 1001:目录 1002:服务 1003:数据
-        userId: this.$user.id, //用户id
+        userId: this.$store.state.user.info.id, //用户id
       });
       this.$events.emit('on-common-tree-update');
     },

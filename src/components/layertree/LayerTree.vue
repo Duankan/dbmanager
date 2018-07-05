@@ -54,7 +54,7 @@ export default {
   async created() {
     const response = await api.public.findCatalog({
       owner: 1,
-      ownerId: this.$user.orgid,
+      ownerId: this.$store.state.user.info.orgid,
       access: 1,
       hasChild: false,
       orderby: 'sort_asc',
@@ -168,8 +168,8 @@ export default {
               description: form.description, // 描述
               info: {}, // 地图文档信息对象
               typeId: '50002',
-              userId: this.$user.id, // 用户Id
-              userName: this.$user.name, // 用户名
+              userId: this.$store.state.user.info.id, // 用户Id
+              userName: this.$store.state.user.info.name, // 用户名
             },
           });
         }

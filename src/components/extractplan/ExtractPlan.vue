@@ -108,7 +108,7 @@ export default {
         pageIndex: pageIdx,
         pageSize: 10,
         objCondition: {
-          applyOrganization: this.$user.orgid,
+          applyOrganization: this.$store.state.user.info.orgid,
         },
       });
       let planList = response.data.dataSource;
@@ -256,7 +256,7 @@ export default {
           pageIndex: 1, // 分页索引
           pageSize: 5, // 分页大小
           objCondition: {
-            applyOrganization: this.$user.orgid, // 组织id
+            applyOrganization: this.$store.state.user.info.orgid, // 组织id
           },
         });
       } else this.$Message.error('删除失败，请稍后重试！');
