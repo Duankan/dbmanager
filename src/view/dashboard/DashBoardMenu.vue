@@ -23,7 +23,7 @@ export default {
   },
   methods: {
     async selectMenuItem(name) {
-      this.showWindow = false;
+      this.changeVisible();
       this.type = name;
       switch (name) {
         case 'QueryAttrs':

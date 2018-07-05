@@ -164,7 +164,7 @@ export default {
     async statisticsQuery(option) {
       delete option.attributeType;
       L.ajax({
-        url: `${config.project.highgisUrl}/master/ows?service=wps&request=aggregate`,
+        url: `${config.project.highgisUrl}/hgis/ows?service=wps&request=aggregate`,
         success: this.statisticsSuccess,
         dataType: 'json',
         fail: this.errback,

@@ -27,13 +27,19 @@ export default {
         },
       ];
       layerData[0].children = this.ogcLayers.map(layer => {
+        let type;
+        if (layer.wmsParams) {
+          type = layer.wmsParams.service;
+        } else if (layer.wmtsParams) {
+          type = layer.wmtsParams.service;
+        }
         return {
           id: layer._leaflet_id,
           name: layer.options.layers,
-          title: layer.options.title,
+          title: layer.options.title ? layer.options.title : layer.options.layer,
           bbox: layer.options.saveBbox,
           opacity: layer.options.opacity,
-          type: layer.wmsParams.service,
+          type,
           checked: layer.options.visible,
         };
       });
@@ -134,7 +140,7 @@ export default {
     },
     // 图层定位
     positionLayer(root, node, data) {
-      this.$events.emit('on-set-bbox', data.bbox);
+      this.$events.emit('on-set-bbox', { bbox: data.bbox, index: node.nodeKey });
     },
     // 切换图层面板显示隐藏
     toggle() {

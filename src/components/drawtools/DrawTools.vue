@@ -30,6 +30,7 @@ const iconConfig = [
     itemClass: 'draw-delete',
   },
 ];
+let drawRefs, drawType;
 export default {
   name: 'DrawTools',
   props: {
@@ -74,11 +75,13 @@ export default {
   },
   events: {
     'on-getdraw-refs': function(draw) {
-      this.$drawRefs = draw.drawRefs;
-      this.drawType = draw.REFS;
+      drawRefs = draw.drawRefs;
+      drawType = draw.REFS;
     },
     'on-get-drawlayer': function(layers) {
-      this.$emit('on-get-drawlayer', layers);
+      this.$nextTick(() => {
+        this.$emit('on-get-drawlayer', layers);
+      });
     },
   },
   watch: {
@@ -101,28 +104,28 @@ export default {
   methods: {
     // 清除操作
     clearLayers() {
-      if (this.drawType) {
-        this.drawType.forEach(item => {
-          this.$drawRefs[item].clearDrawLayer();
+      if (drawType) {
+        drawType.forEach(item => {
+          drawRefs[item].clearDrawLayer();
         });
       }
     },
     drawGeometry(name) {
       this.clearToolLayer();
-      const drawType = name.split('-')[1];
-      if (this.drawType.includes(drawType)) {
-        this.$drawRefs[drawType].drawGeometry();
+      const type = name.split('-')[1];
+      if (drawType.includes(type)) {
+        drawRefs[type].drawGeometry();
       } else {
         const state = {
           defineline() {
-            this.$drawRefs['polyline'].drawGeometry({ customDraw: true });
+            drawRefs['polyline'].drawGeometry({ customDraw: true });
           },
           file() {},
           delete() {
             this.$emit('on-get-drawlayer', null);
           },
         };
-        state[drawType].call(this);
+        state[type].call(this);
       }
     },
     uploadSuccess(data) {
@@ -131,12 +134,12 @@ export default {
         wkt.read(data.data[0]);
         this.geometry = wkt.toObject(false);
         this.$emit('on-get-drawlayer', this.geometry);
-        this.geometry.addTo(this.$drawRefs.geojson.$queryLayers);
+        this.geometry.addTo(drawRefs.geojson.$queryLayers);
       }
     },
     clearToolLayer() {
       this.clearLayers();
-      if (this.geometry) this.$drawRefs.geojson.$queryLayers.removeLayer(this.geometry);
+      if (this.geometry) drawRefs.geojson.$queryLayers.removeLayer(this.geometry);
     },
   },
 };

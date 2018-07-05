@@ -4,8 +4,12 @@ const REFS = ['polygon', 'rectangle', 'marker', 'polyline', 'circle'];
 export default {
   name: 'Map',
   events: {
-    'on-set-bbox': function(val) {
-      this.$refs.map.setBounds(val);
+    'on-set-bbox': function({ val, index }) {
+      if (val) {
+        this.$refs.map.setBounds(val);
+      } else {
+        this.$store.getters.ogcLayers[index - 1].fitBounds();
+      }
     },
   },
   mounted() {
@@ -50,6 +54,7 @@ export default {
       <LayerTree/>
       <LayerCollect/>
       <TileWMSLayer/>
+      <TileWMTSLayer/>
       <BaseLayer/>
       <TemporaryLayers></TemporaryLayers>
       <GeoJson
