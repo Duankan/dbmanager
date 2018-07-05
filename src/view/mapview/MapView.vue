@@ -1,6 +1,5 @@
 <script>
 import Service from './service/Service';
-import MapEdit from '../mapedit/MapEdit';
 import DataListTemp from './datalist/DataListTemp';
 import Map from './map/Map';
 
@@ -10,14 +9,11 @@ export default {
     Service,
     DataListTemp,
     Map,
-    MapEdit,
   },
 
   data() {
     return {
       LayerS: [],
-      serviceShow: 'true',
-      editBack: '',
     };
   },
   events: {
@@ -30,31 +26,17 @@ export default {
       Layer.ok = 'true';
     },
   },
-  methods: {
-    edit() {
-      this.serviceShow = !this.serviceShow;
-      if (this.editBack == '50%') {
-        this.editBack = '';
-      } else {
-        this.editBack = '50%';
-      }
-    },
-  },
+  methods: {},
 };
 </script>
 
 <template>
   <div class="map-view">
-    <Service v-show="serviceShow"/>
-    <MapEdit
-      v-if="!serviceShow"
-      :layer-s="LayerS"
-    />
+    <Service />
+
     <div
-      :style="{ width:editBack }"
       class="map-container"
     >
-
       <Map/>
       <DataListTemp/>
     </div>

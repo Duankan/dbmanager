@@ -227,11 +227,7 @@ export default {
   },
   computed: {
     tableData() {
-      if (this.$store.state.app.copy == '') {
-        return this.handleData(cloneDeep(this.$store.state.app.nodes));
-      } else {
-        return this.handleData(cloneDeep(this.$store.state.app.copy));
-      }
+      return this.handleData(cloneDeep(this.$store.state.app.copy));
     },
     selectNodes() {
       return this.$store.state.app.selectNodes;

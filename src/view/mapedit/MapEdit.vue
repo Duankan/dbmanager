@@ -2,39 +2,26 @@
 export default {
   name: 'MapEdit',
   props: {
-    layerS: {
-      type: Array,
-      default: () => [],
-    },
+    value: { type: Object, default: () => {} },
   },
   data() {
     return {
-      style: '', //看下拉框选择的图层是点线面那个类型的图层
-      labelName: '', //label 根据下拉框选择的类型来指定是面样式，点样式等
-      select: '', //看选择的是 面样式 高级 还是选择样式
-      showhead: '',
+      labelName: '',
     };
   },
-  watch: {
-    style(newVal) {
-      let style = newVal.split(',');
-      console.log(newVal);
-
-      if (style[1] == 'polygon' || style[1] == 'jyuy') {
-        this.labelName = '面样式';
-      }
-      if (style[1] == 'point') {
-        this.labelName = '点样式';
-      }
-      if (style[1] == 'line') {
-        this.labelName = '线样式';
-      }
-
-      this.showhead = 'true';
-    },
-  },
   created() {
-    console.log(this.layerS);
+    if (this.value.msg.shapeType.toUpperCase() == 'POLYGON') {
+      this.labelName = '面类型';
+    }
+    if (this.value.msg.shapeType.toUpperCase() == 'POINT') {
+      this.labelName = '点类型';
+    }
+    if (this.value.msg.shapeType.toUpperCase() == 'LINESTRING') {
+      this.labelName = '线类型';
+    }
+    if (this.value.msg.shapeType == 'polyline') {
+      this.labelName = '线类型';
+    }
   },
   methods: {
     text() {},
@@ -48,19 +35,10 @@ export default {
       <Form
         :label-width="80"
         inline>
-        <FormItem label="选择图层:" >
-          <Select
-            v-model="style"
-            style="width:200px">
-            <Option
-              v-for="item in layerS"
-              :value="item.name+','+item.styles"
-              :key="item.name">{{ item.name }}</Option>
-          </Select>
+        <FormItem >
+
 
           <RadioGroup
-            v-show="showhead"
-            v-model="select"
             type="button">
             <Radio
               :label="labelName"
@@ -70,7 +48,7 @@ export default {
           </RadioGroup>
 
         </FormItem>
-        <Button @click="text">Default</Button>
+
 
 
       </Form>
@@ -86,7 +64,7 @@ export default {
 
 <style lang="less" scoped>
 .main {
-  width: 50%;
+  width: 100%;
 }
 .left {
   width: 70%;
