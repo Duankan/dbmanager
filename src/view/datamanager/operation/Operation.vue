@@ -2,6 +2,7 @@
 import * as types from '@/store/types';
 import OperationFixed from './OperationFixed';
 import OperationDynamic from './OperationDynamic';
+import { cloneDeep } from '@ktw/ktools';
 
 export default {
   name: 'Operation',
@@ -24,6 +25,16 @@ export default {
     };
   },
   methods: {
+    searchh() {
+      let nodessss = cloneDeep(this.$store.state.app.nodes);
+
+      for (let i = nodessss.length - 1; i >= 0; i--) {
+        if (nodessss[i].name.indexOf(this.search) == -1) {
+          nodessss.splice(i, 1);
+        }
+      }
+      this.$store.state.app.copy = nodessss;
+    },
     sort(key) {
       this.$store.commit(types.SORT_APP_NODES, { key });
     },
@@ -42,7 +53,10 @@ export default {
       <Input
         v-model="search"
         icon="ios-search"
-        placeholder="搜索您的数据"></Input>
+        placeholder="搜索您的数据"
+        @on-click="searchh"
+        @keyup.enter.native="searchh"
+      ></Input>
       <Dropdown
         placement="bottom-end"
         @on-click="sort">
