@@ -84,7 +84,8 @@ export default {
     <ServiceListItem
       v-for="service in serviceList"
       :key="service.serviceId"
-      :node="service"></ServiceListItem>
+      :node="service"
+    ></ServiceListItem>
     <a
       v-show="showMore"
       class="more"
