@@ -112,10 +112,10 @@ export default {
         ...this.styleCondition,
         typeId: '20102',
         catalogId: this.current.childId,
-        userId: this.$store.state.user.info.id,
-        userName: this.$store.state.user.info.name,
-        orgId: this.$store.state.user.info.orgid,
-        orgName: this.$store.state.user.info.orgname,
+        userId: this.$appUser.id,
+        userName: this.$appUser.name,
+        orgId: this.$appUser.orgid,
+        orgName: this.$appUser.orgname,
       };
       return styleParams;
     },

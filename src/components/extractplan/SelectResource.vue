@@ -59,7 +59,7 @@ export default {
     async getCatalogLayers(catalog) {
       const response = await api.public.findCatalog({
         owner: 1,
-        ownerId: this.$store.state.user.info.orgid,
+        ownerId: this.$appUser.orgid,
         access: 1,
         hasChild: false,
         relatedType: 1,

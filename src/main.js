@@ -7,6 +7,7 @@ import { install as Ktools, shortKey } from '@ktw/ktools';
 import filter from '@/filter';
 import directive from '@/directive';
 import event from '@/utils/event';
+import user from '@/utils/user';
 import store from '@/store';
 import router from '@/router';
 import App from './App';
@@ -23,6 +24,7 @@ Vue.use(Kmap, store);
 Vue.use(Ktools);
 Vue.use(event);
 Vue.use(shortKey, {});
+Vue.use(user);
 
 sync(store, router);
 

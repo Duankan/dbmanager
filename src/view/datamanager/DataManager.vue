@@ -5,6 +5,7 @@ import Operation from './operation/Operation';
 import DataBreadcrumb from './breadcrumb/DataBreadcrumb';
 import DataGrid from './manager/DataGrid';
 import DataTable from './manager/DataTable';
+import Vue from 'vue';
 
 export default {
   name: 'DataManager',

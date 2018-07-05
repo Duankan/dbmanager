@@ -57,11 +57,11 @@ export default {
         //方案名称
         planname: '',
         //方案创建者
-        createperson: this.$store.state.user.info.id,
+        createperson: this.$appUser.id,
         //创建组织
-        createorganization: this.$store.state.user.info.orgid,
+        createorganization: this.$appUser.orgid,
         //方案指定组织
-        applyorganization: this.$store.state.user.info.orgid,
+        applyorganization: this.$appUser.orgid,
         //提取资源列表
         schemalist: [],
         //范围类型，-1：默认全图；0:代表行政区；1:代表图幅范围；2:代表坐标范围
