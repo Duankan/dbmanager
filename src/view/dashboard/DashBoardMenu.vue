@@ -12,6 +12,8 @@ export default {
       showWindow: false,
       type: 'composite',
       title: '复合查询',
+      width: 420,
+      height: 200,
     };
   },
   computed: {
@@ -21,6 +23,7 @@ export default {
   },
   methods: {
     async selectMenuItem(name) {
+      this.$store.commit(types.CLOSE_BOTTOM_PANE);
       this.showWindow = false;
       this.type = name;
       switch (name) {
@@ -28,46 +31,57 @@ export default {
           this.title = '属性查询';
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.openWindow();
+          this.height = 390;
+          this.width = 420;
           break;
         case 'QuerySpace':
           this.title = '空间查询';
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.openWindow();
+          this.width = 451;
+          this.height = 418;
           break;
         case 'QueryCompound':
           this.title = '复合查询';
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.openWindow();
+          this.width = 495;
+          this.height = 460;
           break;
         case 'ManageStyle':
           this.title = '样式文件管理';
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.openWindow();
+          this.width = 660;
+          this.height = 525;
           break;
         case 'ManageCRS':
           this.title = '空间参考管理';
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.openWindow();
+          this.width = 660;
+          this.height = 615;
           break;
         case 'extra':
           this.$store.commit(types.SET_APP_DATATABLE, 'ExtractPlan');
-          this.$store.dispatch(types.SET_BUS_SELECT_PLANDATA, {
-            pageIndex: 1, // 分页索引
-            pageSize: 5, // 分页大小
-            objCondition: {
-              applyOrganization: this.$user.orgid, // 组织id
-            },
-          });
+          this.$store.commit(types.OPEN_BOTTOM_PANE);
+          this.openWindow();
+          this.width = 0;
+          this.height = 0;
           break;
         case 'Statistics':
           this.title = '基础统计';
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.openWindow();
+          this.width = 440;
+          this.height = 435;
           break;
         case 'Overlay':
           this.title = '叠加分析';
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.openWindow();
+          this.width = 410;
+          this.height = 500;
           break;
         default:
           break;
@@ -84,9 +98,8 @@ export default {
 </script>
 
 <template>
-  <Row>
+  <Row v-if="$route.name === 'MapView'">
     <Menu
-      v-show="$route.name === 'MapView'"
       mode="horizontal"
       theme="primary"
       @on-select="selectMenuItem">
@@ -120,16 +133,16 @@ export default {
         <MenuItem name="ManageCRS">空间参考管理</MenuItem>
       </Submenu>
     </Menu>
-    <keep-alive>
-      <component
-        :is="show"
-        :is-visible.sync="showWindow"
-        :modules-type="type"
-        :modules-title="title"
-        class="db-query"
-        @on-change-visible="changeVisible"
-      ></component>
-    </keep-alive>
+    <component
+      :is="show"
+      :is-visible.sync="showWindow"
+      :modules-type="type"
+      :modules-title="title"
+      :width="width"
+      :height="height"
+      class="db-query"
+      @on-change-visible="changeVisible"
+    ></component>
   </Row>
 </template>
 
@@ -146,7 +159,7 @@ export default {
   margin: 68px 0 0 320px;
 
   /deep/ .k-window {
-    top: 59px;
+    // top: 10px;
   }
 }
 </style>

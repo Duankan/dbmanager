@@ -30,6 +30,7 @@ export default {
   },
   watch: {
     value(newVal) {
+      this.empty();
       this.div.textarea = newVal.filter || '';
       if (this.div.textarea != '' && this.div.panduan) {
         this.div.addConectNUM = this.div.addFieldNUM - 1;

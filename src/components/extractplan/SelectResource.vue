@@ -14,14 +14,18 @@ export default {
     },
     //绑定数据
     model: {
-      type: Array,
+      type: Object,
       default: () => {
-        return [];
+        return {
+          schemalist: [],
+        };
       },
     },
   },
   data() {
     return {
+      //方案名称
+      planName: this.model.planname,
       //资源表格列
       layerColumns: [
         {
@@ -41,8 +45,14 @@ export default {
       //当前目录资源数据
       catalogLayers: [],
       //选择的资源
-      selectLayers: [...this.model],
+      selectLayers: [...this.model.schemalist],
     };
+  },
+  watch: {
+    model() {
+      this.planName = this.model.planname;
+      this.selectLayers = [...this.model.schemalist];
+    },
   },
   methods: {
     //获取目录下发布的资源
@@ -93,6 +103,10 @@ export default {
         this.selectLayers.push(item);
       }
     },
+    //全选添加资源
+    selectAllLayer(layers) {
+      layers.forEach(p => this.addSelect(p));
+    },
     //删除选择
     removeSelect(layer) {
       let queryLayer = this.selectLayers.find(p => p.resid == layer.id);
@@ -101,49 +115,103 @@ export default {
         this.selectLayers.splice(layerIdx, 1);
       }
     },
-    //获取选择的资源
-    getResources() {
-      return this.selectLayers;
+    //校验步骤
+    async validateStep() {
+      if (!this.planName) {
+        this.$Message.info('请输入提取方案名称！');
+        return false;
+      }
+      if (this.selectLayers.length == 0) {
+        this.$Message.info('请至少选择一个提取资源！');
+        return false;
+      }
+      return true;
+    },
+    //获取步骤数据
+    getStepData() {
+      return {
+        planname: this.planName,
+        schemalist: this.selectLayers,
+      };
     },
   },
 };
 </script>
 <template>
   <div class="select-resource-wrapper">
-    <div class="tree-wrapper">
-      <DataTree
-        :click-node-expand="false"
-        directory
-        accordion
-        @on-current-select="getCatalogLayers">
-      </DataTree>
+    <div class="plan-wrapper">
+      <label>提取方案名称：</label>
+      <Input
+        v-model="planName"
+        style="width:400px"
+        placeholder="输入方案名称...."></Input>
     </div>
-    <div class="table-wrapper">
-      <Table
-        :columns="layerColumns"
-        :data="catalogLayers"
-        height="350"
-        size="small"
-        border
-        @on-select="selectLayer"
-        @on-select-cancel="cancelLayer"></Table>
+    <div class="resource-wrapper">
+      <div class="tree-wrapper">
+        <div class="region-wrapper">
+          <div class="region-header">
+            <h4 class="region-title">数据目录</h4>
+          </div>
+          <div class="region-content">
+            <DataTree
+              :click-node-expand="false"
+              directory
+              accordion
+              @on-current-select="getCatalogLayers">
+            </DataTree>
+          </div>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <div class="region-wrapper">
+          <div class="region-header">
+            <h4 class="region-title">资源列表</h4>
+          </div>
+          <div class="region-content">
+            <Table
+              :columns="layerColumns"
+              :data="catalogLayers"
+              height="390"
+              size="small"
+              border
+              @on-select="selectLayer"
+              @on-select-cancel="cancelLayer"
+              @on-select-all="selectAllLayer"></Table>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+</div>
 </template>
 
 <style lang="less" scoped>
 .select-resource-wrapper {
-  display: flex;
-
+  .plan-wrapper {
+    border: 1px solid #eeeeee;
+    padding: 6px 12px;
+    margin-right: 5px;
+    border-radius: 2px;
+    > label {
+      margin-right: 10px;
+    }
+  }
+  .resource-wrapper {
+    display: flex;
+    margin-top: 5px;
+  }
   .tree-wrapper {
     width: 250px;
   }
   .table-wrapper {
     flex: 1;
-    margin-right: 10px;
+    margin: 0 5px;
   }
   /deep/ .k-table-small td {
     height: 30px;
+  }
+  .region-content {
+    height: 400px;
   }
 }
 </style>

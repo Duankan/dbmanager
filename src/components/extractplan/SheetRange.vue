@@ -17,12 +17,14 @@ export default {
     model: {
       type: Object,
       default: () => {
-        return null;
+        return {};
       },
     },
   },
   data() {
     return {
+      //提取模型
+      range: { ...this.model },
       //比例尺
       scales: [],
       //城市列表
@@ -42,7 +44,7 @@ export default {
       //已选择图幅号
       selectSheetNos: [],
       //提取方式
-      extract: '0',
+      extractTypes: ['单个文件', '多个文件'],
       //上传服务地址
       uploadUrl: `${config.project.basicUrl}/service/gisserver/getwktsbyshpzip?count=1`,
       //图幅shape文件名
@@ -55,7 +57,6 @@ export default {
     //初始化比例尺
     const scaleRes = await api.db.findSpecialLayer({ type: 2 });
     this.scales = scaleRes.data;
-    this.selectScale = this.scales[0].code;
     //初始化城市区县列表
     const cityRes = await api.db.findDictionary({
       dictionartyLevel: 1,
@@ -64,6 +65,13 @@ export default {
     this.cities = cityRes.data;
     this.selectCities.push(this.cities[0].id);
     this.getCityCounties(this.cities[0].id);
+    //绑定数据
+    if (this.range.splacetype == 1 && this.range.splacelist.length > 0) {
+      this.selectScale = this.range.extractlevel;
+      this.selectSheetNos = this.range.splacelist;
+    } else {
+      this.selectScale = this.scales[0].code;
+    }
   },
   methods: {
     //获取城市下的区县
@@ -193,17 +201,37 @@ export default {
       let sheetIdx = this.selectSheetNos.indexOf(sheetNo);
       this.selectSheetNos.splice(sheetIdx, 1);
     },
+    //校验提取范围
+    validateRange() {
+      if (this.selectSheetNos.length == 0) {
+        this.$Message.info('请选择提取图幅！');
+        return false;
+      }
+      return true;
+    },
+    //获取提取范围
+    getExtractRange() {
+      let names = this.selectSheetNos.join(',');
+      return {
+        splacetype: 1,
+        splacelist: this.selectSheetNos,
+        splaceremark: `根据图幅范围提取，提取图幅号：${names}`,
+        extractlevel: this.selectScale,
+        extract: this.range.extract,
+        coordinate: null,
+        projid: null,
+      };
+    },
   },
 };
 </script>
 <template>
-  <div class="sheet-range-wrapper">
+  <div class="sheet-range-wrapper clearfix">
     <div class="sheet-part">
       <div class="form-row">
         <label class="form-label">选择比例尺：</label>
         <Select
           v-model="selectScale"
-          size="small"
           style="width:250px">
           <Option
             v-for="scale in scales"
@@ -217,7 +245,6 @@ export default {
           v-model="selectAutoSheet"
           placeholder="输入图幅号..."
           style="width:250px"
-          size="small"
           @on-search="autoSearchSheet">
           <Option
             v-for="sheet in autoSheets"
@@ -225,7 +252,6 @@ export default {
             :key="sheet">{{ sheet }}</Option>
         </AutoComplete>
         <Button
-          size="small"
           type="primary"
           @click="addAutoSheet">添加</Button>
       </div>
@@ -234,7 +260,6 @@ export default {
         <Select
           v-model="selectCities"
           multiple
-          size="small"
           style="width:110px">
           <Option
             v-for="city in cities"
@@ -244,7 +269,6 @@ export default {
         <label>县：</label>
         <Select
           v-model="selectCoutries"
-          size="small"
           multiple
           style="width:110px">
           <Option
@@ -253,7 +277,6 @@ export default {
             :key="country.id">{{ country.data }}</Option>
         </Select>
         <Button
-          size="small"
           type="primary"
           @click="addBlockSheet">添加</Button>
       </div>
@@ -262,7 +285,6 @@ export default {
         <Input
           v-model="shapeFileName"
           readonly
-          size="small"
           style="width:240px"
           placeholder="导入Shape文件提取图幅"></Input>
         <Upload
@@ -276,17 +298,17 @@ export default {
           class="inline-upload">
           <Button
             type="primary"
-            size="small">上传</Button>
+          >上传</Button>
         </Upload>
       </div>
       <div class="form-row">
         <label class="form-label">提取方式：</label>
-        <RadioGroup v-model="extract">
-          <Radio label="0">
-            <span>单个文件</span>
-          </Radio>
-          <Radio label="1">
-            <span>多个文件</span>
+        <RadioGroup v-model="range.extract">
+          <Radio
+            v-for="(item,index) in extractTypes"
+            :key="index"
+            :label="index">
+            <span>{{ item }}</span>
           </Radio>
         </RadioGroup>
       </div>
@@ -296,8 +318,7 @@ export default {
         <label class="form-label">提取参数：</label>
         <label class="form-label">影像输出：</label>
         <Input
-          v-model="outputColor"
-          size="small"
+          v-model="range.outputColor"
           style="width:100px"
           placeholder="输入颜色参数"></Input>
       </div>
@@ -334,7 +355,7 @@ export default {
     float: left;
   }
   .sheet-result {
-    margin: 7px 0 0 25px;
+    margin: 7px 0 0 45px;
     height: 230px;
     overflow-y: auto;
     > ul {

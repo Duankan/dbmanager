@@ -74,10 +74,12 @@ export default {
   async mounted() {
     await this.loadRootNode();
     // 默认展开加载根节点后，展开根节点
-    if (!this.clickNodeExpand) {
-      this.$refs.tree.$children[0].handleSelect();
-    }
-    this.$refs.tree.$children[0].handleExpand();
+    this.$nextTick(p => {
+      if (!this.clickNodeExpand) {
+        this.$refs.tree.$children[0].handleSelect();
+      }
+      this.$refs.tree.$children[0].handleExpand();
+    });
   },
   methods: {
     // 获取根节点信息

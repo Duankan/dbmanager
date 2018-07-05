@@ -365,9 +365,6 @@ export default {
 
 <template>
   <div class="data-table">
-    <div
-      v-show="selectNodes.length"
-      class="select-count">已选择 {{ selectNodes.length }} 项</div>
     <Table
       ref="table"
       :columns="columns"

@@ -1,18 +1,12 @@
 <script>
 import config from 'config';
-import PlanCreate from './PlanCreate';
-import ExtractRange from './ExtractRange';
-import SelectResource from './SelectResource';
-import FilterResource from './FilterResource';
+import ExtractWizard from './ExtractWizard';
 import * as types from '@/store/types';
 
 export default {
   name: 'ExtractPlan',
   comments: {
-    PlanCreate,
-    ExtractRange,
-    SelectResource,
-    FilterResource,
+    ExtractWizard,
   },
   props: {
     value: {
@@ -23,12 +17,14 @@ export default {
   data() {
     return {
       height: 240,
+      planData: [],
+      total: 0,
       columns: [
         { title: '方案名称', key: 'planName', width: 190 },
-        { title: '资源类型', key: 'resType', width: 100 },
-        { title: '提取方式', key: 'spaceType', width: 120 },
+        { title: '资源类型', key: 'resTypeName', width: 100 },
+        { title: '提取方式', key: 'spaceTypeName', width: 120 },
         { title: '描述信息', key: 'spaceRemark', width: 280 },
-        { title: '空间关系', key: 'extract', width: 100 },
+        { title: '空间关系', key: 'extractName', width: 100 },
         { title: '更新时间', key: 'updateTime', width: 130 },
         {
           title: '操作',
@@ -89,16 +85,41 @@ export default {
           },
         },
       ],
-      data: {
-        type: Object,
-        default: () => {},
-      },
-      pageInfo: { pageIndex: 1, pageSize: 10 },
+      pageSize: 10,
+      loading: false,
+      planWindow: null,
     };
   },
-  computed: {
-    planData() {
-      return this.$store.state.bus.plandata;
+  events: {
+    'close-plan-window': function() {
+      this.planWindow.close();
+    },
+  },
+  created() {
+    this.getPagedPlan();
+  },
+  methods: {
+    //获取分页方案数据
+    async getPagedPlan(pageIdx = 1) {
+      this.loading = false;
+      const response = await api.db.findResourcePlan({
+        pageIndex: pageIdx,
+        pageSize: 10,
+        objCondition: {
+          applyOrganization: this.$user.orgid,
+        },
+      });
+      let planList = response.data.dataSource;
+      planList.map(item => {
+        item.resTypeName = this.formatRestype(item.resType);
+        item.spaceTypeName = this.formatExtractType(item.spaceType);
+        item.extractName = this.formatExtract(item.extract);
+        item.updateTime = new Date(item.updateTime).toLocaleDateString();
+        return item;
+      });
+      this.planData = planList;
+      this.total = response.data.pageInfo.totalCount;
+      this.loading = true;
     },
     formatRestype(type) {
       switch (type) {
@@ -136,114 +157,75 @@ export default {
           return extract;
       }
     },
-  },
-  watch: {
-    planData(newdatas) {
-      if (newdatas && newdatas.dataSource) return this.getPlanData(newdatas);
-      else return [];
-    },
-  },
-  methods: {
-    getPlanData(response) {
-      return response.dataSource.map(item => {
-        item.resType = this.formatRestype(item.resType);
-        item.spaceType = this.formatExtractType(item.spaceType);
-        item.extract = this.formatExtract(item.extract);
-        item.updateTime = new Date(item.updateTime).toLocaleDateString();
-        return item;
-      });
-    },
-    async changePage(index) {
-      const response = await api.db.findResourcePlan({
-        pageIndex: index,
-        pageSize: 10,
-        objCondition: { applyOrganization: this.$user.orgid },
-      });
-      this.value = response.data;
-    },
     addVectorPlan() {
       this.$Modal.remove();
-      // this.$window({
-      //   title: '方案搭建',
-      //   footerHide: true,
-      //   render: h => {
-      //     return h(
-      //       PlanCreate,
-      //       {
-      //         props: {
-      //           value: { tag: 'vector' },
-      //         },
-      //       },
-      //       [this.$scopedSlots.default]
-      //     );
-      //   },
-      //   width: 960,
-      //   height: 630,
-      // });
-
-      // this.$window({
-      //   title: '提取范围',
-      //   footerHide: true,
-      //   render: h => {
-      //     return h(
-      //       ExtractRange,
-      //       {
-      //         props: {
-      //           mode: 0,
-      //         },
-      //       },
-      //       [this.$scopedSlots.default]
-      //     );
-      //   },
-      //   width: 700,
-      //   height: 400,
-      // });
-
-      this.$window({
+      this.planWindow = this.$window({
         title: '提取范围',
         footerHide: true,
+        transfer: true,
         render: h => {
           return h(
-            FilterResource,
+            ExtractWizard,
             {
               props: {
-                mode: 0,
+                extractMode: 0,
               },
             },
             [this.$scopedSlots.default]
           );
         },
-        width: 900,
-        height: 600,
+        width: 840,
+        height: 660,
       });
     },
     addRasterPlan() {
-      //this.$Modal.remove();
-      this.$window({
-        title: '方案搭建',
+      this.$Modal.remove();
+      this.planWindow = this.$window({
+        title: '提取范围',
         footerHide: true,
+        transfer: true,
         render: h => {
           return h(
-            PlanCreate,
+            ExtractWizard,
             {
               props: {
-                value: { tag: 'raster' },
+                extractMode: 1,
               },
             },
             [this.$scopedSlots.default]
           );
         },
-        width: 960,
-        height: 630,
+        width: 840,
+        height: 660,
       });
     },
     async showPlanInfo() {},
-    async editPlan(row) {},
+    async editPlan(row) {
+      this.planWindow = this.$window({
+        title: '提取范围',
+        footerHide: true,
+        transfer: true,
+        render: h => {
+          return h(
+            ExtractWizard,
+            {
+              props: {
+                extractMode: row.resType,
+                planId: row.id,
+              },
+            },
+            [this.$scopedSlots.default]
+          );
+        },
+        width: 840,
+        height: 660,
+      });
+    },
     async extractPlanSourse(row) {
       const response = await api.db.extractResourcePlan({
         id: row.id,
       });
-      if (response.statusCode !== 200 || response.data == null) {
+      if (response.status !== 200 || response.data == null) {
         this.$Message.error('方案提取失败！');
       } else if (row.resType === 0) {
         window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
@@ -286,7 +268,7 @@ export default {
     <Table
       :columns="columns"
       :height="height"
-      :data="planData.dataSource">
+      :data="planData">
     </Table>
     <div class="foot-div">
       <Button
@@ -299,13 +281,13 @@ export default {
         @click="addRasterPlan">影像提取方案</Button>
       <div class="foot-div-page">
         <Page
-          :total="planData.pageInfo.totalCount"
+          :total="total"
           :current="1"
-          :page-size="10"
+          :page-size="pageSize"
           size="small"
           show-sizer
           show-elevator
-          @on-change="changePage"></Page>
+          @on-change="getPagedPlan"></Page>
       </div>
     </div>
   </div>

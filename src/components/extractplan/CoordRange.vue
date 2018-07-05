@@ -22,14 +22,14 @@ export default {
   },
   data() {
     return {
+      //提取模型
+      range: { ...this.model },
       //坐标文件名
       shapeFileName: '',
-      //坐标文件
-      coordinate: '',
       //上传服务地址
       uploadUrl: `${config.project.basicUrl}/service/gisserver/getwktsbyshpzip?count=1`,
       //提取方式
-      extract: '0',
+      extractTypes: ['相交', '裁剪', '包含'],
     };
   },
   methods: {
@@ -40,12 +40,30 @@ export default {
     },
     //上传坐标文件成功
     uploadSuccess(response) {
-      this.coordinate = response.data[0];
-      debugger;
+      this.range.coordinate = response.data[0];
     },
     //上传坐标文件失败
     uploadError() {
       this.$Message.error('上传坐标文件失败!');
+    },
+    //校验提取范围
+    validateRange() {
+      if (!this.range.coordinate) {
+        this.$Message.info('请选择坐标文件！');
+        return false;
+      }
+      return true;
+    },
+    //获取提取范围
+    getExtractRange() {
+      return {
+        splacetype: 2,
+        splacelist: [],
+        splaceremark: `根据坐标文件${this.shapeFileName}范围提取`,
+        extractlevel: 0,
+        extract: this.range.extract,
+        coordinate: this.range.coordinate,
+      };
     },
   },
 };
@@ -58,7 +76,6 @@ export default {
       <Input
         v-model="shapeFileName"
         readonly
-        size="small"
         style="width:240px"
         placeholder="导入Shape坐标文件"></Input>
       <Upload
@@ -72,20 +89,17 @@ export default {
         class="inline-upload">
         <Button
           type="primary"
-          size="small">上传</Button>
+        >上传</Button>
       </Upload>
     </div>
     <div class="form-row">
       <label class="form-label">提取方式：</label>
-      <RadioGroup v-model="extract">
-        <Radio label="0">
-          <span>相交</span>
-        </Radio>
-        <Radio label="1">
-          <span>裁剪</span>
-        </Radio>
-        <Radio label="2">
-          <span>包含</span>
+      <RadioGroup v-model="range.extract">
+        <Radio
+          v-for="(item,index) in extractTypes"
+          :key="index"
+          :label="index">
+          <span>{{ item }}</span>
         </Radio>
       </RadioGroup>
     </div>
@@ -95,8 +109,7 @@ export default {
       <label class="form-label">提取参数：</label>
       <label class="form-label">影像输出：</label>
       <Input
-        v-model="outputColor"
-        size="small"
+        v-model="range.outputColor"
         style="width:100px"
         placeholder="输入颜色参数"></Input>
     </div>

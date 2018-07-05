@@ -1,6 +1,5 @@
 <script>
 import * as helps from '@/utils/helps';
-import data from './a.json';
 import AttributeFilter from './AttributeFilter';
 
 /*
@@ -14,16 +13,18 @@ export default {
   props: {
     //绑定数据
     model: {
-      type: Array,
+      type: Object,
       default: () => {
-        return [];
+        return {
+          schemalist: [],
+        };
       },
     },
   },
   data() {
     return {
       //选择的资源
-      selectLayers: [...this.model],
+      selectLayers: [...this.model.schemalist],
       //当前编辑的资源ID
       currentId: '',
       //当前字段列表
@@ -43,7 +44,6 @@ export default {
     };
   },
   created() {
-    this.selectLayers = data;
     this.changeEditLayer(0);
   },
   methods: {
@@ -68,13 +68,13 @@ export default {
     },
     //应用编辑更改
     async applyEditLayer(index) {
+      let layer = this.selectLayers[index];
+      if (layer.resid == this.currentId) return;
       //数据检查
       const isValid = await this.checkBeforeApply();
       if (!isValid) return;
       //应用更改
-      let layer = this.selectLayers.find(p => p.resid == this.currentId);
-      layer.schema = this.selectSchemas.join(',');
-      layer.filter = this.$refs.filterEditor.getFilter();
+      this.applyCurrentChange();
       //切换编辑资源
       this.changeEditLayer(index);
     },
@@ -82,18 +82,32 @@ export default {
     async checkBeforeApply() {
       //验证提取字段
       if (this.selectSchemas.length == 0) {
-        this.$Message.error('应用更改失败，请至少选择一个提取字段!');
+        this.$Message.error('请至少选择一个提取字段!');
         return false;
       }
       //验证过滤条件
+      let valid = await this.verifySql();
+      if (!valid) {
+        this.$Message.error('验证过滤条件失败，请修改!');
+        return false;
+      }
+      return true;
+    },
+    //校验SQL是否正确
+    async verifySql() {
       let where = this.$refs.filterEditor.getFilter();
       if (!where) return true;
       const resSQL = await api.db.validateSqlFilter(where);
       if (resSQL.data !== true) {
-        this.$Message.error('应用更改失败，验证过滤条件失败，请修改!');
         return false;
       }
       return true;
+    },
+    //应用当前更改
+    applyCurrentChange() {
+      let curLayer = this.selectLayers.find(p => p.resid == this.currentId);
+      curLayer.schema = this.selectSchemas.join(',');
+      curLayer.filter = this.$refs.filterEditor.getFilter();
     },
     //字段全选
     handleCheckAll() {
@@ -128,17 +142,23 @@ export default {
     },
     //验证条件
     async verifyFilter() {
-      let where = this.$refs.filterEditor.getFilter();
-      const resSQL = await api.db.validateSqlFilter(where);
-      if (resSQL.data === true) {
+      let valid = await this.verifySql();
+      if (valid) {
         this.$Message.success('条件验证成功！');
       } else {
         this.$Message.error('条件验证失败！');
       }
     },
-    //获取选择的资源
-    getResources() {
-      return this.selectLayers;
+    //校验步骤
+    async validateStep() {
+      return this.checkBeforeApply();
+    },
+    //获取步骤数据
+    getStepData() {
+      this.applyCurrentChange();
+      return {
+        schemalist: this.selectLayers,
+      };
     },
   },
 };
@@ -215,36 +235,21 @@ export default {
 
 <style lang="less">
 .filter-resource-wrapper {
-  height: 400px;
   display: flex;
   .layer-wrapper {
     width: 240px;
   }
   .filter-wrapper {
     width: 550px;
-    margin-left: 15px;
+    margin-left: 10px;
   }
   .res-list {
     margin: 0;
     padding: 0;
     list-style: none;
     margin-top: 2px;
-    height: 460px;
-  }
-  .region-wrapper {
-    margin-bottom: 10px;
-    border: 1px solid #eeeeee;
-    border-radius: 2px;
-  }
-  .region-header {
-    padding: 6px 12px;
-    border-bottom: 1px solid #eeeeee;
-  }
-  .region-title {
-    color: #666666;
-  }
-  .region-content {
-    padding: 5px;
+    height: 450px;
+    overflow-y: auto;
   }
   .res-item {
     height: 26px;
@@ -282,6 +287,8 @@ export default {
   }
   .check-items {
     margin: 5px;
+    height: 42px;
+    overflow-y: auto;
     .k-checkbox-wrapper {
       margin-right: 14px;
     }

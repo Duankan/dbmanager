@@ -9,10 +9,10 @@ const bus = {
     attribute: [],
     //存储字段信息
     field: [],
-    //选择方案列表信息
-    selectplandata: [],
-    //存储方案列表信息
-    plandata: {},
+    //当前数据列表
+    currentDataTable: '',
+    //底部面板状态(0:关闭，1：打开，2：折叠)
+    bottomPaneState: 0,
   },
   getters: {
     attribute: state => FunManager.getQueryOptions(state.attribute),
@@ -41,6 +41,7 @@ const bus = {
         FunManager.setQueryOptions(attribute);
         state.attribute.push({ options, attributeType });
       }
+      state.bottomPaneState = 1;
     },
     // 移除所有的查询对象信息
     [types.REMOVE_BUS_ATTRIBUTE](state) {
@@ -55,9 +56,21 @@ const bus = {
     [types.REMOVE_BUS_FIELD](state) {
       state.field = [];
     },
-    // 添加方案列表查询对象信息
-    [types.SET_BUS_PLANDATA](state, data) {
-      state.plandata = data;
+    // 设置数据列表对象
+    [types.SET_APP_DATATABLE](state, table) {
+      state.currentDataTable = table;
+    },
+    //打开底部面板
+    [types.OPEN_BOTTOM_PANE](state) {
+      state.bottomPaneState = 1;
+    },
+    //折叠底部面板
+    [types.COLLAPSE_BOTTOM_PANE](state) {
+      state.bottomPaneState = 2;
+    },
+    //关闭底部面板
+    [types.CLOSE_BOTTOM_PANE](state) {
+      state.bottomPaneState = 0;
     },
   },
   actions: {
