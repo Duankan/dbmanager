@@ -21,8 +21,8 @@ export default {
     // 获取图层集列表
     async init() {
       const response = await api.db.findMapLayer({
-        organizationId: this.$user.orgid,
-        userId: this.$user.id,
+        organizationId: this.$appUser.orgid,
+        userId: this.$appUser.id,
         typeId: '50002',
       });
       this.treeData = response.data;

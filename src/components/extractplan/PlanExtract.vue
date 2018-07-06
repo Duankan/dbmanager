@@ -27,7 +27,7 @@ export default {
         this.btnContent = '返回';
         const response = await api.db.findCatalog({
           owner: 1,
-          ownerId: this.$user.orgid,
+          ownerId: this.$appUser.orgid,
           access: 1,
           hasChild: false,
           orderby: 'sort_asc',

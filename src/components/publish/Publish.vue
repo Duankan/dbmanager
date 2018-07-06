@@ -80,7 +80,7 @@ export default {
     // 获取样式信息
     async getStyle(node) {
       const response = await api.db.findSyleByType({
-        orgId: this.$user.orgid,
+        orgId: this.$appUser.orgid,
         type: this._getStyleType(node),
       });
       this.styleOptions = response.data;
@@ -151,10 +151,10 @@ export default {
       let params = {
         catalogId: this.node.catalogId,
         resourceId: this.node.resourceId,
-        userId: this.$user.id,
-        userName: this.$user.name,
-        orgId: this.$user.orgid,
-        orgName: this.$user.orgname,
+        userId: this.$appUser.id,
+        userName: this.$appUser.name,
+        orgId: this.$appUser.orgid,
+        orgName: this.$appUser.orgname,
         limits: 1,
         crs: this.publishForm.crs,
         serviceType: this.publishForm.serviceType.join(','),
@@ -227,10 +227,10 @@ export default {
           typeId: '20102',
           TypeName: 'sld',
           catalogId: this.current.childId,
-          userId: this.$user.id,
-          userName: this.$user.name,
-          orgId: this.$user.orgid,
-          orgName: this.$user.orgname,
+          userId: this.$appUser.id,
+          userName: this.$appUser.name,
+          orgId: this.$appUser.orgid,
+          orgName: this.$appUser.orgname,
         })
       );
       const response = await api.db.addStyle({}, formData);

@@ -153,7 +153,7 @@ export default {
     // 获取所有样式信息
     async getStyle() {
       const response = await api.db.findSyleByType({
-        orgId: this.$user.orgid,
+        orgId: this.$appUser.orgid,
       });
       this.styleOptions = response.data;
     },
@@ -210,10 +210,10 @@ export default {
           const params = {
             catalogId: item.catalogId,
             resourceId: item.resourceId,
-            userId: this.$user.id,
-            userName: this.$user.name,
-            orgId: this.$user.orgid,
-            orgName: this.$user.orgname,
+            userId: this.$appUser.id,
+            userName: this.$appUser.name,
+            orgId: this.$appUser.orgid,
+            orgName: this.$appUser.orgname,
             limits: 1,
             serviceType: serviceType.join(','),
             ...rest,

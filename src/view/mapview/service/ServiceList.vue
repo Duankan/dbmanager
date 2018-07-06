@@ -46,7 +46,7 @@ export default {
       const response = await api.db.findSevicePageList({
         objCondition: Object.assign(
           {
-            userId: this.$user.id,
+            userId: this.$appUser.id,
             serviceType: '12,5',
           },
           this.condition

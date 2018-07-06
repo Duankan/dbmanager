@@ -173,10 +173,10 @@ export default {
         classify: '',
         description: '',
         catalogId: this.current.childId,
-        userId: this.$user.id,
-        userName: this.$user.name,
-        orgId: this.$user.orgid,
-        orgName: this.$user.orgname,
+        userId: this.$appUser.id,
+        userName: this.$appUser.name,
+        orgId: this.$appUser.orgid,
+        orgName: this.$appUser.orgname,
       };
       let postData = Object.assign({}, fileInfo, params);
       return api.db.addresource(postData);
