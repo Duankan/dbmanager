@@ -67,6 +67,7 @@ const app = {
         resourceTypeId: '1,2',
         parentId: node.childId,
       });
+      //console.log(state.nodes);
       state.nodes = response.data.filter(item => item.typeId !== '20102');
       commit(types.SET_APP_CURRENT_DIRECTORY, cloneDeep(node));
       commit(types.REMOVE_APP_SELECT_NODES);
