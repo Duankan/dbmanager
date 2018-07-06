@@ -52,6 +52,9 @@ const app = {
         state.selectNodes = [];
       }
     },
+    [types.CHANGE_APP_NODES](state, node) {
+      state.nodes = node;
+    },
   },
   actions: {
     // 接受目录类型节点
@@ -67,7 +70,8 @@ const app = {
         resourceTypeId: '1,2',
         parentId: node.childId,
       });
-      state.nodes = response.data.filter(item => item.typeId !== '20102');
+      const nodes = response.data.filter(item => item.typeId !== '20102');
+      commit(types.CHANGE_APP_NODES, nodes);
       commit(types.SET_APP_CURRENT_DIRECTORY, cloneDeep(node));
       commit(types.REMOVE_APP_SELECT_NODES);
     },

@@ -131,7 +131,7 @@ export default {
         dragNodeId: dragNode.id,
         dropNodeId: node.id,
       });
-      this.ogcLayers.forEach((layer, index, arr) => layer.setZIndex(arr.length - index));
+      // this.ogcLayers.forEach((layer, index, arr) => layer.setZIndex(arr.length - index));
     },
     // 移除图层
     deleteLayer(root, node, data) {

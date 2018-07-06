@@ -26,7 +26,8 @@ export default {
   watch: {
     async current(newVal, oldVal) {
       const response = await api.db.findCatalogPath({ id: newVal.id });
-      const catalogArray = response.data.reverse().slice(1);
+      let catalogArray;
+      catalogArray = response.data.reverse();
       catalogArray[0].name = this.rootNodeText;
       this.breadcrumb = catalogArray;
     },
