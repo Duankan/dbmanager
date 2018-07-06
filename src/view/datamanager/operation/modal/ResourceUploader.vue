@@ -54,6 +54,8 @@ export default {
       },
       //上传数据
       cloudFile: null,
+      //数据文件
+      fileName: '',
     };
   },
   computed: {
@@ -97,10 +99,12 @@ export default {
         typeId: '',
       };
       this.cloudFile = null;
+      this.fileName = '';
     },
     //获取上传文件
-    getUploadFile(files) {
-      this.cloudFile = files[0].file;
+    getUploadFile(file) {
+      this.cloudFile = file;
+      this.fileName = file.name;
       return false;
     },
     //上传资源到云盘
@@ -220,11 +224,9 @@ export default {
         </Select>
       </FormItem>
     </Form>
-    <Uploader
+    <Upload
       ref="upload"
       :before-upload="getUploadFile"
-      :dictionary="dictionary"
-      :multiple="multiple"
       action="#"
       type="drag">
       <div style="padding: 30px 0">
@@ -234,7 +236,8 @@ export default {
           color="#358CF0"></Icon>
         <p>点击或者拖拽文件上传</p>
       </div>
-    </Uploader>
+    </Upload>
+    <div>{{ fileName }}</div>
     <div slot="footer">
       <Button
         :loading="loading"

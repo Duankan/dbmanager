@@ -98,6 +98,7 @@ export default {
       const service = this.currentNode.serviceList.find(
         service => service.servicestype === 12 || service.servicestype === 5
       );
+
       const { search } = url.parse(service.servicesurl);
       const layers = search.layers ? search.layers : search.typeName;
       this.$store.commit(SET_MAP_SERVICELIST, {

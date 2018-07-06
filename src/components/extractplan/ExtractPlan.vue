@@ -100,6 +100,7 @@ export default {
     //关闭Window
     closePlanWindow() {
       this.planWindow.close();
+      this.getPagedPlan();
     },
     //获取分页方案数据
     async getPagedPlan(pageIdx = 1) {
@@ -245,6 +246,7 @@ export default {
         content: '<p>是否删除该方案？</p>',
         onOk: () => {
           this.deletePlan(row);
+          this.getPagedPlan();
         },
       });
     },
@@ -276,7 +278,7 @@ export default {
       <Button
         type="primary"
         icon="plus-round"
-        @click="addVectorPlan">矢量提取案</Button>
+        @click="addVectorPlan">矢量提取方案</Button>
       <Button
         type="primary"
         icon="plus-round"

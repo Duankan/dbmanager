@@ -28,20 +28,22 @@ export default {
       ];
       layerData[0].children = this.ogcLayers.map(layer => {
         let type;
-        if (layer.wmsParams) {
-          type = layer.wmsParams.service;
-        } else if (layer.wmtsParams) {
-          type = layer.wmtsParams.service;
+        if (layer) {
+          if (layer.wmsParams) {
+            type = layer.wmsParams.service;
+          } else if (layer.wmtsParams) {
+            type = layer.wmtsParams.service;
+          }
+          return {
+            id: layer._leaflet_id,
+            name: layer.options.layers ? layer.options.layers : layer.options.layer,
+            title: layer.options.title ? layer.options.title : layer.options.layer,
+            bbox: layer.options.saveBbox,
+            opacity: layer.options.opacity,
+            type,
+            checked: layer.options.visible,
+          };
         }
-        return {
-          id: layer._leaflet_id,
-          name: layer.options.layers,
-          title: layer.options.title ? layer.options.title : layer.options.layer,
-          bbox: layer.options.saveBbox,
-          opacity: layer.options.opacity,
-          type,
-          checked: layer.options.visible,
-        };
       });
       return layerData;
     },
@@ -121,13 +123,13 @@ export default {
         layer.setVisible(checked);
       }
     },
-    // 图层排序
+    // 图层排序，node(放置的位置)，dragNode(当前节点)
     sort(position, node, dragNode) {
       // position 靠近下边缘 1, 靠近上边缘 -1
       this.$store.commit('SET_MAP_WMSLAYER_SORT', {
         position,
-        dragnode: dragNode.id,
-        node: node.id,
+        dragNodeId: dragNode.id,
+        dropNodeId: node.id,
       });
       this.ogcLayers.forEach((layer, index, arr) => layer.setZIndex(arr.length - index));
     },
