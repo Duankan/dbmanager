@@ -4,18 +4,19 @@ const REFS = ['polygon', 'rectangle', 'marker', 'polyline', 'circle'];
 export default {
   name: 'Map',
   events: {
-    'on-set-bbox': function({ val, index }) {
-      if (val) {
-        this.$refs.map.setBounds(val);
-      } else {
-        this.$store.getters.ogcLayers[index - 1].fitBounds();
-      }
-    },
+    'on-set-bbox': 'setBbox',
   },
   mounted() {
     this.$events.emit('on-getdraw-refs', { drawRefs: this.$refs, REFS }, true);
   },
   methods: {
+    setBbox({ bbox, index }) {
+      if (bbox) {
+        this.$refs.map.setBounds(bbox);
+      } else {
+        this.$store.getters.ogcLayers[index - 1].fitBounds();
+      }
+    },
     handleClick() {},
     drawGeometry(layers) {
       this.$events.emit('on-get-drawlayer', layers);

@@ -41,7 +41,7 @@ export default {
       const search = url.parse(this.node.serviceUrl).search;
       const layers = search.layers ? search.layers : search.typeName;
       this.$store.commit(SET_MAP_SERVICELIST, {
-        [layers]: response.data,
+        [layers]: [response.data[0], response.data[1]],
       });
     },
     edit() {
