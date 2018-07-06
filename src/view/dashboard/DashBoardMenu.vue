@@ -119,7 +119,6 @@ export default {
         <MenuItem name="QueryAttrs">属性查询</MenuItem>
         <MenuItem name="QuerySpace">空间查询</MenuItem>
         <MenuItem name="QueryCompound">复合查询</MenuItem>
-
       </Submenu>
       <MenuItem name="extra">
       <Icon type="archive"></Icon>

@@ -54,6 +54,8 @@ export default {
       },
       //上传数据
       cloudFile: null,
+      //数据文件
+      fileName: '',
     };
   },
   computed: {
@@ -97,10 +99,12 @@ export default {
         typeId: '',
       };
       this.cloudFile = null;
+      this.fileName = '';
     },
     //获取上传文件
-    getUploadFile(files) {
-      this.cloudFile = files[0].file;
+    getUploadFile(file) {
+      this.cloudFile = file;
+      this.fileName = file.name;
       return false;
     },
     //上传资源到云盘
@@ -120,12 +124,18 @@ export default {
       }
       this.loading = true;
       //检查文件名
-      const nameValid = await this.checkFileName();
-      if (!nameValid) return;
+      let checkValid = await this.checkFileName();
+      if (!checkValid) return;
       //上传文件到云盘
-      const fileInfo = await this.uploadCloudFile();
+      let fileInfo = await this.uploadCloudFile();
+      if (!fileInfo.data.id) {
+        this.loading = false;
+        this.$Message.error('文件上传失败！');
+        return;
+      }
       //新增为应用资源
-      await this.addCloudResource(fileInfo.data);
+      let addValid = await this.addCloudResource(fileInfo.data);
+      if (!addValid) return;
       //刷新目录节点
       await this.$store.dispatch(types.APP_NODES_FETCH, this.current);
       this.loading = false;
@@ -146,7 +156,7 @@ export default {
       return nameInfo.data.statusCode == 200;
     },
     //上传文件到云盘
-    uploadCloudFile() {
+    async uploadCloudFile() {
       let fd = new FormData();
       if (this.resource.type === '1') {
         //上传业务数据到云盘
@@ -179,7 +189,11 @@ export default {
         orgName: this.$appUser.orgname,
       };
       let postData = Object.assign({}, fileInfo, params);
-      return api.db.addresource(postData);
+      const postInfo = api.db.addresource(postData).catch(p => {
+        this.loading = false;
+        return p;
+      });
+      return postInfo.statusCode == 200;
     },
   },
 };
@@ -220,11 +234,10 @@ export default {
         </Select>
       </FormItem>
     </Form>
-    <Uploader
+    <Upload
       ref="upload"
       :before-upload="getUploadFile"
-      :dictionary="dictionary"
-      :multiple="multiple"
+      :show-upload-list="true"
       action="#"
       type="drag">
       <div style="padding: 30px 0">
@@ -234,7 +247,8 @@ export default {
           color="#358CF0"></Icon>
         <p>点击或者拖拽文件上传</p>
       </div>
-    </Uploader>
+    </Upload>
+    <div>{{ fileName }}</div>
     <div slot="footer">
       <Button
         :loading="loading"

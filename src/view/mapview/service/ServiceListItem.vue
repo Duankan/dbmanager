@@ -53,7 +53,7 @@ export default {
             MapEdit,
             {
               props: {
-                value: { msg: this.node.resource },
+                value: { data: this.node.resource },
               },
             },
             [this.$scopedSlots.default]
