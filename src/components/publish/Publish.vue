@@ -162,6 +162,7 @@ export default {
         title: this.publishForm.title,
         styles: this.publishForm.styles,
       };
+      debugger;
       if (this.isImage) {
         params.inputTransparentColor = '#FFFFFFFF';
         params.outputTransparentColor = '#FFFFFFFF';
@@ -238,7 +239,7 @@ export default {
       await this.getStyle(this.node);
       const style = this.styleOptions.find(item => item.id === response.data);
       if (style) {
-        this.publishForm.styles = style.name;
+        this.publishForm.styles = style.id;
       } else {
         this.$Message.warning('样式类别与资源类别不一致');
       }
@@ -255,7 +256,6 @@ export default {
     @on-visible-change="visibleChange">
     <div slot="footer">
       <Button
-        :loading="publishLoading"
         type="primary"
         size="large"
         long
@@ -295,7 +295,7 @@ export default {
           <Option
             v-for="option in styleOptions"
             :label="option.alias"
-            :value="option.name"
+            :value="option.id"
             :key="option.id">
             <span class="style-name">{{ option.alias }}</span>
             <span class="style-info">{{ new Date(option.updateTime).toLocaleDateString() }}</span>
@@ -403,6 +403,14 @@ export default {
       @click="showMore = !showMore">
       <Icon :type="showMore ? 'chevron-up' : 'chevron-down'"></Icon>
     </div>
+    <Spin
+      v-if="publishLoading"
+      fix>
+      <Icon
+        type="load-c"
+        size="18"
+        class="circle-spin-icon-load"></Icon>
+    <div>正在发布服务...</div></Spin>
   </Modal>
 </template>
 
