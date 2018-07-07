@@ -68,7 +68,7 @@ class Event {
   off(eventName, callback) {
     if (callback) {
       const index = this._events[eventName].hookers.indexOf(callback);
-      if (index > 0) {
+      if (index >= 0) {
         this._events[eventName].hookers.splice(index, 1);
       }
       if (this._events[eventName].hookers.length == 0) {

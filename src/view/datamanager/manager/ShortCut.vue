@@ -67,6 +67,7 @@ export default {
       this.$events.emit('on-information', this.node);
     },
     deleteNode() {
+      this.$store.commit(types.SET_APP_SELECT_NODES, this.node);
       this.$events.emit('on-delete', this.node);
     },
   },

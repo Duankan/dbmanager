@@ -31,9 +31,9 @@ export default {
   },
   methods: {
     async selectMenuItem(name) {
+      let moduleName = name;
       this.$store.commit(types.CLOSE_BOTTOM_PANE);
       this.showWindow = false;
-      this.type = name;
       switch (name) {
         case 'QueryAttrs':
           this.title = '属性查询';
@@ -70,7 +70,8 @@ export default {
           this.width = 660;
           this.height = 615;
           break;
-        case 'extra':
+        case 'ExtractPlan':
+          moduleName = null;
           this.$store.commit(types.SET_APP_DATATABLE, 'ExtractPlan');
           this.$store.commit(types.OPEN_BOTTOM_PANE);
           this.openWindow();
@@ -94,6 +95,7 @@ export default {
         default:
           break;
       }
+      this.type = moduleName;
     },
     openWindow() {
       this.showWindow = true;
@@ -120,7 +122,7 @@ export default {
         <MenuItem name="QuerySpace">空间查询</MenuItem>
         <MenuItem name="QueryCompound">复合查询</MenuItem>
       </Submenu>
-      <MenuItem name="extra">
+      <MenuItem name="ExtractPlan">
       <Icon type="archive"></Icon>
       自定义方案提取
       </MenuItem>
