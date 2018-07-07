@@ -3,8 +3,8 @@ import * as types from '@/store/types';
 import config from 'config';
 import api from 'api';
 
-//上传过滤类型
-const UPLOAD_FILTERS = [
+//排除的上传类型
+const EXCLUDE_FILTERS = [
   '20003',
   '20004',
   '20007',
@@ -15,6 +15,8 @@ const UPLOAD_FILTERS = [
   '20014',
   '20015',
   '20101',
+  '20102',
+  '20013',
 ];
 
 export default {
@@ -82,7 +84,7 @@ export default {
       parentId: '1,2',
     });
     let uploaderTypes = response.data;
-    uploaderTypes = uploaderTypes.filter(p => UPLOAD_FILTERS.indexOf(p.id) === -1);
+    uploaderTypes = uploaderTypes.filter(p => EXCLUDE_FILTERS.indexOf(p.id) < 0);
     this.resourceTypes = uploaderTypes;
   },
   methods: {
@@ -130,7 +132,7 @@ export default {
       let fileInfo = await this.uploadCloudFile();
       if (!fileInfo.data.id) {
         this.loading = false;
-        this.$Message.error('文件上传失败！');
+        this.$Message.error('上传文件失败！');
         return;
       }
       //新增为应用资源
@@ -157,18 +159,19 @@ export default {
     },
     //上传文件到云盘
     async uploadCloudFile() {
+      let resourceType = this.resourceTypes.find(p => p.id == this.resource.typeId);
       let fd = new FormData();
       if (this.resource.type === '1') {
         //上传业务数据到云盘
         fd.append('file', this.cloudFile);
-        return api.db.commonResourceUpload({ id: this.resource.typeId }, fd, {
+        return api.db.commonResourceUpload({ id: resourceType.dataTypeId }, fd, {
           headers: { 'User-Operation-Info': 'a3UjjlaLC9He' },
         });
       } else if (this.resource.type === '2') {
         //上传GIS数据到云盘
         fd.append('file', this.cloudFile);
         fd.append('hasparent', '0');
-        fd.append('resourcetypeid', this.resource.typeId);
+        fd.append('resourcetypeid', resourceType.dataTypeId);
         return api.db.upload({}, fd, {
           headers: { 'User-Operation-Info': 'a3UjjlaLC9He' },
         });
@@ -193,7 +196,7 @@ export default {
         this.loading = false;
         return p;
       });
-      return postInfo.status == 200;
+      return postInfo.status == 200 && !postInfo.data.message;
     },
   },
 };
