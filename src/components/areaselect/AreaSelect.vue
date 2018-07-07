@@ -14,6 +14,7 @@ export default {
   },
   data() {
     return {
+      cascader: [],
       areaData: [],
       selectCode: [],
     };
@@ -72,17 +73,26 @@ export default {
             field: 'DMDZDM',
             simpleFeatureFlag: true,
             tolerance: '0',
-            wfsUrl: this.wfsUrl,
+            // wfsUrl: this.wfsUrl,
+            wfsUrl: 'http://192.168.1.147:8085/master/ktw/ows?service=wfs&typeName=ktw:highgisshp',
           });
           this.$nextTick(() => {
             this.$store.commit('SET_MAP_GEOJSON', { geojson: response.data, type: 'always' });
           });
-          let wktStr = L.Wkt.Wkt.prototype.fromJson(response.data.features[0], this.isChangeLatLng);
-          wktStr = wktStr.write();
-          wktStr = wktStr.replace(/undefined/g, ' ');
-          this.$emit('on-get-arealayer', wktStr);
+          const wktStr = this.changeWkt(response.data.features[0], this.isChangeLatLng);
+          const devWktStr = this.changeWkt(response.data.features[0], false);
+          this.$emit('on-get-arealayer', wktStr, devWktStr);
         }
       }
+    },
+    changeWkt(data, isChange) {
+      let wktStr = L.Wkt.Wkt.prototype.fromJson(data, isChange);
+      wktStr = wktStr.write();
+      wktStr = wktStr.replace(/undefined/g, ' ');
+      return wktStr;
+    },
+    resetCascader() {
+      this.cascader = [];
     },
   },
 };
@@ -90,6 +100,7 @@ export default {
 
 <template>
   <Cascader
+    v-model="cascader"
     :data="areaData"
     :disabled="wfsUrl===''"
     placeholder="选择区域前，请先选择一个图层"

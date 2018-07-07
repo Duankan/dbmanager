@@ -203,24 +203,42 @@ export default {
       delete option.attributeType;
       const response = await this.$store.dispatch(MAP_WPS_OVERLAP, option);
       this.tableLoading = false;
-      const analysData = {
-        ...JSON.parse(response),
-        baseUrl: option.url,
-      };
-      this.setLayer(analysData);
-      this.overLapLayerData = analysData;
+      if (response.indexOf('bbox') > -1) {
+        const analysData = {
+          ...JSON.parse(response),
+          baseUrl: option.url,
+        };
+        this.setOverlapLayer(analysData);
+        this.overLapLayerData = analysData;
+      }
     },
-    setLayer(analysData) {
+    setOverlapLayer(analysData) {
       if (this.overLapLayerData && this.overLapLayerData.layers !== analysData.layers) {
-        this.$store.commit(SET_MAP_TEMPORARYLAYERS_DELETE, [this.overLapLayerData.layers]);
+        this.$store.commit('SET_MAP_GOCLAYER_DELETE', [this.overLapLayerData.layers]);
       }
       this.$nextTick(() => {
-        delete this.$store.commit(SET_MAP_TEMPORARYLAYERS, {
-          [this.overLapLayerData.layers]: {
-            ...this.overLapLayerData,
-            url: this.overLapLayerData.baseUrl,
-          },
-        });
+        // 构造图层参数
+        const serviceList = {
+          [this.overLapLayerData.layers]: [
+            {
+              servicestype: 12,
+              servicesurl: `${
+                this.overLapLayerData.baseUrl
+              }?service=WMS&version=1.1.1&request=GetMap&layers=${
+                this.overLapLayerData.layers
+              }&srs=${this.overLapLayerData.crs}&styles=polygon3&bbox=${
+                this.overLapLayerData.bbox
+              }`,
+              title: `${[this.overLapLayerData.layers]}`,
+            },
+            {
+              servicestype: 6,
+              wfsurl: `${this.overLapLayerData.baseUrl}?typeName=${this.overLapLayerData.layers}`,
+              title: `${[this.overLapLayerData.layers]}`,
+            },
+          ],
+        };
+        this.$store.commit('SET_MAP_SERVICELIST', serviceList);
         // 参数处理
         const wfsParams = {
           url: `${this.overLapLayerData.baseUrl}?typeName=${this.overLapLayerData.layers}`,

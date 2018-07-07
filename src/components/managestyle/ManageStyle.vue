@@ -321,6 +321,7 @@ export default {
     >
       <component
         :is="modalName"
+        :is-computed-style="isComputedStyle"
         :classify="classify"
         :error-data="deleteError"
         @on-close-style="closeStyle"

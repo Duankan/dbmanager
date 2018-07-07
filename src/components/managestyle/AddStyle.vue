@@ -13,6 +13,10 @@ export default {
       type: Array,
       default: () => [],
     },
+    isComputedStyle: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     const validateName = (rule, value, callback) => {
@@ -44,6 +48,7 @@ export default {
       isUpload: false,
       isUploadSuccess: false,
       setUploadTitle: '样式文件上传成功',
+      errorData: [],
     };
   },
   computed: {
@@ -73,6 +78,16 @@ export default {
       },
       deep: true,
     },
+    isComputedStyle(newVal) {
+      if (!newVal) {
+        this.styleCondition = {
+          name: '',
+          TypeName: 'sld',
+          classify: ' ',
+          description: '',
+        };
+      }
+    },
   },
   mounted() {
     this.upLoadList = this.$refs.upload.fileList;
@@ -92,6 +107,7 @@ export default {
     },
     // 样式文件上传
     upload() {
+      this.errorData = [];
       if (this.uploadFile.length !== 0) {
         if (this.$refs['addstyle']) this.$refs['addstyle'].resetFields();
         this.isUpload = true;
@@ -135,6 +151,10 @@ export default {
         this.$Message.success(`文件${file.name}上传成功!`);
       } else {
         this.setUploadTitle = '样式文件上传失败';
+        this.errorData.push({
+          name: file.name,
+          message: res.message,
+        });
         this.$Message.error({
           render: h => {
             return (
@@ -336,6 +356,13 @@ export default {
       @on-ok="continueUpload"
       @on-cancel="closeUpload"
     >
+      <div
+        v-for="(item, index) in errorData"
+        :key="index"
+        class="upload-err">
+        <span> <span>{{ item.name }}</span>上传失败：</span>
+        <span>{{ item.message }}</span>
+      </div>
       <p>是否继续上传样式文件？</p>
     </Modal>
   </div>
@@ -442,5 +469,24 @@ export default {
 /deep/.k-modal-wrap,
 /deep/.k-modal-mask {
   z-index: 1003;
+}
+
+.upload-err {
+  height: 20px;
+  line-height: 20px;
+  margin-bottom: 10px;
+  font-size: 12px;
+
+  :first-child {
+    span {
+      margin-right: 2px;
+      margin-left: 2px;
+      color: #e20000;
+    }
+  }
+
+  :last-child {
+    color: #e20000;
+  }
 }
 </style>
