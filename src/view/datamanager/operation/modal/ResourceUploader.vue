@@ -175,7 +175,7 @@ export default {
       }
     },
     //新增为应用资源
-    addCloudResource(fileInfo) {
+    async addCloudResource(fileInfo) {
       let params = {
         name: this.resource.name,
         alias: this.resource.name,
@@ -189,11 +189,11 @@ export default {
         orgName: this.$appUser.orgname,
       };
       let postData = Object.assign({}, fileInfo, params);
-      const postInfo = api.db.addresource(postData).catch(p => {
+      const postInfo = await api.db.addresource(postData).catch(p => {
         this.loading = false;
         return p;
       });
-      return postInfo.statusCode == 200;
+      return postInfo.status == 200;
     },
   },
 };
@@ -251,12 +251,19 @@ export default {
     <div>{{ fileName }}</div>
     <div slot="footer">
       <Button
-        :loading="loading"
         type="success"
         size="large"
         long
         @click="uploadCloudResource">上传</Button>
     </div>
+    <Spin
+      v-if="loading"
+      fix>
+      <Icon
+        type="load-c"
+        size="18"
+        class="circle-spin-icon-load"></Icon>
+    <div>正在上传文件...</div></Spin>
   </Modal>
 </template>
 
