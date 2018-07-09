@@ -68,10 +68,9 @@ export default {
     this.cities = cityRes.data;
     this.selectCities.push(this.cities[0].id);
     this.getCityCounties(this.cities[0].id);
-    //绑定数据
-    if (this.range.splacetype == 1 && this.range.splacelist.length > 0) {
+    if (this.isEdit && this.range.splacetype == 1) {
       this.selectScale = this.range.extractlevel;
-      this.selectSheetNos = this.range.splacelist;
+      this.selectSheetNos = this.range.rangeInfo.mapnames;
     } else {
       this.selectScale = this.scales.length > 0 ? this.scales[0].code : null;
     }
@@ -270,17 +269,22 @@ export default {
             :value="city.id"
             :key="city.id">{{ city.data }}</Option>
         </Select>
-        <label>县：</label>
-        <Select
-          v-model="selectCoutries"
-          multiple
-          style="width:110px"
-          @on-change="getSelectBlocks">
-          <Option
-            v-for="country in coutries"
-            :value="country.id"
-            :key="country.id">{{ country.data }}</Option>
-        </Select>
+        <span v-show="selectCities.length<=1">
+          <label>县：</label>
+          <Select
+            v-model="selectCoutries"
+            multiple
+            style="width:110px"
+            @on-change="getSelectBlocks">
+            <Option
+              v-for="country in coutries"
+              :value="country.id"
+              :key="country.id">{{ country.data }}</Option>
+          </Select>
+        </span>
+        <span
+          v-show="selectCities.length>1"
+          class="remain-block"></span>
         <Button
           type="primary"
           @click="addBlockSheet">添加</Button>
@@ -397,6 +401,9 @@ export default {
         }
       }
     }
+  }
+  .remain-block {
+    margin-right: 140px;
   }
 }
 </style>

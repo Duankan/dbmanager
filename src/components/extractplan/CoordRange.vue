@@ -43,6 +43,10 @@ export default {
     //新增模式下设置默认值
     if (!this.isEdit) {
       this.range.extract = 1;
+      return;
+    }
+    if (this.range.splacetype == 2) {
+      this.shapeFileName = '存在坐标文件';
     }
   },
   methods: {
@@ -61,7 +65,7 @@ export default {
     },
     //校验提取范围
     validateRange() {
-      if (!this.range.coordinate) {
+      if (!this.range.coordinate && !this.isEdit) {
         this.$Message.info('请选择坐标文件！');
         return false;
       }
