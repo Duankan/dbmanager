@@ -246,7 +246,6 @@ export default {
         content: '<p>是否删除该方案？</p>',
         onOk: () => {
           this.deletePlan(row);
-          this.getPagedPlan();
         },
       });
     },
@@ -261,6 +260,7 @@ export default {
             applyOrganization: this.$appUser.orgid, // 组织id
           },
         });
+        this.getPagedPlan();
       } else this.$Message.error('删除失败，请稍后重试！');
     },
   },
