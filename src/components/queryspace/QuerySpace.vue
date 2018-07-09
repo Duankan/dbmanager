@@ -120,10 +120,10 @@ export default {
         this.$Message.error('请选择一个图层！');
         return;
       }
-      if (!this.queryItem.geometry) {
-        this.$Message.error('请绘制一个范围！');
-        return;
-      }
+      // if (!this.queryItem.geometry) {
+      //   this.$Message.error('请绘制一个范围！');
+      //   return;
+      // }
       const loadParams = this.setLoadPrams();
       const response = await api.db.batchwebrequest([loadParams]);
       window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);

@@ -80,7 +80,7 @@ export default {
             this.$store.commit('SET_MAP_GEOJSON', { geojson: response.data, type: 'always' });
           });
           const wktStr = this.changeWkt(response.data.features[0], this.isChangeLatLng);
-          const devWktStr = this.changeWkt(response.data.features[0], false);
+          const devWktStr = this.changeWkt(response.data.features[0], true);
           this.$emit('on-get-arealayer', wktStr, devWktStr);
         }
       }
