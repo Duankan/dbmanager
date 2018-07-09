@@ -263,7 +263,8 @@ export default {
         <Select
           v-model="selectCities"
           multiple
-          style="width:110px">
+          style="width:110px"
+          @on-change="changeCity">
           <Option
             v-for="city in cities"
             :value="city.id"
@@ -273,7 +274,8 @@ export default {
         <Select
           v-model="selectCoutries"
           multiple
-          style="width:110px">
+          style="width:110px"
+          @on-change="getSelectBlocks">
           <Option
             v-for="country in coutries"
             :value="country.id"
