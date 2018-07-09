@@ -25,6 +25,8 @@ export default {
     return {
       //提取模型
       range: { ...this.model },
+      //是否是编辑模式
+      isEdit: false,
       //比例尺
       scales: [],
       //城市列表
@@ -54,6 +56,7 @@ export default {
     };
   },
   async created() {
+    this.isEdit = !!this.range.planid;
     //初始化比例尺
     const scaleRes = await api.db.findSpecialLayer({ type: 2 });
     this.scales = scaleRes.data;
@@ -70,7 +73,7 @@ export default {
       this.selectScale = this.range.extractlevel;
       this.selectSheetNos = this.range.splacelist;
     } else {
-      this.selectScale = this.scales[0].code;
+      this.selectScale = this.scales.length > 0 ? this.scales[0].code : null;
     }
   },
   methods: {

@@ -1,14 +1,14 @@
 # 项目 api 环境变量配置
 project:
-  basicUrl: http://192.168.1.151:8080
-  baseUrl: http://192.168.1.151:8080
-  YunServicesUrl: http://192.168.1.147:15000
-  highgisUrl: http://192.168.1.151:8080
+  basicUrl: http://192.168.1.147:8090
+  baseUrl: http://192.168.1.147:8090
+  YunServicesUrl: http://192.168.1.60:15000
+  highgisUrl: http://192.168.1.147:8090
 
 # 业务组件库 @ktw/api 环境变量配置
 kbus:
-  basicUrl: http://192.168.1.151:8080
-  YunServicesUrl: http://192.168.1.147:15000
+  basicUrl: http://192.168.1.147:8090
+  YunServicesUrl: http://192.168.1.60:15000
 
 # websocket服务地址
 

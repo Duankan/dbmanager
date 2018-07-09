@@ -198,8 +198,8 @@ export default {
       };
       //影像服务
       if (this.publishType == 2) {
-        params.inputTransparentColor = '#FFFFFFFF';
-        params.outputTransparentColor = '#FFFFFFFF';
+        params.inputTransparentColor = '';
+        params.outputTransparentColor = '';
         params.levelNum = this.publishForm.maxLevel - this.publishForm.minLevel + 1;
         params.maxLevel = this.publishForm.maxLevel;
         params.rasterPlotPlan = this.publishForm.rasterPlotPlan;

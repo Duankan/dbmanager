@@ -22,6 +22,8 @@ export default {
     return {
       //提取模型
       range: { ...this.model },
+      //是否是编辑模式
+      isEdit: false,
       //城市列表
       cities: [],
       //区县列表
@@ -33,10 +35,19 @@ export default {
       //选择的区域
       selectBlocks: [],
       //提取方式
-      extractTypes: ['相交', '裁剪', '包含'],
+      extractTypes: [
+        { key: '相交', value: 1 },
+        { key: '裁剪', value: 0 },
+        { key: '包含', value: 2 },
+      ],
     };
   },
   async created() {
+    this.isEdit = !!this.range.planid;
+    //新增模式下设置默认值
+    if (!this.isEdit) {
+      this.range.extract = 1;
+    }
     //初始化城市区县列表
     const cityRes = await api.db.findDictionary({
       dictionartyLevel: 1,
@@ -110,6 +121,7 @@ export default {
         extract: this.range.extract,
         coordinate: null,
         projid: null,
+        updateType: 1,
       };
     },
   },
@@ -156,10 +168,10 @@ export default {
       <label class="form-label">提取方式：</label>
       <RadioGroup v-model="range.extract">
         <Radio
-          v-for="(item,index) in extractTypes"
-          :key="index"
-          :label="index">
-          <span>{{ item }}</span>
+          v-for="item in extractTypes"
+          :key="item.value"
+          :label="item.value">
+          <span>{{ item.key }}</span>
         </Radio>
       </RadioGroup>
     </div>

@@ -98,6 +98,7 @@ export default {
       if (!this.planId) return;
       const response = await api.db.findResourcePlanById({ id: this.planId });
       let planData = response.data;
+      this.model.planid = this.planId;
       this.model.planname = planData.planname;
       this.model.schemalist = planData.openCatalog.resources;
       this.model.extract = planData.spatialRange.extract;
@@ -127,7 +128,6 @@ export default {
       if (!valid) return;
       let saveResourceFun = api.db.addResourcePlan;
       if (this.planId) {
-        this.model.planid = this.planId;
         saveResourceFun = api.db.updateResourcePlan;
       }
       saveResourceFun(this.model).then(p => {
