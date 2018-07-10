@@ -1,5 +1,7 @@
 <script>
 import config from 'config';
+import buffer from '@turf/buffer';
+
 const iconConfig = [
   {
     content: '点绘制',
@@ -61,6 +63,14 @@ export default {
       type: Boolean,
       default: true,
     },
+    radius: {
+      type: Number,
+      default: 0,
+    },
+    units: {
+      type: String,
+      default: 'meters',
+    },
   },
   data() {
     return {
@@ -99,7 +109,10 @@ export default {
       this.drawType = draw.REFS;
     },
     invokeGetDrawLayers(layers) {
-      this.$emit('on-get-drawlayer', layers);
+      let wktStr = L.Wkt.Wkt.prototype.fromJson(layers.toGeoJSON(), true);
+      wktStr = wktStr.write();
+      wktStr = wktStr.replace(/undefined/g, ' ');
+      this.$emit('on-get-drawlayer', layers, wktStr);
     },
     // 清除操作
     clearLayers() {
@@ -109,15 +122,33 @@ export default {
         });
       }
     },
+    setParams() {
+      if (this.radius) {
+        return {
+          bufferOptions: {
+            radius: this.radius,
+            options: {
+              units: this.units,
+            },
+          },
+        };
+      } else {
+        return {};
+      }
+    },
     drawGeometry(name) {
       this.clearToolLayer();
       const drawType = name.split('-')[1];
+      let params = this.setParams();
       if (this.drawType.includes(drawType)) {
-        this.$drawRefs[drawType].drawGeometry();
+        this.$drawRefs[drawType].drawGeometry(params);
       } else {
         const state = {
           defineline() {
-            this.$drawRefs['polyline'].drawGeometry({ customDraw: true });
+            this.$drawRefs['polyline'].drawGeometry({
+              customDraw: true,
+              params,
+            });
           },
           file() {},
           delete() {
@@ -128,17 +159,32 @@ export default {
       }
     },
     uploadSuccess(data) {
+      this.clearToolLayer();
       if (data.data) {
         const wkt = new L.Wkt.Wkt();
         wkt.read(data.data[0]);
         this.geometry = wkt.toObject(false);
-        this.$emit('on-get-drawlayer', this.geometry);
         this.geometry.addTo(this.$drawRefs.geojson.$queryLayers);
+        if (this.radius) {
+          const bufferedGeoJson = buffer(this.geometry.toGeoJSON(), this.radius, {
+            units: this.units,
+          });
+          this.bufferLayers = L.GeoJSON.geometryToLayer(bufferedGeoJson);
+          this.bufferLayers.addTo(this.$drawRefs.geojson.$queryLayers);
+          this.$emit('on-get-drawlayer', this.bufferLayers, data.data[0]);
+        } else {
+          this.$emit('on-get-drawlayer', this.geometry, data.data[0]);
+        }
       }
     },
     clearToolLayer() {
       this.clearLayers();
-      if (this.geometry) this.$drawRefs.geojson.$queryLayers.removeLayer(this.geometry);
+      if (this.geometry) {
+        this.$drawRefs.geojson.$queryLayers.removeLayer(this.geometry);
+      }
+      if (this.bufferLayers) {
+        this.$drawRefs.geojson.$queryLayers.removeLayer(this.bufferLayers);
+      }
     },
   },
 };

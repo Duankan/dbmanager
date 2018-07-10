@@ -84,6 +84,13 @@ export default {
       queryAreaUrl: '',
     };
   },
+  computed: {
+    setUnits() {
+      const unit = [{ name: '米', value: 'meters' }, { name: '千米', value: 'kilometers' }];
+      const getUnit = unit.filter(item => item.name === this.queryItem.bufferUnit);
+      return getUnit[0].value;
+    },
+  },
   methods: {
     filterCommonField() {
       if (this.allschema) {
@@ -165,16 +172,19 @@ export default {
     },
 
     //下面是空间查询的方法
-    getDrawLayer(layers) {
+    getDrawLayer(layers, adverse) {
       this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
       this.queryItem.place = '';
       this.queryItem.geometry = layers;
+      this.advWKT = adverse;
+      this.$refs.areaSelect.resetCascader();
     },
     // 获取行政区
-    getAreaLayer(wkt) {
+    getAreaLayer(wkt, adverse) {
       this.$refs.drawTools.clearToolLayer();
       this.queryItem.geometry = null;
       this.queryItem.place = wkt;
+      this.advWKT = adverse;
       if (wkt === '') this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
     },
     selectLayer(layerData) {
@@ -188,16 +198,17 @@ export default {
         this.queryAreaUrl = layerData.value;
         this.serviseUrl = layerData.value;
         const url = new URL(this.serviseUrl);
-        this.queryUrl = url.origin + '/master/ows';
+        this.queryUrl = url.origin + '/hgis/ows';
         // 过滤字段
         if (this.layerData.length !== 0) {
           const totalParams = this.layerData.filter(item => item.label === layerData.label);
           this.fieldList = this.getColums(totalParams[0].schema);
           this.layerCrs = totalParams[0].crs;
-          totalParams[0].schema.forEach(item => {
-            this.schema = this.schema + ',' + item.name;
+          this.fieldList.forEach(item => {
+            this.schema = this.schema + ',' + item.title;
           });
         }
+        this.queryName = layerData.label;
       }
     },
     // 发起请求
@@ -227,7 +238,7 @@ export default {
         type: 'POST',
       };
 
-      const cql_filter = this.setCQLFilter();
+      const cql_filter = this.setCQLFilter(true);
       queryOptions = {
         ...defaultOptions,
         cql_filter,
@@ -238,7 +249,7 @@ export default {
       };
     },
     // 合并cql_filter
-    setCQLFilter() {
+    setCQLFilter(isGetCqlFilter) {
       let queryCQLFilter;
       const items = this.$refs['formDynamic'].model.items;
       let CQLFilter = this.getCondition(items);
@@ -262,7 +273,11 @@ export default {
           ? CQLFilter + 'and' + ` ${this.queryItem.relationship}(the_geom,${this.queryItem.place})`
           : '' + ` ${this.queryItem.relationship}(the_geom,${this.queryItem.place})`;
       }
-      return queryCQLFilter;
+      if (!isGetCqlFilter) {
+        return CQLFilter;
+      } else {
+        return queryCQLFilter;
+      }
     },
     reset() {
       this.serviseUrl = '';
@@ -284,6 +299,13 @@ export default {
           logic: 'AND',
         },
       ];
+      // 重置绘制操作
+      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
+      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
+      this.queryItem.place = '';
+      this.$refs.drawTools.clearToolLayer();
+      this.queryItem.geometry = null;
+      this.$refs.areaSelect.resetCascader();
     },
     // 数据提取
     async loadQueryData() {
@@ -291,11 +313,12 @@ export default {
         this.$Message.error('请选择一个图层！');
         return;
       }
-      if (!this.queryItem.geometry) {
-        this.$Message.error('请绘制一个范围！');
-        return;
-      }
+      // if (!this.queryItem.geometry) {
+      //   this.$Message.error('请绘制一个范围！');
+      //   return;
+      // }
       const loadParams = this.setLoadPrams();
+      debugger;
       const response = await api.db.batchwebrequest([loadParams]);
       window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
     },
@@ -303,15 +326,35 @@ export default {
     setLoadPrams() {
       let loadParams;
       const params = this.getParams();
+      const name = this.queryName.split(':');
       const queryPram = new L.QueryParameter.WfsQueryParameter({
         ...params.options,
         ...params.queryOptions,
         propertyName: this.schema,
+        typeName: this.queryName,
+        outputFormat: 'shape-zip',
+        srsName: this.layerCrs,
       });
       const queryTack = new L.QueryTask(queryPram);
+      let taskData = queryTack._queryParameter.options.data;
+      delete taskData.pageIndex;
+      delete taskData.pageSize;
+      taskData.version = '1.0.0';
+      const cqlfilter = this.setCQLFilter(false);
+      if (this.advWKT) {
+        taskData.cql_filter = cqlfilter
+          ? cqlfilter +
+            'and' +
+            ' ' +
+            this.queryItem.relationship +
+            '(the_geom, ' +
+            this.advWKT +
+            ')'
+          : '' + ' ' + this.queryItem.relationship + '(the_geom, ' + this.advWKT + ')';
+      }
       loadParams = {
-        params: queryTack._queryParameter.options.data,
-        fileName: 'datamanager.zip',
+        params: taskData,
+        fileName: `${name[1]}.zip`,
         url: this.queryUrl,
       };
       return loadParams;
@@ -437,6 +480,7 @@ export default {
     </FormItem>
     <FormItem label="选择行政区：">
       <AreaSelect
+        ref="areaSelect"
         v-model="queryItem.place"
         :wfs-url="queryAreaUrl"
         @on-get-arealayer="getAreaLayer"
@@ -446,13 +490,15 @@ export default {
       <DrawTools
         ref="drawTools"
         :layer-crs="layerCrs"
+        :radius="queryItem.buffer"
+        :units="setUnits"
         @on-get-drawlayer="getDrawLayer"></DrawTools>
     </FormItem>
     <FormItem label="提取方式：">
       <RadioGroup v-model="queryItem.relationship">
         <Radio label="Intersects">相交</Radio>
-        <Radio label="Contains">包含</Radio>
-        <Radio label="female">裁切</Radio>
+        <Radio label="Within">包含</Radio>
+        <Radio label="Clip">裁切</Radio>
       </RadioGroup>
     </FormItem>
     <FormItem>

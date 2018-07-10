@@ -50,6 +50,8 @@ export default {
       steps: [],
       //当前步骤
       current: 0,
+      //是否是编辑模式
+      isEdit: false,
       //方案数据绑定
       model: {
         //方案方式： 0为矢量数据提取；1为影像数据提取
@@ -95,17 +97,31 @@ export default {
   methods: {
     //初始化步骤
     async initWizard() {
-      if (!this.planId) return;
+      this.isEdit = !!this.planId;
+      if (!this.isEdit) return;
       const response = await api.db.findResourcePlanById({ id: this.planId });
       let planData = response.data;
+      let schemaList = [];
+      this.getResources(planData.openCatalog, schemaList);
+      this.model.planid = this.planId;
       this.model.planname = planData.planname;
-      this.model.schemalist = planData.openCatalog.resources;
+      this.model.schemalist = schemaList;
       this.model.extract = planData.spatialRange.extract;
       this.model.splacetype = planData.spatialRange.splacetype;
       this.model.splaceremark = planData.spatialRange.splacemark;
-      let rangeInfo = JSON.parse(planData.spatialRange.rangeInfo);
-      this.model.splacelist = rangeInfo.mapnames || [];
+      this.model.rangeInfo = JSON.parse(planData.spatialRange.rangeInfo);
       this.model = { ...this.model };
+    },
+    //递归获取资源
+    getResources(catalog, resources) {
+      if (catalog.hasResources) {
+        resources.push(...catalog.resources);
+      }
+      if (catalog.childs) {
+        catalog.childs.forEach(item => {
+          this.getResources(item, resources);
+        });
+      }
     },
     //步骤跳转
     async gotoStep(offset = 0) {
@@ -126,8 +142,9 @@ export default {
       const valid = await this.gotoStep();
       if (!valid) return;
       let saveResourceFun = api.db.addResourcePlan;
-      if (this.planId) {
-        this.model.planid = this.planId;
+      if (this.isEdit) {
+        this.model.updateType = 0;
+        delete this.model.rangeInfo;
         saveResourceFun = api.db.updateResourcePlan;
       }
       saveResourceFun(this.model).then(p => {

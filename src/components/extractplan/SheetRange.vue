@@ -25,6 +25,8 @@ export default {
     return {
       //提取模型
       range: { ...this.model },
+      //是否是编辑模式
+      isEdit: false,
       //比例尺
       scales: [],
       //城市列表
@@ -54,6 +56,7 @@ export default {
     };
   },
   async created() {
+    this.isEdit = !!this.range.planid;
     //初始化比例尺
     const scaleRes = await api.db.findSpecialLayer({ type: 2 });
     this.scales = scaleRes.data;
@@ -65,12 +68,11 @@ export default {
     this.cities = cityRes.data;
     this.selectCities.push(this.cities[0].id);
     this.getCityCounties(this.cities[0].id);
-    //绑定数据
-    if (this.range.splacetype == 1 && this.range.splacelist.length > 0) {
+    if (this.isEdit && this.range.splacetype == 1) {
       this.selectScale = this.range.extractlevel;
-      this.selectSheetNos = this.range.splacelist;
+      this.selectSheetNos = this.range.rangeInfo.mapnames;
     } else {
-      this.selectScale = this.scales[0].code;
+      this.selectScale = this.scales.length > 0 ? this.scales[0].code : null;
     }
   },
   methods: {
@@ -260,22 +262,29 @@ export default {
         <Select
           v-model="selectCities"
           multiple
-          style="width:110px">
+          style="width:110px"
+          @on-change="changeCity">
           <Option
             v-for="city in cities"
             :value="city.id"
             :key="city.id">{{ city.data }}</Option>
         </Select>
-        <label>县：</label>
-        <Select
-          v-model="selectCoutries"
-          multiple
-          style="width:110px">
-          <Option
-            v-for="country in coutries"
-            :value="country.id"
-            :key="country.id">{{ country.data }}</Option>
-        </Select>
+        <span v-show="selectCities.length<=1">
+          <label>县：</label>
+          <Select
+            v-model="selectCoutries"
+            multiple
+            style="width:110px"
+            @on-change="getSelectBlocks">
+            <Option
+              v-for="country in coutries"
+              :value="country.id"
+              :key="country.id">{{ country.data }}</Option>
+          </Select>
+        </span>
+        <span
+          v-show="selectCities.length>1"
+          class="remain-block"></span>
         <Button
           type="primary"
           @click="addBlockSheet">添加</Button>
@@ -392,6 +401,9 @@ export default {
         }
       }
     }
+  }
+  .remain-block {
+    margin-right: 140px;
   }
 }
 </style>

@@ -22,6 +22,8 @@ export default {
     return {
       //提取模型
       range: { ...this.model },
+      //是否是编辑模式
+      isEdit: false,
       //城市列表
       cities: [],
       //区县列表
@@ -33,33 +35,57 @@ export default {
       //选择的区域
       selectBlocks: [],
       //提取方式
-      extractTypes: ['相交', '裁剪', '包含'],
+      extractTypes: [
+        { key: '相交', value: 1 },
+        { key: '裁剪', value: 0 },
+        { key: '包含', value: 2 },
+      ],
     };
   },
   async created() {
+    this.isEdit = !!this.range.planid;
     //初始化城市区县列表
     const cityRes = await api.db.findDictionary({
       dictionartyLevel: 1,
       order: 'asc',
     });
     this.cities = cityRes.data;
-    if (this.range.splacetype == 0 && this.range.splacelist.length > 0) {
-      //数据绑定
-      if (this.range.extractlevel == 'City') {
-        let ids = this.cities
-          .filter(p => this.range.splacelist.indexOf(p.code) >= 0)
-          .map(p => p.id);
-        this.selectCities = ids;
-      } else {
-        // this.selectCoutries = this.range.splacelist;
-      }
-    } else {
-      //默认初始化
+    //新增模式下设置默认值
+    if (!this.isEdit) {
+      this.range.extract = 1;
       this.selectCities.push(this.cities[0].id);
       this.getCityCounties(this.cities[0].id);
+      return;
+    }
+    //编辑模式下绑定值
+    if (this.range.splacetype == 0) {
+      let cities = this.range.rangeInfo.childrens[0].childrens;
+      let countries = this.getCountries(cities);
+      if (countries.length > 0) {
+        this.range.extractlevel == 'County';
+        this.selectCities = cities.map(p => p.id);
+        await this.getCityCounties(this.selectCities[0]);
+        setTimeout(p => {
+          //下拉控件BUG,nextTick中调用都无效
+          this.selectCoutries = countries.map(p => p.id);
+        }, 100);
+      } else {
+        this.range.extractlevel == 'City';
+        this.selectCities = cities.map(p => p.id);
+      }
     }
   },
   methods: {
+    //获取所有选择区县
+    getCountries(cities) {
+      let coutries = [];
+      cities.forEach(p => {
+        if (p.childrens) {
+          coutries.push(...p.childrens);
+        }
+      });
+      return coutries;
+    },
     //获取城市下的区县
     async getCityCounties(cityId) {
       const countryRes = await api.db.findDictionary({
@@ -156,10 +182,10 @@ export default {
       <label class="form-label">提取方式：</label>
       <RadioGroup v-model="range.extract">
         <Radio
-          v-for="(item,index) in extractTypes"
-          :key="index"
-          :label="index">
-          <span>{{ item }}</span>
+          v-for="item in extractTypes"
+          :key="item.value"
+          :label="item.value">
+          <span>{{ item.key }}</span>
         </Radio>
       </RadioGroup>
     </div>

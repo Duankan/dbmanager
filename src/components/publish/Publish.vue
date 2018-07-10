@@ -1,6 +1,7 @@
 <script>
 import * as types from '@/store/types';
 import api from 'api';
+import { filterSchema } from '@/utils/helps';
 
 export default {
   name: 'Publish',
@@ -19,9 +20,11 @@ export default {
       crsLoading: false,
       publishLoading: false,
       showMore: false, // 控制显示详细信息
-      isImage: false, //是否是影像服务
+      publishType: 1, //发布类型，1:矢量，2：影像，3地名地址
       crsOptions: [],
       styleOptions: [],
+      resourceInfo: {}, //资源信息
+      fieldsInfo: [], //字段信息
       levels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
       plotTypes: ['1.0', '2.0'],
       plotPlans: ['rasterPlotWorld', 'rasterPlotRect'],
@@ -32,6 +35,8 @@ export default {
         styles: '',
         name: '',
         serviceType: ['12', '6'],
+        nameField: '',
+        typeField: '',
         minLevel: 8,
         maxLevel: 17,
         rasterPlotPlan: 'rasterPlotWorld',
@@ -54,14 +59,18 @@ export default {
           crs: '',
           styles: '',
           serviceType: ['12', '6'],
+          nameField: '',
+          typeField: '',
           minLevel: 8,
           maxLevel: 17,
           rasterPlotPlan: 'rasterPlotWorld',
           rasterRplotType: '2.0',
         };
+        this.resourceInfo = val;
         this.showMore = false;
         this.getStyle(val);
         this.getType(val);
+        this.getFields(val);
       }
     },
   },
@@ -110,15 +119,29 @@ export default {
         case '20007': //dom 影像图幅文件
         case '20008': //dem tiff
         case '20009': //dem 影像图幅文件
-          this.isImage = true;
+          this.publishType = 2;
           this.serviceTypes = [{ key: 'WMTS', value: '5' }];
           break;
+        case '20002': //地名地址
+        case '20016': //地名地址csvzip
+          this.publishType = 3;
+          this.serviceTypes = [
+            { key: 'WMS', value: '12' },
+            { key: 'WFS', value: '6' },
+            { key: 'WFS-G', value: '20' },
+          ];
+          break;
         default:
-          this.isImage = false;
+          this.publishType = 1;
           this.serviceTypes = [{ key: 'WMS', value: '12' }, { key: 'WFS', value: '6' }];
           break;
       }
       this.publishForm.serviceType = this.serviceTypes.map(p => p.value);
+    },
+    //获取字段信息
+    getFields() {
+      let fields = this.resourceInfo.schema.map(p => p.name);
+      this.fieldsInfo = filterSchema(fields);
     },
     //校验表单
     validateData() {
@@ -134,12 +157,23 @@ export default {
         this.$Message.info('请选择服务名称');
         return false;
       }
-      if (!this.isImage) {
-        return true;
+      //影像服务
+      if (this.publishType == 2) {
+        if (this.publishForm.minLevel >= this.publishForm.maxLevel) {
+          this.$Message.info('最大分层等级不能小于最小分层等级');
+          return false;
+        }
       }
-      if (this.publishForm.minLevel >= this.publishForm.maxLevel) {
-        this.$Message.info('最大分层等级不能小于最小分层等级');
-        return false;
+      //地名地址服务
+      if (this.publishType == 3) {
+        if (!this.publishForm.nameField) {
+          this.$Message.info('请选择名称字段');
+          return false;
+        }
+        if (!this.publishForm.typeField) {
+          this.$Message.info('请选择类型字段');
+          return false;
+        }
       }
       return true;
     },
@@ -162,13 +196,19 @@ export default {
         title: this.publishForm.title,
         styles: this.publishForm.styles,
       };
-      if (this.isImage) {
-        params.inputTransparentColor = '#FFFFFFFF';
-        params.outputTransparentColor = '#FFFFFFFF';
+      //影像服务
+      if (this.publishType == 2) {
+        params.inputTransparentColor = '';
+        params.outputTransparentColor = '';
         params.levelNum = this.publishForm.maxLevel - this.publishForm.minLevel + 1;
         params.maxLevel = this.publishForm.maxLevel;
         params.rasterPlotPlan = this.publishForm.rasterPlotPlan;
         params.rasterRplotType = this.publishForm.rasterRplotType;
+      }
+      //地名地址服务
+      if (this.publishType == 3) {
+        params.nameField = this.publishForm.nameField;
+        params.typeField = this.publishForm.typeField;
       }
       api.db
         .publishService(params)
@@ -238,7 +278,7 @@ export default {
       await this.getStyle(this.node);
       const style = this.styleOptions.find(item => item.id === response.data);
       if (style) {
-        this.publishForm.styles = style.name;
+        this.publishForm.styles = style.id;
       } else {
         this.$Message.warning('样式类别与资源类别不一致');
       }
@@ -255,7 +295,6 @@ export default {
     @on-visible-change="visibleChange">
     <div slot="footer">
       <Button
-        :loading="publishLoading"
         type="primary"
         size="large"
         long
@@ -295,7 +334,7 @@ export default {
           <Option
             v-for="option in styleOptions"
             :label="option.alias"
-            :value="option.name"
+            :value="option.id"
             :key="option.id">
             <span class="style-name">{{ option.alias }}</span>
             <span class="style-info">{{ new Date(option.updateTime).toLocaleDateString() }}</span>
@@ -316,6 +355,34 @@ export default {
           @input="styleUpload">
       </FormItem>
       <FormItem
+        v-show="publishType==3"
+        label="名称字段：">
+        <Select
+          v-model="publishForm.nameField">
+          <Option
+            v-for="(item,index) in fieldsInfo"
+            :label="item"
+            :value="item"
+            :key="index">
+            {{ item }}
+          </Option>
+        </Select>
+      </FormItem>
+      <FormItem
+        v-show="publishType==3"
+        label="类型字段：">
+        <Select
+          v-model="publishForm.typeField">
+          <Option
+            v-for="(item,index) in fieldsInfo"
+            :label="item"
+            :value="item"
+            :key="index">
+            {{ item }}
+          </Option>
+        </Select>
+      </FormItem>
+      <FormItem
         v-show="showMore"
         label="服务名称：">
         <Input v-model="publishForm.name"></Input>
@@ -332,7 +399,7 @@ export default {
         </CheckboxGroup>
       </FormItem>
       <FormItem
-        v-show="showMore&&isImage"
+        v-show="showMore&&publishType==2"
         label="分层级别：">
         <label>最小</label>
         <Select
@@ -360,7 +427,7 @@ export default {
         </Select>
       </FormItem>
       <FormItem
-        v-show="showMore&&isImage"
+        v-show="showMore&&publishType==2"
         label="裁剪方式：">
         <Select
           v-model="publishForm.rasterRplotType">
@@ -374,7 +441,7 @@ export default {
         </Select>
       </FormItem>
       <FormItem
-        v-show="showMore&&isImage"
+        v-show="showMore&&publishType==2"
         label="裁剪方案：">
         <Select
           v-model="publishForm.rasterPlotPlan">
@@ -403,6 +470,14 @@ export default {
       @click="showMore = !showMore">
       <Icon :type="showMore ? 'chevron-up' : 'chevron-down'"></Icon>
     </div>
+    <Spin
+      v-if="publishLoading"
+      fix>
+      <Icon
+        type="load-c"
+        size="18"
+        class="circle-spin-icon-load"></Icon>
+    <div>正在发布服务...</div></Spin>
   </Modal>
 </template>
 

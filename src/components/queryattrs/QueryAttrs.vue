@@ -1,6 +1,7 @@
 <script>
 import { debug, log } from 'util';
 import * as types from '@/store/types';
+import config from 'config';
 const stringCompare = [
   {
     value: '=',
@@ -78,6 +79,7 @@ export default {
           },
         ],
       },
+      schema: 'the_geom',
     };
   },
   computed: {
@@ -111,6 +113,8 @@ export default {
       this.formDynamic.layerTitle = layer.label;
       const layers = this.$store.getters.wfsLayerData[layer.value];
       this.formDynamic.wfsUrl = layers.wfsurl;
+      const url = new URL(this.formDynamic.wfsUrl);
+      this.queryUrl = url.origin + '/hgis/ows';
       this.fieldList = [];
       for (let i = 0; i < layers.schema.length; i++) {
         if (array.indexOf(layers.schema[i].name) != -1) continue;
@@ -119,6 +123,8 @@ export default {
           value: layers.schema[i].name,
         });
       }
+      this.layerCrs = layers.csys;
+      this.queryName = layer.value;
     },
     //字段选择事件
     fieldChange(item) {
@@ -208,6 +214,7 @@ export default {
     //重置查询页面
     handleReset(name) {
       this.$refs[name].resetFields();
+      this.formDynamic.layer = '';
       this.formDynamic.items = [
         {
           field: '',
@@ -239,6 +246,52 @@ export default {
     handleRemove(item) {
       const index = this.formDynamic.items.findIndex(node => node === item);
       this.formDynamic.items.splice(index, 1);
+    },
+    // 数据提取
+    async loadQueryData() {
+      if (this.formDynamic.wfsUrl == '') {
+        this.$Message.info('请选择图层');
+        return;
+      }
+      const loadParams = this.setLoadPrams();
+      debugger;
+      const response = await api.db.batchwebrequest([loadParams]);
+      window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
+    },
+    // 参数处理
+    setLoadPrams() {
+      let loadParams;
+      this.fieldList.forEach(item => {
+        this.schema = this.schema + ',' + item.value;
+      });
+      const name = this.queryName.split(':');
+      const items = this.$refs['formDynamic'].model.items;
+      const CQLFilter = this.getCondition(items);
+      const options = { version: '1.0.0' };
+      if (CQLFilter) options.cql_filter = CQLFilter;
+      const queryPram = new L.QueryParameter.WfsQueryParameter({
+        propertyName: this.schema,
+        typeName: this.queryName,
+        outputFormat: 'shape-zip',
+        srsName: this.layerCrs,
+        ...options,
+      });
+      const queryTack = new L.QueryTask(queryPram);
+
+      for (let item in queryTack._queryParameter.options) {
+        if (!queryTack._queryParameter.options[item]) {
+          delete queryTack._queryParameter.options[item];
+        } else if (item === 'spatialRelationship') {
+          delete queryTack._queryParameter.options[item];
+        }
+      }
+      let taskData = queryTack._queryParameter.options;
+      loadParams = {
+        params: taskData,
+        fileName: `${name[1]}.zip`,
+        url: this.queryUrl,
+      };
+      return loadParams;
     },
   },
 };
@@ -346,6 +399,9 @@ export default {
       <Button
         type="primary"
         @click="handleSubmit('formDynamic')">查询</Button>
+      <Button
+        type="primary"
+        @click="loadQueryData">数据提取</Button>
       <Button
         type="ghost"
         style="margin-left: 8px"

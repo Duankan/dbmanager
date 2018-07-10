@@ -39,7 +39,7 @@ export default {
       layerData = this.layerData1.filter(item => item.label === layers.label);
       const url = new URL(layerData[0].servicesurl);
       this.baseUrl = layerData[0].servicesurl;
-      this.queryUrl = url.origin + '/master/ows';
+      this.queryUrl = url.origin + '/hgis/ows';
     },
     setParams() {
       const options = {
@@ -81,6 +81,9 @@ export default {
     },
     reset() {
       this.$refs['analysform'].resetFields();
+      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
+      this.$refs.drawTools.clearToolLayer();
+      this.overlayItem.geometry = null;
     },
     getDrawLayer(geo) {
       const geometry = geo.toGeoJSON();
@@ -163,6 +166,7 @@ export default {
     </FormItem>
     <FormItem label="绘制方式：">
       <DrawTools
+        ref="drawTools"
         @on-get-drawlayer="getDrawLayer"></DrawTools>
     </FormItem>
     <FormItem
@@ -170,7 +174,7 @@ export default {
       prop="spaceRelation">
       <RadioGroup v-model="overlayItem.spaceRelation">
         <Radio label="Intersects">相交</Radio>
-        <Radio label="Contains">包含</Radio>
+        <Radio label="Within">包含</Radio>
       </RadioGroup>
     </FormItem>
     <FormItem>
