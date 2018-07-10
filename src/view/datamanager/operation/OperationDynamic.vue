@@ -4,6 +4,7 @@ import MoveTo from './modal/MoveTo';
 import QuickView from './modal/QuickView';
 import ViewInformation from './modal/ViewInformation';
 import DeleteResource from './modal/DeleteResource';
+import UploadMataData from './modal/UploadMataData';
 import * as types from '@/store/types';
 import { isDirectory, isFile, isVector, isGisResource, canView } from '@/utils';
 
@@ -14,6 +15,7 @@ export default {
     QuickView,
     ViewInformation,
     DeleteResource,
+    UploadMataData,
   },
   data() {
     return {
@@ -29,6 +31,7 @@ export default {
       informationNode: {},
       deleteModal: false,
       deleteNodes: [],
+      updateMataModal: false,
     };
   },
   computed: {
@@ -158,10 +161,10 @@ export default {
       }
     },
     metaData() {
-      this.$events.emit('on-upload', { title: '元数据补录', type: 'metaData' });
+      this.updateMataModal = true;
     },
     appendData() {
-      this.$events.emit('on-upload', { title: '数据追加', node: this.selectNodes[0] });
+      // this.$events.emit('on-upload', { title: '数据追加', node: this.selectNodes[0] });
     },
     moveTo() {
       this.moveToModal = true;
@@ -263,6 +266,9 @@ export default {
     <DeleteResource
       v-model="deleteModal"
       :nodes="deleteNodes"></DeleteResource>
+    <UploadMataData
+      v-model="updateMataModal">
+    </UploadMataData>
   </div>
 </template>
 

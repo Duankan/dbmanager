@@ -2,12 +2,16 @@
 import PolygonType from './PolygonType';
 import LineType from './LineType';
 import PointType from './PointType';
+import High from './High';
+import SelectType from './SelectType';
 export default {
   name: 'MapEdit',
   components: {
     PolygonType,
     PointType,
     LineType,
+    High,
+    SelectType,
   },
   props: {
     value: { type: Object, default: () => {} },
@@ -19,6 +23,7 @@ export default {
     };
   },
   created() {
+    console.log(this.value);
     if (this.value.data.shapeType.toUpperCase() == 'POLYGON') {
       this.labelName = '面类型';
     }
@@ -48,7 +53,7 @@ export default {
       <Form
         :label-width="80"
       >
-        <FormItem >
+        <FormItem style="margin: 10px;" >
           <RadioGroup
             v-model="selectOut"
             type="button"
@@ -60,11 +65,13 @@ export default {
             <Radio label="选择样式"></Radio>
           </RadioGroup>
         </FormItem>
-
-        <PolygonType v-if="selectOut=='面类型'"></PolygonType>
-        <LineType v-if="selectOut=='线类型'"></LineType>
-        <PointType v-if="selectOut=='点类型'"></PointType>
-
+        <FormItem >
+          <PolygonType v-if="selectOut=='面类型'"></PolygonType>
+          <LineType v-if="selectOut=='线类型'"></LineType>
+          <PointType v-if="selectOut=='点类型'"></PointType>
+          <High v-if="selectOut=='高级'"></High>
+          <SelectType v-if="selectOut=='选择样式'"></SelectType>
+        </FormItem>
       </Form>
     </div>
     <div class="right">

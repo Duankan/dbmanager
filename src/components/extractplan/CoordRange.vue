@@ -24,13 +24,30 @@ export default {
     return {
       //提取模型
       range: { ...this.model },
+      //是否是编辑模式
+      isEdit: false,
       //坐标文件名
       shapeFileName: '',
       //上传服务地址
       uploadUrl: `${config.project.basicUrl}/service/gisserver/getwktsbyshpzip?count=1`,
       //提取方式
-      extractTypes: ['相交', '裁剪', '包含'],
+      extractTypes: [
+        { key: '相交', value: 1 },
+        { key: '裁剪', value: 0 },
+        { key: '包含', value: 2 },
+      ],
     };
+  },
+  created() {
+    this.isEdit = !!this.range.planid;
+    //新增模式下设置默认值
+    if (!this.isEdit) {
+      this.range.extract = 1;
+      return;
+    }
+    if (this.range.splacetype == 2) {
+      this.shapeFileName = '存在坐标文件';
+    }
   },
   methods: {
     //上传文件前
@@ -48,7 +65,7 @@ export default {
     },
     //校验提取范围
     validateRange() {
-      if (!this.range.coordinate) {
+      if (!this.range.coordinate && !this.isEdit) {
         this.$Message.info('请选择坐标文件！');
         return false;
       }
@@ -96,10 +113,10 @@ export default {
       <label class="form-label">提取方式：</label>
       <RadioGroup v-model="range.extract">
         <Radio
-          v-for="(item,index) in extractTypes"
-          :key="index"
-          :label="index">
-          <span>{{ item }}</span>
+          v-for="item in extractTypes"
+          :key="item.value"
+          :label="item.value">
+          <span>{{ item.key }}</span>
         </Radio>
       </RadioGroup>
     </div>

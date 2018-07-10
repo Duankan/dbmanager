@@ -2,49 +2,26 @@
 import * as types from '@/store/types';
 import api from 'api';
 
-//排除的上传类型
-const EXCLUDE_FILTERS = [
-  '20003',
-  '20004',
-  '20007',
-  '20008',
-  '20009',
-  '20010',
-  '20011',
-  '20014',
-  '20015',
-  '20101',
-  '20102',
-  '20013',
-];
-
+/**
+ * 上传元数据模块
+ */
 export default {
-  name: 'ResourceUploader',
+  name: 'UploadMataData',
   props: {
+    //对话框是否打开
     value: {
       type: Boolean,
       default: false,
-    },
-    dictionary: {
-      type: Boolean,
-      default: false,
-    },
-    title: {
-      type: String,
-      default: '文件上传',
     },
   },
   data() {
     return {
       //是否在上传
       loading: false,
-      //资源类型
-      resourceTypes: [],
       //上传表单
       resource: {
-        type: '2',
         name: '',
-        typeId: '20001',
+        typeId: '20013',
       },
       //上传数据
       cloudFile: null,
@@ -61,25 +38,13 @@ export default {
     node() {
       return this.$store.state.app.selectNodes[0];
     },
-    //当前选择业务类型
-    currentResTypes() {
-      return this.resourceTypes.filter(item => item.parentId === this.resource.type);
+    //对话框标题
+    title() {
+      return this.node ? `上传元数据到${this.node.name}` : '上传元数据';
     },
-    //是否多文件上传
-    multiple() {
-      return false;
-    },
-  },
-  async created() {
-    //获取资源分类
-    let response = await api.db.findResourceType({
-      parentId: '1,2',
-    });
-    let uploaderTypes = response.data;
-    uploaderTypes = uploaderTypes.filter(p => EXCLUDE_FILTERS.indexOf(p.id) < 0);
-    this.resourceTypes = uploaderTypes;
   },
   methods: {
+    //对话框可见性改变
     visibleChange(visible) {
       !visible && this.resetControl();
       this.$emit('input', visible);
@@ -87,11 +52,7 @@ export default {
     //重置控件状态
     resetControl() {
       this.loading = false;
-      this.resource = {
-        type: '2',
-        name: '',
-        typeId: '',
-      };
+      this.resource.name = null;
       this.cloudFile = null;
       this.fileName = '';
     },
@@ -108,10 +69,6 @@ export default {
         this.$Message.warning('请输入数据名称！');
         return;
       }
-      if (!this.resource.typeId) {
-        this.$Message.warning('请选择文件类型！');
-        return;
-      }
       if (this.cloudFile == null) {
         this.$Message.warning('请选择上传文件！');
         return;
@@ -122,19 +79,15 @@ export default {
       if (!checkValid) return;
       //上传文件到云盘
       let fileInfo = await this.uploadCloudFile();
-      if (!fileInfo.data.id) {
-        this.loading = false;
-        this.$Message.error('上传文件失败！');
-        return;
-      }
-      //新增为应用资源
-      let addValid = await this.addCloudResource(fileInfo.data);
+      if (!fileInfo.ok) return;
+      //新增元数据资源
+      let addValid = await this.addMataResource(fileInfo.data);
       if (!addValid) return;
       //刷新目录节点
       await this.$store.dispatch(types.APP_NODES_FETCH, this.current);
       this.loading = false;
       this.visibleChange(false);
-      this.$Message.success('文件上传成功！');
+      this.$Message.success('元数据上传成功！');
     },
     //检查文件名
     async checkFileName() {
@@ -151,27 +104,24 @@ export default {
     },
     //上传文件到云盘
     async uploadCloudFile() {
-      let resourceType = this.resourceTypes.find(p => p.id == this.resource.typeId);
       let fd = new FormData();
-      if (this.resource.type === '1') {
-        //上传业务数据到云盘
-        fd.append('file', this.cloudFile);
-        return api.db.commonResourceUpload({ id: resourceType.dataTypeId }, fd, {
-          headers: { 'User-Operation-Info': 'a3UjjlaLC9He' },
-        });
-      } else if (this.resource.type === '2') {
-        //上传GIS数据到云盘
-        fd.append('file', this.cloudFile);
-        fd.append('hasparent', '0');
-        fd.append('resourcetypeid', resourceType.dataTypeId);
-        return api.db.upload({}, fd, {
-          headers: { 'User-Operation-Info': 'a3UjjlaLC9He' },
-        });
+      fd.append('file', this.cloudFile);
+      fd.append('hasparent', '0');
+      fd.append('resourcetypeid', '20012');
+      let fileInfo = await api.db.upload({}, fd, {
+        headers: { 'User-Operation-Info': 'a3UjjlaLC9He' },
+      });
+      if (!fileInfo.data.id) {
+        this.loading = false;
+        this.$Message.error('上传文件失败！');
+        return { ok: false, data: null };
       }
+      return { ok: true, data: fileInfo.data };
     },
-    //新增为应用资源
-    async addCloudResource(fileInfo) {
+    //新增元数据资源
+    async addMataResource(fileInfo) {
       let params = {
+        resid: this.node.id,
         name: this.resource.name,
         alias: this.resource.name,
         typeId: this.resource.typeId,
@@ -184,7 +134,7 @@ export default {
         orgName: this.$appUser.orgname,
       };
       let postData = Object.assign({}, fileInfo, params);
-      const postInfo = await api.db.addresource(postData).catch(p => {
+      const postInfo = await api.db.addMetaData(postData).catch(p => {
         this.loading = false;
         return p;
       });
@@ -193,39 +143,21 @@ export default {
   },
 };
 </script>
-
 <template>
   <Modal
     :value="value"
-    :title="title"
     :mask-closable="false"
+    :title="title"
     width="480"
     @on-visible-change="visibleChange">
     <Form
       :model="resource"
       :label-width="90">
-      <FormItem label="文件类别：">
-        <RadioGroup v-model="resource.type">
-          <Radio label="2">空间数据</Radio>
-          <Radio label="1">业务文件</Radio>
-        </RadioGroup>
-      </FormItem>
       <FormItem
         label="数据名称：">
         <Input
           v-model="resource.name"
           placeholder="请输入数据名称" />
-      </FormItem>
-      <FormItem
-        label="数据类型：">
-        <Select
-          v-model="resource.typeId"
-          filterable>
-          <Option
-            v-for="item in currentResTypes"
-            :key="item.id"
-            :value="item.id">{{ item.resourceTypeName }}</Option>
-        </Select>
       </FormItem>
     </Form>
     <Upload
@@ -260,6 +192,5 @@ export default {
     <div>正在上传文件...</div></Spin>
   </Modal>
 </template>
-
-<style lang="less" scoped>
+<style lang="less">
 </style>

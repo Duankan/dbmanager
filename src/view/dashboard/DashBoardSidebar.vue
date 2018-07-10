@@ -30,7 +30,6 @@ export default {
   methods: {
     click(item) {
       if (item.title == '地图编辑') {
-        alert('s');
       } else {
         this.$router.push({ name: item.name });
       }
