@@ -77,6 +77,17 @@ export default {
       //检查文件名
       let checkValid = await this.checkFileName();
       if (!checkValid) return;
+      //上传文件到云盘
+      let fileInfo = await this.uploadCloudFile();
+      if (!fileInfo.ok) return;
+      //新增元数据资源
+      let addValid = await this.addMataResource(fileInfo.data);
+      if (!addValid) return;
+      //刷新目录节点
+      await this.$store.dispatch(types.APP_NODES_FETCH, this.current);
+      this.loading = false;
+      this.visibleChange(false);
+      this.$Message.success('元数据上传成功！');
     },
     //检查文件名
     async checkFileName() {
@@ -90,6 +101,44 @@ export default {
           return p;
         });
       return nameInfo.data.statusCode == 200;
+    },
+    //上传文件到云盘
+    async uploadCloudFile() {
+      let fd = new FormData();
+      fd.append('file', this.cloudFile);
+      fd.append('hasparent', '0');
+      fd.append('resourcetypeid', '20012');
+      let fileInfo = await api.db.upload({}, fd, {
+        headers: { 'User-Operation-Info': 'a3UjjlaLC9He' },
+      });
+      if (!fileInfo.data.id) {
+        this.loading = false;
+        this.$Message.error('上传文件失败！');
+        return { ok: false, data: null };
+      }
+      return { ok: true, data: fileInfo.data };
+    },
+    //新增元数据资源
+    async addMataResource(fileInfo) {
+      let params = {
+        resid: this.node.id,
+        name: this.resource.name,
+        alias: this.resource.name,
+        typeId: this.resource.typeId,
+        classify: '',
+        description: '',
+        catalogId: this.current.childId,
+        userId: this.$appUser.id,
+        userName: this.$appUser.name,
+        orgId: this.$appUser.orgid,
+        orgName: this.$appUser.orgname,
+      };
+      let postData = Object.assign({}, fileInfo, params);
+      const postInfo = await api.db.addMetaData(postData).catch(p => {
+        this.loading = false;
+        return p;
+      });
+      return postInfo.status == 200 && !postInfo.data.message;
     },
   },
 };
