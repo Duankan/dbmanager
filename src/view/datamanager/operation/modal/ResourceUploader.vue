@@ -1,6 +1,5 @@
 <script>
 import * as types from '@/store/types';
-import config from 'config';
 import api from 'api';
 
 //排除的上传类型
@@ -34,13 +33,6 @@ export default {
       type: String,
       default: '文件上传',
     },
-    type: {
-      type: String,
-      validator(val) {
-        return ['normal', 'style', 'metaData'].includes(val);
-      },
-      default: 'normal',
-    },
   },
   data() {
     return {
@@ -52,7 +44,7 @@ export default {
       resource: {
         type: '2',
         name: '',
-        typeId: '',
+        typeId: '20001',
       },
       //上传数据
       cloudFile: null,
@@ -210,7 +202,6 @@ export default {
     width="480"
     @on-visible-change="visibleChange">
     <Form
-      v-if="type === 'normal'"
       :model="resource"
       :label-width="90">
       <FormItem label="文件类别：">

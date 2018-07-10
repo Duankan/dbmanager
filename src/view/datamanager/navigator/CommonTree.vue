@@ -20,7 +20,7 @@ export default {
       const response = await api.db.findCommonCatalog({
         userId: this.$appUser.id,
       });
-      this.common = response.data;
+      this.common = Array.isArray(response.data) ? response.data : [];
     },
     async removeFavor(data) {
       await api.db.deleteCommonCatalog({

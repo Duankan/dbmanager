@@ -254,7 +254,6 @@ export default {
         return;
       }
       const loadParams = this.setLoadPrams();
-      debugger;
       const response = await api.db.batchwebrequest([loadParams]);
       window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
     },
