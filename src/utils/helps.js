@@ -255,6 +255,4 @@ export function getFileAccept(dataTypeId) {
     default:
       return '*.*';
   }
-
-  return 'image';
 }
