@@ -164,6 +164,7 @@ export default {
       ref="upload"
       :before-upload="getUploadFile"
       :show-upload-list="true"
+      accept="application/zip"
       action="#"
       type="drag">
       <div style="padding: 30px 0">

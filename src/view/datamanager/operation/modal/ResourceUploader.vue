@@ -1,6 +1,7 @@
 <script>
 import * as types from '@/store/types';
 import api from 'api';
+import * as utils from '@/utils/helps';
 
 //排除的上传类型
 const EXCLUDE_FILTERS = [
@@ -50,6 +51,8 @@ export default {
       cloudFile: null,
       //数据文件
       fileName: '',
+      //文件过滤器
+      fileAccept: 'application/zip',
     };
   },
   computed: {
@@ -77,6 +80,9 @@ export default {
     });
     let uploaderTypes = response.data;
     uploaderTypes = uploaderTypes.filter(p => EXCLUDE_FILTERS.indexOf(p.id) < 0);
+    uploaderTypes.forEach(p => {
+      p.accept = utils.getFileAccept(p.id);
+    });
     this.resourceTypes = uploaderTypes;
   },
   methods: {
@@ -100,6 +106,15 @@ export default {
       this.cloudFile = file;
       this.fileName = file.name;
       return false;
+    },
+    //设置文件过滤器
+    setFileFilter(id) {
+      if (id) {
+        let resourceType = this.resourceTypes.find(p => p.id == id);
+        this.fileAccept = resourceType.accept;
+      } else {
+        this.fileAccept = '*.*';
+      }
     },
     //上传资源到云盘
     async uploadCloudResource() {
@@ -220,7 +235,8 @@ export default {
         label="数据类型：">
         <Select
           v-model="resource.typeId"
-          filterable>
+          filterable
+          @on-change="setFileFilter">
           <Option
             v-for="item in currentResTypes"
             :key="item.id"
@@ -232,6 +248,7 @@ export default {
       ref="upload"
       :before-upload="getUploadFile"
       :show-upload-list="true"
+      :accept="fileAccept"
       action="#"
       type="drag">
       <div style="padding: 30px 0">

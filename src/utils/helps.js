@@ -226,3 +226,35 @@ export function getDelelteStatus(type) {
     return filterStyle[0].label;
   }
 }
+
+//获取资源对应的文件过滤条件
+export function getFileAccept(dataTypeId) {
+  switch (dataTypeId) {
+    case '10005': //doc
+      return 'application/msword';
+    case '10006': //txt
+      return 'text/plain';
+    case '10007': //csv
+      return '.csv';
+    case '10008': //excel
+      return 'application/vnd.ms-excel';
+    case '10009': //zip
+      return 'application/zip';
+    case '10010': //pdf
+      return 'application/pdf';
+    case '10099': //其他
+      return '*.*';
+    case '20001': //Shapezip
+    case '20002': //地名地址Shapezip
+    case '20005': //接图表Shapezip
+    case '20012': //csvzip
+    case '20016': //地名地址csvzip
+      return 'application/zip';
+    case '20099': //第三方资源
+      return '*.*';
+    default:
+      return '*.*';
+  }
+
+  return 'image';
+}
