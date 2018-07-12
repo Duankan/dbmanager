@@ -180,13 +180,37 @@ export function getStyleType(type) {
 }
 
 //schema保留字段
-const reservedFileds = ['geom', 'gid', 'x1', 'y1', 'x2', 'y2', 'Shape_Leng', 'Shape_Area'];
+const schemaReservedFileds = ['geom', 'gid', 'x1', 'y1', 'x2', 'y2', 'Shape_Leng', 'Shape_Area'];
 
 //过滤schema字段，去掉保留字段
 export function filterSchema(schemas) {
   let fields = [];
   schemas.forEach(p => {
-    if (reservedFileds.indexOf(p) < 0) {
+    if (schemaReservedFileds.indexOf(p) < 0) {
+      fields.push(p);
+    }
+  });
+  return fields;
+}
+
+//元数据保留字段
+const metaReservedFields = [
+  'geom',
+  'gid',
+  'x1',
+  'y1',
+  'x2',
+  'y2',
+  'ID',
+  'Shape_Leng',
+  'Shape_Area',
+];
+
+//元数据字段
+export function filterMeta(schemas) {
+  let fields = [];
+  schemas.forEach(p => {
+    if (metaReservedFields.indexOf(p) >= 0) {
       fields.push(p);
     }
   });

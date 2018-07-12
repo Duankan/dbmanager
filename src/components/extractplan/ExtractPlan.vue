@@ -253,15 +253,10 @@ export default {
       const result = await api.db.deleteResourcePlan({ id: row.id });
       if (result.data.statusCode == 200) {
         this.$Message.success('删除成功！');
-        this.$store.dispatch(types.SET_BUS_SELECT_PLANDATA, {
-          pageIndex: 1, // 分页索引
-          pageSize: 5, // 分页大小
-          objCondition: {
-            applyOrganization: this.$appUser.orgid, // 组织id
-          },
-        });
         this.getPagedPlan();
-      } else this.$Message.error('删除失败，请稍后重试！');
+      } else {
+        this.$Message.error('删除失败，请稍后重试！');
+      }
     },
   },
 };

@@ -24,7 +24,6 @@ export default {
       batchPublishModal: false,
       batchPublishNodes: [],
       quickViewModal: false,
-      quickViewNode: {},
       moveToModal: false,
       moveNodes: [],
       informationModal: false,
@@ -59,6 +58,11 @@ export default {
         this.selectNodes[0] &&
         isGisResource(this.selectNodes[0]) &&
         !this.selectNodes[0].hasMetadata
+      );
+    },
+    showViewMeta() {
+      return (
+        this.selectNodes[0] && isGisResource(this.selectNodes[0]) && this.selectNodes[0].hasMetadata
       );
     },
     showAppendData() {
@@ -102,7 +106,6 @@ export default {
   methods: {
     invokeQuickView(node) {
       this.quickViewModal = true;
-      this.quickViewNode = node;
     },
     invokeQuickPublish(node) {
       this.publishModal = true;
@@ -149,7 +152,6 @@ export default {
     },
     quickView() {
       this.quickViewModal = true;
-      this.quickViewNode = this.selectNodes[0];
     },
     publish() {
       if (this.single) {
@@ -211,12 +213,22 @@ export default {
         v-if="showQuickView"
         :disabled="!single"
         type="ghost"
-        @click="quickView">快速浏览</Button>
+        @click="quickView">浏览地图</Button>
       <Button
         v-if="showMetaData"
         :disabled="!single"
         type="ghost"
         @click="metaData">元数据补录</Button>
+      <Button
+        v-if="showViewMeta"
+        :disabled="!single"
+        type="ghost"
+        @click="metaData">浏览元数据</Button>
+      <Button
+        v-if="showViewMeta"
+        :disabled="!single"
+        type="ghost"
+        @click="metaData">删除元数据</Button>
       <Button
         v-if="showAppendData"
         :disabled="!single"
@@ -256,7 +268,7 @@ export default {
       :nodes="batchPublishNodes"></BatchPublish>
     <QuickView
       v-model="quickViewModal"
-      :node="quickViewNode"></QuickView>
+      :is-meta="true"></QuickView>
     <ViewInformation
       v-model="informationModal"
       :node="informationNode"></ViewInformation>

@@ -95,14 +95,6 @@ export default {
         height: 400,
       });
     },
-    label(h) {
-      return (
-        <span>
-          {this.title}
-          <icon type="ios-close-empty" />
-        </span>
-      );
-    },
     rowClick(currentRow, index) {
       const state = {
         wfsQuery() {
@@ -291,57 +283,55 @@ export default {
 <template>
 
   <div class="datatable">
-    <Button
-      type="warning"
-      style="position: absolute;
-          top: 30px;
-          left: 125px;
-          z-index: 999;"
-      @click="popup()"
-    >二次过滤</Button>
-    <Button
-      v-if="false"
-      type="warning"
-      style="position: absolute;
-          top: 30px;
-          left: 215px;
-          z-index: 999;"
-      @click="popupStatistics()"
-    >结果统计</Button>
-    <Tabs
-      value="name1">
-      <TabPane
-        :label="label"
-        name="name1">
-        <Table
-          :columns="columns"
-          :data="tableData"
-          :height="height"
-          :loading="tableLoading"
-          stripe
-          border
-          highlight-row
-          size="small"
-          @on-row-click="rowClick"
-        ></Table>
-        <Page
-          :current="pageIndex"
-          :total="total"
-          :page-size="10"
-          :show-sizer="false"
-          size="small"
-          placement="top"
-          show-total
-          show-elevator
-          @on-change="changePage"
-          @on-page-size-change="changePageSize"
-        ></Page>
-      </TabPane>
+    <div class="table-toolbar">
+      <span class="table-title">{{ title }}</span>
+      <div class="table-buttons">
+        <Button
+          type="warning"
+          @click="popup()">二次过滤</Button>
+        <Button
+          v-if="false"
+          type="warning"
+          @click="popupStatistics()">结果统计</Button>
+      </div>
+    </div>
+    <Table
+      :columns="columns"
+      :data="tableData"
+      :height="height"
+      :loading="tableLoading"
+      stripe
+      border
+      highlight-row
+      size="small"
+      @on-row-click="rowClick"></Table>
+    <Page
+      :current="pageIndex"
+      :total="total"
+      :page-size="10"
+      :show-sizer="false"
+      size="small"
+      placement="top"
+      show-total
+      show-elevator
+      @on-change="changePage"
+      @on-page-size-change="changePageSize"
+    ></Page>
     </Tabs>
   </div>
 </template>
 
 <style lang="less" scoped>
+.table-toolbar {
+  height: 36px;
+  .table-title {
+    color: #2d8cf0;
+  }
+  .table-buttons {
+    display: inline-block;
+    margin-left: 10px;
+  }
+}
 .k-page {
   margin: 10px 0;
 }

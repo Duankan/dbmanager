@@ -21,7 +21,7 @@ export default {
         {
           title: '文件名',
           key: '_alias',
-          width: 680,
+          width: 670,
           sortable: true,
           sortMethod(a, b, type) {},
           render: (h, params) => {
