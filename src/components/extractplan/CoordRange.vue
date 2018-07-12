@@ -36,6 +36,8 @@ export default {
         { key: '裁剪', value: 0 },
         { key: '包含', value: 2 },
       ],
+      //加载状态
+      loading: false,
     };
   },
   created() {
@@ -52,16 +54,19 @@ export default {
   methods: {
     //上传文件前
     beforeUpload(file) {
+      this.loading = true;
       this.shapeFileName = file.name;
       return true;
     },
     //上传坐标文件成功
     uploadSuccess(response) {
       this.range.coordinate = response.data[0];
+      this.loading = false;
     },
     //上传坐标文件失败
     uploadError() {
       this.$Message.error('上传坐标文件失败!');
+      this.loading = false;
     },
     //校验提取范围
     validateRange() {
@@ -130,6 +135,14 @@ export default {
         style="width:100px"
         placeholder="输入颜色参数"></Input>
     </div>
+    <Spin
+      v-if="loading"
+      fix>
+      <Icon
+        type="load-c"
+        size="18"
+        class="circle-spin-icon-load"></Icon>
+    <div>正在解析坐标文件...</div></Spin>
   </div>
 </template>
 

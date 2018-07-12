@@ -77,7 +77,7 @@ export default {
             }
             return (
               <span class="file">
-                <svgIcon iconClass={this.iconClass(params.row)} size={28} />
+                <svgIcon iconClass={utils.iconClass(params.row)} size={28} />
                 <span class="filename">
                   {utils.isDirectory(params.row) ? (
                     <span
@@ -265,59 +265,6 @@ export default {
     this.loading = true;
   },
   methods: {
-    iconClass(node) {
-      switch (node.typeId) {
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-          return 'folder';
-        case '20001': //点线面
-        case '20010': //csv
-        case '20011': //csv dataset
-        case '20012': //csv zip
-          switch (node.shapeType.toUpperCase()) {
-            case 'POINT':
-              return 'point';
-            case 'POLYLINE':
-            case 'LINESTRING':
-            case 'MULTILINESTRING':
-              return 'line';
-            case 'POLYGON':
-            case 'MULTIPOLYGON':
-              return 'polygon';
-          }
-        case '20002': //地名地址
-          return 'dmdz';
-        case '20003': //dom tiff
-        case '20007': //dom 影像图幅文件
-          return 'dom';
-        case '20008': //dem tiff
-        case '20009': //dem 影像图幅文件
-          return 'dem';
-        case '20005': //接图表shapezip
-          return 'grid';
-        case '20014': //controlcsvzip dataset
-          return 'point';
-        case '10005': //doc
-          return 'doc';
-        case '10006': //txt
-          return 'txt';
-        case '10007': //csv
-          return 'csv';
-        case '10008': //xls
-          return 'xls';
-        case '10009': //zip
-          return 'zip';
-        case '10010': //pdf
-          return 'pdf';
-        default:
-          return 'other';
-      }
-    },
     handleData(data) {
       return data.map(item => {
         item._alias = item.alias ? item.alias : item.name;

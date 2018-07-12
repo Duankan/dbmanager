@@ -71,7 +71,7 @@ export default {
     </Dropdown>
     <LinkThirdPartService v-model="linkServiceModal" />
     <Button
-      type="ghost"
+      type="primary"
       @click="directoryModal = true">
       <Icon
         type="folder"

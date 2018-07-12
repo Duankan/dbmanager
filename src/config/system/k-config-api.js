@@ -29,7 +29,7 @@ api.fetch.environment = config.kbus;
 
 api.fetch.errorNotify = fetch.errorNotify = function(error) {
   console.table(error);
-  Message.error(`${error.code}: ${error.message}`);
+  Message.error(`${error.message}`);
 };
 
 api.fetch.start = fetch.start = function(config) {

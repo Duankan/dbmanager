@@ -91,6 +91,7 @@ export function iconClass(node) {
     case '5':
     case '6':
     case '7':
+    case '8':
       return node.expand ? 'folder-open' : 'folder';
     case '20001': //点线面
     case '20010': //csv
