@@ -2,7 +2,7 @@
 import api from 'api';
 import * as types from '@/store/types';
 import { filesize, date } from '@ktw/ktools';
-import { isDirectory, isGisResource } from '@/utils';
+import { isDirectory, isGisResource, iconClass } from '@/utils';
 
 export default {
   name: 'DataGrid',
@@ -35,58 +35,8 @@ export default {
     this.isDirectory = isDirectory;
   },
   methods: {
-    iconClass(node) {
-      switch (node.typeId) {
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-          return 'folder';
-        case '20001': //点线面
-        case '20010': //csv
-        case '20011': //csv dataset
-        case '20012': //csv zip
-          switch (node.shapeType.toUpperCase()) {
-            case 'POINT':
-              return 'point';
-            case 'POLYLINE':
-            case 'LINESTRING':
-            case 'MULTILINESTRING':
-              return 'line';
-            case 'POLYGON':
-            case 'MULTIPOLYGON':
-              return 'polygon';
-          }
-        case '20002': //地名地址
-          return 'dmdz';
-        case '20003': //dom tiff
-        case '20007': //dom 影像图幅文件
-          return 'dom';
-        case '20008': //dem tiff
-        case '20009': //dem 影像图幅文件
-          return 'dem';
-        case '20005': //接图表shapezip
-          return 'grid';
-        case '20014': //controlcsvzip dataset
-          return 'point';
-        case '10005': //doc
-          return 'doc';
-        case '10006': //txt
-          return 'txt';
-        case '10007': //csv
-          return 'csv';
-        case '10008': //xls
-          return 'xls';
-        case '10009': //zip
-          return 'zip';
-        case '10010': //pdf
-          return 'pdf';
-        default:
-          return 'other';
-      }
+    getIconClass(node) {
+      return iconClass(node);
     },
     itemClasses(node) {
       const index = this.selectNodes.findIndex(item => node.id === item.id);
@@ -194,7 +144,7 @@ export default {
             color="#3F8CFF"
             @click.native.stop="checkNode(node)"></Icon>
           <SvgIcon
-            :icon-class="iconClass(node)"
+            :icon-class="getIconClass(node)"
             size="60">
           </SvgIcon>
           <div
@@ -256,6 +206,11 @@ export default {
     }
   }
 }
+
+.data-grid-wrap {
+  height: 100%;
+}
+
 .data-grid-header {
   height: 32px;
   padding: 7px 11px;
@@ -272,7 +227,8 @@ export default {
   flex-wrap: wrap;
   align-content: flex-start;
   position: relative;
-  height: calc(~'100% - 33px');
+  height: calc(~'100% - 32px');
+  overflow: auto;
 
   .data-grid-item {
     position: relative;

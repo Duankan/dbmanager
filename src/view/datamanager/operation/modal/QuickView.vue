@@ -1,7 +1,6 @@
 <script>
 import { url } from '@ktw/ktools';
 import * as helps from '@/utils/helps';
-import axios from 'axios';
 
 const SET_MAP_GOCLAYER_DELETE = 'SET_MAP_GOCLAYER_DELETE';
 const SET_MAP_SERVICELIST = 'SET_MAP_SERVICELIST';
@@ -24,7 +23,8 @@ export default {
   },
   data() {
     return {
-      showMap: true,
+      //是否显示表格
+      showTable: true,
       //图层名
       layerName: '',
       //图层范围
@@ -164,18 +164,27 @@ export default {
     //定位到要素
     zoomToFeature(item) {
       let feature = this.pagedData.features.find(p => p.id == item.id);
-      this.$store.commit(SET_MAP_GEOJSON, { geojson: feature.geometry, type: 'once' });
+      this.$store.commit(SET_MAP_GEOJSON, { geojson: feature, type: 'once' });
     },
     visibleChange(visible) {
       if (!visible) {
-        this.$store.commit(SET_MAP_GOCLAYER_DELETE, [this.layerName]);
+        this.resetControls();
       }
       this.$emit('input', visible);
     },
     resize() {
       this.$refs.map.setBounds(this.bbox);
     },
-    toggle() {},
+    toggle(val) {
+      window.dispatchEvent(new Event('resize'));
+    },
+    //重设控件
+    resetControls() {
+      this.showTable = true;
+      this.pageInited = false;
+      this.loading = false;
+      this.$store.commit(SET_MAP_GOCLAYER_DELETE, [this.layerName]);
+    },
   },
 };
 </script>
@@ -188,9 +197,11 @@ export default {
     class="large-modal"
     width="1000"
     @on-visible-change="visibleChange">
-    <div class="map">
+    <div
+      :class="{expand:!showTable}"
+      class="map">
       <Switch
-        v-model="showMap"
+        v-model="showTable"
         size="large"
         @on-change="toggle">
         <span slot="open">数据</span>
@@ -203,7 +214,7 @@ export default {
       </BaseMap>
     </div>
     <div
-      v-show="showMap"
+      v-show="showTable"
       class="table">
       <Table
         :columns="columns"
@@ -228,14 +239,15 @@ export default {
 <style lang="less" scoped>
 .map {
   position: relative;
-  .k-map-container {
-    height: 450px;
-  }
+  height: 450px;
   .k-switch {
     position: absolute;
     top: 10px;
     right: 10px;
     z-index: 1;
+  }
+  &.expand {
+    height: 638px;
   }
 }
 .k-modal {

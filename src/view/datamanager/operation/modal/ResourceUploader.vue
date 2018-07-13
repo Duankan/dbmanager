@@ -123,6 +123,10 @@ export default {
         this.$Message.warning('请输入数据名称！');
         return;
       }
+      if (this.resource.name.length > 64) {
+        this.$Message.warning('数据名称长度不能超过64个字符！');
+        return;
+      }
       if (!this.resource.typeId) {
         this.$Message.warning('请选择文件类型！');
         return;

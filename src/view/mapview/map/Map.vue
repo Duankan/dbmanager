@@ -47,8 +47,7 @@ export default {
     </ContextMenu>
     <BaseMap
       v-contextmenu:contextmenu
-      ref="map"
-    >
+      ref="map">
       <slot/>
       <NavControl/>
       <MapSearch/>
@@ -84,5 +83,15 @@ export default {
 <style lang="less" scoped>
 .map {
   flex: 1;
+}
+
+.k-mouse-position {
+  position: absolute;
+  font-size: 16px;
+  bottom: 20px;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+  z-index: 1;
 }
 </style>

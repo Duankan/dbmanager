@@ -24,6 +24,7 @@ export default {
       batchPublishModal: false,
       batchPublishNodes: [],
       quickViewModal: false,
+      isMeta: false,
       moveToModal: false,
       moveNodes: [],
       informationModal: false,
@@ -34,6 +35,9 @@ export default {
     };
   },
   computed: {
+    current() {
+      return this.$store.state.app.currentDirectory;
+    },
     selectNodes() {
       return this.$store.state.app.selectNodes;
     },
@@ -105,6 +109,7 @@ export default {
   },
   methods: {
     invokeQuickView(node) {
+      this.isMeta = false;
       this.quickViewModal = true;
     },
     invokeQuickPublish(node) {
@@ -151,6 +156,7 @@ export default {
       );
     },
     quickView() {
+      this.isMeta = false;
       this.quickViewModal = true;
     },
     publish() {
@@ -164,6 +170,16 @@ export default {
     },
     metaData() {
       this.updateMataModal = true;
+    },
+    viewMeta() {
+      this.isMeta = true;
+      this.quickViewModal = true;
+    },
+    async deleteMeta() {
+      let node = this.selectNodes[0];
+      await api.db.deleteMetaData({ id: node.id });
+      await this.$store.dispatch(types.APP_NODES_FETCH, this.current);
+      this.$Message.success('删除元数据成功！');
     },
     appendData() {
       // this.$events.emit('on-upload', { title: '数据追加', node: this.selectNodes[0] });
@@ -223,12 +239,12 @@ export default {
         v-if="showViewMeta"
         :disabled="!single"
         type="ghost"
-        @click="metaData">浏览元数据</Button>
+        @click="viewMeta">浏览元数据</Button>
       <Button
         v-if="showViewMeta"
         :disabled="!single"
         type="ghost"
-        @click="metaData">删除元数据</Button>
+        @click="deleteMeta">删除元数据</Button>
       <Button
         v-if="showAppendData"
         :disabled="!single"
@@ -268,7 +284,7 @@ export default {
       :nodes="batchPublishNodes"></BatchPublish>
     <QuickView
       v-model="quickViewModal"
-      :is-meta="true"></QuickView>
+      :is-meta="isMeta"></QuickView>
     <ViewInformation
       v-model="informationModal"
       :node="informationNode"></ViewInformation>

@@ -21,7 +21,7 @@ export default {
     layerData() {
       const layerData = [
         {
-          title: '地图图层',
+          title: '全选图层',
           children: [],
           expand: true,
         },

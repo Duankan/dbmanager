@@ -40,6 +40,7 @@ export default {
                     size="14"
                     nativeOnClick={async e => {
                       e.stopPropagation();
+                      if (!this.validateRename(params.row)) return;
                       if (utils.isDirectory(params.row)) {
                         await api.db.updateCatalog({
                           name: params.row.alias, //  目录名称
@@ -56,7 +57,12 @@ export default {
                       this.$events.emit('on-common-tree-update');
                       this.$store.commit(
                         types.UPDATE_APP_NODES,
-                        Object.assign(params.row, { alias: params.row.alias, _rename: false })
+                        Object.assign(params.row, {
+                          alias: params.row.alias,
+                          _alias: params.row.alias,
+                          name: params.row.alias,
+                          _rename: false,
+                        })
                       );
                     }}
                   />
@@ -265,6 +271,16 @@ export default {
     this.loading = true;
   },
   methods: {
+    validateRename(row) {
+      if (row.alias.trim() === '') {
+        this.$Message.error('名称不能为空');
+        return false;
+      } else if (row.alias.length > 64) {
+        this.$Message.error('名称不能超过64字符');
+        return false;
+      }
+      return true;
+    },
     handleData(data) {
       return data.map(item => {
         item._alias = item.alias ? item.alias : item.name;

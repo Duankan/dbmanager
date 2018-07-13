@@ -100,7 +100,7 @@ export default {
         <Ellipsis :length="14">{{ node.title }}</Ellipsis>
         <Timeago :since="node.updateTime"></Timeago>
       </div>
-      <span>{{ node.userName }} - {{ node.orgName }}</span>
+      <span>{{ node.orgName }}</span>
       <div class="mask">
         <Icon
           type="ios-folder"
