@@ -54,7 +54,7 @@ export default {
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.openWindow();
           this.width = 495;
-          this.height = 460;
+          this.height = 520;
           break;
         case 'ManageStyle':
           this.title = '样式文件管理';

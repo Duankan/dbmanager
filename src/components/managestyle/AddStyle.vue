@@ -1,5 +1,6 @@
 <script>
 import config from 'config';
+import { validateName } from '@/utils/validate';
 const resourceType = [
   {
     value: 'sld',
@@ -19,13 +20,6 @@ export default {
     },
   },
   data() {
-    const validateName = (rule, value, callback) => {
-      if (!/^(?!_)(?!.*?_$)[a-zA-Z0-9_\u4e00-\u9fa5]+$/.test(value)) {
-        callback(new Error('样式名称(包含中文，字母，数字，下划线，下划线不能在末尾)'));
-      } else {
-        callback();
-      }
-    };
     return {
       // 表单数据
       styleCondition: {
@@ -36,7 +30,15 @@ export default {
       },
       // 表单验证
       ruleValidate: {
-        name: [{ required: false, validator: validateName, trigger: 'change' }],
+        name: [
+          {
+            required: false,
+            validator: validateName,
+            nullable: true,
+            trigger: 'change',
+          },
+          { type: 'string', max: 64, message: '名称不能超过64字符', trigger: 'change' },
+        ],
         TypeName: [{ required: true, message: '选择资源类型！', trigger: 'change' }],
         classify: [{ required: true, message: '选择样式类型！', trigger: 'change' }],
       },
@@ -104,6 +106,16 @@ export default {
       this.uploadFile.push(file); // 所有上传文件展示信息
       this.firstLoad();
       return false;
+    },
+    //上传前校验
+    doUpload() {
+      this.$refs.addstyle.validate(valid => {
+        if (valid) {
+          this.upload();
+        } else {
+          this.$Message.error('输入校验不通过，请更正！');
+        }
+      });
     },
     // 样式文件上传
     upload() {
@@ -173,8 +185,19 @@ export default {
       this.uploadFile = this.uploadFile.filter(item => item.keyID != fileData.keyID);
       if (this.uploadFile.length !== 0) this.handleEdit(this.uploadFile[0].keyID);
     },
+    //手动切换编辑
+    doHandleEdit(keyID) {
+      if (this.fileID == keyID) return;
+      this.$refs.addstyle.validate(valid => {
+        if (valid) {
+          this.handleEdit(keyID);
+        } else {
+          this.$Message.error('输入校验不通过，请更正！');
+        }
+      });
+    },
     // 编辑上传文件信息
-    handleEdit(keyID) {
+    async handleEdit(keyID) {
       this.fileID = keyID;
       let data = [];
       this.uploadFile.forEach(item => {
@@ -262,7 +285,7 @@ export default {
             <Icon
               type="edit"
               size="16"
-              @click.native="handleEdit(item.keyID)"></Icon>
+              @click.native="doHandleEdit(item.keyID)"></Icon>
             <Icon
               type="ios-trash-outline"
               size="16"
@@ -283,8 +306,7 @@ export default {
       ref="addstyle"
       :model="styleCondition"
       :rules="ruleValidate"
-      :label-width="90"
-    >
+      :label-width="90">
       <FormItem
         label="样式名称："
         prop="name">
@@ -296,12 +318,10 @@ export default {
       </FormItem>
       <FormItem
         label="资源类型："
-        prop="TypeName"
-      >
+        prop="TypeName">
         <Select
           v-model="styleCondition.TypeName"
-          transfer
-        >
+          transfer>
           <Option
             v-for="(item,index) in resourceType"
             :value="item.value"
@@ -310,12 +330,10 @@ export default {
       </FormItem>
       <FormItem
         label="样式分类："
-        prop="classify"
-      >
+        prop="classify">
         <Select
           v-model="styleCondition.classify"
-          transfer
-        >
+          transfer>
           <Option
             v-for="item in styleClassify"
             :value="item.value"
@@ -323,8 +341,7 @@ export default {
         </Select>
       </FormItem>
       <FormItem
-        label="描述："
-      >
+        label="描述：">
         <Input
           v-model="styleCondition.description"
           :autosize="{ minRows: 2, maxRows: 5 }"
@@ -333,19 +350,16 @@ export default {
       </FormItem>
     </Form>
     <div
-      class="style-button"
-    >
+      class="style-button">
       <Button
         type="primary"
         long
-        @click="upload"
-      >确定
+        @click="doUpload">确定
       </Button>
       <Button
         type="ghost"
         long
-        @click="handleReset"
-      >重置
+        @click="handleReset">重置
       </Button>
     </div>
     <Modal
@@ -354,8 +368,7 @@ export default {
       ok-text= "返回继续上传"
       cancel-text= "关闭"
       @on-ok="continueUpload"
-      @on-cancel="closeUpload"
-    >
+      @on-cancel="closeUpload">
       <div
         v-for="(item, index) in errorData"
         :key="index"

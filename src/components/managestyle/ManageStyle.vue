@@ -69,7 +69,7 @@ export default {
                 <Button type="success" size="small" onClick={() => this.downloadPlan(params.row)}>
                   下载
                 </Button>
-                <Button type="error" size="small" onClick={() => this.deleteStyle(params.row)}>
+                <Button type="error" size="small" onClick={() => this.doDeleteStyle(params.row)}>
                   删除
                 </Button>
               </div>
@@ -159,6 +159,16 @@ export default {
     getTime(time) {
       [this.start, this.end] = time;
     },
+    //确认删除
+    doDeleteStyle(styleData) {
+      this.$Modal.confirm({
+        title: '删除提示',
+        content: '<p>您确认要删除样式吗？</p>',
+        onOk: () => {
+          this.deleteStyle(styleData);
+        },
+      });
+    },
     //删除样式文件
     async deleteStyle(styleData) {
       const result = await api.db.deleteStyle({ id: styleData.id });
@@ -175,6 +185,14 @@ export default {
     },
     // 重置表单
     reset() {
+      this.dataCondition = {
+        time: '',
+        alias: '',
+        type: ' ',
+        classify: ' ',
+      };
+      this.start = '';
+      this.end = '';
       this.getStyleData(1);
     },
     // 新增样式文件
@@ -182,6 +200,16 @@ export default {
       this.isComputedStyle = true;
       this.modalTitle = '增加样式文件';
       this.modalName = 'AddStyle';
+    },
+    //确认批量删除
+    doBatchDeleteStyle() {
+      this.$Modal.confirm({
+        title: '删除提示',
+        content: '<p>您确认要删除选中样式吗？</p>',
+        onOk: () => {
+          this.deleteBatchStyle();
+        },
+      });
     },
     // 批量删除样式文件
     async deleteBatchStyle() {
@@ -297,7 +325,7 @@ export default {
         <Button
           type="info"
           icon="close-round"
-          @click="deleteBatchStyle">批量删除</Button>
+          @click="doBatchDeleteStyle">批量删除</Button>
       </FormItem>
     </Form>
     <div class="style-table">
@@ -368,10 +396,6 @@ export default {
       }
     }
   }
-}
-/deep/.k-modal-wrap,
-/deep/.k-modal-mask {
-  z-index: 1002;
 }
 
 .k-spin-fix {

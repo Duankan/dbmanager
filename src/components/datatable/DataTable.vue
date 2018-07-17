@@ -67,7 +67,7 @@ export default {
             [this.$scopedSlots.default]
           );
         },
-        width: 550,
+        width: 560,
         height: 460,
       });
     },

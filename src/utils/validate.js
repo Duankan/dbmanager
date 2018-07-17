@@ -19,3 +19,16 @@ export function validateSpecChar(rule, value, callback) {
     callback();
   }
 }
+
+//校验名称是否符合规范
+export function validateName(rule, value, callback) {
+  if (value === '' && rule.nullable) {
+    callback();
+    return;
+  }
+  if (!/^[a-zA-Z][a-zA-Z0-9]*$/.test(value)) {
+    callback(new Error('名称可以是字母和数字，必须以字母开头'));
+  } else {
+    callback();
+  }
+}

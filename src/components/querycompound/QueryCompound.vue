@@ -539,7 +539,7 @@ export default {
 
 .condition {
   height: auto;
-  max-height: 155px;
+  max-height: 170px;
   overflow-y: auto;
 }
 </style>
