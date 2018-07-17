@@ -135,6 +135,7 @@ export default {
     },
     // 移除图层
     deleteLayer(root, node, data) {
+      console.log([data.name]);
       this.$store.commit('SET_MAP_GOCLAYER_DELETE', [data.name]);
     },
     // 移除全部图层

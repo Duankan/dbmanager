@@ -58,14 +58,14 @@ export default {
             MapEdit,
             {
               props: {
-                value: { data: this.node.resource },
+                value: { data: this.node, sto: this.$store },
               },
             },
             [this.$scopedSlots.default]
           );
         },
-        width: 800,
-        height: 700,
+        width: 730,
+        height: 680,
       });
     },
   },
