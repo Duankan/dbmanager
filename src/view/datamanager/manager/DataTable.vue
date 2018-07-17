@@ -31,7 +31,9 @@ export default {
                 <div class="rename">
                   <Input
                     value={params.row._alias}
-                    nativeOnInput={e => (params.row.alias = e.target.value)}
+                    nativeOnInput={e => {
+                      params.row.alias = e.target.value;
+                    }}
                     nativeOnClick={e => e.stopPropagation()}
                   />
                   <icon
@@ -40,12 +42,17 @@ export default {
                     size="14"
                     nativeOnClick={async e => {
                       e.stopPropagation();
+                      if (!params.row.alias) {
+                        params.row.alias = params.row._alias;
+                      }
                       if (!this.validateRename(params.row)) return;
                       if (utils.isDirectory(params.row)) {
                         await api.db.updateCatalog({
                           name: params.row.alias, //  目录名称
                           id: params.row.childId, // 目录childId
                         });
+                        this.$events.emit('on-common-tree-update');
+                        this.$events.emit('on-refresh-nav-tree');
                       }
                       if (utils.isGisResource(params.row)) {
                         await api.db.updateResourceInfo({
@@ -54,16 +61,9 @@ export default {
                         });
                       }
                       this.$Message.success('重命名操作成功！');
-                      this.$events.emit('on-common-tree-update');
-                      this.$store.commit(
-                        types.UPDATE_APP_NODES,
-                        Object.assign(params.row, {
-                          alias: params.row.alias,
-                          _alias: params.row.alias,
-                          name: params.row.alias,
-                          _rename: false,
-                        })
-                      );
+                      //刷新当前节点
+                      const currentNode = this.$store.state.app.currentDirectory;
+                      this.$store.dispatch(types.APP_NODES_FETCH, currentNode);
                     }}
                   />
                   <icon
@@ -283,6 +283,7 @@ export default {
     },
     handleData(data) {
       return data.map(item => {
+        item._checked = !!this.selectNodes.find(p => p.id == item.id);
         item._alias = item.alias ? item.alias : item.name;
         item._userName = item.userName ? item.userName : item.createusername || '-';
         item._size = item.size != undefined ? filesize(item.size) : '-';

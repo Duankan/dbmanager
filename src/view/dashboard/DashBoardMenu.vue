@@ -60,8 +60,8 @@ export default {
           this.title = '样式文件管理';
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.openWindow();
-          this.width = 660;
-          this.height = 525;
+          this.width = 700;
+          this.height = 540;
           break;
         case 'ManageCRS':
           this.title = '空间参考管理';

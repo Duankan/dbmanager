@@ -103,11 +103,6 @@ export default {
       <span>{{ node.orgName }}</span>
       <div class="mask">
         <Icon
-          type="ios-folder"
-          size="28"
-          color="#fff"></Icon>
-        <span>|</span>
-        <Icon
           v-if="editshow"
           type="gear-b"
           size="28"

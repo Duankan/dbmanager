@@ -24,9 +24,6 @@ export default {
     };
   },
   methods: {
-    sort(key) {
-      this.$store.commit(types.SORT_APP_NODES, { key });
-    },
     toggle() {
       this.$emit('update:component', this.component === 'DataTable' ? 'DataGrid' : 'DataTable');
     },
@@ -43,21 +40,7 @@ export default {
         v-model="search"
         icon="ios-search"
         placeholder="搜索您的数据"
-
       ></Input>
-      <Dropdown
-        placement="bottom-end"
-        @on-click="sort">
-        <Icon
-          type="more"
-          size="24"
-        ></Icon>
-        <DropdownMenu slot="list">
-          <DropdownItem name="name">文件名</DropdownItem>
-          <DropdownItem name="size">大小</DropdownItem>
-          <DropdownItem name="updateTime">修改时间</DropdownItem>
-        </DropdownMenu>
-      </Dropdown>
       <Icon
         :type="component === 'DataTable' ? 'navicon' : 'grid'"
         size="24"
