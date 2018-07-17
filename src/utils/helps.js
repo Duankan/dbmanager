@@ -91,6 +91,7 @@ export function iconClass(node) {
     case '5':
     case '6':
     case '7':
+    case '8':
       return node.expand ? 'folder-open' : 'folder';
     case '20001': //点线面
     case '20010': //csv
@@ -180,13 +181,37 @@ export function getStyleType(type) {
 }
 
 //schema保留字段
-const reservedFileds = ['geom', 'gid', 'x1', 'y1', 'x2', 'y2', 'Shape_Leng', 'Shape_Area'];
+const schemaReservedFileds = ['geom', 'gid', 'x1', 'y1', 'x2', 'y2', 'Shape_Leng', 'Shape_Area'];
 
 //过滤schema字段，去掉保留字段
 export function filterSchema(schemas) {
   let fields = [];
   schemas.forEach(p => {
-    if (reservedFileds.indexOf(p) < 0) {
+    if (schemaReservedFileds.indexOf(p) < 0) {
+      fields.push(p);
+    }
+  });
+  return fields;
+}
+
+//元数据保留字段
+const metaReservedFields = [
+  'geom',
+  'gid',
+  'x1',
+  'y1',
+  'x2',
+  'y2',
+  'ID',
+  'Shape_Leng',
+  'Shape_Area',
+];
+
+//元数据字段
+export function filterMeta(schemas) {
+  let fields = [];
+  schemas.forEach(p => {
+    if (metaReservedFields.indexOf(p) >= 0) {
       fields.push(p);
     }
   });
@@ -224,5 +249,35 @@ export function getDelelteStatus(type) {
   const filterStyle = deleteStatus.filter(item => item.value === String(type));
   if (filterStyle.length !== 0) {
     return filterStyle[0].label;
+  }
+}
+
+//获取资源对应的文件过滤条件
+export function getFileAccept(dataTypeId) {
+  switch (dataTypeId) {
+    case '10005': //doc
+      return 'application/msword';
+    case '10006': //txt
+      return 'text/plain';
+    case '10007': //csv
+      return '.csv';
+    case '10008': //excel
+      return 'application/vnd.ms-excel';
+    case '10009': //zip
+      return 'application/zip';
+    case '10010': //pdf
+      return 'application/pdf';
+    case '10099': //其他
+      return '*.*';
+    case '20001': //Shapezip
+    case '20002': //地名地址Shapezip
+    case '20005': //接图表Shapezip
+    case '20012': //csvzip
+    case '20016': //地名地址csvzip
+      return 'application/zip';
+    case '20099': //第三方资源
+      return '*.*';
+    default:
+      return '*.*';
   }
 }

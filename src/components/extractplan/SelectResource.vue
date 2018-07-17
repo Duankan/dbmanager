@@ -98,7 +98,6 @@ export default {
         //如果是矢量图层，写入schema参数
         if (layer.schema) {
           item.schema = helps.filterSchema(layer.schema.map(m => m.name)).join(',');
-          item.filter = null;
         }
         this.selectLayers.push(item);
       }

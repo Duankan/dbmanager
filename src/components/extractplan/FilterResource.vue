@@ -107,7 +107,10 @@ export default {
     applyCurrentChange() {
       let curLayer = this.selectLayers.find(p => p.resid == this.currentId);
       curLayer.schema = this.selectSchemas.join(',');
-      curLayer.filter = this.$refs.filterEditor.getFilter();
+      let filter = this.$refs.filterEditor.getFilter();
+      if (filter) {
+        curLayer.filter = filter;
+      }
     },
     //字段全选
     handleCheckAll() {

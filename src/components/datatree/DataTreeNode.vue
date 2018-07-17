@@ -67,6 +67,19 @@ export default {
         (this.nodeType === 'vector' || this.nodeType === 'raster') && !!this.nodeData.hasMetadata
       );
     },
+    //样式是否可编辑
+    isStyleEdit() {
+      if (!this.nodeData.shapeType) return false;
+      let shapeType = this.nodeData.shapeType.toUpperCase();
+      return (
+        shapeType === 'POINT' ||
+        shapeType === 'POLYLINE' ||
+        shapeType === 'LINESTRING' ||
+        shapeType === 'MULTILINESTRING' ||
+        shapeType === 'POLYGON' ||
+        shapeType === 'MULTIPOLYGON'
+      );
+    },
     // 是否可发布
     isPublish() {
       return (this.nodeType === 'vector' || this.nodeType === 'raster') && !this.isView;
@@ -104,36 +117,8 @@ export default {
       this.$store.commit(SET_MAP_SERVICELIST, {
         [layers]: this.currentNode.serviceList,
       });
-      // 查询
-      // const queryUrl = this.currentNode.serviceList.filter(service => service.servicestype === 6)[0]
-      //   .servicesurl;
-      // this.$store.commit(SET_BUS_ATTRIBUTE, { title: this.nodeData.alias, url: queryUrl });
     },
-    // 浏览元数据
-    async viewMeta() {
-      // const response = await api.db.findService({
-      //   resourceId: nodeData.id,
-      //   serivestatus: 0,
-      //   metadataLayer: 1,
-      // });
-      // const search = url.parse(response.data[0].servicesurl).search;
-      // const layers = search.layers ? search.layers : search.typeName;
-      // this.$store.commit(SET_MAP_SERVICELIST, { [layername]: response.data });
-    },
-    // 删除服务资源
-    // deleteNode() {
-    //   this.$Modal.confirm({
-    //     title: '删除服务资源',
-    //     content: `确认要删除服务名称为 <b>${
-    //       this.nodeData.name
-    //     }</b> 的服务资源吗？</br></br><strong>删除操作将不可恢复！！！</strong>`,
-    //     okText: '删除',
-    //     onOk: async () => {
-    //       await api.db.deleteResource([nodeData.id]);
-    //       // this.$emit('on-delete', currentNode);
-    //     },
-    //   });
-    // },
+    setStyle() {},
   },
 };
 </script>
@@ -154,20 +139,17 @@ export default {
         :currentNode="currentNode"
         :nodeData="nodeData"></slot>
       <SvgIcon
+        v-if="isStyleEdit"
+        :size="16"
+        title="样式设置"
+        icon-class="settings"
+        @click.native.stop="setStyle"/>
+      <SvgIcon
         v-if="isView"
         :size="16"
         icon-class="view"
+        title="查看地图"
         @click.native.stop="view"/>
-      <SvgIcon
-        v-if="isMetaView"
-        :size="16"
-        icon-class="view-meta"
-        @click.native.stop="viewMeta"/>
-        <!-- <SvgIcon
-        v-if="!isDirectory"
-        :size="16"
-        icon-class="delete"
-        @click.native.stop="deleteNode"/> -->
     </span>
   </div>
 </template>

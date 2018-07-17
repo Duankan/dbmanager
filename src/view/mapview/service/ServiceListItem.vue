@@ -31,8 +31,6 @@ export default {
   methods: {
     async view() {
       //把显示的图层一个个的都丢到MapView.vue里面去。在哪个页面做修改
-
-      this.$events.emit('lxc', this.node);
       const response = await api.db.findService({
         resourceId: this.node.resourceId, // 资源id
         serivestatus: 0, // 服务状态(0 开启 1 关闭)
@@ -41,9 +39,15 @@ export default {
       });
       const search = url.parse(this.node.serviceUrl).search;
       const layers = search.layers ? search.layers : search.typeName;
-      this.$store.commit(SET_MAP_SERVICELIST, {
-        [layers]: [response.data[0], response.data[1]],
-      });
+      if (response.data.length === 1) {
+        this.$store.commit(SET_MAP_SERVICELIST, {
+          [layers]: [response.data[0]],
+        });
+      } else {
+        this.$store.commit(SET_MAP_SERVICELIST, {
+          [layers]: [response.data[0], response.data[1]],
+        });
+      }
     },
     edit() {
       this.vm = this.$window({
@@ -95,13 +99,8 @@ export default {
         <Ellipsis :length="14">{{ node.title }}</Ellipsis>
         <Timeago :since="node.updateTime"></Timeago>
       </div>
-      <span>{{ node.userName }} - {{ node.orgName }}</span>
+      <span>{{ node.orgName }}</span>
       <div class="mask">
-        <Icon
-          type="ios-folder"
-          size="28"
-          color="#fff"></Icon>
-        <span>|</span>
         <Icon
           v-if="editshow"
           type="gear-b"

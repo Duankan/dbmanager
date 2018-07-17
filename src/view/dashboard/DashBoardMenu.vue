@@ -54,14 +54,14 @@ export default {
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.openWindow();
           this.width = 495;
-          this.height = 460;
+          this.height = 520;
           break;
         case 'ManageStyle':
           this.title = '样式文件管理';
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.openWindow();
-          this.width = 660;
-          this.height = 525;
+          this.width = 700;
+          this.height = 540;
           break;
         case 'ManageCRS':
           this.title = '空间参考管理';

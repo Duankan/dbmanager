@@ -21,7 +21,7 @@ export default {
     layerData() {
       const layerData = [
         {
-          title: '地图图层',
+          title: '全选图层',
           children: [],
           expand: true,
         },
@@ -140,6 +140,7 @@ export default {
     },
     // 移除全部图层
     removeLayer(root, node, data) {
+      debugger;
       const deleteLayers = data.children.map(layer => layer.name);
       this.$store.commit('SET_MAP_GOCLAYER_DELETE', deleteLayers);
     },

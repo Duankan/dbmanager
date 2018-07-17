@@ -10,35 +10,15 @@ export default {
     DataListTemp,
     Map,
   },
-
-  data() {
-    return {
-      LayerS: [],
-    };
-  },
-  events: {
-    //接收 点击显示图层的信息，
-    lxc: function(Layer) {
-      if (!Layer.ok) {
-        this.LayerS.push(Layer);
-      }
-      console.log(this.LayerS);
-      Layer.ok = 'true';
-    },
-  },
-  methods: {},
 };
 </script>
 
 <template>
   <div class="map-view">
     <Service />
-
-    <div
-      class="map-container"
-    >
+    <div class="map-container">
       <Map/>
-      <DataListTemp/>
+      <DataListTemp />
     </div>
   </div>
 </template>

@@ -4,6 +4,7 @@ import { date } from '@ktw/ktools';
 import { styleType, getStyleType } from '@/utils/helps';
 import AddStyle from './AddStyle';
 import DeleteStyle from './DeleteStyle';
+import { validateSpecChar } from '@/utils/validate';
 
 export default {
   name: 'ManageStyle',
@@ -57,7 +58,7 @@ export default {
         },
         {
           title: '操作',
-          width: 180,
+          width: 170,
           align: 'center',
           render: (h, params) => {
             return (
@@ -68,7 +69,7 @@ export default {
                 <Button type="success" size="small" onClick={() => this.downloadPlan(params.row)}>
                   下载
                 </Button>
-                <Button type="error" size="small" onClick={() => this.deleteStyle(params.row)}>
+                <Button type="error" size="small" onClick={() => this.doDeleteStyle(params.row)}>
                   删除
                 </Button>
               </div>
@@ -85,6 +86,10 @@ export default {
       deleteStyleData: [],
       deleteError: [],
       spinShow: false,
+      //表单验证规则
+      rules: {
+        alias: [{ validator: validateSpecChar, trigger: 'blur' }],
+      },
     };
   },
   created() {
@@ -93,6 +98,14 @@ export default {
     this.getStyleTypes();
   },
   methods: {
+    //执行查询
+    doQuery() {
+      this.$refs.managestyle.validate(valid => {
+        if (valid) {
+          this.getStyleData(1);
+        }
+      });
+    },
     // 查询样式
     async getStyleData(pageIndex) {
       const params = this.getParams(pageIndex);
@@ -131,7 +144,7 @@ export default {
     // 处理查询结果
     setCondition() {
       this.tableData.forEach(item => {
-        item.createTime = date.format(new Date(item.createTime), 'YYYY-M-D HH:mm');
+        item.createTime = date.format(new Date(item.createTime), 'YYYY-M-D');
         item.type = getStyleType(!item.type || item.type === '' ? ' ' : item.type);
         this.classify.forEach(classItem => {
           if (item.classify === classItem.value) {
@@ -145,6 +158,16 @@ export default {
     // 得到入库起止时间
     getTime(time) {
       [this.start, this.end] = time;
+    },
+    //确认删除
+    doDeleteStyle(styleData) {
+      this.$Modal.confirm({
+        title: '删除提示',
+        content: '<p>您确认要删除样式吗？</p>',
+        onOk: () => {
+          this.deleteStyle(styleData);
+        },
+      });
     },
     //删除样式文件
     async deleteStyle(styleData) {
@@ -162,6 +185,14 @@ export default {
     },
     // 重置表单
     reset() {
+      this.dataCondition = {
+        time: '',
+        alias: '',
+        type: ' ',
+        classify: ' ',
+      };
+      this.start = '';
+      this.end = '';
       this.getStyleData(1);
     },
     // 新增样式文件
@@ -169,6 +200,16 @@ export default {
       this.isComputedStyle = true;
       this.modalTitle = '增加样式文件';
       this.modalName = 'AddStyle';
+    },
+    //确认批量删除
+    doBatchDeleteStyle() {
+      this.$Modal.confirm({
+        title: '删除提示',
+        content: '<p>您确认要删除选中样式吗？</p>',
+        onOk: () => {
+          this.deleteBatchStyle();
+        },
+      });
     },
     // 批量删除样式文件
     async deleteBatchStyle() {
@@ -212,6 +253,10 @@ export default {
       this.isComputedStyle = isClose;
       this.getStyleData(1);
     },
+    resetStyle() {
+      this.$refs.styleModal.handleReset();
+      this.getStyleData(1);
+    },
   },
 };
 </script>
@@ -226,12 +271,11 @@ export default {
     <Form
       ref="managestyle"
       :model="dataCondition"
-      :label-width="90"
-      inline
-    >
+      :label-width="100"
+      :rules="rules"
+      inline>
       <FormItem
-        label="入库时间："
-      >
+        label="入库时间：">
         <DatePicker
           v-model="dataCondition.time"
           type="daterange"
@@ -240,20 +284,19 @@ export default {
           placeholder="请选择入库时间"
           @on-change="getTime" ></DatePicker>
       </FormItem>
-      <FormItem label="样式别名：">
+      <FormItem
+        label="样式别名："
+        prop="alias">
         <Input
           v-model="dataCondition.alias"
           placeholder="请输入样式别名"
-          clearable
-        ></Input>
+          clearable></Input>
       </FormItem>
       <FormItem
-        label="样式类型："
-      >
+        label="样式类型：">
         <Select
           v-model="dataCondition.type"
-          transfer
-        >
+          transfer>
           <Option
             v-for="item in styleType"
             :value="item.value"
@@ -261,26 +304,23 @@ export default {
         </Select>
       </FormItem>
       <FormItem
-        label="样式分类："
-      >
+        label="样式分类：">
         <Select
           v-model="dataCondition.classify"
-          transfer
-        >
+          transfer>
           <Option
             v-for="item in classify"
             :value="item.value"
             :key="item.value">{{ item.label }}</Option>
         </Select>
       </FormItem>
-      <FormItem
-      >
+      <FormItem>
         <Button
           type="primary"
           icon="ios-search"
-          @click="getStyleData(1)">查询</Button>
+          @click="doQuery">查询</Button>
         <Button
-          type="primary"
+          type="ghost"
           @click="reset">重置</Button>
         <Button
           type="info"
@@ -289,7 +329,7 @@ export default {
         <Button
           type="info"
           icon="close-round"
-          @click="deleteBatchStyle">批量删除</Button>
+          @click="doBatchDeleteStyle">批量删除</Button>
       </FormItem>
     </Form>
     <div class="style-table">
@@ -302,8 +342,7 @@ export default {
         border
         highlight-row
         size="small"
-        @on-selection-change="batchDelete"
-      >
+        @on-selection-change="batchDelete">
       </Table>
       <Page
         :total="pageCount"
@@ -317,15 +356,14 @@ export default {
     <Modal
       v-model="isComputedStyle"
       :title="modalTitle"
-      @on-cancel="getStyleData(1)"
-    >
+      @on-cancel="resetStyle">
       <component
+        ref="styleModal"
         :is="modalName"
         :is-computed-style="isComputedStyle"
         :classify="classify"
         :error-data="deleteError"
-        @on-close-style="closeStyle"
-      ></component>
+        @on-close-style="closeStyle"></component>
       <div slot="footer">
       </div>
     </Modal>
@@ -337,8 +375,15 @@ export default {
   position: reletive;
   /deep/.k-form-item {
     min-width: 277px;
-    margin-bottom: 15px;
     margin-right: 15px;
+  }
+
+  /deep/.k-input {
+    width: 186px;
+  }
+
+  /deep/.k-select {
+    width: 186px;
   }
 
   .style-table {
@@ -356,10 +401,6 @@ export default {
       }
     }
   }
-}
-/deep/.k-modal-wrap,
-/deep/.k-modal-mask {
-  z-index: 1002;
 }
 
 .k-spin-fix {

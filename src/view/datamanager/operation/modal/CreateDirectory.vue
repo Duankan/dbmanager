@@ -1,6 +1,7 @@
 <script>
 import * as types from '@/store/types';
 import api from 'api';
+import { validateRequire } from '@/utils/validate';
 
 export default {
   name: 'CreateDirectory',
@@ -20,10 +21,13 @@ export default {
       },
       rules: {
         name: [
-          { required: true, message: '文件夹名称不能为空', trigger: 'blur' },
+          { validator: validateRequire, message: '文件夹名称不能为空', trigger: 'blur' },
           { type: 'string', max: 64, message: '文件夹名称不能超过64字符', trigger: 'blur' },
         ],
         type: [{ required: true, message: '文件夹类型不能为空', trigger: 'blur' }],
+        description: [
+          { type: 'string', max: 256, message: '描述信息不能超过256字符', trigger: 'blur' },
+        ],
       },
     };
   },
@@ -38,6 +42,7 @@ export default {
   },
   methods: {
     visibleChange(visible) {
+      if (!visible) this.resetForm();
       this.$emit('input', visible);
     },
     confirm() {
@@ -57,6 +62,14 @@ export default {
           this.$refs['form'].resetFields();
         }
       });
+    },
+    resetForm() {
+      this.form = {
+        name: '新建文件夹',
+        type: '1',
+        description: '',
+      };
+      this.$refs.form.resetFields();
     },
   },
 };
@@ -121,7 +134,8 @@ export default {
     margin-bottom: 0;
   }
   .type-description {
-    float: right;
+    margin-left: 20px;
+    color: #666666;
   }
 }
 </style>

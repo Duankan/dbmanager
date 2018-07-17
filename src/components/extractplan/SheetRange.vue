@@ -47,6 +47,8 @@ export default {
       selectSheetNos: [],
       //提取方式
       extractTypes: ['单个文件', '多个文件'],
+      //选择的提取方式
+      coordsType: 0,
       //上传服务地址
       uploadUrl: `${config.project.basicUrl}/service/gisserver/getwktsbyshpzip?count=1`,
       //图幅shape文件名
@@ -71,6 +73,7 @@ export default {
     if (this.isEdit && this.range.splacetype == 1) {
       this.selectScale = this.range.extractlevel;
       this.selectSheetNos = this.range.rangeInfo.mapnames;
+      this.coordsType = this.range.rangeInfo.coordstype;
     } else {
       this.selectScale = this.scales.length > 0 ? this.scales[0].code : null;
     }
@@ -214,6 +217,9 @@ export default {
     //获取提取范围
     getExtractRange() {
       let names = this.selectSheetNos.join(',');
+      this.range.schemalist.forEach(p => {
+        p.coordsType = this.coordsType;
+      });
       return {
         splacetype: 1,
         splacelist: this.selectSheetNos,
@@ -222,6 +228,7 @@ export default {
         extract: this.range.extract,
         coordinate: null,
         projid: null,
+        schemalist: this.range.schemalist,
       };
     },
   },
@@ -312,7 +319,7 @@ export default {
       </div>
       <div class="form-row">
         <label class="form-label">提取方式：</label>
-        <RadioGroup v-model="range.extract">
+        <RadioGroup v-model="coordsType">
           <Radio
             v-for="(item,index) in extractTypes"
             :key="index"

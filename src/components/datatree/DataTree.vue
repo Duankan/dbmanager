@@ -61,6 +61,9 @@ export default {
       default: '',
     },
   },
+  events: {
+    'on-refresh-nav-tree': 'refreshTree',
+  },
   data() {
     return {
       treeData: [],
@@ -82,8 +85,14 @@ export default {
     });
   },
   methods: {
+    //刷新目录树
+    async refreshTree() {
+      await this.loadRootNode();
+      this.$refs.tree.$children[0].handleExpand();
+    },
     // 获取根节点信息
     async loadRootNode() {
+      this.treeData = [];
       const response = await api.public.findCatalog({
         owner: 1,
         ownerId: this.$appUser.orgid,

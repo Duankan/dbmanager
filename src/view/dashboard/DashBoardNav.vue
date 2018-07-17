@@ -56,7 +56,7 @@ header {
     }
     span {
       line-height: 60px;
-      font-size: 20px;
+      font-size: 24px;
       margin: 0 60px 0 6px;
     }
   }

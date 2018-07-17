@@ -13,7 +13,6 @@ export default {
   data() {
     return {
       dictionary: false,
-      type: 'normal',
       title: '文件上传',
       uploaderModal: false,
       directoryModal: false,
@@ -24,16 +23,16 @@ export default {
     'on-upload': 'invokeUpload',
   },
   methods: {
+    //接收上传事件
     invokeUpload(params) {
-      if (params) {
-        for (const key in params) {
-          this[key] = params[key];
-        }
+      //混合上传参数(dictionary,title)
+      for (let key in params) {
+        this[key] = params[key];
       }
       this.uploaderModal = true;
     },
     upload(name) {
-      // this.$events.emit('on-upload');
+      this.title = '文件上传';
       this.uploaderModal = true;
     },
     linkService() {
@@ -72,7 +71,7 @@ export default {
     </Dropdown>
     <LinkThirdPartService v-model="linkServiceModal" />
     <Button
-      type="ghost"
+      type="primary"
       @click="directoryModal = true">
       <Icon
         type="folder"
@@ -83,8 +82,7 @@ export default {
     <ResourceUploader
       v-model="uploaderModal"
       :title="title"
-      :dictionary="dictionary"
-      :type="type"/>
+      :dictionary="dictionary"/>
     <CreateDirectory v-model="directoryModal"/>
   </div>
 </template>

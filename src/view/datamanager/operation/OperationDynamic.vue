@@ -4,6 +4,7 @@ import MoveTo from './modal/MoveTo';
 import QuickView from './modal/QuickView';
 import ViewInformation from './modal/ViewInformation';
 import DeleteResource from './modal/DeleteResource';
+import UploadMataData from './modal/UploadMataData';
 import * as types from '@/store/types';
 import { isDirectory, isFile, isVector, isGisResource, canView } from '@/utils';
 
@@ -14,6 +15,7 @@ export default {
     QuickView,
     ViewInformation,
     DeleteResource,
+    UploadMataData,
   },
   data() {
     return {
@@ -22,16 +24,20 @@ export default {
       batchPublishModal: false,
       batchPublishNodes: [],
       quickViewModal: false,
-      quickViewNode: {},
+      isMeta: false,
       moveToModal: false,
       moveNodes: [],
       informationModal: false,
       informationNode: {},
       deleteModal: false,
       deleteNodes: [],
+      updateMataModal: false,
     };
   },
   computed: {
+    current() {
+      return this.$store.state.app.currentDirectory;
+    },
     selectNodes() {
       return this.$store.state.app.selectNodes;
     },
@@ -56,6 +62,11 @@ export default {
         this.selectNodes[0] &&
         isGisResource(this.selectNodes[0]) &&
         !this.selectNodes[0].hasMetadata
+      );
+    },
+    showViewMeta() {
+      return (
+        this.selectNodes[0] && isGisResource(this.selectNodes[0]) && this.selectNodes[0].hasMetadata
       );
     },
     showAppendData() {
@@ -98,8 +109,8 @@ export default {
   },
   methods: {
     invokeQuickView(node) {
+      this.isMeta = false;
       this.quickViewModal = true;
-      this.quickViewNode = node;
     },
     invokeQuickPublish(node) {
       this.publishModal = true;
@@ -145,8 +156,8 @@ export default {
       );
     },
     quickView() {
+      this.isMeta = false;
       this.quickViewModal = true;
-      this.quickViewNode = this.selectNodes[0];
     },
     publish() {
       if (this.single) {
@@ -158,10 +169,20 @@ export default {
       }
     },
     metaData() {
-      this.$events.emit('on-upload', { title: '元数据补录', type: 'metaData' });
+      this.updateMataModal = true;
+    },
+    viewMeta() {
+      this.isMeta = true;
+      this.quickViewModal = true;
+    },
+    async deleteMeta() {
+      let node = this.selectNodes[0];
+      await api.db.deleteMetaData({ id: node.id });
+      await this.$store.dispatch(types.APP_NODES_FETCH, this.current);
+      this.$Message.success('删除元数据成功！');
     },
     appendData() {
-      this.$events.emit('on-upload', { title: '数据追加', node: this.selectNodes[0] });
+      // this.$events.emit('on-upload', { title: '数据追加', node: this.selectNodes[0] });
     },
     moveTo() {
       this.moveToModal = true;
@@ -208,12 +229,22 @@ export default {
         v-if="showQuickView"
         :disabled="!single"
         type="ghost"
-        @click="quickView">快速浏览</Button>
+        @click="quickView">浏览地图</Button>
       <Button
         v-if="showMetaData"
         :disabled="!single"
         type="ghost"
         @click="metaData">元数据补录</Button>
+      <Button
+        v-if="showViewMeta"
+        :disabled="!single"
+        type="ghost"
+        @click="viewMeta">浏览元数据</Button>
+      <Button
+        v-if="showViewMeta"
+        :disabled="!single"
+        type="ghost"
+        @click="deleteMeta">删除元数据</Button>
       <Button
         v-if="showAppendData"
         :disabled="!single"
@@ -253,7 +284,7 @@ export default {
       :nodes="batchPublishNodes"></BatchPublish>
     <QuickView
       v-model="quickViewModal"
-      :node="quickViewNode"></QuickView>
+      :is-meta="isMeta"></QuickView>
     <ViewInformation
       v-model="informationModal"
       :node="informationNode"></ViewInformation>
@@ -263,6 +294,9 @@ export default {
     <DeleteResource
       v-model="deleteModal"
       :nodes="deleteNodes"></DeleteResource>
+    <UploadMataData
+      v-model="updateMataModal">
+    </UploadMataData>
   </div>
 </template>
 

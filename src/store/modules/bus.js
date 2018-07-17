@@ -76,16 +76,6 @@ const bus = {
       state.bottomPaneState = 0;
     },
   },
-  actions: {
-    async [types.SET_BUS_SELECT_PLANDATA]({ commit, state, rootState }, options) {
-      const response = await api.db.findResourcePlan(options);
-      if (response.status === 200) {
-        commit(types.SET_BUS_PLANDATA, cloneDeep(response.data));
-      } else {
-        commit(types.SET_BUS_PLANDATA, [response, 'dd']);
-      }
-    },
-  },
 };
 
 export default bus;
