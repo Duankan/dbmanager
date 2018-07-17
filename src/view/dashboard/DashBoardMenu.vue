@@ -46,7 +46,7 @@ export default {
           this.title = '空间查询';
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.openWindow();
-          this.width = 451;
+          this.width = 495;
           this.height = 418;
           break;
         case 'QueryCompound':

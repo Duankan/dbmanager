@@ -29,7 +29,7 @@ const iconConfig = [
   },
   {
     content: '取消绘制',
-    itemClass: 'draw-delete',
+    itemClass: 'draw-clear',
   },
 ];
 export default {
@@ -77,7 +77,7 @@ export default {
       iconConfig,
       fileConfig: {
         content: '上传面文件',
-        itemClass: 'draw-file',
+        itemClass: 'draw-upload',
       },
       uploadAction: '#',
     };

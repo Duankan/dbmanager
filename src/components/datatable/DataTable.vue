@@ -113,7 +113,6 @@ export default {
     doQuery(options) {
       options.forEach(option => {
         this.title = option.title;
-        delete option.title;
         this.pageIndex = option.pageIndex;
         this.attributeType = option.attributeType;
         this.tableLoading = true;
@@ -333,6 +332,6 @@ export default {
   }
 }
 .k-page {
-  margin: 10px 0;
+  margin: 5px 0;
 }
 </style>

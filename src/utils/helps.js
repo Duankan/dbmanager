@@ -181,7 +181,18 @@ export function getStyleType(type) {
 }
 
 //schema保留字段
-const schemaReservedFileds = ['geom', 'gid', 'x1', 'y1', 'x2', 'y2', 'Shape_Leng', 'Shape_Area'];
+const schemaReservedFileds = [
+  'the_geom',
+  'geom',
+  'gid',
+  'x1',
+  'y1',
+  'x2',
+  'y2',
+  'Shape_Leng',
+  'Shape_Area',
+  'bbox',
+];
 
 //过滤schema字段，去掉保留字段
 export function filterSchema(schemas) {

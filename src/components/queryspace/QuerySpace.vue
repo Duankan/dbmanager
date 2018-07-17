@@ -85,7 +85,7 @@ export default {
     getParams() {
       let queryOptions;
       const options = {
-        title: '空间查询',
+        title: `${this.queryName}`,
         pageIndex: 1,
         pageSize: 10,
         url: this.serviseUrl,
