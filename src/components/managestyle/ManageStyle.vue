@@ -253,6 +253,10 @@ export default {
       this.isComputedStyle = isClose;
       this.getStyleData(1);
     },
+    resetStyle() {
+      this.$refs.styleModal.handleReset();
+      this.getStyleData(1);
+    },
   },
 };
 </script>
@@ -352,8 +356,9 @@ export default {
     <Modal
       v-model="isComputedStyle"
       :title="modalTitle"
-      @on-cancel="getStyleData(1)">
+      @on-cancel="resetStyle">
       <component
+        ref="styleModal"
         :is="modalName"
         :is-computed-style="isComputedStyle"
         :classify="classify"

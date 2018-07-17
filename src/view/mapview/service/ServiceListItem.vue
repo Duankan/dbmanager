@@ -31,7 +31,6 @@ export default {
   methods: {
     async view() {
       //把显示的图层一个个的都丢到MapView.vue里面去。在哪个页面做修改
-      this.$events.emit('lxc', this.node);
       const response = await api.db.findService({
         resourceId: this.node.resourceId, // 资源id
         serivestatus: 0, // 服务状态(0 开启 1 关闭)

@@ -263,6 +263,7 @@ export default {
         :action="action"
         :on-success="handleSuccess"
         :show-upload-list="false"
+        accept=".sld"
         multiple
         type="drag">
         <div class="style-upload">

@@ -57,6 +57,9 @@ export default {
       this.tableData = [];
       this.$emit('on-close-style', false);
     },
+    handleReset() {
+      this.tableData = [];
+    },
   },
 };
 </script>
