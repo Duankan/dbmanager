@@ -2,11 +2,17 @@
 <script>
 export default {
   name: 'High',
+  props: {
+    msg: { type: Object, default: () => {} },
+  },
   data() {
     return {
       soleAndSection: '', //选择是单选还是分段数
       proportion: '', //颜色渐变的数组
     };
+  },
+  created() {
+    console.log(this.msg.data);
   },
 };
 </script>

@@ -2,9 +2,6 @@
 <script>
 export default {
   name: 'Currency',
-  props: {
-    msg: { type: Object, default: () => {} },
-  },
   data() {
     return {
       proportion: [
@@ -45,26 +42,7 @@ export default {
           label: '100000',
         },
       ],
-      rulename: '', //绑定的规格名称的值
-      xSkewing: 0, //绑定x偏移值
-      ySkewing: 0, //绑定y偏移值
-      maxRatio: '',
-      minRatio: '',
     };
-  },
-  created() {
-    this.getRuleName();
-  },
-  methods: {
-    //获取规格名称
-    async getRuleName() {
-      const params = {
-        stylename: this.msg.data.styles,
-      };
-      let cc = await api.db.getsldbyname(params);
-
-      this.rulename = cc.data.nameLayers['0'].name;
-    },
   },
 };
 </script>
@@ -77,24 +55,21 @@ export default {
         规格名称：
       </span>
       <Input
-        v-model="rulename"
         placeholder="Enter something..."
         style="width: 300px"></Input>
     </p>
     <p class="p">
       <span>
-        偏移xy&#160;&#160;&#160;：
+        偏移&#160;&#160;&#160;&#160;&#160;&#160;&#160;：
       </span>
       <InputNumber
         :max="10"
         :min="-10"
-        v-model="xSkewing"
         style="width: 150px"
       ></InputNumber>
       <InputNumber
         :max="10"
         :min="-10"
-        v-model="ySkewing"
         style="width: 150px" ></InputNumber>
     </p>
     <p class="p">
@@ -102,9 +77,7 @@ export default {
         最大比例尺：
       </span>
       <Select
-        v-model="maxRatio"
-        style="width:289px"
-      >
+        style="width:289px">
         <Option
           v-for="item in proportion"
           :value="item.value"
@@ -116,7 +89,6 @@ export default {
         最小比例尺：
       </span>
       <Select
-        v-model="minRatio"
         class="p"
         style="width:289px;margin: 0;">
         <Option

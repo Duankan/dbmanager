@@ -46,19 +46,6 @@ export default {
       ></InputNumber>
     </p>
     <p class="p">
-      <span>旋转:</span>
-      <InputNumber
-        :max="360"
-        :min="-360"
-        :step="45"
-        v-model="angle"
-        style="width: 170px"
-      ></InputNumber>
-      <Select
-        style="width:165px">
-      </Select>
-    </p>
-    <p class="p">
       <span>字体:</span>
       <ColorPicker
         v-model="colors"
@@ -76,6 +63,24 @@ export default {
         class="colorsStyle" />
       <InputNumber
         :max="20"
+        :min="0"
+        style="width: 300px"
+      ></InputNumber>
+    </p>
+
+    <p class="p">
+      <span>垂直偏移:</span>
+      <InputNumber
+        :max="2000"
+        :min="0"
+        style="width: 300px"
+      ></InputNumber>
+    </p>
+
+    <p class="p">
+      <span>初始间隔:</span>
+      <InputNumber
+        :max="2000"
         :min="0"
         style="width: 300px"
       ></InputNumber>

@@ -23,20 +23,21 @@ export default {
     };
   },
   created() {
-    console.log(this.value);
-    if (this.value.data.shapeType.toUpperCase() == 'POLYGON') {
+    if (this.value.data.resource.shapeType.toUpperCase() == 'POLYGON') {
       this.labelName = '面类型';
     }
-    if (this.value.data.shapeType.toUpperCase() == 'POINT') {
+    if (this.value.data.resource.shapeType.toUpperCase() == 'POINT') {
       this.labelName = '点类型';
     }
-    if (this.value.data.shapeType.toUpperCase() == 'LINESTRING') {
+    if (this.value.data.resource.shapeType.toUpperCase() == 'LINESTRING') {
       this.labelName = '线类型';
     }
-    if (this.value.data.shapeType == 'polyline') {
+    if (this.value.data.resource.shapeType == 'polyline') {
       this.labelName = '线类型';
     }
     this.selectOut = this.labelName;
+    //把是什么类型的也传过去因为这里做了判断
+    this.value.data.resource.type = this.labelName;
   },
   methods: {
     leave() {
@@ -49,68 +50,39 @@ export default {
 <template>
   <div class="main">
 
-    <div class="left">
-      <Form
-        :label-width="80"
-      >
-        <FormItem style="margin: 10px;" >
-          <RadioGroup
-            v-model="selectOut"
-            type="button"
-          >
-            <Radio
-              :label="labelName"
-            ></Radio>
-            <Radio label="高级"></Radio>
-            <Radio label="选择样式"></Radio>
-          </RadioGroup>
-        </FormItem>
-        <FormItem >
-          <PolygonType v-if="selectOut=='面类型'"></PolygonType>
-          <LineType v-if="selectOut=='线类型'"></LineType>
-          <PointType v-if="selectOut=='点类型'"></PointType>
-          <High v-if="selectOut=='高级'"></High>
-          <SelectType v-if="selectOut=='选择样式'"></SelectType>
-        </FormItem>
-      </Form>
-    </div>
-    <div class="right">
-      <div class="right-top"></div>
-      <div class="right-bottom ">
-        <Button
-          type="ghost"
-          icon="ios-plus"
 
-        ></Button>
-        <Button
-          type="ghost"
-          icon="ios-plus-outline"></Button>
-        <Button
-          type="ghost"
-          icon="soup-can"></Button>
-        <Button
-          type="ghost"
-          icon="soup-can-outline"></Button>
-    </ButtonGroup>
-      </div>
-    </div>
+    <Form
+      :label-width="8"
+    >
+      <FormItem style="margin: 8px 0 0 0;" >
+        <RadioGroup
+          v-model="selectOut"
+          type="button"
+        >
+          <Radio label="选择样式"></Radio>
+          <Radio
+            :label="labelName"
+          ></Radio>
+          <Radio label="高级"></Radio>
 
-    <div class="bottom">
-      <Button
-        style="float: right;margin:2px;"
-        type="primary "
-        icon="ios-search">另存</Button>
-      <Button
-        style="float: right;margin:2px;"
-        type="primary "
-        icon="ios-search">保存</Button>
-      <Button
-        style="float: right;margin:2px;"
-        type="primary"
-        icon="ios-search">取消</Button>
+        </RadioGroup>
+      </FormItem>
+      <FormItem >
+        <PolygonType
+          v-if="selectOut=='面类型'"
+          :msg="value"></PolygonType>
+        <LineType v-if="selectOut=='线类型'"></LineType>
+        <PointType v-if="selectOut=='点类型'"></PointType>
+        <High
+          v-if="selectOut=='高级'"
+          :msg="value"></High>
+        <SelectType
+          v-if="selectOut=='选择样式'"
+          :msg="value"></SelectType>
+      </FormItem>
+    </Form>
 
 
-    </div>
 
   </div>
 
@@ -118,35 +90,9 @@ export default {
 
 <style lang="less" scoped>
 .main {
-  width: 100%;
+  width: 700px;
   float: left;
-}
-.left {
-  width: 70%;
-  float: left;
-  height: 550px;
+  height: 600px;
   border: 1px solid rgb(245, 218, 169);
-}
-.right {
-  width: 30%;
-  height: 80%;
-
-  float: left;
-  height: 550px;
-}
-.right-top {
-  height: 92%;
-  border: 1px solid rgb(245, 218, 169);
-  margin: 0 0 1% 0;
-}
-.right-bottom {
-  height: 7%;
-  border: 1px solid rgb(245, 218, 169);
-}
-.bottom {
-  width: 100%;
-  height: 60px;
-  border: 1px solid rgb(245, 218, 169);
-  float: left;
 }
 </style>

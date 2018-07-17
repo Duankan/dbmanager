@@ -31,6 +31,7 @@ export default {
   methods: {
     async view() {
       //把显示的图层一个个的都丢到MapView.vue里面去。在哪个页面做修改
+
       this.$events.emit('lxc', this.node);
       const response = await api.db.findService({
         resourceId: this.node.resourceId, // 资源id
@@ -53,14 +54,14 @@ export default {
             MapEdit,
             {
               props: {
-                value: { data: this.node.resource },
+                value: { data: this.node, sto: this.$store },
               },
             },
             [this.$scopedSlots.default]
           );
         },
-        width: 800,
-        height: 700,
+        width: 730,
+        height: 680,
       });
     },
   },
