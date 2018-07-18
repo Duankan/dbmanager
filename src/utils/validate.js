@@ -26,8 +26,8 @@ export function validateName(rule, value, callback) {
     callback();
     return;
   }
-  if (!/^[a-zA-Z][a-zA-Z0-9]*$/.test(value)) {
-    callback(new Error('名称可以是字母和数字，必须以字母开头'));
+  if (!/^[a-zA-Z][a-zA-Z0-9_]*$/.test(value)) {
+    callback(new Error('名称可以是字母、数字、下划线，必须以字母开头'));
   } else {
     callback();
   }

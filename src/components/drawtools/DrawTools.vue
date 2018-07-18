@@ -29,7 +29,7 @@ const iconConfig = [
   },
   {
     content: '取消绘制',
-    itemClass: 'draw-clear',
+    itemClass: 'draw-delete',
   },
 ];
 export default {
