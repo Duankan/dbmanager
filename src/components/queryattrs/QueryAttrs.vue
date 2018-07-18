@@ -399,7 +399,7 @@ export default {
         type="primary"
         @click="handleSubmit('formDynamic')">查询</Button>
       <Button
-        type="primary"
+        type="success"
         @click="loadQueryData">数据提取</Button>
       <Button
         type="ghost"
