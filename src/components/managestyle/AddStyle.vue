@@ -163,7 +163,6 @@ export default {
         this.$Message.success(`文件${file.name}上传成功!`);
       } else {
         this.setUploadTitle = '样式文件上传失败';
-        debugger;
         this.errorData.push({
           name: file.name,
           message: res.message,
@@ -354,11 +353,13 @@ export default {
     <div
       class="style-button">
       <Button
+        :disabled="isUpload"
         type="primary"
         long
         @click="doUpload">确定
       </Button>
       <Button
+        :disabled="isUpload"
         type="ghost"
         long
         @click="handleReset">重置

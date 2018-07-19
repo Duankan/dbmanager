@@ -71,6 +71,10 @@ export default {
       type: String,
       default: 'meters',
     },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -199,6 +203,7 @@ export default {
       :size="buttonSize"
       :shape="shape"
       :title="item.content"
+      :disabled="disabled"
       @click="drawGeometry(item.itemClass)">
       <SvgIcon
         :icon-class="item.itemClass"
@@ -210,8 +215,8 @@ export default {
       :type="buttonType"
       :size="buttonSize"
       :shape="shape"
-      :title="fileConfig.content"
-    >
+      :disabled="disabled"
+      :title="fileConfig.content">
       <Upload
         ref="uploadCtrl"
         :on-success="uploadSuccess"

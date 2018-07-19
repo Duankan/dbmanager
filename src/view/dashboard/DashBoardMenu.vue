@@ -89,7 +89,7 @@ export default {
           this.title = '叠加分析';
           this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.openWindow();
-          this.width = 410;
+          this.width = 500;
           this.height = 500;
           break;
         default:

@@ -90,6 +90,9 @@ export default {
       const getUnit = unit.filter(item => item.name === this.queryItem.bufferUnit);
       return getUnit[0].value;
     },
+    hasLayer() {
+      return this.queryItem.layers !== '';
+    },
   },
   methods: {
     filterCommonField() {
@@ -491,6 +494,7 @@ export default {
         :layer-crs="layerCrs"
         :radius="queryItem.buffer"
         :units="setUnits"
+        :disabled="!hasLayer"
         @on-get-drawlayer="getDrawLayer"></DrawTools>
     </FormItem>
     <FormItem label="提取方式：">

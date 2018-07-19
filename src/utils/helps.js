@@ -77,6 +77,11 @@ export function isGisResource(node) {
   return isVector(node) || isRaster(node);
 }
 
+//是否能追加数据
+export function canAppend(node) {
+  return node.typeId == '20001' || node.typeId == '20002';
+}
+
 export function canView(serviceList) {
   return serviceList.length >= 2 || (serviceList.length === 1 && serviceList[0].servicestype === 5);
 }

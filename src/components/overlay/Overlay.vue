@@ -32,6 +32,11 @@ export default {
       analysLoading: false,
     };
   },
+  computed: {
+    hasLayer() {
+      return this.overlayItem.layer1 !== '' && this.overlayItem.layer2 !== '';
+    },
+  },
   methods: {
     selectLayer(layers) {
       // 字段查询
@@ -167,6 +172,7 @@ export default {
     <FormItem label="绘制方式：">
       <DrawTools
         ref="drawTools"
+        :disabled="!hasLayer"
         @on-get-drawlayer="getDrawLayer"></DrawTools>
     </FormItem>
     <FormItem
