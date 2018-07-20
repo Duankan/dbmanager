@@ -14,11 +14,30 @@ export default {
     return {
       filterText: '',
       showList: true,
+      total: 0,
     };
   },
   computed: {
     componentId() {
       return this.showList ? 'ServiceList' : 'ServiceTree';
+    },
+  },
+  mounted() {
+    this.getServiceCount();
+  },
+  methods: {
+    //获取服务数量
+    async getServiceCount() {
+      const response = await api.db.findSevicePageList({
+        objCondition: {
+          userId: this.$appUser.id,
+          serviceType: '12,5',
+          title: this.filterText,
+        },
+        pageIndex: 1,
+        pageSize: 10,
+      });
+      this.total = response.data.pageInfo.totalCount;
     },
   },
 };
@@ -30,7 +49,8 @@ export default {
       v-model="filterText"
       placeholder="请输入检索服务资源"
       icon="ios-search-strong"
-      clearable>
+      clearable
+      @on-change="getServiceCount">
     </Input>
     <div class="service-filter">
       <div class="filter-list">
@@ -46,7 +66,7 @@ export default {
       </Poptip>
     </div>
     <div class="service-title">
-      <h4>服务资源</h4>
+      <h4>服务资源({{ total }}条)</h4>
       <Tooltip
         :content="showList ? '树形展示' : '列表展示'"
         placement="right"

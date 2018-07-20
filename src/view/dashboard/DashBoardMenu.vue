@@ -37,35 +37,36 @@ export default {
       switch (name) {
         case 'QueryAttrs':
           this.title = '属性查询';
-          this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
+          this.$store.commit(types.SET_APP_DATATABLE, 'DataTable');
+          this.$store.commit(types.SET_BUTTOM_PANE_TITLE, this.title);
           this.openWindow();
           this.height = 390;
           this.width = 420;
           break;
         case 'QuerySpace':
           this.title = '空间查询';
-          this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
+          this.$store.commit(types.SET_APP_DATATABLE, 'DataTable');
+          this.$store.commit(types.SET_BUTTOM_PANE_TITLE, this.title);
           this.openWindow();
           this.width = 495;
           this.height = 418;
           break;
         case 'QueryCompound':
           this.title = '复合查询';
-          this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
+          this.$store.commit(types.SET_APP_DATATABLE, 'DataTable');
+          this.$store.commit(types.SET_BUTTOM_PANE_TITLE, this.title);
           this.openWindow();
           this.width = 495;
           this.height = 520;
           break;
         case 'ManageStyle':
           this.title = '样式文件管理';
-          this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.openWindow();
           this.width = 700;
           this.height = 540;
           break;
         case 'ManageCRS':
           this.title = '空间参考管理';
-          this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
           this.openWindow();
           this.width = 660;
           this.height = 615;
@@ -74,20 +75,23 @@ export default {
           moduleName = null;
           this.$store.commit(types.SET_APP_DATATABLE, 'ExtractPlan');
           this.$store.commit(types.OPEN_BOTTOM_PANE);
+          this.$store.commit(types.SET_BUTTOM_PANE_TITLE, '自定义方案提取');
           this.openWindow();
           this.width = 0;
           this.height = 0;
           break;
         case 'Statistics':
           this.title = '基础统计';
-          this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
+          this.$store.commit(types.SET_APP_DATATABLE, 'DataTable');
+          this.$store.commit(types.SET_BUTTOM_PANE_TITLE, this.title);
           this.openWindow();
           this.width = 440;
           this.height = 435;
           break;
         case 'Overlay':
           this.title = '叠加分析';
-          this.$store.commit(types.SET_APP_DATATABLE, 'AttributeTable');
+          this.$store.commit(types.SET_APP_DATATABLE, 'DataTable');
+          this.$store.commit(types.SET_BUTTOM_PANE_TITLE, this.title);
           this.openWindow();
           this.width = 500;
           this.height = 500;

@@ -1,7 +1,13 @@
 <script>
 import * as types from '@/store/types';
+import DataTable from '@/components/datatable/DataTable';
+import PlanExtract from '@/components/extractplan/PlanExtract';
 export default {
   name: 'DataListTemp',
+  components: {
+    DataTable,
+    PlanExtract,
+  },
   data() {
     return {
       arrowStyle: 'chevron-down',
@@ -23,8 +29,19 @@ export default {
     dataTable() {
       return this.$store.state.bus.currentDataTable;
     },
+    title() {
+      return this.$store.state.bus.bottomPaneTitle;
+    },
     paneState() {
       return this.$store.state.bus.bottomPaneState;
+    },
+  },
+  watch: {
+    paneState(val) {
+      if (!val) {
+        let content = this.$refs.content;
+        content.dispose && content.dispose();
+      }
     },
   },
   methods: {
@@ -52,7 +69,7 @@ export default {
       :style="style"
       class="attribute-table" >
       <Card dis-hover>
-        <p slot="title">数据属性</p>
+        <p slot="title">{{ title }}</p>
         <div slot="extra">
           <Icon
             :type="arrowStyle"
@@ -62,8 +79,9 @@ export default {
             type="close"
             @click.native="close"></Icon>
         </div>
-        <ExtractPlan v-if = "dataTable==='ExtractPlan'"/>
-        <DataTable v-if = "dataTable==='AttributeTable'"/>
+        <component
+          ref="content"
+          :is="dataTable"></component>
       </Card>
     </div>
   </transition>

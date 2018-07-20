@@ -91,16 +91,21 @@ export default {
     };
   },
   events: {
-    'close-plan-window': 'closePlanWindow',
+    'close-plan-window': 'refreshPlanList',
   },
   created() {
     this.getPagedPlan();
   },
   methods: {
+    //关闭Window，并刷新列表
+    refreshPlanList() {
+      this.closePlanWindow();
+      this.getPagedPlan();
+    },
     //关闭Window
     closePlanWindow() {
-      this.planWindow.close();
-      this.getPagedPlan();
+      this.planWindow && this.planWindow.destroy();
+      this.planWindow = null;
     },
     //获取分页方案数据
     async getPagedPlan(pageIdx = 1) {
@@ -162,6 +167,7 @@ export default {
     },
     addVectorPlan() {
       this.$Modal.remove();
+      this.closePlanWindow();
       this.planWindow = this.$window({
         title: '提取范围',
         footerHide: true,
@@ -183,6 +189,7 @@ export default {
     },
     addRasterPlan() {
       this.$Modal.remove();
+      this.closePlanWindow();
       this.planWindow = this.$window({
         title: '提取范围',
         footerHide: true,
@@ -204,6 +211,7 @@ export default {
     },
     async showPlanInfo() {},
     async editPlan(row) {
+      this.closePlanWindow();
       this.planWindow = this.$window({
         title: '提取范围',
         footerHide: true,
@@ -257,6 +265,9 @@ export default {
       } else {
         this.$Message.error('删除失败，请稍后重试！');
       }
+    },
+    dispose() {
+      this.closePlanWindow();
     },
   },
 };

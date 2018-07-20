@@ -154,7 +154,6 @@ export default {
       this.div.addConectNUM = 0;
     },
     btnOk() {
-      console.log(this.value);
       //点击查询按钮，把文本域中的数据穿给DataTable.vue中，在那里面获取参数，修改原先参数，然后在继续查询
       //把文本域中的值全部取出来分析判断是否符合。//把文本域中的值全部取出来分析判断是否符合。
       let arr = this.div.textarea.split('  ');
@@ -165,7 +164,7 @@ export default {
         for (let i = 0; i < arr.length; i++) {
           textareaFiltration += arr[i] + ' ';
         }
-        this.$emit('lxc', textareaFiltration);
+        this.$emit('on-attr-filter', textareaFiltration);
       }
     },
     getFilter() {
@@ -237,9 +236,6 @@ export default {
         <Button
           type="primary"
           @click="btnOk">查询</Button>
-        <Button
-          type="ghost"
-          style="margin-left: 8px;">取消</Button>
       </div>
     </div>
   </div>

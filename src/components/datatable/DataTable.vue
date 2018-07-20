@@ -29,6 +29,7 @@ export default {
       tableLoading: false,
       opt: '', //存储其他查询的初始值。
       optNum: '', //用来判断是二次过滤查询的还是点击其他组件查询的，好用来存储 其他组件查询初始值
+      propWin: null,
     };
   },
   computed: {
@@ -46,11 +47,15 @@ export default {
   },
   methods: {
     popup() {
+      if (this.propWin) {
+        !this.propWin.visible && this.propWin.show();
+        return;
+      }
       let field = '';
       for (let item of this.$store.state.bus.field) {
         field += item.key + ' ,';
       }
-      this.vm = this.$window({
+      this.propWin = this.$window({
         title: '属性过滤',
         footerHide: true,
         render: h => {
@@ -61,7 +66,7 @@ export default {
                 value: { schemas: field, showButton: true },
               },
               on: {
-                lxc: this.query,
+                'on-attr-filter': this.query,
               },
             },
             [this.$scopedSlots.default]
@@ -274,6 +279,12 @@ export default {
       options[0].pageSize = pageSize;
       options[0].attributeType = this.attributeType;
       this.doQuery(options);
+    },
+    dispose() {
+      if (this.propWin) {
+        this.propWin.destroy();
+        this.propWin = null;
+      }
     },
   },
 };

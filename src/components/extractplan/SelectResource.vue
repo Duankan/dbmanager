@@ -116,12 +116,17 @@ export default {
     },
     //校验步骤
     async validateStep() {
-      if (!this.planName) {
-        this.$Message.info('请输入提取方案名称！');
+      let planName = this.planName.trim();
+      if (planName === '') {
+        this.$Message.error('请输入提取方案名称！');
+        return false;
+      }
+      if (!/^[\u4e00-\u9fa5a-zA-Z0-9_]*$/.test(planName)) {
+        this.$Message.error('方案名称不能包含特殊字符！');
         return false;
       }
       if (this.selectLayers.length == 0) {
-        this.$Message.info('请至少选择一个提取资源！');
+        this.$Message.error('请至少选择一个提取资源！');
         return false;
       }
       return true;
@@ -129,7 +134,7 @@ export default {
     //获取步骤数据
     getStepData() {
       return {
-        planname: this.planName,
+        planname: this.planName.trim(),
         schemalist: this.selectLayers,
       };
     },
