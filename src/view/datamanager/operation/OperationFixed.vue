@@ -1,5 +1,6 @@
 <script>
 import ResourceUploader from './modal/ResourceUploader';
+import BatchResourceUploader from './modal/BatchResourceUploader';
 import CreateDirectory from './modal/CreateDirectory';
 import LinkThirdPartService from './modal/LinkThirdPartService';
 
@@ -7,6 +8,7 @@ export default {
   name: 'OperationFixed',
   components: {
     ResourceUploader,
+    BatchResourceUploader,
     CreateDirectory,
     LinkThirdPartService,
   },
@@ -15,6 +17,7 @@ export default {
       dictionary: false,
       title: '文件上传',
       uploaderModal: false,
+      batchUploaderModal: false,
       directoryModal: false,
       linkServiceModal: false,
     };
@@ -35,6 +38,9 @@ export default {
       this.title = '文件上传';
       this.uploaderModal = true;
     },
+    batchUpload() {
+      this.batchUploaderModal = true;
+    },
     linkService() {
       this.linkServiceModal = true;
     },
@@ -45,18 +51,24 @@ export default {
 <template>
   <div class="operation-fixed">
     <Dropdown
+      trigger="click"
       placement="bottom-start">
       <Button
-        type="primary"
-        @click="upload">
+        type="primary">
         <Icon
           type="upload"
           size="14"
           style="margin-right: 8px"></Icon>
         上传
       </Button>
+      <DropdownMenu slot="list">
+        <DropdownItem @click.native="upload">单个上传</DropdownItem>
+        <DropdownItem @click.native="batchUpload">批量上传</DropdownItem>
+      </DropdownMenu>
     </Dropdown>
-    <Dropdown placement="bottom-start">
+    <Dropdown
+      placement="bottom-start"
+      trigger="click">
       <Button type="primary">
         <Icon
           type="android-share-alt"
@@ -83,6 +95,8 @@ export default {
       v-model="uploaderModal"
       :title="title"
       :dictionary="dictionary"/>
+    <BatchResourceUploader
+      v-model="batchUploaderModal" />
     <CreateDirectory v-model="directoryModal"/>
   </div>
 </template>

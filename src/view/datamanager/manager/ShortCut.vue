@@ -114,6 +114,7 @@ export default {
       @click.native.stop="information"></Icon>
     <Dropdown
       v-if="isGisResource"
+      trigger="click"
       @on-click="clickMore"
       @click.native.stop>
       <Icon

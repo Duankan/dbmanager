@@ -1,6 +1,9 @@
 <script>
 import config from 'config';
 
+/*
+ * 追加数据模块
+ */
 export default {
   name: 'AppendData',
   props: {
@@ -93,7 +96,7 @@ export default {
       }
     },
     //文件上传完成
-    uploadSuccess(file, fileList) {
+    uploadSuccess(file, fileInfo) {
       this.completedFiles.push(file);
       if (this.completedFiles.length == this.uploadFiles.length) {
         //上传完成，检查是否全部上传成功
@@ -201,7 +204,7 @@ export default {
         type="load-c"
         size="18"
         class="circle-spin-icon-load"></Icon>
-    <div>正在上传文件...</div></Spin>
+    <div>正在追加文件...</div></Spin>
   </Modal>
 </template>
 
