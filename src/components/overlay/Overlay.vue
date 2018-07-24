@@ -41,7 +41,7 @@ export default {
     selectLayer(layers) {
       // 字段查询
       let layerData;
-      layerData = this.layerData1.filter(item => item.label === layers.label);
+      layerData = this.layerData1.filter(item => item.title === layers.label);
       const url = new URL(layerData[0].servicesurl);
       this.baseUrl = layerData[0].servicesurl;
       this.queryUrl = url.origin + '/hgis/ows';
@@ -118,7 +118,7 @@ export default {
         <Option
           v-for="(item,index) in layerData1"
           :value="item.label"
-          :key="index">{{ item.label }}</Option>
+          :key="index">{{ item.title }}</Option>
       </Select>
     </FormItem>
     <FormItem
@@ -126,12 +126,11 @@ export default {
       prop="layer2">
       <Select
         v-model="overlayItem.layer2"
-        label-in-value
-      >
+        label-in-value>
         <Option
           v-for="(item,index) in layerData2"
           :value="item.label"
-          :key="index">{{ item.label }}</Option>
+          :key="index">{{ item.title }}</Option>
       </Select>
     </FormItem>
     <FormItem
