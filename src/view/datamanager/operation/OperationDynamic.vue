@@ -5,8 +5,9 @@ import QuickView from './modal/QuickView';
 import ViewInformation from './modal/ViewInformation';
 import DeleteResource from './modal/DeleteResource';
 import UploadMataData from './modal/UploadMataData';
+import AppendData from './modal/AppendData';
 import * as types from '@/store/types';
-import { isDirectory, isFile, isVector, isGisResource, canView } from '@/utils';
+import { isDirectory, isFile, isVector, isGisResource, canView, canAppend } from '@/utils';
 
 export default {
   name: 'OperationDynamic',
@@ -16,6 +17,7 @@ export default {
     ViewInformation,
     DeleteResource,
     UploadMataData,
+    AppendData,
   },
   data() {
     return {
@@ -32,6 +34,7 @@ export default {
       deleteModal: false,
       deleteNodes: [],
       updateMataModal: false,
+      appendDataModal: false,
     };
   },
   computed: {
@@ -70,7 +73,7 @@ export default {
       );
     },
     showAppendData() {
-      return this.selectNodes[0] && isGisResource(this.selectNodes[0]);
+      return this.selectNodes[0] && canAppend(this.selectNodes[0]) && this.selectNodes[0].pubState;
     },
     showRename() {
       return this.selectNodes[0] && !isFile(this.selectNodes[0]);
@@ -182,7 +185,7 @@ export default {
       this.$Message.success('删除元数据成功！');
     },
     appendData() {
-      // this.$events.emit('on-upload', { title: '数据追加', node: this.selectNodes[0] });
+      this.appendDataModal = true;
     },
     moveTo() {
       this.moveToModal = true;
@@ -297,6 +300,9 @@ export default {
     <UploadMataData
       v-model="updateMataModal">
     </UploadMataData>
+    <AppendData
+      v-model="appendDataModal">
+    </AppendData>
   </div>
 </template>
 

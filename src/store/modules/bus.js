@@ -13,6 +13,8 @@ const bus = {
     currentDataTable: '',
     //底部面板状态(0:关闭，1：打开，2：折叠)
     bottomPaneState: 0,
+    //数据面板标题
+    bottomPaneTitle: '数据属性',
   },
   getters: {
     attribute: state => FunManager.getQueryOptions(state.attribute),
@@ -62,6 +64,10 @@ const bus = {
     // 设置数据列表对象
     [types.SET_APP_DATATABLE](state, table) {
       state.currentDataTable = table;
+    },
+    //设置底部面板标题
+    [types.SET_BUTTOM_PANE_TITLE](state, title) {
+      state.bottomPaneTitle = title;
     },
     //打开底部面板
     [types.OPEN_BOTTOM_PANE](state) {

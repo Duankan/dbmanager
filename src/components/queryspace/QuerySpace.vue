@@ -38,6 +38,9 @@ export default {
       const getUnit = unit.filter(item => item.name === this.queryItem.bufferUnit);
       return getUnit[0].value;
     },
+    hasLayer() {
+      return this.queryItem.layers !== '';
+    },
   },
   methods: {
     getDrawLayer(layers, adverse) {
@@ -177,8 +180,7 @@ export default {
     :model="queryItem"
     :label-width="100"
     :label-position="'left'"
-    :rules="ruleValidate"
-  >
+    :rules="ruleValidate">
     <FormItem
       label="选择图层："
       prop="layers">
@@ -206,8 +208,7 @@ export default {
     </FormItem>
     <FormItem
       label="选择行政区："
-      prop="place"
-    >
+      prop="place">
       <AreaSelect
         ref="areaSelect"
         v-model="queryItem.place"
@@ -216,13 +217,13 @@ export default {
       ></AreaSelect>
     </FormItem>
     <FormItem
-      label="绘制方式："
-    >
+      label="绘制方式：">
       <DrawTools
         ref="drawTools"
         :layer-crs="layerCrs"
         :radius="queryItem.buffer"
         :units="setUnits"
+        :disabled="!hasLayer"
         @on-get-drawlayer="getDrawLayer"></DrawTools>
     </FormItem>
     <FormItem
@@ -239,7 +240,7 @@ export default {
         type="primary"
         @click="startQuery">查询</Button>
       <Button
-        type="primary"
+        type="success"
         @click="loadQueryData">数据提取</Button>
       <Button
         type="ghost"

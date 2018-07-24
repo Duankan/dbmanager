@@ -209,7 +209,7 @@ export default {
     //校验提取范围
     validateRange() {
       if (this.selectSheetNos.length == 0) {
-        this.$Message.info('请选择提取图幅！');
+        this.$Message.error('请选择提取图幅！');
         return false;
       }
       return true;

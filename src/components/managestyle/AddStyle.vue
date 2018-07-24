@@ -353,11 +353,13 @@ export default {
     <div
       class="style-button">
       <Button
+        :disabled="isUpload"
         type="primary"
         long
         @click="doUpload">确定
       </Button>
       <Button
+        :disabled="isUpload"
         type="ghost"
         long
         @click="handleReset">重置

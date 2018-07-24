@@ -282,7 +282,7 @@ export default {
           split-panels
           transfer
           placeholder="请选择入库时间"
-          @on-change="getTime" ></DatePicker>
+          @on-change="getTime"></DatePicker>
       </FormItem>
       <FormItem
         label="样式别名："

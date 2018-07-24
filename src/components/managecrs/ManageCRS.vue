@@ -1,5 +1,7 @@
 <script>
 import config from 'config';
+import { validateSpecChar } from '@/utils/validate';
+
 export default {
   name: 'ManageCRS',
   data() {
@@ -15,15 +17,19 @@ export default {
         },
       ],
       datas: [],
+      objCondition: {
+        authSrId: '',
+      },
       dataCondition: {
-        objCondition: {
-          authSrId: '',
-        },
         pageIndex: 1,
         pageSize: 5,
       },
       desc: '',
       pageCount: 0,
+      //表单验证规则
+      rules: {
+        authSrId: [{ validator: validateSpecChar, trigger: 'blur' }],
+      },
     };
   },
   created() {
@@ -31,6 +37,15 @@ export default {
     this.getData();
   },
   methods: {
+    //输入校验查询
+    doGetData() {
+      this.$refs.formValidate.validate(valid => {
+        if (valid) {
+          this.dataCondition.objCondition = this.objCondition;
+          this.getData();
+        }
+      });
+    },
     // 输入id调用另外的方法
     async getData() {
       //查询后端table数据方法
@@ -47,8 +62,6 @@ export default {
     getWKTInfo(info) {
       this.desc = info.srText;
     },
-
-    // 根据输入的名称，查询空间参考信息
   },
 };
 </script>
@@ -56,18 +69,18 @@ export default {
 <template>
   <Form
     ref="formValidate"
-    :model="dataCondition"
+    :model="objCondition"
     :label-width="125"
+    :rules="rules"
     label-position="left"
-    class="db-manager-crs"
-  >
+    class="db-manager-crs">
     <FormItem
       label="空间参考系统："
-    >
+      prop="authSrId">
       <Input
-        v-model="dataCondition.objCondition.authSrId"
+        v-model="objCondition.authSrId"
         placeholder="请输入您需要查询的空间参考"
-        @on-change="getData"></Input>
+        @on-change="doGetData"></Input>
     </FormItem>
     <FormItem class="show-crs">
       <Table

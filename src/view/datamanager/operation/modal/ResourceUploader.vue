@@ -19,6 +19,9 @@ const EXCLUDE_FILTERS = [
   '20013',
 ];
 
+/**
+ * 资源上传模块
+ */
 export default {
   name: 'ResourceUploader',
   props: {

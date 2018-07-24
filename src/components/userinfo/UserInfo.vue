@@ -6,6 +6,7 @@ export default {
 
 <template>
   <Dropdown
+    trigger="click"
     class="user-info">
     <Avatar
       icon="person"

@@ -101,6 +101,7 @@
     "svg-sprite-loader": "^3.6.2",
     "svgo": "^1.0.3",
     "svgo-loader": "^2.1.0",
+    "tinygradient": "^0.4.0",
     "uglifyjs-webpack-plugin": "^1.1.8",
     "url-loader": "^0.6.2",
     "vue-jest": "^2.1.1",
