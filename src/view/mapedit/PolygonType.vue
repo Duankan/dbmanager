@@ -1,10 +1,14 @@
 
 <script>
-import Currency from './PolygonTypeS/Currency';
-import Side from './PolygonTypeS/Side';
-import Fill from './PolygonTypeS/Fill';
-import Tagging from './PolygonTypeS/Tagging';
-import LineSymbol from './PolygonTypeS/LineSymbol';
+import Currency from './commontypes/Currency';
+import Side from './commontypes/Side';
+import Fill from './polygontypes/Fill';
+import Tagging from './polygontypes/Tagging';
+import LineSymbol from './commontypes/LineSymbol';
+import AttributeFilter from '@/./components/extractplan/AttributeFilter';
+import { url } from '@ktw/ktools';
+import * as helps from '@/utils/helps';
+const SET_MAP_SERVICELIST = 'SET_MAP_SERVICELIST';
 export default {
   name: 'PolygonType',
   components: {
@@ -13,6 +17,7 @@ export default {
     Fill,
     Tagging,
     LineSymbol,
+    AttributeFilter,
   },
   props: {
     msg: { type: Object, default: () => {} },
@@ -32,18 +37,43 @@ export default {
           ],
         },
       ],
+      Fields: [],
+      //当前过滤器
+      currentFilter: {
+        schemas: '',
+        name: '',
+        filter: '',
+        style: '',
+      },
       stylename: '', //绑定的样式名称
       type: '',
     };
   },
   created() {
+    this.getAllField();
     this.judgeType();
     this.getStyleName();
   },
   methods: {
+    //给过滤的组件添加字段
+    async getAllField() {
+      const response = await api.db.findService({
+        resourceId: this.msg.data.resource.resourceId, // 资源id
+        serivestatus: 0, // 服务状态(0 开启 1 关闭)
+        baseservicetype: 1, // 基础服务
+        metadataLayer: this.msg.data.resource.metadataLayer, // 元数据图层
+      });
+
+      for (let i = 0; i < response.data[1].schema.length; i++) {
+        let Field = helps.schemaReservedFileds.indexOf(response.data[1].schema[i].name);
+        if (Field == -1) {
+          this.currentFilter.schemas += response.data[1].schema[i].name + ',';
+        }
+      }
+      this.currentFilter.style = true;
+    },
     //判断给的参数类型
     judgeType() {
-      console.log(this.msg.data.resource.type);
       if (this.msg.data.resource.type == '面类型') {
         this.type = 3;
       }
@@ -57,59 +87,96 @@ export default {
     //获取样式名称
     async getStyleName() {
       const params = {
-        stylename: this.msg.data.styles, //
+        stylename: this.msg.data.styles,
       };
       let slddata = await api.db.getsldbyname(params);
       this.stylename = slddata.data.nameLayers['0'].style['0'].name;
     },
     //另存方法
     async saveAs() {
-      console.log(this.stylename);
-      console.log(this.$refs.Currency.rulename);
-      console.log(this.$refs.Currency.xSkewing);
-      console.log(this.$refs.Currency.ySkewing);
-      console.log(this.$refs.Currency.maxRatio);
-      console.log(this.$refs.Currency.minRatio);
       const params = this.getParams();
       let SaveAs = await api.db.addbysld(params);
-      console.log(SaveAs);
+      if (SaveAs.data.message) {
+        this.$Message.error(SaveAs.data.message);
+      }
+      if (SaveAs.data.statusCode != 400) {
+        alert('另存成功');
+        await this.show(SaveAs.data.name);
+      }
     },
-
+    //显示图层方法
+    async show(name) {
+      this.msg.sto.commit('SET_MAP_GOCLAYER_DELETE', ['ktw:' + this.msg.data.name]);
+      const response = await api.db.findService({
+        resourceId: this.msg.data.resourceId, // 资源id
+        serivestatus: 0, // 服务状态(0 开启 1 关闭)
+        baseservicetype: 1, // 基础服务
+        metadataLayer: this.msg.data.metadataLayer, // 元数据图层
+      });
+      const search = url.parse(this.msg.data.serviceUrl).search;
+      const layers = search.layers ? search.layers : search.typeName;
+      let wfsurlarr = response.data[0].wfsurl.split('&');
+      wfsurlarr[7] = 'styles=' + name;
+      let servicesurlString = '';
+      for (let i = 0; i < wfsurlarr.length; i++) {
+        servicesurlString += wfsurlarr[i] + '&';
+      }
+      response.data[0].servicesurl = servicesurlString;
+      this.msg.sto.commit(SET_MAP_SERVICELIST, {
+        [layers]: [response.data[0], response.data[1]],
+      });
+    },
     //另存的构造参数
     getParams() {
-      console.log(this.msg.data);
+      let stroke = this.$refs.Side.showSide ? this.$refs.Side.Stroke : null;
+      let Fill = this.$refs.Fill.showSide ? this.$refs.Fill.Fills : null;
+      let Tagging = this.$refs.Tagging.showSide ? this.$refs.Tagging.Taggings : null;
+      let LineSymbol = this.$refs.LineSymbol.showSide ? this.$refs.LineSymbol.LineSymbols : null;
+      if (LineSymbol != null && stroke == null) {
+        stroke = {
+          graphicStroke: LineSymbol,
+        };
+        stroke = JSON.stringify(stroke);
+      }
+      if (stroke != null && LineSymbol != null) {
+        stroke.graphicStroke = LineSymbol;
+        stroke = JSON.stringify(stroke);
+      }
+      if (stroke != null && LineSymbol == null) {
+        stroke = JSON.stringify(stroke);
+      }
+
       const params = {
         sld:
-          '{"nameLayers":[{"name":' +
-          this.msg.data.resource.name +
-          ',"style":[{"name":' +
-          this.msg.data.resource.name +
-          ',"featureTypeStyle":[{"rule":[{"polygonSymbolizers":[{"stroke":null,"fill":{"graphicFill":null,"numOpacity":1,"strColor":"#fcb3c6"},"offset":{"offsetX":' +
+          '{"nameLayers":[{"name":"","style":[{"name":"' +
+          this.stylename +
+          '","featureTypeStyle":[{"rule":[{"polygonSymbolizers":[{"stroke":' +
+          stroke +
+          ',"fill":' +
+          Fill +
+          ',"offset":{"offsetX":"' +
           this.$refs.Currency.xSkewing +
-          ',"offsetY":' +
+          '","offsetY":"' +
           this.$refs.Currency.ySkewing +
-          '}}],"textSymbolizers":null,"name":' +
-          this.$refs.Currency.rulename +
-          ',"cqlFilter":"","minScaleDenominator":' +
-          this.$refs.Currency.minRatio +
-          ',"maxScaleDenominator":' +
-          this.$refs.Currency.maxRatio +
-          '}],"semanticTypeIdentifier":["generic:geometry"]}]}]}],"userLayers":null}',
+          '"}}],"textSymbolizers":' +
+          Tagging +
+          ',"name":"面样式4","cqlFilter":"","minScaleDenominator":"0","maxScaleDenominator":""}],"semanticTypeIdentifier":["generic:geometry"]}]}]}],"userLayers":null}',
         resourceInfo: {
-          alias: this.msg.data.resource.alias,
-          name: this.msg.data.resource.name,
-          typeId: this.msg.data.resource.typeId,
-          TypeName: this.msg.data.resource.typeName,
-          catalogId: this.msg.data.resource.catalogId,
-          userId: this.msg.data.resource.userId,
-          userName: this.msg.data.resource.userName,
-          orgId: this.msg.data.resource.orgId,
-          orgName: this.msg.data.resource.orgName,
+          alias: '' + this.stylename + '',
+          name: '',
+          typeId: '20102',
+          TypeName: 'sld',
+          catalogId: '11111111-1111-1111-1111-111111111111',
+          userId: '00000000-0000-0000-0000-000000000000',
+          userName: '超级管理员',
+          orgId: '00000000-0000-0000-0000-000000000000',
+          orgName: '超级管理员组织',
         },
-        styleType: this.type,
+        styleType: 3,
       };
       return params;
     },
+
     //添加组的方法
     addGroup() {
       let text = {
@@ -144,17 +211,31 @@ export default {
           style="width: 300px"></Input>
       </p>
       <Currency
-        v-if="tool=='通用'"
+        v-show="tool=='通用'"
         ref="Currency"
         :msg="msg"></Currency>
       <Side
-        v-if="tool=='边'"
+        v-show="tool=='边'"
         ref="Side"
         :msg="msg"
       ></Side>
-      <Fill v-if="tool=='面填充'"></Fill>
-      <Tagging v-if="tool=='标注'"></Tagging>
-      <LineSymbol v-if="tool=='线符号'"></LineSymbol>
+      <Fill
+        v-show="tool=='面填充'"
+        ref="Fill"
+        :msg="msg"
+      ></Fill>
+      <Tagging
+        v-show="tool=='标注'"
+        ref="Tagging"
+        :msg="msg"></Tagging>
+      <LineSymbol
+        v-show="tool=='线符号'"
+        ref="LineSymbol"
+        :msg="msg"></LineSymbol>
+      <AttributeFilter
+        v-show="tool=='过滤'"
+        ref="filterEditor"
+        :value="currentFilter"></AttributeFilter>
     </div>
 
     <div

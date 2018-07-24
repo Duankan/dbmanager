@@ -48,13 +48,13 @@ export default {
 </script>
 
 <template>
-  <div class="main">
-
-
+  <div class="mapedit">
     <Form
       :label-width="8"
     >
-      <FormItem style="margin: 8px 0 0 0;" >
+      <FormItem
+        class="mapedit-formItems"
+      >
         <RadioGroup
           v-model="selectOut"
           type="button"
@@ -69,15 +69,17 @@ export default {
       </FormItem>
       <FormItem >
         <PolygonType
-          v-if="selectOut=='面类型'"
+          v-show="selectOut=='面类型'"
           :msg="value"></PolygonType>
-        <LineType v-if="selectOut=='线类型'"></LineType>
+        <LineType
+          v-show="selectOut=='线类型'"
+          :msg="value"></LineType>
         <PointType v-if="selectOut=='点类型'"></PointType>
         <High
-          v-if="selectOut=='高级'"
+          v-show="selectOut=='高级'"
           :msg="value"></High>
         <SelectType
-          v-if="selectOut=='选择样式'"
+          v-show="selectOut=='选择样式'"
           :msg="value"></SelectType>
       </FormItem>
     </Form>
@@ -89,10 +91,13 @@ export default {
 </template>
 
 <style lang="less" scoped>
-.main {
+.mapedit {
   width: 700px;
   float: left;
   height: 600px;
   border: 1px solid rgb(245, 218, 169);
+}
+.mapedit-formItems {
+  margin: 8px 0 0 0;
 }
 </style>
