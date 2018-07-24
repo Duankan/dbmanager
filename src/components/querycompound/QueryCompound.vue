@@ -210,7 +210,7 @@ export default {
           this.fieldList.forEach(item => {
             this.schema = this.schema + ',' + item.title;
           });
-          this.queryName = totalParams.label;
+          this.queryName = totalParams[0].label;
         }
       }
     },

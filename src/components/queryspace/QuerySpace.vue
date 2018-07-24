@@ -71,7 +71,7 @@ export default {
             this.schema = this.schema + ',' + item.title;
           });
           this.queryAreaUrl = layerData.value;
-          this.queryName = totalParams.label;
+          this.queryName = totalParams[0].label;
         }
       }
     },

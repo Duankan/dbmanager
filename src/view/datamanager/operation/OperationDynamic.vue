@@ -140,12 +140,14 @@ export default {
     },
     // 业务文件下载
     download() {
+      let node = this.selectNodes[0];
+      let fileName = `${node.alias}.${node.typeName}`;
       const link = document.createElement('a');
       link.setAttribute(
         'href',
         `${config.project.YunServicesUrl}/clouddisk/gisserver/download/${
           this.selectNodes[0].fResourceId
-        }?license=a3UjjlaLC9He&filename=${this.selectNodes[0].alias}`
+        }?license=a3UjjlaLC9He&filename=${fileName}`
       );
       // link.setAttribute('download', this.selectNodes[0].name);
       document.body.appendChild(link);
