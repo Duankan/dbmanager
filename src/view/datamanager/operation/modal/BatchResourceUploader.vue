@@ -60,7 +60,7 @@ export default {
       showCustomFileList: true,
       //上传头部信息
       headers: {
-        //'User-Operation-Info': 'a3UjjlaLC9He',
+        'User-Operation-Info': 'a3UjjlaLC9He',
       },
       //上传文件列表
       uploadFiles: [],
@@ -81,11 +81,15 @@ export default {
           key: 'stateText',
           width: 90,
           render: (h, params) => {
-            return h('span', {
-              class: {
-                failedText: params.row.state == 0,
+            return h(
+              'span',
+              {
+                class: {
+                  'failed-text': params.row.state == 0,
+                },
               },
-            });
+              params.row.stateText
+            );
           },
         },
         {
@@ -151,6 +155,8 @@ export default {
       this.$refs.upload.clearFiles();
       this.showCustomFileList = true;
       this.processFiles = [];
+      this.showResult = false;
+      this.resultData = [];
     },
     //取消自动上传
     handleUpload(file) {
@@ -189,8 +195,6 @@ export default {
     },
     //上传资源到云盘
     async uploadCloudResource() {
-      let colors = this.$refs.ribbon.getRibbon(18);
-      debugger;
       //表单数据校验
       if (!this.resource.typeId) {
         this.$Message.error('请选择文件类型！');
@@ -249,7 +253,7 @@ export default {
         .then(p => {
           if (!(p instanceof Error) && p.status == 200 && !p.data.message) {
             segment.state = 3;
-            segment.message = '文件上传成功';
+            segment.message = '文件上传成功！';
           } else {
             segment.state = 0;
             segment.message = '新增资源失败！';
@@ -270,6 +274,8 @@ export default {
         p.stateText = p.state == 3 ? '成功' : '失败';
       });
       this.resultData = items;
+      //刷新目录节点
+      this.$store.dispatch(types.APP_NODES_FETCH, this.current);
     },
   },
 };
@@ -353,9 +359,6 @@ export default {
         size="small"
         height="300"></Table>
     </div>
-    <ColorRibbon
-      ref="ribbon"
-      style="width:200px;"></ColorRibbon>
     <div slot="footer"></div>
     <Spin
       v-if="loading"
@@ -380,7 +383,7 @@ export default {
   text-indent: 8px;
   border-left: 2px solid #318cf0;
 }
-.failed-text {
+/deep/ .failed-text {
   color: red;
 }
 </style>
