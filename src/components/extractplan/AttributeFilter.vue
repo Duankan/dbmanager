@@ -24,6 +24,7 @@ export default {
   },
   computed: {
     schemas() {
+      console.log(this.value);
       let fields = this.value ? this.value.schemas.split(',') : [];
       return fields;
     },
@@ -177,7 +178,9 @@ export default {
 <template >
   <div class="attribute-filter-wrapper">
     <div class="form-row clearfix">
-      <div class="schemadiv">
+      <div
+        :class="{ schemadiv: true, 'schemadiv-polygontype': value.style }"
+      >
         <div
           v-for="(item,index) in schemas"
           :key="index"
@@ -247,11 +250,26 @@ export default {
 <style  lang="less" scoped>
 .attribute-filter-wrapper {
   .form-row {
-    margin-bottom: 10px;
+    margin: 10px 0 10px 0;
   }
 }
 .schemadiv {
   width: 310px;
+  height: 160px;
+  float: left;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid #dddddd;
+  .schemaitem {
+    height: 25px;
+    margin-left: 5px;
+  }
+  .schemaitem:hover {
+    background-color: #f3f3f3;
+  }
+}
+.schemadiv-polygontype {
+  width: 163px;
   height: 160px;
   float: left;
   overflow-y: auto;

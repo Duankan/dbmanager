@@ -123,6 +123,7 @@ export default {
         this.msg.sto.commit(SET_MAP_SERVICELIST, {
           [layers]: [response.data[0], response.data[1]],
         });
+        console.log(wfsurlarr);
       }
     },
     //点击获取点击的那条数据

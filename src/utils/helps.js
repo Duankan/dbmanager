@@ -181,7 +181,7 @@ export function getStyleType(type) {
 }
 
 //schema保留字段
-const schemaReservedFileds = [
+export const schemaReservedFileds = [
   'the_geom',
   'geom',
   'gid',
