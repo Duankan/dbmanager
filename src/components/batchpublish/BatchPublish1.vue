@@ -46,20 +46,20 @@ export default {
         },
         {
           title: '服务标题',
-          key: 'name',
+          key: 'alias',
           ellipsis: true,
           render: (h, params) => {
             if (params.row._edit) {
               return (
                 <Input
-                  value={params.row.name}
+                  value={params.row.alias}
                   onOn-change={e => {
-                    params.row.name = e.target.value;
+                    params.row.alias = e.target.value;
                   }}
                 />
               );
             } else {
-              return <p>{params.row.name}</p>;
+              return <p>{params.row.alias}</p>;
             }
           },
         },
@@ -246,8 +246,18 @@ export default {
         p._edit = p._index == index;
       });
     },
-    //发布
-    publish() {},
+    //批量发布
+    batchPublish() {
+      //获取选择的资源
+      let selection = this.$refs.publishTable.getSelection();
+      let resIds = selection.map(p => p.resourceId);
+      let rows = this.$refs.publishTable.rebuildData;
+      let services = rows.filter(p => resIds.indexOf(p.resourceId) > -1);
+    },
+    //取消
+    cancel() {
+      this.visibleChange(false);
+    },
   },
 };
 </script>
@@ -279,10 +289,11 @@ export default {
     </div>
     <div slot="footer">
       <Button
-        type="ghost">取消</Button>
+        type="ghost"
+        @click="cancel">取消</Button>
       <Button
         type="primary"
-        @click="publish">批量发布</Button>
+        @click="batchPublish">批量发布</Button>
     </div>
     <Spin
       v-if="loading"
@@ -313,6 +324,7 @@ export default {
     }
     .legend-text {
       vertical-align: 3px;
+      margin-left: 4px;
     }
   }
 }
