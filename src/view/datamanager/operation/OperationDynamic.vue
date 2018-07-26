@@ -6,6 +6,7 @@ import ViewInformation from './modal/ViewInformation';
 import DeleteResource from './modal/DeleteResource';
 import UploadMataData from './modal/UploadMataData';
 import AppendData from './modal/AppendData';
+import BatchPublish1 from '@/components/batchpublish/BatchPublish1';
 import * as types from '@/store/types';
 import { isDirectory, isFile, isVector, isGisResource, canView, canAppend } from '@/utils';
 
@@ -18,6 +19,7 @@ export default {
     DeleteResource,
     UploadMataData,
     AppendData,
+    BatchPublish1,
   },
   data() {
     return {
@@ -35,6 +37,7 @@ export default {
       deleteNodes: [],
       updateMataModal: false,
       appendDataModal: false,
+      testFormOpen: false,
     };
   },
   computed: {
@@ -201,6 +204,9 @@ export default {
       this.deleteModal = true;
       this.deleteNodes = this.selectNodes;
     },
+    testForm() {
+      this.testFormOpen = true;
+    },
   },
 };
 </script>
@@ -280,6 +286,10 @@ export default {
         :disabled="forbidDelete"
         type="ghost"
         @click="deleteNode">删除</Button>
+      <Button
+        type="ghost"
+        @click="testForm">测试</Button>
+      <BatchPublish1 v-model="testFormOpen"></BatchPublish1>
     </ButtonGroup>
     <Publish
       v-model="publishModal"

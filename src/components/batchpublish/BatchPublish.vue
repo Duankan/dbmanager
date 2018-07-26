@@ -240,8 +240,7 @@ export default {
     :width="800"
     title=""
     scrollable
-    @on-visible-change="visibleChange"
-  >
+    @on-visible-change="visibleChange">
     <div slot="footer">
       <Button
         :loading="publishLoading"

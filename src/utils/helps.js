@@ -142,6 +142,25 @@ export function iconClass(node) {
   }
 }
 
+//获取节点样式类型
+export function getNodeStyleType(node) {
+  switch (node.shapeType.toUpperCase()) {
+    case 'DEM':
+      return 4;
+    case 'POLYGON':
+    case 'MULTIPOLYGON':
+      return 3;
+    case 'POLYLINE':
+    case 'LINESTRING':
+    case 'MULTILINESTRING':
+      return 2;
+    case 'POINT':
+      return 1;
+    default:
+      return 0;
+  }
+}
+
 /* 时间函数 */
 export function getTimeStamp(day = 0) {
   const date = new Date();
