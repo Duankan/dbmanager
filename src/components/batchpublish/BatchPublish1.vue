@@ -4,6 +4,9 @@ import { getNodeStyleType } from '@/utils/helps';
 //可批量发布的类型
 const FILTER_TYPES = ['20001', '20005', '20010', '20011', '20012'];
 
+/**
+ * 批量发布服务模块
+ */
 export default {
   name: 'BatchPublish1',
   props: {
@@ -14,13 +17,8 @@ export default {
   },
   data() {
     return {
-      crs: [
-        { key: '参考1', value: 18 },
-        { key: '参考2', value: 24 },
-        { key: '参考3', value: 30 },
-        { key: '参考4', value: 26 },
-      ],
-      columns1: [
+      //表格列表
+      columns: [
         {
           type: 'selection',
           width: 60,
@@ -46,87 +44,70 @@ export default {
         },
         {
           title: '空间参考',
-          key: 'age',
+          key: 'crs',
           render: (h, params) => {
             if (params.row._edit) {
               return (
                 <Select
-                  value={params.row.age}
+                  value={params.row.crsId}
+                  remote-method={this.getSpatialRefs}
+                  label-in-value
+                  filterable
+                  remote
+                  placeholder={'搜索空间参考'}
                   onOn-change={e => {
-                    params.row.age = e;
+                    params.row.crsName = e.label;
+                    params.row.crsId = e.value;
                   }}
                 >
                   {this.crs.map(p => (
-                    <Option value={p.value} key={p.value}>
-                      {p.value}
+                    <Option value={p.authSrId} key={p.authSrId}>
+                      {`${p.authName}:${p.authSrId}`}
                     </Option>
                   ))}
                 </Select>
               );
             } else {
-              return <p>{params.row.age}</p>;
+              return <p> {`${params.row.crsName}`}</p>;
             }
           },
         },
         {
           title: '渲染样式',
-          key: 'address',
+          key: 'style',
           render: (h, params) => {
+            let renderStyles = this.styles.filter(p => p.type == params.row.styleType);
             if (params.row._edit) {
               return (
                 <Select
-                  value={params.row.age}
+                  value={params.row.styleId}
+                  label-in-value={true}
                   onOn-change={e => {
-                    params.row.age = e;
+                    params.row.styleId = e.value;
+                    params.row.styleName = e.label;
                   }}
                 >
-                  {this.crs.map(p => (
-                    <Option value={p.value} key={p.value}>
-                      {p.value}
+                  {renderStyles.map(p => (
+                    <Option value={p.id} key={p.id}>
+                      {p.alias}
                     </Option>
                   ))}
                 </Select>
               );
             } else {
-              return <p>{params.row.age}</p>;
+              return <p>{params.row.styleName}</p>;
             }
           },
         },
       ],
-      data1: [
-        {
-          name: 'John Brown',
-          age: 18,
-          address: 'New York No. 1 Lake Park',
-          date: '2016-10-03',
-          _edit: false,
-        },
-        {
-          name: 'Jim Green',
-          age: 24,
-          address: 'London No. 1 Lake Park',
-          date: '2016-10-01',
-          _edit: false,
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02',
-          _edit: false,
-        },
-        {
-          name: 'Jon Snow',
-          age: 26,
-          address: 'Ottawa No. 2 Lake Park',
-          date: '2016-10-04',
-          _edit: false,
-        },
-      ],
+      //表格数据
+      data: [],
+      //服务列表
       services: [],
-      pointStyles: [],
-      lineStyles: [],
-      polygonStyles: [],
+      //样式列表
+      styles: [],
+      //空间参考列表
+      crs: [],
     };
   },
   computed: {
@@ -160,7 +141,18 @@ export default {
       const response = await api.db.findSyleByType({
         orgId: this.$appUser.orgid,
       });
-      let styles = response.data;
+      this.styles = response.data;
+    },
+    //获取空间参考
+    async getSpatialRefs(id) {
+      const response = await api.db.findSrs({
+        objCondition: {
+          authSrId: id, // 坐标系统id
+        },
+        pageIndex: 1, // 分页索引
+        pageSize: 10, // 分页大小
+      });
+      this.crs = response.data.dataSource;
     },
     //获取可发布的资源
     async getResources() {
@@ -179,14 +171,27 @@ export default {
       resources = resources.filter(p => FILTER_TYPES.indexOf(p.typeId) > -1 && !p.pubState);
       resources.forEach(p => {
         p.styleType = getNodeStyleType(p);
+        p.styleId = null;
+        p.styleName = '';
+        p.crsId = p.crs.split(':')[1];
+        p.crsName = p.crs;
+        p._edit = false;
       });
-      debugger;
+      this.data = resources;
     },
     editRow(row, index) {
-      let rows = this.$refs.table1.rebuildData;
+      let rows = this.$refs.publishTable.rebuildData;
+      if (rows[index]._edit) return;
       rows.forEach(p => {
         p._edit = p._index == index;
       });
+      this.crs = [
+        {
+          authName: 'EPSG',
+          authSrId: rows[index].crsId,
+          id: rows[index].crsId,
+        },
+      ];
     },
   },
 };
@@ -197,9 +202,9 @@ export default {
     :width="700"
     @on-visible-change="visibleChange">
     <Table
-      ref="table1"
-      :columns="columns1"
-      :data="data1"
+      ref="publishTable"
+      :columns="columns"
+      :data="data"
       @on-row-click="editRow">
     </Table>
   </Modal>
