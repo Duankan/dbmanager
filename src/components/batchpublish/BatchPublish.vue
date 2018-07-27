@@ -287,7 +287,7 @@ export default {
         orgName: this.$appUser.orgname,
         resourceId: service.resourceId,
         serviceType: '12,6',
-        styles: service.styleId,
+        styles: service.styleId || '',
         title: service.alias,
         userId: this.$appUser.id,
         userName: this.$appUser.name,
