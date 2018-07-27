@@ -1,287 +1,406 @@
 <script>
-import api from 'api';
+import { getNodeStyleType } from '@/utils/helps';
 
+//可批量发布的类型
+const FILTER_TYPES = ['20001', '20005', '20010', '20011', '20012'];
+
+/**
+ * 批量发布服务模块
+ */
 export default {
   name: 'BatchPublish',
   props: {
+    //对话框显示隐藏
     value: {
       type: Boolean,
       default: false,
     },
-    nodes: {
-      type: Array,
-      required: true,
-    },
   },
   data() {
     return {
-      publishLoading: false,
-      crsOptions: [],
-      styleOptions: [],
-      tableData: [],
+      //表格列表
       columns: [
         {
-          title: '服务标题',
-          key: 'title',
+          type: 'selection',
+          width: 60,
           align: 'center',
-          render: (h, params) => {
-            return (
-              <Input
-                value={params.row.title}
-                onOn-change={e => (this.tableData[params.index].title = e.target.value)}
-              />
-            );
-          },
         },
         {
           title: '服务名称',
           key: 'name',
-          align: 'center',
+          ellipsis: true,
           render: (h, params) => {
-            return (
-              <Input
-                value={params.row.name}
-                onOn-change={e => (this.tableData[params.index].name = e.target.value)}
-              />
-            );
+            if (params.row._edit) {
+              return (
+                <Input
+                  value={params.row.name}
+                  onOn-change={e => {
+                    params.row.name = e.target.value;
+                  }}
+                />
+              );
+            } else {
+              return <span title={params.row.name}>{params.row.name}</span>;
+            }
+          },
+        },
+        {
+          title: '服务标题',
+          key: 'alias',
+          ellipsis: true,
+          render: (h, params) => {
+            if (params.row._edit) {
+              return (
+                <Input
+                  value={params.row.alias}
+                  onOn-change={e => {
+                    params.row.alias = e.target.value;
+                  }}
+                />
+              );
+            } else {
+              return <span title={params.row.alias}>{params.row.alias}</span>;
+            }
           },
         },
         {
           title: '空间参考',
           key: 'crs',
-          align: 'center',
-          width: 150,
+          width: 118,
           render: (h, params) => {
-            return (
-              <Select
-                value={params.row.crs}
-                remote-method={this.remoteMethod}
-                loading={this.crsLoading}
-                filterable
-                remote
-                onOn-change={val => {
-                  this.remoteMethod('');
-                  console.log(params);
-                  this.tableData[params.index].crs = val;
-                }}
-              >
-                {this.crsOptions.map(option => (
-                  <Option
-                    label={`${option.authName}:${option.authSrId}`}
-                    value={option.authSrId}
-                    key={option.id}
-                  />
-                ))}
-              </Select>
-            );
+            if (params.row._edit) {
+              return (
+                <Select
+                  value={params.row.crsId}
+                  remote-method={async e => {
+                    const response = await api.db.findSrs({
+                      objCondition: {
+                        authSrId: e,
+                      },
+                      pageIndex: 1,
+                      pageSize: 10,
+                    });
+                    params.row.crsList = response.data.dataSource;
+                  }}
+                  filterable
+                  remote
+                  placeholder={'搜索空间参考'}
+                  onOn-change={e => {
+                    params.row.crsId = e;
+                  }}
+                >
+                  {params.row.crsList.map(p => (
+                    <Option value={p.authSrId} key={p.authSrId}>
+                      {p.authSrId}
+                    </Option>
+                  ))}
+                </Select>
+              );
+            } else {
+              return <span> {`${params.row.crsId}`}</span>;
+            }
           },
         },
         {
           title: '渲染样式',
-          key: 'styles',
-          align: 'center',
+          key: 'style',
+          width: 165,
           render: (h, params) => {
-            const styleType = this.getStyleType(params.row.shapeType);
-            const styleOptions = this.styleOptions.filter(node => node.type === styleType);
-            return (
-              <Select
-                value={params.row.styles}
-                filterable
-                onOn-change={val => (this.tableData[params.index].styles = val)}
-              >
-                {styleOptions.map(style => (
-                  <Option label={style.alias} value={style.name} key={style.id}>
-                    {style.alias}
-                  </Option>
-                ))}
-              </Select>
-            );
+            let renderStyles = this.styles.filter(p => p.type == params.row.styleType);
+            if (params.row._edit) {
+              return (
+                <Select
+                  value={params.row.styleId}
+                  label-in-value={true}
+                  onOn-change={e => {
+                    params.row.styleId = e.value;
+                    params.row.styleName = e.label;
+                  }}
+                >
+                  {renderStyles.map(p => (
+                    <Option value={p.id} key={p.id}>
+                      {p.alias}
+                    </Option>
+                  ))}
+                </Select>
+              );
+            } else {
+              return <span>{params.row.styleName}</span>;
+            }
           },
         },
         {
-          title: '服务类型',
-          key: 'serviceType',
-          align: 'center',
-          width: 200,
+          title: '状态',
+          key: 'state',
+          width: 60,
+          render: (h, params) => {
+            let legend = this.legends.find(p => p.value == params.row._state);
+            return <div class="state-legend" style={{ 'background-color': legend.color }} />;
+          },
+        },
+        {
+          title: '状态消息',
+          key: 'stateText',
+          width: 130,
+          ellipsis: true,
           render: (h, params) => {
             return (
-              <Select
-                value={params.row.serviceType}
-                multiple
-                onOn-change={val => (this.tableData[params.index].serviceType = val)}
-              >
-                <Option value="12">WMS</Option>
-                <Option value="6">WFS</Option>
-                <Option value="20" disabled>
-                  WFS-G
-                </Option>
-                <Option value="5" disabled>
-                  WMTS
-                </Option>
-              </Select>
+              <span class="state-text" title={params.row._stateText}>
+                {params.row._stateText}
+              </span>
             );
           },
         },
       ],
+      //表格数据
+      data: [],
+      //服务列表
+      services: [],
+      //样式列表
+      styles: [],
+      //正在发布
+      loading: false,
+      //发布进度
+      progress: 0,
+      //已完成的服务
+      completedSteps: [],
+      //图例配置
+      legends: [
+        {
+          value: -1,
+          color: '#d9d9d9',
+          text: '发布尚未执行',
+        },
+        {
+          value: 0,
+          color: '#ed3f14',
+          text: '发布失败',
+        },
+        {
+          value: 1,
+          color: '#19be6b',
+          text: '发布成功',
+        },
+      ],
     };
   },
-  watch: {
-    async nodes(val) {
-      this.tableData = await Promise.all(
-        val.map(async node => {
-          const name = await this.handleServiceName(node.name);
-          return {
-            title: node.name,
-            crs: '',
-            styles: '',
-            name,
-            serviceType: ['12', '6'],
-            shapeType: node.shapeType,
-          };
-        })
-      );
+  computed: {
+    //当前选择节点
+    node() {
+      return this.$store.state.app.selectNodes[0];
     },
-  },
-  created() {
-    this.remoteMethod('');
-    this.getStyle();
   },
   methods: {
+    //模态框显示隐藏
     visibleChange(visible) {
+      if (visible) {
+        this.initControl();
+      } else {
+        this.resetControl();
+      }
       this.$emit('input', visible);
     },
-    // 获取所有样式信息
-    async getStyle() {
-      const response = await api.db.findSyleByType({
+    //初始化控件
+    async initControl() {
+      //获取样式
+      const styleRes = await api.db.findSyleByType({
         orgId: this.$appUser.orgid,
       });
-      this.styleOptions = response.data;
-    },
-    // 获取资源节点样式类别 render中调用
-    getStyleType(shapeType) {
-      switch (shapeType.toUpperCase()) {
-        case 'DEM':
-          return 4;
-        case 'POLYGON':
-        case 'MULTIPOLYGON':
-          return 3;
-        case 'POLYLINE':
-        case 'LINESTRING':
-        case 'MULTILINESTRING':
-          return 2;
-        case 'POINT':
-          return 1;
-        default:
-          return 0;
-      }
-    },
-    // 处理服务名称
-    async handleServiceName(name) {
-      if (/[\u4e00-\u9fa5]/.test(name)) {
-        const response = await api.db.findChar(name);
-        name = response.data;
-      }
-      if (!/^[a-zA-Z]/.test(name)) {
-        name = `s${name}`;
-      }
-      return name;
-    },
-    // crs远程查询
-    async remoteMethod(query) {
-      this.crsLoading = true;
-      const response = await api.db.findSrs({
-        objCondition: {
-          authSrId: query, // 坐标系统id
-        },
-        pageIndex: 1, // 分页索引
-        pageSize: 10, // 分页大小
+      this.styles = styleRes.data;
+      //获取可发布的资源
+      const serviceRes = await api.db.findCatalog({
+        owner: 1,
+        ownerId: this.$appUser.orgid,
+        access: 1,
+        hasChild: false,
+        relatedType: 1,
+        orderby: 'sort_asc',
+        getmode: 'all',
+        resourceTypeId: '1,2',
+        parentId: this.node.childId,
       });
-      this.$nextTick(() => {
-        this.crsOptions = response.data.dataSource;
-        this.crsLoading = false;
+      let resources = serviceRes.data;
+      resources = resources.filter(p => FILTER_TYPES.indexOf(p.typeId) > -1 && !p.pubState);
+      resources.forEach(p => {
+        p.styleType = getNodeStyleType(p);
+        p.styleId = null;
+        p.styleName = '';
+        p.crsId = p.crs.split(':')[1];
+        p.crsList = [
+          {
+            authSrId: p.crsId,
+          },
+        ];
+        p._edit = false;
+        p._state = -1;
+        p._stateText = '';
+      });
+      this.data = resources;
+    },
+    //重置控件状态
+    resetControl() {
+      this.loading = false;
+      this.data = [];
+      this.services = [];
+      this.styles = [];
+      this.progress = 0;
+      this.completedSteps = [];
+    },
+    //编辑表格行
+    editRow(row, index) {
+      let rows = this.$refs.publishTable.rebuildData;
+      if (rows[index]._edit) return;
+      rows.forEach(p => {
+        p._edit = p._index == index;
       });
     },
-    // 点击发布按钮，发布服务，并将axios对象添加到任务队列
-    async publish() {
-      this.publishLoading = true;
-      await Promise.all(
-        this.nodes.map(async (item, index) => {
-          const { serviceType, shapeType, ...rest } = this.tableData[index];
-          const params = {
-            catalogId: item.catalogId,
-            resourceId: item.resourceId,
-            userId: this.$appUser.id,
-            userName: this.$appUser.name,
-            orgId: this.$appUser.orgid,
-            orgName: this.$appUser.orgname,
-            limits: 1,
-            serviceType: serviceType.join(','),
-            ...rest,
-          };
-          if (!params.crs) delete params.crs;
-          return api.db.publishService(params);
+    //批量发布
+    batchPublish() {
+      let selection = this.$refs.publishTable.getSelection();
+      if (selection.length == 0) {
+        this.$Message.info('请选择要发布的资源！');
+        return;
+      }
+      //获取选择的资源
+      let resIds = selection.map(p => p.resourceId);
+      let rows = this.$refs.publishTable.rebuildData;
+      this.services = rows.filter(p => resIds.indexOf(p.resourceId) > -1);
+      //发布资源
+      this.loading = true;
+      this.progress = 0;
+      this.completedSteps = [];
+      for (let i = 0; i < this.services.length; i++) {
+        let service = this.services[i];
+        service._state = -1;
+        service._stateText = '';
+        this.publish(service);
+      }
+    },
+    //发布
+    publish(service) {
+      let params = {
+        catalogId: this.node.childId,
+        crs: service.crsId,
+        limits: 1,
+        name: service.name,
+        orgId: this.$appUser.orgid,
+        orgName: this.$appUser.orgname,
+        resourceId: service.resourceId,
+        serviceType: '12,6',
+        styles: service.styleId,
+        title: service.alias,
+        userId: this.$appUser.id,
+        userName: this.$appUser.name,
+      };
+      api.db
+        .publishService(params)
+        .then(p => {
+          this.addCompleteStep(service, 1, '');
         })
-      );
-      this.publishLoading = false;
-      // 刷新当前页面
-      const currentNode = this.$store.state.app.currentDirectory;
-      this.$store.dispatch(types.APP_NODES_FETCH, currentNode);
-      // 关闭modal窗口
+        .catch(p => {
+          this.addCompleteStep(service, 0, p.data.message);
+        });
+    },
+    //新增完成步骤
+    addCompleteStep(service, state, stateText) {
+      service._state = state;
+      service._stateText = stateText;
+      this.completedSteps.push(service);
+      //更新进度
+      this.progress = Math.round(this.completedSteps.length * 100 / this.services.length);
+      if (this.progress == 100) {
+        this.loading = false;
+      }
+    },
+    //取消
+    cancel() {
       this.visibleChange(false);
     },
   },
 };
 </script>
-
 <template>
   <Modal
     :value="value"
-    :mask-closable="false"
-    :width="800"
-    title=""
-    scrollable
+    :width="880"
+    title="批量发布服务"
     @on-visible-change="visibleChange">
-    <div slot="footer">
-      <Button
-        :loading="publishLoading"
-        type="primary"
-        size="large"
-        long
-        @click="publish">发布</Button>
+    <div class="legend-wrapper clearfix">
+      <div
+        v-for="item in legends"
+        :key="item.value"
+        class="legend-item">
+        <i :style="{backgroundColor:item.color}"></i>
+        <span class="legend-text">{{ item.text }}</span>
+      </div>
     </div>
     <Table
+      ref="publishTable"
       :columns="columns"
-      :data="tableData"
-      :height="400"
-      size="small"
-    ></Table>
+      :data="data"
+      height="380"
+      @on-row-click="editRow">
+    </Table>
+    <div class="progress-wrapper">
+      <label>发布进度：</label>
+      <Progress :percent="progress"></Progress>
+    </div>
+    <div slot="footer">
+      <Button
+        type="ghost"
+        @click="cancel">取消</Button>
+      <Button
+        type="primary"
+        @click="batchPublish">批量发布</Button>
+    </div>
+    <Spin
+      v-if="loading"
+      fix>
+      <Icon
+        type="load-c"
+        size="18"
+        class="circle-spin-icon-load"></Icon>
+    <div>正在发布服务...</div></Spin>
   </Modal>
-
 </template>
-
 <style lang="less" scoped>
-.k-modal {
-  /deep/ &-close {
-    z-index: 1;
-  }
-  /deep/ &-body {
-    padding: 20px 0;
+.legend-wrapper {
+  border: 1px solid #dddddd;
+  border-bottom: 0;
+  border-radius: 2px 2px 0 0;
+  .legend-item {
+    height: 40px;
+    line-height: 40px;
+    padding-left: 20px;
+    float: left;
+    > i {
+      width: 16px;
+      height: 16px;
+      border-radius: 8px;
+      display: inline-block;
+      background-color: #19be6b;
+    }
+    .legend-text {
+      vertical-align: 3px;
+      margin-left: 4px;
+    }
   }
 }
-.k-table-wrapper {
-  border: none;
-
-  /deep/ .k-table {
-    &::after,
-    &::before {
-      display: none;
-    }
-
-    th,
-    td {
-      border-bottom: none;
-      background-color: transparent;
-    }
+/deep/ .state-legend {
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background-color: #19be6b;
+}
+/deep/ .state-text {
+  color: #ff0000;
+}
+.progress-wrapper {
+  margin-top: 10px;
+  padding: 5px;
+  display: flex;
+  > label {
+    width: 120px;
   }
 }
 </style>

@@ -6,7 +6,7 @@ import ViewInformation from './modal/ViewInformation';
 import DeleteResource from './modal/DeleteResource';
 import UploadMataData from './modal/UploadMataData';
 import AppendData from './modal/AppendData';
-import BatchPublish1 from '@/components/batchpublish/BatchPublish1';
+import BatchPublish from '@/components/batchpublish/BatchPublish';
 import * as types from '@/store/types';
 import { isDirectory, isFile, isVector, isGisResource, canView, canAppend } from '@/utils';
 
@@ -19,14 +19,13 @@ export default {
     DeleteResource,
     UploadMataData,
     AppendData,
-    BatchPublish1,
+    BatchPublish,
   },
   data() {
     return {
       publishModal: false,
       publishNode: {},
       batchPublishModal: false,
-      batchPublishNodes: [],
       quickViewModal: false,
       isMeta: false,
       moveToModal: false,
@@ -37,7 +36,6 @@ export default {
       deleteNodes: [],
       updateMataModal: false,
       appendDataModal: false,
-      testFormOpen: false,
     };
   },
   computed: {
@@ -51,10 +49,12 @@ export default {
       return this.selectNodes.length === 1;
     },
     showPublish() {
-      const publishNode = this.selectNodes.filter(node => {
-        return isGisResource(node) && !node.pubState;
-      });
-      return publishNode && publishNode.length;
+      return (
+        this.selectNodes[0] && isGisResource(this.selectNodes[0]) && !this.selectNodes[0].pubState
+      );
+    },
+    showBatchPublish() {
+      return this.selectNodes[0] && isDirectory(this.selectNodes[0]);
     },
     showQuickView() {
       return (
@@ -98,9 +98,6 @@ export default {
     },
     onlyGisResource() {
       return this.selectNodes.every(node => isGisResource(node));
-    },
-    forbidPublish() {
-      return this.selectNodes.some(node => !isGisResource(node) || node.pubState);
     },
     forbidDelete() {
       const directoryNode = this.selectNodes.filter(node => isDirectory(node));
@@ -168,13 +165,11 @@ export default {
       this.quickViewModal = true;
     },
     publish() {
-      if (this.single) {
-        this.publishModal = true;
-        this.publishNode = this.selectNodes[0];
-      } else {
-        this.batchPublishModal = true;
-        this.batchPublishNodes = this.selectNodes;
-      }
+      this.publishModal = true;
+      this.publishNode = this.selectNodes[0];
+    },
+    batchPublish() {
+      this.batchPublishModal = true;
     },
     metaData() {
       this.updateMataModal = true;
@@ -204,9 +199,6 @@ export default {
       this.deleteModal = true;
       this.deleteNodes = this.selectNodes;
     },
-    testForm() {
-      this.testFormOpen = true;
-    },
   },
 };
 </script>
@@ -215,7 +207,7 @@ export default {
   <div class="operation-dynamic">
     <Button
       v-if="showPublish"
-      :disabled="forbidPublish"
+      :disabled="!single"
       type="primary"
       @click="publish">
       <Icon
@@ -272,6 +264,11 @@ export default {
         type="ghost"
         @click="moveTo">移动到</Button>
       <Button
+        v-if="showBatchPublish"
+        :disabled="!single"
+        type="ghost"
+        @click="batchPublish">批量发布</Button>
+      <Button
         v-if="showDownload"
         :disabled="!single"
         type="ghost"
@@ -286,17 +283,12 @@ export default {
         :disabled="forbidDelete"
         type="ghost"
         @click="deleteNode">删除</Button>
-      <Button
-        type="ghost"
-        @click="testForm">测试</Button>
-      <BatchPublish1 v-model="testFormOpen"></BatchPublish1>
     </ButtonGroup>
     <Publish
       v-model="publishModal"
       :node="publishNode"></Publish>
     <BatchPublish
-      v-model="batchPublishModal"
-      :nodes="batchPublishNodes"></BatchPublish>
+      v-model="batchPublishModal"></BatchPublish>
     <QuickView
       v-model="quickViewModal"
       :is-meta="isMeta"></QuickView>
