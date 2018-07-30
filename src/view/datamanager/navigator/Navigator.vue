@@ -2,14 +2,12 @@
 import * as types from '@/store/types';
 import CommonTree from './CommonTree';
 import NavTree from './NavTree';
-import Classify from './classify/Classify';
 
 export default {
   name: 'Navigator',
   components: {
     CommonTree,
     NavTree,
-    Classify,
   },
   methods: {
     select(node) {
@@ -30,10 +28,6 @@ export default {
     <div>
       <h4>我的数据</h4>
       <NavTree @on-current-select="select">></NavTree>
-    </div>
-    <div>
-      <h4>分类</h4>
-      <Classify></Classify>
     </div>
   </div>
 </template>

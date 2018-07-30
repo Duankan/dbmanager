@@ -101,7 +101,6 @@ export default {
                     child
                   )}
                 </span>
-                <ShortCut node={params.row} />
               </span>
             );
           },

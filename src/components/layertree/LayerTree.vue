@@ -165,19 +165,48 @@ export default {
     save() {
       this.$refs.form.validate(async valid => {
         if (valid) {
+          let document = this.getDocumentInfo();
           const response = await api.db.createMapLayer({
             infoEntity: {
+              id: '',
               catalogId: this.catalogId, // 目录id
-              name: form.name, // 地图文档名称
-              description: form.description, // 描述
-              info: {}, // 地图文档信息对象
+              name: this.form.name, // 地图文档名称
+              description: this.form.description, // 描述
+              info: document, // 地图文档信息对象
+              size: 0,
               typeId: '50002',
               userId: this.$appUser.id, // 用户Id
               userName: this.$appUser.name, // 用户名
             },
+            mapExEntity: {
+              info: JSON.stringify(document), //地图扩展信息
+            },
           });
+          this.$Message.success('保存地图文档成功！');
+          this.showTree = true;
         }
       });
+    },
+    //获取地图文档信息
+    getDocumentInfo() {
+      let layers = this.$store.state.map.serviceList;
+      //设置图层选项(显隐和透明度)
+      for (let key in layers) {
+        let wfsLayer = layers[key].find(p => p.servicestype == 12);
+        let layerInfo = this.ogcLayers.find(p => (p.options.layers = key));
+        wfsLayer.options = {
+          visible: layerInfo.options.visible,
+          opacity: layerInfo.options.opacity,
+        };
+      }
+      //获取中心点和缩放
+      let map = this.$store.getters.mapManager._map;
+      let document = {
+        layers,
+        center: map.getCenter(),
+        zoom: map.getZoom(),
+      };
+      return document;
     },
   },
 };
@@ -185,7 +214,6 @@ export default {
 
 <template>
   <div class="k-layer-tree">
-
     <Tooltip
       content="图层"
       placement="left">
@@ -198,11 +226,11 @@ export default {
           size="24"/>
       </div>
     </Tooltip>
-
     <transition name="expand">
       <Card
         v-show="showPanel"
         :bordered="false"
+        class="border-card"
         dis-hover>
         <p slot="title">图层管理</p>
         <Icon

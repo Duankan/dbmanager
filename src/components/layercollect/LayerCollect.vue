@@ -100,6 +100,7 @@ export default {
       <Card
         v-show="showPanel"
         :bordered="false"
+        class="border-card"
         dis-hover>
         <p slot="title">图层集</p>
         <Tree
