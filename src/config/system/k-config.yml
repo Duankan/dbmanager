@@ -68,3 +68,6 @@ routes:
       MapEdit:
         path: 'mapedit'
         component: 'view/mapedit/MapEdit'
+      Business:
+        path: 'business'
+        component: 'view/business/businessDataManager'

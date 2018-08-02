@@ -48,6 +48,22 @@ export default {
     single() {
       return this.selectNodes.length === 1;
     },
+    isFirst() {
+      return this.selectNodes.length === 1 && this.selectNodes[0]._index !== 0;
+    },
+    isDirectoryEnd() {
+      debugger;
+      if (this.selectNodes.length === 1) {
+        if (isDirectory(this.selectNodes[0])) {
+          if (this.selectNodes[0]._index < this.$store.state.app.nodes.length) {
+            return isDirectory(this.$store.state.app.nodes[this.selectNodes[0]._index + 1]);
+          } else {
+            return true;
+          }
+        }
+      }
+      return false;
+    },
     showPublish() {
       return (
         this.selectNodes[0] && isGisResource(this.selectNodes[0]) && !this.selectNodes[0].pubState
@@ -191,6 +207,19 @@ export default {
       this.moveToModal = true;
       this.moveNodes = this.selectNodes;
     },
+    async sortCatalog(type) {
+      let node = this.selectNodes[0];
+      let fd = new FormData();
+      fd.append('id', node.id);
+      fd.append('type', type);
+      await api.db.sortCatalog({}, fd, {
+        headers: { 'User-Operation-Info': 'a3UjjlaLC9He' },
+      });
+      //await this.$store.dispatch(types.APP_NODES_FETCH, this.current);
+      this.$events.emit('on-refresh-nav-tree');
+      this.$store.dispatch(types.APP_NODES_FETCH, this.current);
+      this.$store.commit(types.REMOVE_APP_SELECT_NODES);
+    },
     information() {
       this.informationModal = true;
       this.informationNode = this.selectNodes[0];
@@ -205,107 +234,124 @@ export default {
 
 <template>
   <div class="operation-dynamic">
-    <Button
+    <Button 
       v-if="showPublish"
       :disabled="!single"
       type="primary"
       @click="publish">
-      <Icon
+      <Icon 
         type="ios-paperplane"
         size="14"
         style="margin-right: 8px"></Icon>
       发布
     </Button>
-    <Button
+    <Button 
       v-if="hasSelectNode && onlyDirectory"
       type="ghost"
       @click="favor">
-      <Icon
+      <Icon 
         type="bookmark"
         size="14"
         color="red"
         style="margin-right: 8px"></Icon>
       收藏
     </Button>
-    <ButtonGroup>
-      <Button
+    <ButtonGroup >
+      <Button 
         v-if="showQuickView"
         :disabled="!single"
         type="ghost"
         @click="quickView">浏览地图</Button>
-      <Button
+      <Button 
         v-if="showMetaData"
         :disabled="!single"
         type="ghost"
         @click="metaData">元数据补录</Button>
-      <Button
+      <Button 
         v-if="showViewMeta"
         :disabled="!single"
         type="ghost"
         @click="viewMeta">浏览元数据</Button>
-      <Button
+      <Button 
         v-if="showViewMeta"
         :disabled="!single"
         type="ghost"
         @click="deleteMeta">删除元数据</Button>
-      <Button
+      <Button 
         v-if="showAppendData"
         :disabled="!single"
         type="ghost"
         @click="appendData">数据追加</Button>
-      <Button
+      <Button 
         v-if="showRename"
         :disabled="!single"
         type="ghost"
         @click="rename">重命名</Button>
-      <Button
+      <Button 
         v-if="showMoveTo"
         :disabled="!onlyDirectory"
         type="ghost"
         @click="moveTo">移动到</Button>
-      <Button
+      <Button 
+        v-if="showMoveTo"
+        :disabled="!isFirst"
+        type="ghost"
+        @click="sortCatalog(2)">置顶</Button>
+      <Button 
+        v-if="showMoveTo"
+        :disabled="!isFirst"
+        type="ghost"
+        @click="sortCatalog(0)">上移</Button>
+      <Button 
+        v-if="showMoveTo"
+        :disabled="!isDirectoryEnd"
+        type="ghost"
+        @click="sortCatalog(1)">下移</Button>
+      <Button 
+        v-if="showMoveTo"
+        :disabled="!isDirectoryEnd"
+        type="ghost"
+        @click="sortCatalog(3)">置底</Button>
+      <Button 
         v-if="showBatchPublish"
         :disabled="!single"
         type="ghost"
         @click="batchPublish">批量发布</Button>
-      <Button
+      <Button 
         v-if="showDownload"
         :disabled="!single"
         type="ghost"
         @click="download">下载</Button>
-      <Button
+      <Button 
         v-if="showInformation"
         :disabled="!single"
         type="ghost"
         @click="information">属性</Button>
-      <Button
+      <Button 
         v-if="hasSelectNode"
         :disabled="forbidDelete"
         type="ghost"
         @click="deleteNode">删除</Button>
     </ButtonGroup>
-    <Publish
+    <Publish 
       v-model="publishModal"
       :node="publishNode"></Publish>
-    <BatchPublish
-      v-model="batchPublishModal"></BatchPublish>
-    <QuickView
+    <BatchPublish v-model="batchPublishModal"></BatchPublish>
+    <QuickView 
       v-model="quickViewModal"
       :is-meta="isMeta"></QuickView>
-    <ViewInformation
+    <ViewInformation 
       v-model="informationModal"
       :node="informationNode"></ViewInformation>
-    <MoveTo
+    <MoveTo 
       v-model="moveToModal"
       :nodes="moveNodes"></MoveTo>
-    <DeleteResource
+    <DeleteResource 
       v-model="deleteModal"
       :nodes="deleteNodes"></DeleteResource>
-    <UploadMataData
-      v-model="updateMataModal">
+    <UploadMataData v-model="updateMataModal">
     </UploadMataData>
-    <AppendData
-      v-model="appendDataModal">
+    <AppendData v-model="appendDataModal">
     </AppendData>
   </div>
 </template>

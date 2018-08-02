@@ -281,13 +281,14 @@ export default {
       return true;
     },
     handleData(data) {
-      return data.map(item => {
+      return data.map((item, index) => {
         item._checked = !!this.selectNodes.find(p => p.id == item.id);
         item._alias = item.alias ? item.alias : item.name;
         item._userName = item.userName ? item.userName : item.createusername || '-';
         item._size = item.size != undefined ? filesize(item.size) : '-';
         item._pubState = item.resourceTypeId == '2' ? item.pubState : '-';
         item._updateTime = date.format(new Date(item.updateTime), 'YYYY-M-D HH:mm');
+        item._index = index;
         return item;
       });
     },
@@ -324,7 +325,7 @@ export default {
 
 <template>
   <div class="data-table">
-    <Table
+    <Table 
       ref="table"
       :columns="columns"
       :data="tableData"
@@ -355,6 +356,7 @@ export default {
     background-color: #f8f8f9;
   }
 }
+
 .k-table-wrapper {
   border: none;
   /deep/ .k-table {
