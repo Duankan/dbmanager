@@ -53,6 +53,6 @@ aside {
   float: left;
   width: 50px;
   height: 100%;
-  background-color: #eeeff1;
+  background-color: #393d49;
 }
 </style>
