@@ -10,18 +10,18 @@ export default {
     return {
       siderBar: [
         {
-          title: '数据管理',
+          title: 'GIS数据管理',
           name: 'DataManager',
           icon: 'data-manager',
         },
         {
-          title: '数据浏览',
+          title: 'GIS数据浏览',
           name: 'MapView',
           icon: 'map-view',
         },
         {
-          title: '地图编辑',
-          name: 'MapEdit',
+          title: '业务数据',
+          name: 'Business',
           icon: 'map-edit',
         },
       ],
