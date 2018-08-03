@@ -21,6 +21,10 @@ export default {
       type: String,
       default: '数据目录',
     },
+    searchTreeKey: {
+      type: String,
+      default: '',
+    },
     // 只显示目录
     directory: {
       type: Boolean,
@@ -73,6 +77,10 @@ export default {
     filterText(val) {
       this.$refs.tree.filter(val);
     },
+    searchTreeKey(val) {
+      debugger;
+      this.test(val);
+    },
   },
   async mounted() {
     await this.loadRootNode();
@@ -90,6 +98,20 @@ export default {
       await this.loadRootNode();
       this.$refs.tree.$children[0].handleExpand();
     },
+    async test(key) {
+      const searchTree = await api.db.findCatalog({
+        name: key,
+        owner: 1,
+        ownerId: this.$appUser.orgid,
+        access: 1,
+        hasChild: false,
+        relatedType: 1,
+        orderby: 'sort_asc',
+        getmode: 'all',
+        resourceTypeId: '1,2',
+        parentId: item.childId,
+      });
+    },
     // 获取根节点信息
     async loadRootNode() {
       this.treeData = [];
@@ -103,11 +125,22 @@ export default {
       response.data[0].loading = false;
       response.data[0].children = [];
       response.data[0].title = this.rootNodeText;
-
       this.treeData.push(response.data[0]);
     },
     //异步加载子目录和数据
     async loadData(item, callback) {
+      // const searchtrees = {
+      //   name: '',
+      //   owner: 1,
+      //   ownerId: this.$appUser.orgid,
+      //   access: 1,
+      //   hasChild: false,
+      //   relatedType: 1,
+      //   orderby: 'sort_asc',
+      //   getmode: 'all',
+      //   resourceTypeId: '1,2',
+      //   parentId: item.childId,
+      // };
       const response = await api.public.findCatalog({
         owner: 1,
         ownerId: this.$appUser.orgid,
@@ -145,6 +178,10 @@ export default {
 
       callback(children);
     },
+    // //搜索树请求
+    // searchTree() {
+    //   loadData();
+    // },
     beforeDrop(dragNode, dragOverNode) {
       return helps.nodeType(dragOverNode.node) === 'directory' ? true : false;
     },
