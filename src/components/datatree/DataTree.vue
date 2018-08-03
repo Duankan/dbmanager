@@ -78,8 +78,7 @@ export default {
       this.$refs.tree.filter(val);
     },
     searchTreeKey(val) {
-      debugger;
-      this.test(val);
+      this.refreshTree();
     },
   },
   async mounted() {
@@ -98,19 +97,30 @@ export default {
       await this.loadRootNode();
       this.$refs.tree.$children[0].handleExpand();
     },
-    async test(key) {
-      const searchTree = await api.db.findCatalog({
+    //关键字搜索树目标重新加载
+    async searchTreeDataLoad(key) {
+      const response = await api.public.findCatalog({
         name: key,
         owner: 1,
         ownerId: this.$appUser.orgid,
         access: 1,
-        hasChild: false,
-        relatedType: 1,
+        hasChild: true,
+        // relatedType: 1,
         orderby: 'sort_asc',
-        getmode: 'all',
         resourceTypeId: '1,2',
-        parentId: item.childId,
+        // getmode: 'all',
+        // resourceTypeId: '1,2',
+        //parentId: item.childId,
       });
+      this.treeData = [];
+      debugger;
+      if (response) {
+        response.data[0].loading = false;
+        response.data[0].children = [];
+        response.data[0].title = response.data[0].name;
+        this.treeData.push(response.data[0]);
+        this.$refs.tree.$children[0].handleExpand();
+      }
     },
     // 获取根节点信息
     async loadRootNode() {
@@ -129,19 +139,7 @@ export default {
     },
     //异步加载子目录和数据
     async loadData(item, callback) {
-      // const searchtrees = {
-      //   name: '',
-      //   owner: 1,
-      //   ownerId: this.$appUser.orgid,
-      //   access: 1,
-      //   hasChild: false,
-      //   relatedType: 1,
-      //   orderby: 'sort_asc',
-      //   getmode: 'all',
-      //   resourceTypeId: '1,2',
-      //   parentId: item.childId,
-      // };
-      const response = await api.public.findCatalog({
+      var temp = {
         owner: 1,
         ownerId: this.$appUser.orgid,
         access: 1,
@@ -151,7 +149,12 @@ export default {
         getmode: 'all',
         resourceTypeId: '1,2',
         parentId: item.childId,
-      });
+      };
+      if (this.searchTreeKey != '' && item.name == '组织目录') {
+        temp.name = this.searchTreeKey;
+        temp.hasChild = true;
+      }
+      const response = await api.public.findCatalog(temp);
       const children = [];
       response.data.forEach(node => {
         const nodeType = helps.nodeType(node);
@@ -178,10 +181,6 @@ export default {
 
       callback(children);
     },
-    // //搜索树请求
-    // searchTree() {
-    //   loadData();
-    // },
     beforeDrop(dragNode, dragOverNode) {
       return helps.nodeType(dragOverNode.node) === 'directory' ? true : false;
     },
