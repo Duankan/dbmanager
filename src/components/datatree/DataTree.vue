@@ -21,6 +21,7 @@ export default {
       type: String,
       default: '数据目录',
     },
+    //搜索关键字
     searchTreeKey: {
       type: String,
       default: '',
@@ -105,15 +106,10 @@ export default {
         ownerId: this.$appUser.orgid,
         access: 1,
         hasChild: true,
-        // relatedType: 1,
         orderby: 'sort_asc',
         resourceTypeId: '1,2',
-        // getmode: 'all',
-        // resourceTypeId: '1,2',
-        //parentId: item.childId,
       });
       this.treeData = [];
-      debugger;
       if (response) {
         response.data[0].loading = false;
         response.data[0].children = [];
