@@ -23,9 +23,14 @@ export default {
       search: '',
     };
   },
+
   methods: {
     toggle() {
       this.$emit('update:component', this.component === 'DataTable' ? 'DataGrid' : 'DataTable');
+    },
+
+    inputSearchData() {
+      this.$store.dispatch(types.APP_NODES_TABLE, this.search);
     },
   },
 };
@@ -38,8 +43,10 @@ export default {
     <div class="operation-search">
       <Input
         v-model="search"
+        clearable
         icon="ios-search"
         placeholder="搜索您的数据"
+        @on-change="inputSearchData"
       ></Input>
       <Icon
         :type="component === 'DataTable' ? 'navicon' : 'grid'"
