@@ -70,11 +70,28 @@ const app = {
         resourceTypeId: '1,2',
         parentId: node.childId,
       });
+
       const nodes = response.data.filter(item => item.typeId !== '20102');
       commit(types.CHANGE_APP_NODES, nodes);
       commit(types.SET_APP_CURRENT_DIRECTORY, cloneDeep(node));
       commit(types.REMOVE_APP_SELECT_NODES);
     },
+
+    async [types.APP_NODES_TABLE]({ commit, state, rootState }, options) {
+      const response = await api.db.findpagelist({
+        objCondition: {
+          orgId: rootState.user.info.orgid,
+          findChildOrg: false,
+          name: options,
+        },
+        pageIndex: 1,
+        pageSize: 50,
+      });
+      const nodes = response.data.dataSource;
+      commit(types.CHANGE_APP_NODES, nodes);
+      commit(types.REMOVE_APP_SELECT_NODES);
+    },
+
     // 删除选择的节点数据
     async [types.APP_SELECT_NODES_DELETE]({ dispatch, state }) {
       // 删除非空的目录

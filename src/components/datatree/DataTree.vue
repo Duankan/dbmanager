@@ -21,6 +21,7 @@ export default {
       type: String,
       default: '数据目录',
     },
+    //搜索关键字
     searchTreeKey: {
       type: String,
       default: '',
@@ -97,6 +98,26 @@ export default {
     async refreshTree() {
       await this.loadRootNode();
       this.$refs.tree.$children[0].handleExpand();
+    },
+    //关键字搜索树目标重新加载
+    async searchTreeDataLoad(key) {
+      const response = await api.public.findCatalog({
+        name: key,
+        owner: 1,
+        ownerId: this.$appUser.orgid,
+        access: 1,
+        hasChild: true,
+        orderby: 'sort_asc',
+        resourceTypeId: '1,2',
+      });
+      this.treeData = [];
+      if (response) {
+        response.data[0].loading = false;
+        response.data[0].children = [];
+        response.data[0].title = response.data[0].name;
+        this.treeData.push(response.data[0]);
+        this.$refs.tree.$children[0].handleExpand();
+      }
     },
     // 获取根节点信息
     async loadRootNode() {

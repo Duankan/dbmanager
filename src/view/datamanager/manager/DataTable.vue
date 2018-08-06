@@ -325,7 +325,7 @@ export default {
 
 <template>
   <div class="data-table">
-    <Table 
+    <Table
       ref="table"
       :columns="columns"
       :data="tableData"
