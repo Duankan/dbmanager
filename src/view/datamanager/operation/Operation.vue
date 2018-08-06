@@ -30,7 +30,11 @@ export default {
     },
 
     inputSearchData() {
-      this.$store.dispatch(types.APP_NODES_TABLE, this.search);
+      if (this.search != '') {
+        this.$store.dispatch(types.APP_NODES_TABLE, this.search);
+      } else {
+        this.$store.dispatch(types.APP_NODES_FETCH, this.$store.state.app.selectNode);
+      }
     },
   },
 };
