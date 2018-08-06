@@ -52,7 +52,6 @@ export default {
       return this.selectNodes.length === 1 && this.selectNodes[0]._index !== 0;
     },
     isDirectoryEnd() {
-      debugger;
       if (this.selectNodes.length === 1) {
         if (isDirectory(this.selectNodes[0])) {
           if (this.selectNodes[0]._index < this.$store.state.app.nodes.length) {
