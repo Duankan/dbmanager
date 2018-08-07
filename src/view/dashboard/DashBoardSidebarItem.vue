@@ -9,7 +9,7 @@ export default {
   },
   computed: {
     style() {
-      return this.$route.name === this.value.name ? { backgroundColor: '#fff' } : {};
+      return this.$route.name === this.value.name ? { backgroundColor: '#459aee' } : {};
     },
   },
 };

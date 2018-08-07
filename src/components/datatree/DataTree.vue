@@ -21,6 +21,11 @@ export default {
       type: String,
       default: '数据目录',
     },
+    //搜索关键字
+    searchTreeKey: {
+      type: String,
+      default: '',
+    },
     // 只显示目录
     directory: {
       type: Boolean,
@@ -73,6 +78,10 @@ export default {
     filterText(val) {
       this.$refs.tree.filter(val);
     },
+    searchTreeKey(val) {
+      //关键字搜索树目标重新加载
+      this.refreshTree();
+    },
   },
   async mounted() {
     await this.loadRootNode();
@@ -90,6 +99,26 @@ export default {
       await this.loadRootNode();
       this.$refs.tree.$children[0].handleExpand();
     },
+    //关键字搜索树目标重新加载
+    async searchTreeDataLoad(key) {
+      const response = await api.public.findCatalog({
+        name: key,
+        owner: 1,
+        ownerId: this.$appUser.orgid,
+        access: 1,
+        hasChild: true,
+        orderby: 'sort_asc',
+        resourceTypeId: '1,2',
+      });
+      this.treeData = [];
+      if (response) {
+        response.data[0].loading = false;
+        response.data[0].children = [];
+        response.data[0].title = response.data[0].name;
+        this.treeData.push(response.data[0]);
+        this.$refs.tree.$children[0].handleExpand();
+      }
+    },
     // 获取根节点信息
     async loadRootNode() {
       this.treeData = [];
@@ -103,12 +132,11 @@ export default {
       response.data[0].loading = false;
       response.data[0].children = [];
       response.data[0].title = this.rootNodeText;
-
       this.treeData.push(response.data[0]);
     },
     //异步加载子目录和数据
     async loadData(item, callback) {
-      const response = await api.public.findCatalog({
+      var temp = {
         owner: 1,
         ownerId: this.$appUser.orgid,
         access: 1,
@@ -118,7 +146,12 @@ export default {
         getmode: 'all',
         resourceTypeId: '1,2',
         parentId: item.childId,
-      });
+      };
+      if (this.searchTreeKey != '' && item.name == '组织目录') {
+        temp.name = this.searchTreeKey;
+        temp.hasChild = true;
+      }
+      const response = await api.public.findCatalog(temp);
       const children = [];
       response.data.forEach(node => {
         const nodeType = helps.nodeType(node);

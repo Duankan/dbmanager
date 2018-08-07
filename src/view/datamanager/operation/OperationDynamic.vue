@@ -48,6 +48,21 @@ export default {
     single() {
       return this.selectNodes.length === 1;
     },
+    isFirst() {
+      return this.selectNodes.length === 1 && this.selectNodes[0]._index !== 0;
+    },
+    isDirectoryEnd() {
+      if (this.selectNodes.length === 1) {
+        if (isDirectory(this.selectNodes[0])) {
+          if (this.selectNodes[0]._index < this.$store.state.app.nodes.length) {
+            return isDirectory(this.$store.state.app.nodes[this.selectNodes[0]._index + 1]);
+          } else {
+            return true;
+          }
+        }
+      }
+      return false;
+    },
     showPublish() {
       return (
         this.selectNodes[0] && isGisResource(this.selectNodes[0]) && !this.selectNodes[0].pubState
@@ -191,6 +206,19 @@ export default {
       this.moveToModal = true;
       this.moveNodes = this.selectNodes;
     },
+    async sortCatalog(type) {
+      let node = this.selectNodes[0];
+      let fd = new FormData();
+      fd.append('id', node.id);
+      fd.append('type', type);
+      await api.db.sortCatalog({}, fd, {
+        headers: { 'User-Operation-Info': 'a3UjjlaLC9He' },
+      });
+      //await this.$store.dispatch(types.APP_NODES_FETCH, this.current);
+      this.$events.emit('on-refresh-nav-tree');
+      this.$store.dispatch(types.APP_NODES_FETCH, this.current);
+      this.$store.commit(types.REMOVE_APP_SELECT_NODES);
+    },
     information() {
       this.informationModal = true;
       this.informationNode = this.selectNodes[0];
@@ -227,7 +255,7 @@ export default {
         style="margin-right: 8px"></Icon>
       收藏
     </Button>
-    <ButtonGroup>
+    <ButtonGroup >
       <Button
         v-if="showQuickView"
         :disabled="!single"
@@ -264,6 +292,26 @@ export default {
         type="ghost"
         @click="moveTo">移动到</Button>
       <Button
+        v-if="showMoveTo"
+        :disabled="!isFirst"
+        type="ghost"
+        @click="sortCatalog(2)">置顶</Button>
+      <Button
+        v-if="showMoveTo"
+        :disabled="!isFirst"
+        type="ghost"
+        @click="sortCatalog(0)">上移</Button>
+      <Button
+        v-if="showMoveTo"
+        :disabled="!isDirectoryEnd"
+        type="ghost"
+        @click="sortCatalog(1)">下移</Button>
+      <Button
+        v-if="showMoveTo"
+        :disabled="!isDirectoryEnd"
+        type="ghost"
+        @click="sortCatalog(3)">置底</Button>
+      <Button
         v-if="showBatchPublish"
         :disabled="!single"
         type="ghost"
@@ -287,8 +335,7 @@ export default {
     <Publish
       v-model="publishModal"
       :node="publishNode"></Publish>
-    <BatchPublish
-      v-model="batchPublishModal"></BatchPublish>
+    <BatchPublish v-model="batchPublishModal"></BatchPublish>
     <QuickView
       v-model="quickViewModal"
       :is-meta="isMeta"></QuickView>
@@ -301,11 +348,9 @@ export default {
     <DeleteResource
       v-model="deleteModal"
       :nodes="deleteNodes"></DeleteResource>
-    <UploadMataData
-      v-model="updateMataModal">
+    <UploadMataData v-model="updateMataModal">
     </UploadMataData>
-    <AppendData
-      v-model="appendDataModal">
+    <AppendData v-model="appendDataModal">
     </AppendData>
   </div>
 </template>

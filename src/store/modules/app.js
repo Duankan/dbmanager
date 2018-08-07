@@ -11,6 +11,9 @@ const app = {
     nodes: [],
     // 当前选择的节点对象列表
     selectNodes: [],
+    //当前选择的数据节点
+    selectNode: {},
+    searchKey: '',
   },
   getters: {},
   mutations: {
@@ -59,6 +62,8 @@ const app = {
   actions: {
     // 接受目录类型节点
     async [types.APP_NODES_FETCH]({ commit, state, rootState }, node) {
+      state.selectNode = node;
+      state.searchKey = '';
       const response = await api.db.findCatalog({
         owner: 1,
         ownerId: rootState.user.info.orgid,
@@ -75,6 +80,23 @@ const app = {
       commit(types.SET_APP_CURRENT_DIRECTORY, cloneDeep(node));
       commit(types.REMOVE_APP_SELECT_NODES);
     },
+    //根据关键字过滤删选文件
+    async [types.APP_NODES_TABLE]({ commit, state, rootState }, keyStr) {
+      state.searchKey = keyStr;
+      const response = await api.db.findpagelist({
+        objCondition: {
+          orgId: rootState.user.info.orgid,
+          findChildOrg: false,
+          name: keyStr,
+        },
+        pageIndex: 1,
+        pageSize: 50,
+      });
+      const nodes = response.data.dataSource;
+      commit(types.CHANGE_APP_NODES, nodes);
+      commit(types.REMOVE_APP_SELECT_NODES);
+    },
+
     // 删除选择的节点数据
     async [types.APP_SELECT_NODES_DELETE]({ dispatch, state }) {
       // 删除非空的目录

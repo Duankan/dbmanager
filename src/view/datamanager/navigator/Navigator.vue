@@ -27,7 +27,7 @@ export default {
     </div>
     <div>
       <h4>我的数据</h4>
-      <NavTree @on-current-select="select">></NavTree>
+      <NavTree @on-current-select="select"></NavTree>
     </div>
   </div>
 </template>

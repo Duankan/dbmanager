@@ -10,18 +10,18 @@ export default {
     return {
       siderBar: [
         {
-          title: '数据管理',
+          title: 'GIS数据管理',
           name: 'DataManager',
           icon: 'data-manager',
         },
         {
-          title: '数据浏览',
+          title: 'GIS数据浏览',
           name: 'MapView',
           icon: 'map-view',
         },
         {
-          title: '地图编辑',
-          name: 'MapEdit',
+          title: '业务数据',
+          name: 'Business',
           icon: 'map-edit',
         },
       ],
@@ -53,6 +53,6 @@ aside {
   float: left;
   width: 50px;
   height: 100%;
-  background-color: #eeeff1;
+  background-color: #393d49;
 }
 </style>

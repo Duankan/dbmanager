@@ -22,6 +22,9 @@ export default {
     current() {
       return this.$store.state.app.currentDirectory;
     },
+    searchKey() {
+      return this.$store.state.app.searchKey;
+    },
   },
   watch: {
     async current(newVal, oldVal) {
@@ -30,6 +33,11 @@ export default {
       catalogArray = response.data.reverse();
       catalogArray[0].name = this.rootNodeText;
       this.breadcrumb = catalogArray;
+    },
+    searchKey(newVal, oldVal) {
+      if (newVal != '') {
+        this.breadcrumb = [{ name: '关键字"' + newVal + '"所有的查询结果' }];
+      }
     },
   },
   methods: {
@@ -47,12 +55,12 @@ export default {
   <div class="data-breadcrumb">
     <Breadcrumb>
       <BreadcrumbItem>全部</BreadcrumbItem>
-      <BreadcrumbItem
-        v-for="(item, index) in breadcrumb"
+      <BreadcrumbItem 
+        v-for="(item, index) in breadcrumb"   
         :key="item.id"
         @click.native="select(item, index)">{{ item.name }}</BreadcrumbItem>
     </Breadcrumb>
-    <span class="total">已全部加载，共 {{ nodes.length }} 个</span>
+    <span class="total">已全部加载，共 <span style="color:red">{{ nodes.length }}</span> 个</span>
   </div>
 
 </template>
