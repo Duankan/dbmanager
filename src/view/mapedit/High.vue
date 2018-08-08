@@ -105,7 +105,7 @@ export default {
         [layers]: [response.data[0], response.data[1]],
       });
     },
-
+    //这块需要改
     getParams() {
       let sdlfen =
         '{"name":"rule2","cqlFilter":"\\"面积\\"=\'2.04791747862E9\'","polygonSymbolizers":[{"fill":{"strColor":"#3286d8","numOpacity":1},"offset":{"offsetX":0,"offsetY":0}}]},{"name":"rule3","cqlFilter":"\\"面积\\"=\'8.30523447197E7\'","polygonSymbolizers":[{"fill":{"strColor":"#37d4fb","numOpacity":1},"offset":{"offsetX":0,"offsetY":0}}]},{"name":"rule4","cqlFilter":"\\"面积\\"=\'1.1183282E8\'","polygonSymbolizers":[{"fill":{"strColor":"#3389ae","numOpacity":1},"offset":{"offsetX":0,"offsetY":0}}]},{"name":"rule5","cqlFilter":"\\"面积\\"=\'9.3493826E8\'","polygonSymbolizers":[{"fill":{"strColor":"#bfeaee","numOpacity":1},"offset":{"offsetX":0,"offsetY":0}}]},{"name":"rule6","cqlFilter":"\\"面积\\"=\'1.8711695E9\'","polygonSymbolizers":[{"fill":{"strColor":"#7ed5f0","numOpacity":1},"offset":{"offsetX":0,"offsetY":0}}]},{"name":"rule7","cqlFilter":"\\"面积\\"=\'2.6483768E9\'","polygonSymbolizers":[{"fill":{"strColor":"#58a8b3","numOpacity":1},"offset":{"offsetX":0,"offsetY":0}}]},{"name":"rule8","cqlFilter":"\\"面积\\"=\'2.5586462E9\'","polygonSymbolizers":[{"fill":{"strColor":"#5ea4db","numOpacity":1},"offset":{"offsetX":0,"offsetY":0}}]},{"name":"rule9","cqlFilter":"\\"面积\\"=\'2.1864788E8\'","polygonSymbolizers":[{"fill":{"strColor":"#5e89b0","numOpacity":1},"offset":{"offsetX":0,"offsetY":0}}]},{"name":"rule10","cqlFilter":"\\"面积\\"=\'2.6142383E9\'","polygonSymbolizers":[{"fill":{"strColor":"#87a3a7","numOpacity":1},"offset":{"offsetX":0,"offsetY":0}}]},{"name":"rule11","cqlFilter":"\\"面积\\"=\'1.0477484E8\'","polygonSymbolizers":[{"fill":{"strColor":"#40bbfb","numOpacity":1},"offset":{"offsetX":0,"offsetY":0}}]},{"name":"rule12","cqlFilter":"\\"面积\\"=\'1.9268961E9\'","polygonSymbolizers":[{"fill":{"strColor":"#246ea5","numOpacity":1},"offset":{"offsetX":0,"offsetY":0}}]}';
@@ -134,6 +134,7 @@ export default {
     },
 
     statisticsSuccess(data) {
+      console.log(data);
       this.showTable = true;
       let dataarr = data.split('},');
       console.log(dataarr);
@@ -168,6 +169,7 @@ export default {
         data: param,
       });
     },
+
     //给过滤的组件添加字段
     async getAllField() {
       const response = await api.db.findService({

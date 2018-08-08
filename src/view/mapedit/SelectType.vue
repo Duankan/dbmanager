@@ -32,16 +32,15 @@ export default {
       data: [], //获取的table的数据
       alias: '', //绑定inpt的别名值
       name: '', //绑定inpt的名字值
-      classOne: '', //绑定inpt的样式值
+      classOne: '', //绑定选择的样式分类
       clickData: '', //绑定 点击table 选中的样式的值
-      type: '', //给的参数的类型
+      type: '', //给的参数的类型即选中的图层
     };
   },
   created() {
     this.judgeType();
     this.search();
     this.getStyleTypes();
-    //
   },
   methods: {
     //判断给的参数类型
@@ -59,7 +58,7 @@ export default {
     },
     //查询方法
     async search() {
-      const params = this.getParams();
+      const params = this.getParams(); //getParams将参数传给params
       const response = await api.db.findSyleByType(params);
       this.data = response.data;
     },
@@ -67,16 +66,16 @@ export default {
     getParams() {
       const params = {
         orgId: this.msg.data.resource.orgId,
-        type: this.type,
-        alias: this.alias,
-        name: this.name,
-        classify: this.classOne,
+        type: this.type, //给的参数的类型
+        alias: this.alias, //绑定inpt的别名值
+        name: this.name, //绑定inpt的名字值
+        classify: this.classOne, //绑定选择的样式分类
       };
       return params;
     },
     //查询样式分类下拉框的数据
     async getStyleTypes() {
-      const styleTypes = await api.db.styleTypes();
+      const styleTypes = await api.db.styleTypes(); //没看懂？？？？
       styleTypes.data.forEach(item => {
         this.classify.unshift({
           value: item.code,
@@ -87,27 +86,30 @@ export default {
     reset() {
       this.alias = '';
       this.name = '';
-      this.alias = '';
+      // this.alias = '';
       this.search();
     },
-    //修改样式
+
+    //应用样式
     async use() {
       //先判断如果没有点击选择的样式。
       if (this.clickData.name == null) {
-        this.$Message.error('请至少选择一个提取字段!');
+        this.$Message.error('请至少选择一个样式!');
       } else {
         for (let item of this.msg.sto.getters.ogcLayers) {
           if (item.options.layers == 'ktw:' + this.msg.data.name) {
             item.setParams({ styles: this.clickData.name });
+            break;
           }
         }
-        //删除图层 this.msg.sto.commit('SET_MAP_GOCLAYER_DELETE', ['ktw:' + this.msg.data.name]);
+
         const response = await api.db.findService({
           resourceId: this.msg.data.resourceId, // 资源id
           serivestatus: 0, // 服务状态(0 开启 1 关闭)
           baseservicetype: 1, // 基础服务
-          metadataLayer: this.msg.data.metadataLayer, // 元数据图层
+          metadataLayer: this.msg.data.metadataLayer, // 原数据图层
         });
+
         const search = url.parse(this.msg.data.serviceUrl).search;
         const layers = search.layers ? search.layers : search.typeName;
 
@@ -123,9 +125,12 @@ export default {
         this.msg.sto.commit(SET_MAP_SERVICELIST, {
           [layers]: [response.data[0], response.data[1]],
         });
-        console.log(wfsurlarr);
+        // console.log(wfsurlarr);
       }
     },
+    //取消样式
+    async cancle() {},
+    //default_polygon
     //点击获取点击的那条数据
     getData(currentRow) {
       this.clickData = currentRow;
@@ -161,7 +166,6 @@ export default {
     <p class="Select-Type-p">
 
       <Button
-
         type="primary"
         icon="ios-search"
         @click="search">查询</Button>
@@ -182,10 +186,10 @@ export default {
         type="success"
         @click="use"
       >应用</Button>
-      <Button type="error">取消</Button>
+      <Button 
+        type="error"
+        @click="cancle">取消</Button>
     </p>
-
-
 </div></template>
 
 <style lang="less" scoped>
