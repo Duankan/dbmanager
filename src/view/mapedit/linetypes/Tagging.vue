@@ -9,7 +9,6 @@ export default {
   data() {
     return {
       showSide: false,
-
       //下拉框的数据数字型
       fieldNumS: [
         {

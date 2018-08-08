@@ -119,7 +119,7 @@ export default {
         this.disabledDefault = false;
         // 过滤字段,取参数
         if (this.layerData.length !== 0) {
-          const totalParams = this.layerData.filter(item => item.label === layerData.label);
+          const totalParams = this.layerData.filter(item => item.title === layerData.label);
           this.queryAreaUrl = totalParams[0].servicesurl;
           this.layerCrs = totalParams[0].crs;
           this.allschema = totalParams[0].schema;
@@ -174,7 +174,6 @@ export default {
           sort: 'RANGE', //TODO: 可增加排序方式供用户选择或者直接在表格中做排序
         };
       }
-      console.log(statistics);
       return statistics;
       // return { statistics: JSON.stringify(statistics) };
     },
@@ -236,7 +235,7 @@ export default {
         <Option
           v-for="(item,index) in layerData"
           :value="item.label"
-          :key="index">{{ item.label }}</Option>
+          :key="index">{{ item.title }}</Option>
       </Select>
     </FormItem>
     <FormItem label="选择行政区：">

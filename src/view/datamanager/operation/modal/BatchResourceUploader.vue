@@ -318,6 +318,7 @@ export default {
         :on-success="uploadSuccess"
         :on-remove="deleteFile"
         :action="uploadUrl"
+        :accept="fileAccept"
         multiple
         type="drag">
         <div style="padding: 30px 0">

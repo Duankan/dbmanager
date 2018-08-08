@@ -24,7 +24,6 @@ export default {
   },
   computed: {
     schemas() {
-      console.log(this.value);
       let fields = this.value ? this.value.schemas.split(',') : [];
       return fields;
     },
@@ -106,6 +105,7 @@ export default {
         this.div.textarea += " '" + number + "' ";
         this.div.addNumberNUM += 1;
         this.$Message.success('添加成功！');
+        this.number = '';
       } else if (
         this.div.addFieldNUM == this.div.addSymbolNUM &&
         this.div.addFieldNUM == this.div.addNumberNUM

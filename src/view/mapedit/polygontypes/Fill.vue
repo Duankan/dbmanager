@@ -88,7 +88,6 @@ export default {
     this.getfield();
     this.getfont();
   },
-
   methods: {
     //获得全部字体方法
     async getfont() {

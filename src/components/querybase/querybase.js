@@ -51,6 +51,7 @@ export default {
                   label: key,
                   schema: newVal[key].schema,
                   crs: newVal[key].csys,
+                  title: newVal[key].title,
                 });
               });
             } else {
@@ -59,6 +60,7 @@ export default {
                 label: key,
                 schema: newVal[key].schema,
                 crs: newVal[key].csys,
+                title: newVal[key].title,
               });
             }
           }

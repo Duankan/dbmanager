@@ -192,7 +192,7 @@ export default {
     },
     selectLayer(layerData) {
       if (this.layerData.length !== 0) {
-        const totalParams = this.layerData.filter(item => item.label === layerData.label);
+        const totalParams = this.layerData.filter(item => item.title === layerData.label);
         this.allschema = totalParams[0].schema;
         this.filterCommonField();
       }
@@ -204,14 +204,14 @@ export default {
         this.queryUrl = url.origin + '/hgis/ows';
         // 过滤字段
         if (this.layerData.length !== 0) {
-          const totalParams = this.layerData.filter(item => item.label === layerData.label);
+          const totalParams = this.layerData.filter(item => item.title === layerData.label);
           this.fieldList = this.getColums(totalParams[0].schema);
           this.layerCrs = totalParams[0].crs;
           this.fieldList.forEach(item => {
             this.schema = this.schema + ',' + item.title;
           });
+          this.queryName = totalParams[0].label;
         }
-        this.queryName = layerData.label;
       }
     },
     // 发起请求
@@ -383,15 +383,14 @@ export default {
         <Option
           v-for="(item,index) in layerData"
           :value="item.servicesurl"
-          :key="index">{{ item.label }}</Option>
+          :key="index">{{ item.title }}</Option>
       </Select>
     </FormItem>
     <FormItem label="查询条件：">
       <Row class="condition">
         <FormItem
           v-for="(item, index) in formDynamic.items"
-          :key="index"
-        >
+          :key="index">
           <Form
             ref="formInline"
             inline>

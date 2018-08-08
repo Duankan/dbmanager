@@ -6,6 +6,7 @@ import ViewInformation from './modal/ViewInformation';
 import DeleteResource from './modal/DeleteResource';
 import UploadMataData from './modal/UploadMataData';
 import AppendData from './modal/AppendData';
+import BatchPublish from '@/components/batchpublish/BatchPublish';
 import * as types from '@/store/types';
 import { isDirectory, isFile, isVector, isGisResource, canView, canAppend } from '@/utils';
 
@@ -18,13 +19,13 @@ export default {
     DeleteResource,
     UploadMataData,
     AppendData,
+    BatchPublish,
   },
   data() {
     return {
       publishModal: false,
       publishNode: {},
       batchPublishModal: false,
-      batchPublishNodes: [],
       quickViewModal: false,
       isMeta: false,
       moveToModal: false,
@@ -47,11 +48,28 @@ export default {
     single() {
       return this.selectNodes.length === 1;
     },
+    isFirst() {
+      return this.selectNodes.length === 1 && this.selectNodes[0]._index !== 0;
+    },
+    isDirectoryEnd() {
+      if (this.selectNodes.length === 1) {
+        if (isDirectory(this.selectNodes[0])) {
+          if (this.selectNodes[0]._index < this.$store.state.app.nodes.length) {
+            return isDirectory(this.$store.state.app.nodes[this.selectNodes[0]._index + 1]);
+          } else {
+            return true;
+          }
+        }
+      }
+      return false;
+    },
     showPublish() {
-      const publishNode = this.selectNodes.filter(node => {
-        return isGisResource(node) && !node.pubState;
-      });
-      return publishNode && publishNode.length;
+      return (
+        this.selectNodes[0] && isGisResource(this.selectNodes[0]) && !this.selectNodes[0].pubState
+      );
+    },
+    showBatchPublish() {
+      return this.selectNodes[0] && isDirectory(this.selectNodes[0]);
     },
     showQuickView() {
       return (
@@ -96,9 +114,6 @@ export default {
     onlyGisResource() {
       return this.selectNodes.every(node => isGisResource(node));
     },
-    forbidPublish() {
-      return this.selectNodes.some(node => !isGisResource(node) || node.pubState);
-    },
     forbidDelete() {
       const directoryNode = this.selectNodes.filter(node => isDirectory(node));
       return directoryNode.some(node => node.isChild === 'open');
@@ -140,12 +155,14 @@ export default {
     },
     // 业务文件下载
     download() {
+      let node = this.selectNodes[0];
+      let fileName = `${node.alias}.${node.typeName}`;
       const link = document.createElement('a');
       link.setAttribute(
         'href',
         `${config.project.YunServicesUrl}/clouddisk/gisserver/download/${
           this.selectNodes[0].fResourceId
-        }?license=a3UjjlaLC9He&filename=${this.selectNodes[0].alias}`
+        }?license=a3UjjlaLC9He&filename=${fileName}`
       );
       // link.setAttribute('download', this.selectNodes[0].name);
       document.body.appendChild(link);
@@ -163,13 +180,11 @@ export default {
       this.quickViewModal = true;
     },
     publish() {
-      if (this.single) {
-        this.publishModal = true;
-        this.publishNode = this.selectNodes[0];
-      } else {
-        this.batchPublishModal = true;
-        this.batchPublishNodes = this.selectNodes;
-      }
+      this.publishModal = true;
+      this.publishNode = this.selectNodes[0];
+    },
+    batchPublish() {
+      this.batchPublishModal = true;
     },
     metaData() {
       this.updateMataModal = true;
@@ -191,6 +206,19 @@ export default {
       this.moveToModal = true;
       this.moveNodes = this.selectNodes;
     },
+    async sortCatalog(type) {
+      let node = this.selectNodes[0];
+      let fd = new FormData();
+      fd.append('id', node.id);
+      fd.append('type', type);
+      await api.db.sortCatalog({}, fd, {
+        headers: { 'User-Operation-Info': 'a3UjjlaLC9He' },
+      });
+      //await this.$store.dispatch(types.APP_NODES_FETCH, this.current);
+      this.$events.emit('on-refresh-nav-tree');
+      this.$store.dispatch(types.APP_NODES_FETCH, this.current);
+      this.$store.commit(types.REMOVE_APP_SELECT_NODES);
+    },
     information() {
       this.informationModal = true;
       this.informationNode = this.selectNodes[0];
@@ -207,7 +235,7 @@ export default {
   <div class="operation-dynamic">
     <Button
       v-if="showPublish"
-      :disabled="forbidPublish"
+      :disabled="!single"
       type="primary"
       @click="publish">
       <Icon
@@ -227,7 +255,7 @@ export default {
         style="margin-right: 8px"></Icon>
       收藏
     </Button>
-    <ButtonGroup>
+    <ButtonGroup >
       <Button
         v-if="showQuickView"
         :disabled="!single"
@@ -264,6 +292,31 @@ export default {
         type="ghost"
         @click="moveTo">移动到</Button>
       <Button
+        v-if="showMoveTo"
+        :disabled="!isFirst"
+        type="ghost"
+        @click="sortCatalog(2)">置顶</Button>
+      <Button
+        v-if="showMoveTo"
+        :disabled="!isFirst"
+        type="ghost"
+        @click="sortCatalog(0)">上移</Button>
+      <Button
+        v-if="showMoveTo"
+        :disabled="!isDirectoryEnd"
+        type="ghost"
+        @click="sortCatalog(1)">下移</Button>
+      <Button
+        v-if="showMoveTo"
+        :disabled="!isDirectoryEnd"
+        type="ghost"
+        @click="sortCatalog(3)">置底</Button>
+      <Button
+        v-if="showBatchPublish"
+        :disabled="!single"
+        type="ghost"
+        @click="batchPublish">批量发布</Button>
+      <Button
         v-if="showDownload"
         :disabled="!single"
         type="ghost"
@@ -282,9 +335,7 @@ export default {
     <Publish
       v-model="publishModal"
       :node="publishNode"></Publish>
-    <BatchPublish
-      v-model="batchPublishModal"
-      :nodes="batchPublishNodes"></BatchPublish>
+    <BatchPublish v-model="batchPublishModal"></BatchPublish>
     <QuickView
       v-model="quickViewModal"
       :is-meta="isMeta"></QuickView>
@@ -297,11 +348,9 @@ export default {
     <DeleteResource
       v-model="deleteModal"
       :nodes="deleteNodes"></DeleteResource>
-    <UploadMataData
-      v-model="updateMataModal">
+    <UploadMataData v-model="updateMataModal">
     </UploadMataData>
-    <AppendData
-      v-model="appendDataModal">
+    <AppendData v-model="appendDataModal">
     </AppendData>
   </div>
 </template>

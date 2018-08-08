@@ -53,7 +53,9 @@ export default {
       }
       let field = '';
       for (let item of this.$store.state.bus.field) {
-        field += item.key + ' ,';
+        if (item.key) {
+          field += item.key + ' ,';
+        }
       }
       this.propWin = this.$window({
         title: '属性过滤',

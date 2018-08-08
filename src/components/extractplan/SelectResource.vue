@@ -106,6 +106,12 @@ export default {
     selectAllLayer(layers) {
       layers.forEach(p => this.addSelect(p));
     },
+    //选择改变，用于取消全选
+    selectChange(layers) {
+      if (layers.length == 0) {
+        this.selectLayers.splice(0, this.selectLayers.length);
+      }
+    },
     //删除选择
     removeSelect(layer) {
       let queryLayer = this.selectLayers.find(p => p.resid == layer.id);
@@ -180,7 +186,8 @@ export default {
               border
               @on-select="selectLayer"
               @on-select-cancel="cancelLayer"
-              @on-select-all="selectAllLayer"></Table>
+              @on-select-all="selectAllLayer"
+              @on-selection-change="selectChange"></Table>
           </div>
         </div>
       </div>

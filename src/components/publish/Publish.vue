@@ -1,7 +1,7 @@
 <script>
 import * as types from '@/store/types';
 import api from 'api';
-import { filterSchema } from '@/utils/helps';
+import { filterSchema, getNodeStyleType } from '@/utils/helps';
 
 export default {
   name: 'Publish',
@@ -90,27 +90,9 @@ export default {
     async getStyle(node) {
       const response = await api.db.findSyleByType({
         orgId: this.$appUser.orgid,
-        type: this._getStyleType(node),
+        type: getNodeStyleType(node),
       });
       this.styleOptions = response.data;
-    },
-    // 获取资源节点样式类别
-    _getStyleType(node) {
-      switch (node.shapeType.toUpperCase()) {
-        case 'DEM':
-          return 4;
-        case 'POLYGON':
-        case 'MULTIPOLYGON':
-          return 3;
-        case 'POLYLINE':
-        case 'LINESTRING':
-        case 'MULTILINESTRING':
-          return 2;
-        case 'POINT':
-          return 1;
-        default:
-          return 0;
-      }
     },
     //获取节点类型
     getType(node) {

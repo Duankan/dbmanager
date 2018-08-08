@@ -1,6 +1,9 @@
 <script>
 import api from 'api';
 
+const SET_MAP_SERVICELIST = 'SET_MAP_SERVICELIST';
+const SET_MAP_GOCLAYER_DELETE = 'SET_MAP_GOCLAYER_DELETE';
+
 export default {
   name: 'LayerCollect',
   props: {},
@@ -29,12 +32,32 @@ export default {
     },
     // 更新图层集名称
     async update(data) {
-      await api.db.updateMapLayer({});
+      let info = data.info;
+      let entity = { ...data };
+      entity.info = JSON.parse(entity.info);
+      entity.name = entity._name;
+      let params = {
+        infoEntity: entity,
+        mapExEntity: { info },
+      };
+      await api.db.updateMapLayer(params);
+      data.name = data._name;
       this.$Message.success('重命名成功！');
       this.$set(data, 'editState', false);
     },
     // 浏览图层集
-    view(data) {},
+    view(data) {
+      let config = JSON.parse(data.info);
+      let layers = this.$store.getters.ogcLayers.map(p => p.options.layers);
+      this.$store.commit(SET_MAP_GOCLAYER_DELETE, layers);
+      this.$nextTick(p => {
+        this.$store.commit(SET_MAP_SERVICELIST, config.layers);
+        this.$nextTick(m => {
+          let map = this.$store.getters.mapManager._map;
+          map.setView(config.center, config.zoom);
+        });
+      });
+    },
     // 删除图层集
     async delete(data) {
       await api.db.deleteMapLayer({
@@ -49,7 +72,14 @@ export default {
           <svg-icon size="16" iconClass="maps" />
           {data.editState ? (
             <span class="layer-collect-wrap">
-              <Input value={data.name} size="small" style={{ width: '100px' }} />
+              <Input
+                value={data.name}
+                size="small"
+                style={{ width: '100px' }}
+                onOn-change={e => {
+                  data._name = e.target.value;
+                }}
+              />
               <icon type="checkmark" color="#19be6b" nativeOnClick={() => this.update(data)} />
               <icon
                 type="close-round"
@@ -100,6 +130,7 @@ export default {
       <Card
         v-show="showPanel"
         :bordered="false"
+        class="border-card"
         dis-hover>
         <p slot="title">图层集</p>
         <Tree
@@ -163,6 +194,12 @@ export default {
       > .k-svgicon {
         margin-right: 6px;
       }
+    }
+
+    /deep/ .k-tree-empty {
+      text-align: center;
+      font-size: 12px;
+      color: #555555;
     }
   }
 

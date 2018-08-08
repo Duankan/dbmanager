@@ -183,6 +183,8 @@ export default {
           title: this.fieldList[i].label,
           key: this.fieldList[i].label,
           align: 'center',
+          width: 100,
+          maxWidth: 200,
         });
       }
       return columns;

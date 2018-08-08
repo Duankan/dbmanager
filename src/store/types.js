@@ -7,6 +7,7 @@
 
 /* app modules */
 export const APP_NODES_FETCH = 'APP_NODES_FETCH';
+export const APP_NODES_TABLE = 'APP_NODES_TABLE';
 export const APP_SELECT_NODES_DELETE = 'APP_SELECT_NODES_DELETE';
 
 /* -------------------------------------------------------------------------------------------------------- */
