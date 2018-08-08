@@ -22,6 +22,14 @@ export default {
           name: '-none-',
         },
       ],
+      trueAndfalse: [
+        {
+          name: 'true',
+        },
+        {
+          name: 'false',
+        },
+      ],
       strLabelOpacity: true,
       angleOpacity: true,
       angle: 0, //旋转的角度
@@ -37,6 +45,8 @@ export default {
       rotationField: null, //旋转后面的下拉框绑定数据
       fonts: [], //全部的字体
       font: '', //绑定的字体
+      perpendicular: null,
+      followLine: 'true',
     };
   },
   computed: {
@@ -45,17 +55,39 @@ export default {
         {
           fill: { numOpacity: this.numOpacity / 100, strColor: this.strColorF },
           font: { strFamily: this.font, strSize: '12' },
-          pointPlacement: { rotationField: this.rotationField },
+          linePlacement: { perpendicular: '' + this.perpendicular },
           halo: { fill: { strColor: this.strColorY }, numRadius: '' + this.numRadius },
           options: {
             maxDisplacement: '' + this.maxDisplacement,
             autoWrap: '' + this.autoWrap,
+            followLine: '' + this.followLine,
             spaceAround: '' + this.spaceAround,
           },
           labelField: this.labelField,
           strLabel: this.strLabel,
         },
       ];
+
+      let xian = [
+        {
+          fill: { numOpacity: 1, strColor: '#000000' },
+          font: { strFamily: '4028808d5e7fa46d015e7fa5d6310018' },
+          linePlacement: { perpendicular: '' + this.perpendicular },
+          halo: { fill: { strColor: '#000000' }, numRadius: '0' },
+          options: {
+            maxDisplacement: '1',
+            repeat: '2',
+            autoWrap: '3',
+            spaceAround: '4',
+            followLine: 'true',
+            maxAngleDelta: '5',
+          },
+          graphic: {},
+          labelField: '长度',
+          fontSize: '12',
+        },
+      ];
+
       var strTagging = JSON.stringify(Taggings);
       return strTagging;
     },
@@ -154,28 +186,7 @@ export default {
         style="width: 326px"
       ></InputNumber>
     </p>
-    <p class="p">
-      <span v-if="angleOpacity">旋转:</span>
-      <InputNumber
-        v-if="angleOpacity"
-        :disabled="!showSide"
-        :max="360"
-        :min="-360"
-        :step="45"
-        v-model="angle"
-        style="width: 170px"
-      ></InputNumber>
-      <span v-if="!angleOpacity">旋转字段:</span>
-      <Select
-        v-model="rotationField"
-        :disabled="!showSide"
-        style="width:165px">
-        <Option
-          v-for="item in fieldNumS"
-          :value="item.name"
-          :key="item.name">{{ item.name }}</Option>
-      </Select>
-    </p>
+
     <p class="p">
       <span>字体:</span>
       <ColorPicker
@@ -211,6 +222,8 @@ export default {
     <p class="p">
       <span>垂直偏移:</span>
       <InputNumber
+        v-model="perpendicular"
+        :disabled="!showSide"
         :max="2000"
         :min="0"
         style="width: 300px"
@@ -220,6 +233,7 @@ export default {
     <p class="p">
       <span>初始间隔:</span>
       <InputNumber
+        :disabled="!showSide"
         :max="2000"
         :min="0"
         style="width: 300px"
@@ -250,6 +264,18 @@ export default {
           style="width: 272px"
         ></Input>
       </p>
+      <p >
+        <span>是否沿线:</span>
+        <Select
+          v-model="followLine"
+          :disabled="!showSide"
+          style="width:312px">
+          <Option
+            v-for="item in trueAndfalse"
+            :value="item.name"
+            :key="item.name">{{ item.name }}</Option>
+        </Select>
+      </p>
     </div>
 
   </div>
@@ -261,7 +287,7 @@ export default {
 }
 .Tagging-bottom {
   width: 380px;
-  height: 110px;
+  height: 135px;
   margin: 8px 0 0 0;
   border: 1px dashed #000;
 }

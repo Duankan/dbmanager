@@ -92,40 +92,7 @@ export default {
       let slddata = await api.db.getsldbyname(params);
       this.stylename = slddata.data.nameLayers['0'].style['0'].name;
     },
-    //另存方法
-    async saveAs() {
-      const params = this.getParams();
-      let SaveAs = await api.db.addbysld(params);
-      if (SaveAs.data.message) {
-        this.$Message.error(SaveAs.data.message);
-      }
-      if (SaveAs.data.statusCode != 400) {
-        alert('另存成功');
-        await this.show(SaveAs.data.name);
-      }
-    },
-    //显示图层方法
-    async show(name) {
-      this.msg.sto.commit('SET_MAP_GOCLAYER_DELETE', ['ktw:' + this.msg.data.name]);
-      const response = await api.db.findService({
-        resourceId: this.msg.data.resourceId, // 资源id
-        serivestatus: 0, // 服务状态(0 开启 1 关闭)
-        baseservicetype: 1, // 基础服务
-        metadataLayer: this.msg.data.metadataLayer, // 元数据图层
-      });
-      const search = url.parse(this.msg.data.serviceUrl).search;
-      const layers = search.layers ? search.layers : search.typeName;
-      let wfsurlarr = response.data[0].wfsurl.split('&');
-      wfsurlarr[7] = 'styles=' + name;
-      let servicesurlString = '';
-      for (let i = 0; i < wfsurlarr.length; i++) {
-        servicesurlString += wfsurlarr[i] + '&';
-      }
-      response.data[0].servicesurl = servicesurlString;
-      this.msg.sto.commit(SET_MAP_SERVICELIST, {
-        [layers]: [response.data[0], response.data[1]],
-      });
-    },
+
     //另存的构造参数
     getParams() {
       let stroke = this.$refs.Side.showSide ? this.$refs.Side.Stroke : null;
@@ -174,6 +141,7 @@ export default {
         },
         styleType: 3,
       };
+
       return params;
     },
 
@@ -259,23 +227,6 @@ export default {
       </div>
     </div>
 
-    <div class="bottom">
-      <Button
-        style="float: right;margin:2px;"
-        type="primary"
-        icon="ios-search"
-        @click="saveAs">另存</Button>
-      <Button
-        style="float: right;margin:2px;"
-        type="primary"
-        icon="ios-search">保存</Button>
-      <Button
-        style="float: right;margin:2px;"
-        type="primary"
-        icon="ios-search">取消</Button>
-
-
-    </div>
   </div>
 
 </template>

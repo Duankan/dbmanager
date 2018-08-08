@@ -77,36 +77,31 @@ export default {
       let slddata = await api.db.getsldbyname(params);
       this.stylename = slddata.data.nameLayers['0'].style['0'].name;
     },
-    //另存方法
-    async saveAs() {
-      const params = this.getParams();
-      let SaveAs = await api.db.addbysld(params);
-      if (SaveAs.data.message) {
-        this.$Message.error(SaveAs.data.message);
-      }
-      if (SaveAs.data.statusCode != 400) {
-        alert('另存成功');
-        await this.show(SaveAs.data.name);
-      }
-    },
+
     //另存的构造参数
     getParams() {
-      let stroke = this.$refs.Side.showSide ? this.$refs.Side.Stroke : null;
-      let Tagging = this.$refs.Tagging.showSide ? this.$refs.Tagging.Taggings : null;
-      let LineSymbol = this.$refs.LineSymbol.showSide ? this.$refs.LineSymbol.LineSymbols : null;
-      if (LineSymbol != null && stroke == null) {
-        stroke = {
-          graphicStroke: LineSymbol,
-        };
-        stroke = JSON.stringify(stroke);
-      }
-      if (stroke != null && LineSymbol != null) {
-        stroke.graphicStroke = LineSymbol;
-        stroke = JSON.stringify(stroke);
-      }
-      if (stroke != null && LineSymbol == null) {
-        stroke = JSON.stringify(stroke);
-      }
+      let stroke = this.$refs.LineSide.showSide ? this.$refs.LineSide.Stroke : null;
+      let Tagging = this.$refs.LineTagging.showSide ? this.$refs.LineTagging.Taggings : null;
+      let LineSymbol = this.$refs.LineLineSymbol.showSide
+        ? this.$refs.LineLineSymbol.LineSymbols
+        : null;
+      console.log(stroke);
+      console.log(LineSymbol);
+      try {
+        if (LineSymbol != null && stroke == null) {
+          stroke = {
+            graphicStroke: LineSymbol,
+          };
+          stroke = JSON.stringify(stroke);
+        }
+        if (stroke != null && LineSymbol != null) {
+          stroke.graphicStroke = LineSymbol;
+          stroke = JSON.stringify(stroke);
+        }
+        if (stroke != null && LineSymbol == null) {
+          stroke = JSON.stringify(stroke);
+        }
+      } catch (error) {}
 
       const params = {
         sld:
@@ -115,9 +110,9 @@ export default {
           '","featureTypeStyle":[{"rule":[{"lineSymbolizers":[{"stroke":' +
           stroke +
           ',"offset":{"offsetX":"' +
-          this.$refs.Currency.xSkewing +
+          this.$refs.LineCurrency.xSkewing +
           '","offsetY":"' +
-          this.$refs.Currency.ySkewing +
+          this.$refs.LineCurrency.ySkewing +
           '"}}],"textSymbolizers":' +
           Tagging +
           ',"name":"面样式4","cqlFilter":"","minScaleDenominator":"0","maxScaleDenominator":""}],"semanticTypeIdentifier":["generic:geometry"]}]}]}],"userLayers":null}',
@@ -132,8 +127,9 @@ export default {
           orgId: '00000000-0000-0000-0000-000000000000',
           orgName: '超级管理员组织',
         },
-        styleType: 3,
+        styleType: 2,
       };
+
       return params;
     },
     //添加组的方法
@@ -170,23 +166,23 @@ export default {
       </p>
       <Currency
         v-show="tool=='通用'"
-        ref="Currency"
+        ref="LineCurrency"
         :msg="msg"></Currency>
       <Side
         v-show="tool=='线'"
-        ref="Side"
+        ref="LineSide"
         :msg="msg"></Side>
       <Tagging
         v-show="tool=='标注'"
-        ref="Tagging"
+        ref="LineTagging"
         :msg="msg"></Tagging>
       <LineSymbol
         v-show="tool=='线符号'"
-        ref="LineSymbol"
+        ref="LineLineSymbol"
         :msg="msg"></LineSymbol>
       <AttributeFilter
         v-show="tool=='过滤'"
-        ref="filterEditor"
+        ref="LinefilterEditor"
         :value="currentFilter"></AttributeFilter>
     </div>
 
@@ -211,23 +207,6 @@ export default {
       </div>
     </div>
 
-    <div class="bottom">
-      <Button
-        style="float: right;margin:2px;"
-        type="primary"
-        icon="ios-search"
-        @click="saveAs">另存</Button>
-      <Button
-        style="float: right;margin:2px;"
-        type="primary"
-        icon="ios-search">保存</Button>
-      <Button
-        style="float: right;margin:2px;"
-        type="primary"
-        icon="ios-search">取消</Button>
-
-
-    </div>
   </div>
 
 </template>
