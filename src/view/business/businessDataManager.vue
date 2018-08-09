@@ -2,12 +2,14 @@
 import DataDisplay from './DataDisplay';
 import BusinessSort from './BusinessSort';
 import BusinessLable from './BusinessLable';
+import BusinessTable from './BusinessTable';
 export default {
   name: 'BusinessDataManager',
   components: {
     DataDisplay,
     BusinessSort,
     BusinessLable,
+    BusinessTable,
   },
 };
 </script>
@@ -28,7 +30,9 @@ export default {
           name="name2">标签二的内容</Tab-pane>
       </Tabs>
     </div>
-    <div id="right-context">内容填充</div>
+    <div id="right-context">
+      <BusinessTable></BusinessTable>
+    </div>
   </div>
 </template>
 <style lang="less" scoped>

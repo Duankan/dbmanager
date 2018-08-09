@@ -38,23 +38,23 @@ export default {
                       float: 'right',
                       marginRight: '32px',
                     },
-                  }
-                  // [
-                  //   h('Button', {
-                  //     props: Object.assign({}, this.buttonProps, {
-                  //       icon: 'ios-add',
-                  //       type: 'primary',
-                  //     }),
-                  //     style: {
-                  //       width: '64px',
-                  //     },
-                  //     on: {
-                  //       click: () => {
-                  //         this.append(data);
-                  //       },
-                  //     },
-                  //   }),
-                  // ]
+                  }[
+                    h('Button', {
+                      props: Object.assign({}, this.ButtonProps, {
+                        icon: 'ios-plus-empty',
+                        // type: 'primary',
+                      }),
+                      style: {
+                        marginRight: '5px',
+                        padding: '0px 3px',
+                      },
+                      on: {
+                        click: () => {
+                          this.append(data);
+                        },
+                      },
+                    })
+                  ]
                 ),
               ]
             );
@@ -112,17 +112,26 @@ export default {
           },
         },
         [
-          h('span', [
-            h('Icon', {
-              props: {
-                type: 'ios-paper-outline',
-              },
-              style: {
-                marginRight: '5px',
-              },
-            }),
-            h('span', data.title),
-          ]),
+          h(
+            'span',
+            // {
+            //   style: {
+            //     width: '85px',
+            //     background: 'none',
+            //   },
+            // },
+            [
+              h('Icon', {
+                props: {
+                  type: 'ios-paper-outline',
+                },
+                style: {
+                  marginRight: '5px',
+                },
+              }),
+              h('span', data.title),
+            ]
+          ),
           h(
             'span',
             {
