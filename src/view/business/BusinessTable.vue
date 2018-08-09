@@ -125,7 +125,6 @@ export default {
               c: Math.floor(Math.random() * 1000000 + 100000),
             },
           ],
-          // time: Math.floor(Math.random() * 7 + 1),
           update: new Date(),
         });
       }
