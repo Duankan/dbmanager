@@ -4,8 +4,9 @@ export default {
   data() {
     return {
       tableData: [],
-      totalCount: '',
       tableHeight: 200,
+      totalCount: '',
+      pageIndex: '',
       tableColumns1: [
         {
           type: 'selection',
@@ -121,52 +122,31 @@ export default {
         orderfield: '', //排序字段
         sort: '', //排序方式
         pageinfo: {
-          pageIndex: 2, //当前页
+          pageIndex: '', //当前页
           pageSize: 10, //每页总数
           orderby: '', //排序字段
         },
       });
-      debugger;
+
       this.tableData = response.data.dataSource;
-      const totalCount = response.data.pageInfo.totalCount;
+      this.totalCount = response.data.pageInfo.totalCount;
+      this.pageIndex = response.data.pageInfo.pageIndex;
+      // debugger;
     },
-    // let data = [];
-    // for (let i = 0; i < 10; i++) {
-    //   data.push({
-    //     name: 'RT1924' + Math.floor(Math.random() * 100 + 1),
-    //     status: Math.floor(Math.random() * 3 + 1),
-    //     describe: '关于这个应用的描述',
-    //     classify: [
-    //       {
-    //         n: 'People' + Math.floor(Math.random() * 100 + 1),
-    //         c: Math.floor(Math.random() * 1000000 + 100000),
-    //       },
-    //       {
-    //         n: 'People' + Math.floor(Math.random() * 100 + 1),
-    //         c: Math.floor(Math.random() * 1000000 + 100000),
-    //       },
-    //       {
-    //         n: 'People' + Math.floor(Math.random() * 100 + 1),
-    //         c: Math.floor(Math.random() * 1000000 + 100000),
-    //       },
-    //     ],
-    //     update: new Date(),
-    //   });
-    // }
-    // return data;
-    // },
-    // formatDate(date) {
-    //   const y = date.getFullYear();
-    //   let m = date.getMonth() + 1;
-    //   m = m < 10 ? '0' + m : m;
-    //   let d = date.getDate();
-    //   d = d < 10 ? '0' + d : d;
-    //   return y + '-' + m + '-' + d;
-    // },
-    changePage() {
+    changePage(currPage) {
       this.mocktableData();
+
+      debugger;
     },
   },
+  // formatDate(date) {
+  //   const y = date.getFullYear();
+  //   let m = date.getMonth() + 1;
+  //   m = m < 10 ? '0' + m : m;
+  //   let d = date.getDate();
+  //   d = d < 10 ? '0' + d : d;
+  //   return y + '-' + m + '-' + d;
+  // },
 };
 </script>
 
@@ -186,8 +166,9 @@ export default {
       <div style="float: right;">
         <Page
           :total="totalCount"
-          :current="1"
-          @on-change="changePage"></Page>
+          :current="pageIndex"
+          @on-change="changePage"
+        ></Page>
       </div>
     </div>
   </div>
