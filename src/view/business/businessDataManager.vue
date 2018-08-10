@@ -43,12 +43,12 @@ export default {
 <style lang="less" scoped>
 #left-menu {
   float: left;
-  width: 260px;
+  width: 300px;
   height: 100%;
   box-shadow: 0px 0px 25px #ced0d3;
 }
 #right-context {
-  margin-left: 310px;
+  margin-left: 350px;
   height: 100%;
   background: #f1f3f7;
 }

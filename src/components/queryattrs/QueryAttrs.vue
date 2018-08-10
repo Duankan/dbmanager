@@ -177,14 +177,14 @@ export default {
     },
     //构建table里面的columns
     getColums() {
-      const columns = [{ title: '序号', type: 'index', align: 'center' }];
+      const columns = [{ title: '序号', type: 'index', align: 'center', width: 100 }];
       for (let i = 0; i < this.fieldList.length; i++) {
         columns.push({
           title: this.fieldList[i].label,
           key: this.fieldList[i].label,
           align: 'center',
-          width: 100,
-          maxWidth: 200,
+          // width: 100,
+          // maxWidth: 200,
         });
       }
       return columns;
