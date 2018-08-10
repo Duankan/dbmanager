@@ -8,6 +8,18 @@ export default {
     DashBoardNav,
     DashBoardSidebar,
   },
+  mounted() {
+    this.globalConfig();
+  },
+  methods: {
+    //全局配置参数
+    globalConfig() {
+      this.$Notice.config({
+        top: 65,
+        duration: 4.5,
+      });
+    },
+  },
 };
 </script>
 

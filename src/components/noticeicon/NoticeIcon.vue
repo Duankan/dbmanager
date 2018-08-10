@@ -1,19 +1,54 @@
 <script>
+import PollTask from './PollTask';
+import MessageCenter from './MessageCenter';
+
+/*
+ * 通知中心模块
+ */
 export default {
   name: 'NoticeIcon',
+  components: {
+    PollTask,
+    MessageCenter,
+  },
   data() {
     return {
-      title: ['通知', '任务'],
-      messageList: [],
+      //模块列表
+      modules: [
+        {
+          title: '任务',
+          component: 'PollTask',
+        },
+        {
+          title: '通知',
+          component: 'MessageCenter',
+        },
+      ],
     };
+  },
+  methods: {
+    //Tab渲染函数
+    labelRender: (h, ctx) => {
+      debugger;
+      return h('div', [
+        h('span', '标签一'),
+        h('Badge', {
+          props: {
+            count: 2,
+            overflowCount: 100,
+          },
+        }),
+      ]);
+    },
   },
 };
 </script>
 
 <template>
   <Poptip
+    :width="280"
     class="notice-icon"
-    trigger="hover"
+    trigger="click"
     placement="bottom-end">
     <Badge dot>
       <Icon
@@ -23,36 +58,17 @@ export default {
     <div
       slot="content"
       class="notice-panel">
-      <Tabs size="small">
+      <Tabs
+        size="small">
         <TabPane
-          v-for="item in title"
-          :label="item"
-          :key="item"
-          class="notice-list"
-        >
-          <ul v-if="messageList.length">
-            <li
-              v-for="item in messageList"
-              :key="item.time"
-              class="notice-list-item">
-              <p>{{ item.message }}</p>
-              <span>{{ item.time }}</span>
-            </li>
-          </ul>
-          <div
-            v-else
-            class="notice-list-empty">
-            <SvgIcon
-              :size="128"
-              icon-class="no-message"
-          ></SvgIcon>暂无消息</div>
+          v-for="(item,index) in modules"
+          :label="item.title"
+          :key="index"
+          class="notice-list">
+          <component :is="item.component"></component>
         </TabPane>
       </Tabs>
       <div class="notice-panel-footer">
-        <span>全部标记为已读</span>
-        <span>查看全部<Icon
-          type="chevron-right"
-          color="#495060"></Icon></span>
       </div>
     </div>
   </Poptip>
@@ -69,7 +85,7 @@ export default {
 
   .notice-panel {
     position: relative;
-    width: 260px;
+    width: 100%;
 
     .notice-list {
       display: flex;
@@ -79,26 +95,11 @@ export default {
       margin-bottom: 40px;
       overflow: auto;
 
-      .notice-list-empty {
+      /deep/ .notice-list-empty {
         text-align: center;
         color: #676d7a;
         .k-svgicon {
           display: block;
-        }
-      }
-
-      .notice-list-item {
-        padding: 12px 16px;
-        p {
-          white-space: normal;
-        }
-
-        span {
-          margin-top: 6px;
-          color: #80848f;
-        }
-        &:hover {
-          background: #f6f8f8;
         }
       }
     }

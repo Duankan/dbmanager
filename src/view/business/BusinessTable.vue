@@ -3,7 +3,9 @@ export default {
   name: 'BusinessTable',
   data() {
     return {
-      tableData1: this.mockTableData1(),
+      tableData: [],
+      totalCount: '',
+      tableHeight: 200,
       tableColumns1: [
         {
           type: 'selection',
@@ -17,20 +19,17 @@ export default {
           title: '描述',
           key: 'describe',
           width: 300,
-          render: (h, params) => {
-            return h('div', '这是一段描述，' + params.row.describe);
-          },
         },
         {
           title: '标签',
-          key: 'classify',
+          key: 'keyword',
           render: (h, params) => {
             return h('div');
           },
         },
         {
           title: '分类',
-          key: 'describe',
+          key: 'restype',
           render: (h, params) => {
             return h('div');
           },
@@ -58,9 +57,10 @@ export default {
         {
           title: '创建时间',
           key: 'update',
-          render: (h, params) => {
-            return h('div', this.formatDate(this.tableData1[params.index].update));
-          },
+          // render: (h, params) => {
+          //   const row = params.row;
+          //   return h('div', this.formatDate(row.update));
+          // },
         },
         {
           title: '操作',
@@ -103,43 +103,68 @@ export default {
       ],
     };
   },
+  mounted() {
+    this.mocktableData();
+    //自适应高度
+    this.tableHeight = document.getElementsByClassName('table-content')[0].offsetHeight - 200;
+    var that = this;
+    window.onresize = function temp() {
+      that.tableHeight = document.getElementsByClassName('table-content')[0].offsetHeight - 200;
+    };
+  },
   methods: {
-    mockTableData1() {
-      let data = [];
-      for (let i = 0; i < 10; i++) {
-        data.push({
-          name: 'RT1924' + Math.floor(Math.random() * 100 + 1),
-          status: Math.floor(Math.random() * 3 + 1),
-          describe: '关于这个应用的描述',
-          classify: [
-            {
-              n: 'People' + Math.floor(Math.random() * 100 + 1),
-              c: Math.floor(Math.random() * 1000000 + 100000),
-            },
-            {
-              n: 'People' + Math.floor(Math.random() * 100 + 1),
-              c: Math.floor(Math.random() * 1000000 + 100000),
-            },
-            {
-              n: 'People' + Math.floor(Math.random() * 100 + 1),
-              c: Math.floor(Math.random() * 1000000 + 100000),
-            },
-          ],
-          update: new Date(),
-        });
-      }
-      return data;
+    async mocktableData() {
+      const response = await api.db.findpagelist({
+        name: '', //表名
+        restype: '', //资源分类
+        keyword: '', //标签关键字
+        orderfield: '', //排序字段
+        sort: '', //排序方式
+        pageinfo: {
+          pageIndex: 2, //当前页
+          pageSize: 10, //每页总数
+          orderby: '', //排序字段
+        },
+      });
+      debugger;
+      this.tableData = response.data.dataSource;
+      const totalCount = response.data.pageInfo.totalCount;
     },
-    formatDate(date) {
-      const y = date.getFullYear();
-      let m = date.getMonth() + 1;
-      m = m < 10 ? '0' + m : m;
-      let d = date.getDate();
-      d = d < 10 ? '0' + d : d;
-      return y + '-' + m + '-' + d;
-    },
+    // let data = [];
+    // for (let i = 0; i < 10; i++) {
+    //   data.push({
+    //     name: 'RT1924' + Math.floor(Math.random() * 100 + 1),
+    //     status: Math.floor(Math.random() * 3 + 1),
+    //     describe: '关于这个应用的描述',
+    //     classify: [
+    //       {
+    //         n: 'People' + Math.floor(Math.random() * 100 + 1),
+    //         c: Math.floor(Math.random() * 1000000 + 100000),
+    //       },
+    //       {
+    //         n: 'People' + Math.floor(Math.random() * 100 + 1),
+    //         c: Math.floor(Math.random() * 1000000 + 100000),
+    //       },
+    //       {
+    //         n: 'People' + Math.floor(Math.random() * 100 + 1),
+    //         c: Math.floor(Math.random() * 1000000 + 100000),
+    //       },
+    //     ],
+    //     update: new Date(),
+    //   });
+    // }
+    // return data;
+    // },
+    // formatDate(date) {
+    //   const y = date.getFullYear();
+    //   let m = date.getMonth() + 1;
+    //   m = m < 10 ? '0' + m : m;
+    //   let d = date.getDate();
+    //   d = d < 10 ? '0' + d : d;
+    //   return y + '-' + m + '-' + d;
+    // },
     changePage() {
-      this.tableData1 = this.mockTableData1();
+      this.mocktableData();
     },
   },
 };
@@ -149,15 +174,18 @@ export default {
   <div class="table-content">
     <div class="table-content-title">
       <span class="table-content-title-icon"></span>
-    <span class="table-content-title-content"><b>元数据管理</b></span></div>
+      <span class="table-content-title-content"><b>元数据管理</b></span>
+    </div>
+    <div class="table-content-btn"> <Button type="primary">新增</Button></div>
     <Table
-      :data="tableData1"
+      :data="tableData"
+      :height="tableHeight"
       :columns="tableColumns1"
     ></Table>
     <div style="margin: 10px;overflow: hidden">
       <div style="float: right;">
         <Page
-          :total="100"
+          :total="totalCount"
           :current="1"
           @on-change="changePage"></Page>
       </div>
@@ -170,6 +198,7 @@ export default {
 .table-content {
   width: 92%;
   margin: 0 auto;
+  height: 100%;
 }
 .table-content-title {
   height: 60px;
@@ -187,7 +216,12 @@ export default {
 table > tr {
   height: 20px;
 }
-.k-table-row {
-  height: 20px;
+
+.table-content-btn {
+  width: 100%;
+  height: 45px;
+}
+.table-content-btn button {
+  float: right;
 }
 </style>

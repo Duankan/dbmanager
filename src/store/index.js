@@ -25,7 +25,7 @@ export default new Vuex.Store({
   plugins: [
     Cache({
       key: 'datamanager',
-      paths: ['app'],
+      paths: ['app', 'notification'],
     }),
     User,
     // Bus,
