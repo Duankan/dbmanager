@@ -63,13 +63,13 @@ export default {
         />
         <Icon
           class="lable-list-content-icons"
-          type="ios-minus-outline"
-          size="12"
+          type="ios-close-outline"
+          size="16"
           @click.native="removeList(index)"></Icon>
         <Icon
           class="lable-list-content-icon"
           type="android-create"
-          size="12"
+          size="16"
           @click.native="editList($event)"
         ></Icon>
         </input>
@@ -84,7 +84,7 @@ export default {
   width: 100%;
   padding-left: 25px;
   padding-right: 22px;
-  height: 236px;
+  height: calc(~'100vh - 450px');
   padding: 0px 22px 5px 25px;
   border-top: 0px;
   padding-top: 10px;
@@ -103,7 +103,7 @@ export default {
 }
 .lable {
   width: 100%;
-  height: 94%;
+  height: calc(100%-40px);
   overflow-y: auto;
   margin-top: 3px;
 }

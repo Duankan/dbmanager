@@ -129,7 +129,20 @@ export default {
                   marginRight: '5px',
                 },
               }),
-              h('span', data.title),
+              h(
+                'k-input',
+                {
+                  props: {
+                    size: 'small',
+                    value: data.title,
+                    readonly: true,
+                  },
+                  style: {
+                    width: '65px',
+                  },
+                },
+                data.title
+              ),
             ]
           ),
           h(
@@ -222,7 +235,7 @@ export default {
       type="ios-square"
       class="bg-icon"
       size="20"/>
-      <span>分类</span>
+      <span>资源分类</span>
       <Tree
         :data="dataTree"
         :render="renderContent"></Tree>
