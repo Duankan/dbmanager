@@ -6,6 +6,7 @@ import ViewInformation from './modal/ViewInformation';
 import DeleteResource from './modal/DeleteResource';
 import UploadMataData from './modal/UploadMataData';
 import AppendData from './modal/AppendData';
+import AddPackage from './modal/AddPackage';
 import BatchPublish from '@/components/batchpublish/BatchPublish';
 import * as types from '@/store/types';
 import { isDirectory, isFile, isVector, isGisResource, canView, canAppend } from '@/utils';
@@ -19,6 +20,7 @@ export default {
     DeleteResource,
     UploadMataData,
     AppendData,
+    AddPackage,
     BatchPublish,
   },
   data() {
@@ -36,6 +38,7 @@ export default {
       deleteNodes: [],
       updateMataModal: false,
       appendDataModal: false,
+      addPackageModal: false,
     };
   },
   computed: {
@@ -91,6 +94,9 @@ export default {
       );
     },
     showAppendData() {
+      return this.selectNodes[0] && canAppend(this.selectNodes[0]) && this.selectNodes[0].pubState;
+    },
+    showAddPackage() {
       return this.selectNodes[0] && canAppend(this.selectNodes[0]) && this.selectNodes[0].pubState;
     },
     showRename() {
@@ -202,6 +208,9 @@ export default {
     appendData() {
       this.appendDataModal = true;
     },
+    addPackage() {
+      this.addPackageModal = true;
+    },
     moveTo() {
       this.moveToModal = true;
       this.moveNodes = this.selectNodes;
@@ -282,6 +291,11 @@ export default {
         type="ghost"
         @click="appendData">数据追加</Button>
       <Button
+        v-if="showAddPackage"
+        :disabled="!single"
+        type="ghost"
+        @click="addPackage">增量包更新</Button>
+      <Button
         v-if="showRename"
         :disabled="!single"
         type="ghost"
@@ -352,6 +366,8 @@ export default {
     </UploadMataData>
     <AppendData v-model="appendDataModal">
     </AppendData>
+    <AddPackage v-model="addPackageModal">
+    </AddPackage>
   </div>
 </template>
 
