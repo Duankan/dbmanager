@@ -21,7 +21,7 @@ export default {
         size="20"/>
       <span>查询</span>
     </div>
-    <FormItem label="类型：" >
+    <FormItem label="名称：" >
       <Select v-model="formItem.select">
       </Select>
     </FormItem>

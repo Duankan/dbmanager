@@ -3,6 +3,7 @@ import DataDisplay from './DataDisplay';
 import BusinessSort from './BusinessSort';
 import BusinessLable from './BusinessLable';
 import BusinessTable from './BusinessTable';
+// import DataDetails from './DataDetails';
 export default {
   name: 'BusinessDataManager',
   components: {
@@ -10,6 +11,9 @@ export default {
     BusinessSort,
     BusinessLable,
     BusinessTable,
+    // DataDetails,
+    //  <BusinessTable></BusinessTable>
+    // <DataDetails></DataDetails>
   },
 };
 </script>
@@ -31,6 +35,7 @@ export default {
       </Tabs>
     </div>
     <div id="right-context">
+
       <BusinessTable></BusinessTable>
     </div>
   </div>
