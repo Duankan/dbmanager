@@ -94,9 +94,36 @@ const notification = {
     [types.CLEAR_NOTIFY_MESSAGE](state) {
       state.messages.splice(0, state.messages.length);
     },
-    //清扫消息，移除已读消息
+    //清扫消息，移除过量的消息
     [types.SWIP_NOTIFY_MESSAGE](state) {
-      state.messages.splice(0, state.messages.length);
+      const maxCount = 50;
+      let deleteIds = [];
+      let messages = this.getters.sortedMessages;
+      //先清理已读信息(时间倒序)，直到达到阈值
+      if (messages.length > maxCount) {
+        for (let i = messages.length - 1; i >= 0; i--) {
+          if (messages.length <= maxCount) break;
+          if (messages[i].read) {
+            deleteIds.push(messages[i].id);
+            messages.splice(i, 1);
+          }
+        }
+      }
+      //再清理未读消息(时间倒序)，直到达到阈值
+      if (messages.length > maxCount) {
+        for (let i = messages.length - 1; i >= 0; i--) {
+          if (messages.length <= maxCount) break;
+          deleteIds.push(messages[i].id);
+          messages.splice(i, 1);
+        }
+      }
+      //执行删除
+      for (let i = state.messages.length - 1; i >= 0; i--) {
+        let message = state.messages[i];
+        if (deleteIds.indexOf(message.id) >= 0) {
+          state.messages.splice(i, 1);
+        }
+      }
     },
   },
   actions: {},
