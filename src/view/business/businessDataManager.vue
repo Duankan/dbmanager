@@ -2,16 +2,16 @@
 import DataDisplay from './DataDisplay';
 import BusinessSort from './BusinessSort';
 import BusinessLable from './BusinessLable';
-import BusinessTable from './BusinessTable';
-// import DataDetails from './DataDetails';
+// import BusinessTable from './BusinessTable';
+import DataDetails from './DataDetails';
 export default {
   name: 'BusinessDataManager',
   components: {
     DataDisplay,
     BusinessSort,
     BusinessLable,
-    BusinessTable,
-    // DataDetails,
+    // BusinessTable,
+    DataDetails,
     //  <BusinessTable></BusinessTable>
     // <DataDetails></DataDetails>
   },
@@ -25,8 +25,11 @@ export default {
         <Tab-pane
           label="元数据管理"
           name="name1">
+          <!--左侧查询 -->
           <DataDisplay></DataDisplay>
+          <!--左侧树 -->
           <BusinessSort></BusinessSort>
+          <!--左侧标签 -->
           <BusinessLable></BusinessLable>
         </Tab-pane>
         <Tab-pane
@@ -35,8 +38,8 @@ export default {
       </Tabs>
     </div>
     <div id="right-context">
-
-      <BusinessTable></BusinessTable>
+      <!--右侧表格 -->
+      <DataDetails></DataDetails>
     </div>
   </div>
 </template>

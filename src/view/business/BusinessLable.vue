@@ -72,7 +72,7 @@ export default {
           size="16"
           @click.native="editList($event)"
         ></Icon>
-        </input>
+      </input>
       </div>
     </div>
 
