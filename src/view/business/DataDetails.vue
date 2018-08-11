@@ -1,6 +1,16 @@
 <script>
+import BasicInformation from './tagdetails/BasicInformation';
+import ExtendField from './tagdetails/ExtendField';
+import Field from './tagdetails/Field';
+import IncidenceRelation from './tagdetails/IncidenceRelation';
 export default {
   name: 'DataDetails',
+  components: {
+    BasicInformation,
+    ExtendField,
+    Field,
+    IncidenceRelation,
+  },
   data() {
     return {};
   },
@@ -15,16 +25,22 @@ export default {
     </div>
     <Tabs value="name1">
       <TabPane
-        label="标签一"
-        name="name1">标签一的内容</TabPane>
+        label="基本信息"
+        name="name1">
+        <div class="data-details">
+          <BasicInformation></BasicInformation>
+        </div>
+      </TabPane>
       <TabPane
-        label="标签二"
-        name="name2">标签二的内容</TabPane>
+        label="字段"
+        name="name2">
+        <ExtendField></ExtendField>
+      </TabPane>
       <TabPane
-        label="标签三"
+        label="关联信息"
         name="name3">标签三的内容</TabPane>
       <TabPane
-        label="标签四"
+        label="扩展字段"
         name="name4">标签四的内容</TabPane>
     </Tabs>
 </div></template>
@@ -42,5 +58,8 @@ export default {
 .data-content-title {
   font-size: 14px;
   padding-left: 8px;
+}
+.data-details {
+  margin-left: 30px;
 }
 </style>
