@@ -183,19 +183,19 @@ export default {
                   },
                 },
               }),
-              h('Button', {
-                props: Object.assign({}, this.ButtonProps, {
-                  icon: 'ios-compose-outline',
-                }),
-                style: {
-                  padding: '0px 3px',
-                },
-                on: {
-                  click: () => {
-                    this.edit(root, node, data);
-                  },
-                },
-              }),
+              // h('Button', {
+              //   props: Object.assign({}, this.ButtonProps, {
+              //     icon: 'ios-compose-outline',
+              //   }),
+              //   style: {
+              //     padding: '0px 3px',
+              //   },
+              //   on: {
+              //     click: () => {
+              //       this.edit(root, node, data);
+              //     },
+              //   },
+              // }),
             ]
           ),
         ]
@@ -203,6 +203,7 @@ export default {
     },
     append(data) {
       const children = data.children || [];
+      debugger;
       children.push({
         title: '数据',
         expand: true,
@@ -214,14 +215,6 @@ export default {
       const parent = root.find(el => el.nodeKey === parentKey).node;
       const index = parent.children.indexOf(data);
       parent.children.splice(index, 1);
-    },
-    edit(root, node, data) {
-      debugger;
-      const parentKey = root.find(el => el === node).parent;
-      const parent = root.find(el => el.nodeKey === parentKey).node;
-      const index = parent.children.indexOf(data);
-
-      // parent.parentElement.getElementsByTagName('span')[0].focus();
     },
   },
 };
@@ -264,9 +257,4 @@ export default {
   background-color: #2d8cf0;
   margin-right: 5px;
 }
-// /dep/.k-btn-small {
-//   padding: 1px 3px;
-//   font-size: 12px;
-//   border-radius: 3px;
-// }
 </style>

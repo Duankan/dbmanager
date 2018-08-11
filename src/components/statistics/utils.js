@@ -58,7 +58,7 @@ export function filterClassic(schema, type) {
   }
 }
 
-export function filterStatistics(schema, text) {
+export function filterStatisticsCom(schema, text) {
   let statistics = [];
   if (text) {
     const config = Object.values(statisticsConfig).filter(item => item.text === text);

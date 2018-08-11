@@ -162,14 +162,14 @@ export default {
       }
     },
     async statisticsQuery(option) {
-      delete option.attributeType;
+      const { attributeType, options, ...rest } = option;
       L.ajax({
         url: `${config.project.highgisUrl}/hgis/ows?service=wps&request=aggregate`,
         success: this.statisticsSuccess,
         dataType: 'json',
         fail: this.errback,
         type: 'POST',
-        data: { statistics: JSON.stringify(option) },
+        data: L.Util.getPostParams({ statistics: rest }),
       });
     },
     statisticsSuccess(data) {

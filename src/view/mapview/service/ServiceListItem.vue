@@ -1,6 +1,7 @@
 <script>
 import api from 'api';
 import { url } from '@ktw/ktools';
+import { canEditStyle } from '@/utils/helps';
 import MapEdit from '@/./view/mapedit/MapEdit';
 
 const SET_MAP_SERVICELIST = 'SET_MAP_SERVICELIST';
@@ -16,16 +17,14 @@ export default {
   data() {
     return {
       thumbnail: true,
-      editshow:
-        this.node.resource.shapeType.toUpperCase() == 'POLYGON' ||
-        this.node.resource.shapeType.toUpperCase() == 'POINT' ||
-        this.node.resource.shapeType.toUpperCase() == 'LINESTRING' ||
-        this.node.resource.shapeType == 'polyline',
     };
   },
   computed: {
     serviceName() {
       return this.node.serviceType === '12' ? 'WMS' : 'WMTS';
+    },
+    editShow() {
+      return this.node.serviceType === '12';
     },
   },
   methods: {
@@ -103,7 +102,7 @@ export default {
       <span>{{ node.orgName }}</span>
       <div class="mask">
         <Icon
-          v-if="editshow"
+          v-if="editShow"
           type="gear-b"
           size="28"
           color="#fff"
