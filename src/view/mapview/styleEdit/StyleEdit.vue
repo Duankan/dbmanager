@@ -18,12 +18,11 @@ export default {
 
 <template>
   <div class="main">
-    <div>
+    <div class="tilte-div">
       <Button 
         type="dashed" 
         icon="arrow-left-a"
         @click="back">返回</Button>
-      <span class="title">样式编辑</span>
       <span class="title">编辑图层:</span>
       <span class="layername">{{ layerNode.resource.alias }}</span>
     </div>
@@ -33,6 +32,9 @@ export default {
 <style lang="less" scoped>
 .main {
   margin: 8px;
+  .tilte-div {
+  }
+
   .title {
     font-weight: bold;
     margin-left: 8px;
@@ -43,6 +45,12 @@ export default {
     color: #007acc;
     font-size: 14px;
     font-weight: bold;
+    width: 130px;
+    text-overflow: ellipsis; //让超出的用...实现
+    white-space: nowrap; //禁止换行
+    overflow: hidden; //超出的隐藏
+    display: inline-block;
+    vertical-align: middle;
   }
 }
 </style>
