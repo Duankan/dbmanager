@@ -58,12 +58,18 @@ const app = {
     [types.CHANGE_APP_NODES](state, node) {
       state.nodes = node;
     },
+    [types.CHANGE_APP_CLEAR_SELECTHKEY](state, node) {
+      state.selectNode = node;
+      state.searchKey = '';
+    },
+    [types.CHANGE_APP_SELECTHKEY](state, keyStr) {
+      state.searchKey = keyStr;
+    },
   },
   actions: {
     // 接受目录类型节点
     async [types.APP_NODES_FETCH]({ commit, state, rootState }, node) {
-      state.selectNode = node;
-      state.searchKey = '';
+      commit(types.CHANGE_APP_CLEAR_SELECTHKEY, node);
       const response = await api.db.findCatalog({
         owner: 1,
         ownerId: rootState.user.info.orgid,
@@ -82,7 +88,7 @@ const app = {
     },
     //根据关键字过滤删选文件
     async [types.APP_NODES_TABLE]({ commit, state, rootState }, keyStr) {
-      state.searchKey = keyStr;
+      commit(types.CHANGE_APP_SELECTHKEY, keyStr);
       const response = await api.db.findpagelist({
         objCondition: {
           orgId: rootState.user.info.orgid,

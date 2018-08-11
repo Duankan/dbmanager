@@ -62,15 +62,17 @@ export default {
     queryItems: {
       handler(newVal, oldVal) {
         for (const key in newVal) {
-          const fields = this.filterStatistics(newVal[key].operate);
-          if (newVal[key].operate && newVal[key].field === '') {
-            if (this.queryFields[key]) {
+          if (newVal[key].operate) {
+            const fields = this.filterStatistics(newVal[key].operate);
+            if (newVal[key].operate && newVal[key].field === '') {
+              if (this.queryFields[key]) {
+                this.queryFields[key] = fields;
+              } else {
+                this.queryFields.push(fields);
+              }
+            } else if (newVal[key].operate === oldVal[key].operate) {
               this.queryFields[key] = fields;
-            } else {
-              this.queryFields.push(fields);
             }
-          } else if (newVal[key].operate === oldVal[key].operate) {
-            this.queryFields[key] = fields;
           }
         }
       },
@@ -101,12 +103,14 @@ export default {
     },
     // 过滤统计字段
     filterStatistics(type) {
-      let statisticsField = [];
-      if (this.allschema) {
-        statisticsField = filterConfig.filterStatistics(this.allschema, type);
-        statisticsField = statisticsField.filter(item => !this.commonParams.includes(item.name));
+      if (type) {
+        let statisticsField = [];
+        if (this.allschema) {
+          statisticsField = filterConfig.filterStatisticsCom(this.allschema, type);
+          statisticsField = statisticsField.filter(item => !this.commonParams.includes(item.name));
+        }
+        return statisticsField;
       }
-      return statisticsField;
     },
     // 行政区选择
     getAreaLayer(wkt) {

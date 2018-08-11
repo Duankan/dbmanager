@@ -83,6 +83,10 @@ export default {
 <style lang="less" scoped>
 .map {
   flex: 1;
+  /deep/.leaflet-top,
+  /deep/.leaflet-bottom {
+    z-index: 800 !important;
+  }
 }
 
 .k-mouse-position {
@@ -92,6 +96,6 @@ export default {
   left: 50%;
   -webkit-transform: translateX(-50%);
   transform: translateX(-50%);
-  z-index: 1;
+  z-index: 800;
 }
 </style>

@@ -72,6 +72,9 @@ export default {
         resolve();
       });
     },
+    styleEditSelect(value) {
+      this.$emit('style-edit-event', value);
+    },
   },
 };
 </script>
@@ -81,10 +84,11 @@ export default {
     :on-reach-bottom="handleBottomEdge"
     :distance-to-edge="[10,10]"
     :height="height">
-    <ServiceListItem
+    <ServiceListItem 
       v-for="service in serviceList"
       :key="service.serviceId"
       :node="service"
+      @style-edit-event="styleEditSelect"
     ></ServiceListItem>
     <a
       v-show="showMore"

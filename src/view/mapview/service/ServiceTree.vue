@@ -20,7 +20,7 @@ export default {
 </script>
 
 <template>
-  <DataTree
+  <DataTree 
     :filter-type="['sld', 'file']"
     :filter-text="filterText"
     :filter-node="filterNode"

@@ -32,6 +32,8 @@ export default {
   position: absolute;
   top: 28px;
   left: 10%;
+  z-index: 801;
+
   .city-select {
     margin-right: -4px;
     background-color: #fff;
