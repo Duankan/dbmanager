@@ -5,19 +5,25 @@ export default {
     return {
       newAddText: '',
       nextTodoId: 7,
-      datas: [
-        { id: 1, text: '标签1' },
-        { id: 2, text: '标签2' },
-        { id: 3, text: '标签3' },
-        { id: 4, text: '标签4' },
-        { id: 5, text: '标签5' },
-        { id: 6, text: '标签6' },
-      ],
+      datas: [], //标签数据
     };
   },
+  mounted() {
+    this.lableDatas();
+  },
   methods: {
+    async lableDatas() {
+      const response = await api.db.findAllTags({});
+      this.datas = response.data;
+    },
     //添加列表
-    addNewList() {
+    async addNewList() {
+      const response = await api.db.addTaqs({
+        name: this.newAddText, //标签名
+        remark: '', //描述
+        type: 1, //类型（0-空间数据，1-业务数据）
+      });
+      debugger;
       this.newAddText = '标签' + this.nextTodoId;
       this.datas.push({
         id: this.nextTodoId++,
@@ -57,7 +63,7 @@ export default {
         :key="index"
         class="lable-list">
         <input
-          v-model="list.text"
+          v-model="list.name"
           type="text"
           class="lable-input-list"
         />
