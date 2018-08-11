@@ -1,4 +1,5 @@
 
+//选择样式界面
 <script>
 import { url } from '@ktw/ktools';
 const SET_MAP_SERVICELIST = 'SET_MAP_SERVICELIST';
@@ -75,7 +76,7 @@ export default {
     },
     //查询样式分类下拉框的数据
     async getStyleTypes() {
-      const styleTypes = await api.db.styleTypes(); //没看懂？？？？
+      const styleTypes = await api.db.styleTypes();
       styleTypes.data.forEach(item => {
         this.classify.unshift({
           value: item.code,
@@ -125,11 +126,8 @@ export default {
         this.msg.sto.commit(SET_MAP_SERVICELIST, {
           [layers]: [response.data[0], response.data[1]],
         });
-        // console.log(wfsurlarr);
       }
     },
-    //取消样式
-    async cancle() {},
     //default_polygon
     //点击获取点击的那条数据
     getData(currentRow) {
@@ -186,9 +184,6 @@ export default {
         type="success"
         @click="use"
       >应用</Button>
-      <Button 
-        type="error"
-        @click="cancle">取消</Button>
     </p>
 </div></template>
 
