@@ -50,23 +50,24 @@ export default {
       }
     },
     edit() {
-      this.vm = this.$window({
-        title: '图层编辑',
-        footerHide: true,
-        render: h => {
-          return h(
-            MapEdit,
-            {
-              props: {
-                value: { data: this.node, sto: this.$store },
-              },
-            },
-            [this.$scopedSlots.default]
-          );
-        },
-        width: 730,
-        height: 680,
-      });
+      this.$emit('style-edit-event', this.node);
+      // this.vm = this.$window({
+      //   title: '图层编辑',
+      //   footerHide: true,
+      //   render: h => {
+      //     return h(
+      //       MapEdit,
+      //       {
+      //         props: {
+      //           value: { data: this.node, sto: this.$store },
+      //         },
+      //       },
+      //       [this.$scopedSlots.default]
+      //     );
+      //   },
+      //   width: 730,
+      //   height: 680,
+      // });
     },
   },
 };
