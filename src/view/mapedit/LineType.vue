@@ -1,4 +1,6 @@
 
+
+//线样式
 <script>
 import Currency from './commontypes/Currency';
 import Side from './commontypes/Side';
@@ -15,7 +17,7 @@ export default {
     Side,
     Tagging,
     LineSymbol,
-    AttributeFilter,
+    AttributeFilter, //过滤器
   },
   props: {
     msg: { type: Object, default: () => {} },
@@ -36,7 +38,7 @@ export default {
         },
       ],
       Fields: [],
-      //当前过滤器
+      //当前过滤器线的
       currentFilter: {
         schemas: '',
         name: '',
@@ -54,20 +56,25 @@ export default {
   methods: {
     //给过滤的组件添加字段
     async getAllField() {
-      const response = await api.db.findService({
-        resourceId: this.msg.data.resource.resourceId, // 资源id
-        serivestatus: 0, // 服务状态(0 开启 1 关闭)
-        baseservicetype: 1, // 基础服务
-        metadataLayer: this.msg.data.resource.metadataLayer, // 元数据图层
-      });
-
-      for (let i = 0; i < response.data[1].schema.length; i++) {
-        let Field = helps.schemaReservedFileds.indexOf(response.data[1].schema[i].name);
-        if (Field == -1) {
-          this.currentFilter.schemas += response.data[1].schema[i].name + ',';
+      try {
+        const response = await api.db.findService({
+          resourceId: this.msg.data.resource.resourceId, // 资源id
+          serivestatus: 0, // 服务状态(0 开启 1 关闭)
+          baseservicetype: 1, // 基础服务
+          metadataLayer: this.msg.data.resource.metadataLayer, // 原数据图层
+        });
+        if (!response.data) {
+          for (let i = 0; i < response.data[1].schema.length; i++) {
+            let Field = helps.schemaReservedFileds.indexOf(response.data[1].schema[i].name);
+            if (Field == -1) {
+              this.currentFilter.schemas += response.data[1].schema[i].name + ',';
+            }
+          }
+          this.currentFilter.style = true;
         }
+      } catch (e) {
+        that.$Message.error('出错了');
       }
-      this.currentFilter.style = true;
     },
     //获取样式名称
     async getStyleName() {

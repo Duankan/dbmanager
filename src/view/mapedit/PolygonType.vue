@@ -1,4 +1,4 @@
-
+//面样式的图层
 <script>
 import Currency from './commontypes/Currency';
 import Side from './commontypes/Side';
@@ -87,7 +87,8 @@ export default {
     //获取样式名称
     async getStyleName() {
       const params = {
-        stylename: this.msg.data.styles,
+        stylename: this.$refs.SelectType.use(),
+        // stylename: this.msg.data.styles,
       };
       let slddata = await api.db.getsldbyname(params);
       this.stylename = slddata.data.nameLayers['0'].style['0'].name;

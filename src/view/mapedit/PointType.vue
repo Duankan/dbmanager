@@ -1,4 +1,4 @@
-
+//点样式的图层
 <script>
 export default {
   name: 'PointType',

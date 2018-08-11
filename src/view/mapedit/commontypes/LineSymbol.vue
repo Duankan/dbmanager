@@ -1,4 +1,4 @@
-
+//线符号
 <script>
 export default {
   name: 'LineSymbol',

@@ -1,3 +1,5 @@
+
+//另存样式
 <script>
 import PolygonType from './PolygonType';
 import LineType from './LineType';
