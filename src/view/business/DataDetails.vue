@@ -37,7 +37,7 @@ export default {
         <Field></Field>
       </TabPane>
       <TabPane
-        label="关联信息"
+        label="关联关系"
         name="name3">
         <IncidenceRelation></IncidenceRelation>
       </TabPane>

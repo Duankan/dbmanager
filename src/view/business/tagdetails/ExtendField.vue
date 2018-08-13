@@ -69,7 +69,7 @@ export default {
           },
         ],
       },
-      insideFieldForm: {
+      innerFieldForm: {
         selectFieldName: [
           {
             value: 'beijing1',
@@ -117,7 +117,7 @@ export default {
 </script>
 
 <template>
-  <row>
+  <row :gutter="24">
     <!-- 扩展字段列表 -->
     <Col span="12">
     <div>
@@ -143,13 +143,14 @@ export default {
       <div>
         <Form
           :label-width="100"
-          :model="externalFormItem">
+          :model="innerFieldForm"
+          label-position="left">
           <Row>
             <Col span="24">
             <FormItem label="扩展字段名称：">
-              <Select v-model="insideFieldForm.selectFieldName">
+              <Select v-model="innerFieldForm.selectFieldName.select">
                 <Option
-                  v-for="item of insideFieldForm.selectFieldName"
+                  v-for="item of innerFieldForm.selectFieldName"
                   :key="item.value"
                   :value="item.value">{{ item.key }}</Option>
               </Select>
@@ -159,9 +160,9 @@ export default {
           <Row>
             <Col span="24">
             <FormItem label="字段类型：">
-              <Select v-model="insideFieldForm.selectFieldType">
+              <Select v-model="innerFieldForm.selectFieldType.select">
                 <Option
-                  v-for="item of insideFieldForm.selectFieldType"
+                  v-for="item of innerFieldForm.selectFieldType"
                   :key="item.value"
                   :value="item.value">{{ item.key }}</Option>
               </Select>
@@ -171,9 +172,9 @@ export default {
           <Row>
             <Col span="24">
             <FormItem label="字段分类：">
-              <Select v-model="insideFieldForm.selectClassify">
+              <Select v-model="innerFieldForm.selectClassify.select">
                 <Option
-                  v-for="item of insideFieldForm.selectClassify"
+                  v-for="item of innerFieldForm.selectClassify"
                   :key="item.value"
                   :value="item.value">{{ item.key }}</Option>
               </Select>
@@ -183,9 +184,9 @@ export default {
           <Row>
             <Col span="24">
             <FormItem label="处理规则：">
-              <Select v-model="insideFieldForm.selectProcessRule">
+              <Select v-model="innerFieldForm.selectProcessRule.select">
                 <Option
-                  v-for="item of insideFieldForm.selectProcessRule"
+                  v-for="item of innerFieldForm.selectProcessRule"
                   :key="item.value"
                   :value="item.value">{{ item.key }}</Option>
               </Select>

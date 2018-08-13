@@ -5,6 +5,8 @@ export default {
     return {
       //外部关联表单
       externalFormItem: {
+        //源表名
+        sourceTableName: 'table1',
         // 源字段下拉框
         selectSourceField: [
           {
@@ -38,7 +40,7 @@ export default {
             key: 'London2',
           },
         ],
-        radio: {},
+        radio: '2',
       },
       //外部关联表格
       externalTable: {
@@ -48,7 +50,6 @@ export default {
             key: 'name',
             className: 'demo-table-info-column',
           },
-
           {
             title: '源字段',
             key: 'field',
@@ -60,6 +61,7 @@ export default {
           {
             title: '关联字段名',
             key: 'relevanceField',
+            width: 98,
           },
           {
             title: '关联关系',
@@ -107,7 +109,7 @@ export default {
             key: 'London2',
           },
         ],
-        radio: {},
+        radio: '1',
       },
       //内部关联表格
       innerTable: {
@@ -144,7 +146,7 @@ export default {
 </script>
 
 <template>
-  <row>
+  <Row :gutter="24">
     <!-- 外部字段关联 -->
     <Col span="12">
     <div class="relevance-content">
@@ -152,69 +154,76 @@ export default {
         <span class="table-content-title-icon"></span>
         <span class="table-content-title-content"><b>外部关联字段</b></span>
       </div>
-      <Form
-        :label-width="100"
-        :model="externalFormItem">
-        <row>
-          <Col span="12">
-          <FormItem label="原表名：">
-            <Input/>
-          </FormItem>
+      <div class="left-content">
+        <Form
+          :label-width="70"
+          :model="externalFormItem"
+          label-position="left">
+          <Row>
+            <Col span="12">
+            <FormItem label="源表名：">
+              <Input v-model="externalFormItem.sourceTableName"></Input>
+            </FormItem>
+            </Col>
+            <Col span="12">
+            <FormItem label="源字段：">
+              <Select v-model="externalFormItem.selectSourceField.select">
+                <Option
+                  v-for="item of externalFormItem.selectSourceField"
+                  :key="item.value"
+                  :value="item.value">{{ item.key }}</Option>
+              </Select>
+            </FormItem>
+            </Col>
+          </Row>
+          <Row>
+            <Col span="12">
+            <FormItem label="关联表名：">
+              <Select v-model="externalFormItem.selectTableName.select">
+                <Option
+                  v-for="item of externalFormItem.selectTableName"
+                  :key="item.value"
+                  :value="item.value">{{ item.key }}</Option>
+              </Select>
+            </FormItem>
+            </Col>
+            <Col span="12">
+            <FormItem label="关联字段：">
+              <Select v-model="externalFormItem.selectField.select">
+                <Option
+                  v-for="item of externalFormItem.selectField"
+                  :key="item.value"
+                  :value="item.value">{{ item.key }}</Option>
+              </Select>
+            </FormItem>
+            </Col>
+          </Row>
+          <Row class="relevance-header">
+            <Col span="18">
+            <FormItem label="关联关系：">
+              <RadioGroup v-model="externalFormItem.radio">
+                <Radio label="1">强关联</Radio>
+                <Radio label="2">强关联</Radio>
+              </RadioGroup>
+            </FormItem>
+            </Col>
+            <Col span="6">
+            <Button type="primary">创建关联</Button>
+            </Col>
+          </Row>
+        </Form>
+        <Row>
+          <Col span="24">
+          <Table
+            :columns="externalTable.title"
+            :data="externalTable.data">
+          </Table>
         </Col>
-          <Col span="12">
-          <FormItem label="源字段：">
-            <Select v-model="externalFormItem.selectSourceField.select">
-              <Option
-                v-for="item of externalFormItem.selectSourceField"
-                :key="item.value"
-                :value="item.value">{{ item.key }}</Option>
-            </Select>
-          </FormItem>
-        </Col>
-        </row>
-        <row>
-          <Col span="12">
-          <FormItem label="关联表名：">
-            <Select v-model="externalFormItem.selectTableName.select">
-              <Option
-                v-for="item of externalFormItem.selectTableName"
-                :key="item.value"
-                :value="item.value">{{ item.key }}</Option>
-            </Select>
-          </FormItem>
-        </Col>
-          <Col span="12">
-          <FormItem label="关联字段：">
-            <Select v-model="externalFormItem.selectField.select">
-              <Option
-                v-for="item of externalFormItem.selectField"
-                :key="item.value"
-                :value="item.value">{{ item.key }}</Option>
-            </Select>
-          </FormItem>
-        </Col>
-        </row>
-        <row class="relevance-header">
-          <Col span="18">
-          <FormItem label="关联关系：">
-            <RadioGroup v-model="externalFormItem.radio">
-              <Radio label="male">强关联</Radio>
-              <Radio label="female">强关联</Radio>
-            </RadioGroup>
-          </FormItem>
-        </Col>
-          <Col span="6">
-          <Button type="primary">创建关联</Button>
-        </Col>
-        </row>
-      </Form>
-      <Table
-        :columns="externalTable.title"
-        :data="externalTable.data">
-      </Table>
+        </Row>
+      </div>
     </div>
     </Col>
-    <Divider type="vertical" />
+    <div><Divider type="vertical" /></div>
     <!-- 内部字段关联 -->
     <Col span="12">
     <div class="relevance-content">
@@ -222,54 +231,59 @@ export default {
         <span class="table-content-title-icon"></span>
         <span class="table-content-title-content"><b>内部关联字段</b></span>
       </div>
-      <Form
-        :label-width="100"
-        :model="innerFormItem">
-        <row>
-          <Col span="24">
-          <FormItem label="源字段：">
-            <Select v-model=" innerFormItem.selectSourceField.select">
-              <Option
-                v-for="item of innerFormItem.selectSourceField"
-                :key="item.value"
-                :value="item.value">{{ item.key }}</Option>
-            </Select>
-          </FormItem>
+      <div class="right-content">
+        <Form
+          :label-width="70"
+          :model="innerFormItem"
+          label-position="left">
+          <Row>
+            <Col span="24">
+            <FormItem label="源字段：">
+              <Select v-model=" innerFormItem.selectSourceField.select">
+                <Option
+                  v-for="item of innerFormItem.selectSourceField"
+                  :key="item.value"
+                  :value="item.value">{{ item.key }}</Option>
+              </Select>
+            </FormItem>
+          </Col>
+          </Row>
+          <Row>
+            <Col span="24">
+            <FormItem label="关联字段：">
+              <Select v-model=" innerFormItem.selectField.select">
+                <Option
+                  v-for="item of innerFormItem.selectField"
+                  :key="item.value"
+                  :value="item.value">{{ item.key }}</Option>
+              </Select>
+            </FormItem>
+            </Col>
+          </Row>
+          <Row class="relevance-header">
+            <Col span="18">
+            <FormItem label="关联关系：">
+              <RadioGroup v-model="innerFormItem.radio">
+                <Radio label="1">强关联</Radio>
+                <Radio label="2">强关联</Radio>
+              </RadioGroup>
+            </FormItem>
+            </Col>
+            <Col span="6">
+            <Button type="primary">创建关联</Button>
+            </Col>
+          </Row>
+        </Form>
+        <Col span="24">
+        <Table
+          :columns="innerTable.title"
+          :data="innerTable.data">
+        </Table>
         </Col>
-        </row>
-        <row>
-          <Col span="24">
-          <FormItem label="关联字段：">
-            <Select v-model=" innerFormItem.selectField.select">
-              <Option
-                v-for="item of innerFormItem.selectField"
-                :key="item.value"
-                :value="item.value">{{ item.key }}</Option>
-            </Select>
-          </FormItem>
-        </Col>
-        </row>
-        <row class="relevance-header">
-          <Col span="18">
-          <FormItem label="关联关系：">
-            <RadioGroup v-model="innerFormItem.radio">
-              <Radio label="male">强关联</Radio>
-              <Radio label="female">强关联</Radio>
-            </RadioGroup>
-          </FormItem>
-        </Col>
-          <Col span="6">
-          <Button type="primary">创建关联</Button>
-        </Col>
-        </row>
-      </Form>
-      <Table
-        :columns="innerTable.title"
-        :data="innerTable.data">
-      </Table>
+      </div>
     </div>
     </Col>
-  </row>
+  </Row>
 </template>
 
 <style lang="less" scoped>
@@ -278,7 +292,7 @@ export default {
   margin-bottom: 14px;
 }
 .relevance-header {
-  .k-row {
+  .k-Row {
     .flex-space-between();
   }
   .k-btn-primary {
@@ -291,5 +305,8 @@ export default {
 }
 .relevance-content {
   padding: 5px 20px 0px 1px;
+}
+/deep/.k-form-item-label {
+  padding: 10px 0px;
 }
 </style>
