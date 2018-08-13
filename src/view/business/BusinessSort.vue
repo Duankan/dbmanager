@@ -203,13 +203,36 @@ export default {
       );
     },
     append(data) {
-      const children = data.children || [];
-
-      children.push({
-        title: '数据',
-        expand: true,
+      this.$Modal.confirm({
+        render: h => {
+          return h('Input', {
+            props: {
+              value: this.value,
+              autofocus: true,
+              placeholder: '请输入分类名',
+            },
+            on: {
+              input: val => {
+                this.value = val;
+              },
+            },
+            onOk: () => {
+              this.$Message.info('Clicked ok');
+            },
+            onCancel: () => {
+              this.$Message.info('Clicked cancel');
+            },
+          });
+        },
       });
-      this.$set(data, 'children', children);
+
+      // const children = data.children || [];
+
+      // children.push({
+      //   title: '数据',
+      //   expand: true,
+      // });
+      // this.$set(data, 'children', children);
     },
     remove(root, node, data) {
       //获取根节点
@@ -221,17 +244,33 @@ export default {
       parent.children.splice(index, 1);
     },
     edit(root, node, data) {
-      debugger;
-      // //获取根节点
-      // const parentKey = root.find(el => el === node).parent;
-      //  //获取父节点
-      // const parent = root.find(el => el.nodeKey === parentKey).node;
-      // // //获取当前节点
-      // const index = parent.children.indexOf(data);
-      //  //获取当前节点的名称
-      //  parent.children[index].title;
+      this.$Modal.confirm({
+        render: h => {
+          return h('Input', {
+            props: {
+              value: this.value,
+              autofocus: true,
+              placeholder: '请输入分类名',
+            },
+            on: {
+              input: val => {
+                this.value = val;
+              },
+            },
+          });
+        },
+      });
     },
+    // //获取根节点
+    // const parentKey = root.find(el => el === node).parent;
+    //  //获取父节点
+    // const parent = root.find(el => el.nodeKey === parentKey).node;
+    // // //获取当前节点
+    // const index = parent.children.indexOf(data);
+    //  //获取当前节点的名称
+    //  parent.children[index].title;
   },
+  // },
 };
 </script>
 
