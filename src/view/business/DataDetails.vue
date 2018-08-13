@@ -34,14 +34,18 @@ export default {
       <TabPane
         label="字段"
         name="name2">
-        <ExtendField></ExtendField>
+        <Field></Field>
       </TabPane>
       <TabPane
         label="关联信息"
-        name="name3">标签三的内容</TabPane>
+        name="name3">
+        <IncidenceRelation></IncidenceRelation>
+      </TabPane>
       <TabPane
         label="扩展字段"
-        name="name4">标签四的内容</TabPane>
+        name="name4">
+        <ExtendField></ExtendField>
+      </TabPane>
     </Tabs>
 </div></template>
 

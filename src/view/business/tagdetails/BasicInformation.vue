@@ -98,13 +98,11 @@ export default {
 </template>
 
 <style lang="less" scoped>
+@import '../../../styles/components/common.less';
 .k-form-item {
   margin-bottom: 18px;
   vertical-align: top;
   zoom: 1;
-}
-/deep/.k-input {
-  background-color: transparent;
 }
 .k-date-picker {
   display: inline-block;

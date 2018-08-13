@@ -1,189 +1,213 @@
 <script>
 export default {
-  name: 'ExtendField',
+  name: 'Field',
   data() {
     return {
-      //表格标题
-      tableTitle: [
-        {
-          type: 'selection',
-          width: 60,
-        },
-        {
-          title: '字段名称',
-          key: 'name',
-        },
-        {
-          title: '数据类型',
-          key: 'dataType',
-        },
-        {
-          title: '是否允许为空',
-          key: 'status',
-          render: (h, params) => {
-            const row = params.row;
-            const color = row.status === 1 ? 'green' : 'red';
-            const text = row.status === 1 ? '可用' : '不可用';
-            return h(
-              'Tag',
-              {
-                props: {
-                  type: 'dot',
-                  color: color,
-                },
-              },
-              text
-            );
+      extendFieldTable: {
+        tableTitle: [
+          {
+            title: '扩展字段名称',
+            key: 'name',
           },
-        },
-        {
-          title: '操作',
-          key: 'operation',
-          render: (h, params) => {
-            return h('div', [
-              h(
-                'a',
-                {
-                  props: {},
-                  style: {
-                    marginRight: '5px',
-                  },
-                  on: {
-                    click: () => {
-                      this.remove(params.index);
+          {
+            title: '字段类型',
+            key: 'dataType',
+          },
+          {
+            title: '处理规则',
+            key: 'processRule',
+          },
+          {
+            title: '操作',
+            key: 'operation',
+            render: (h, params) => {
+              return h('div', [
+                h(
+                  'a',
+                  {
+                    props: {},
+                    style: {
+                      marginRight: '5px',
+                    },
+                    on: {
+                      click: () => {
+                        this.remove(params.index);
+                      },
                     },
                   },
-                },
-                '删除'
-              ),
-              h(
-                'a',
-                {
-                  props: {},
-                  style: {
-                    marginRight: '5px',
-                  },
-                  on: {
-                    click: () => {
-                      this.show(params.index);
+                  '删除'
+                ),
+                h(
+                  'a',
+                  {
+                    props: {},
+                    style: {
+                      marginRight: '5px',
+                    },
+                    on: {
+                      click: () => {
+                        this.show(params.index);
+                      },
                     },
                   },
-                },
-                '修改'
-              ),
-            ]);
+                  '修改'
+                ),
+              ]);
+            },
           },
-        },
-      ],
-      //表格数据
-      tableData: [
-        {
-          name: 'RT192476',
-          dataType: 'string',
-          status: 1,
-        },
-        {
-          name: 'RT192476',
-          dataType: 'string',
-          status: 0,
-        },
-      ],
-      //新增字段
-      addField: false,
-      //对话框数据
-      addForm: {},
+        ],
+        extendFieldData: [
+          {
+            name: 'RT192476',
+            dataType: 'string',
+            processRule: 'where 1=1',
+          },
+          {
+            name: 'RT192476',
+            dataType: 'string',
+            processRule: 'where 1=1',
+          },
+        ],
+      },
+      insideFieldForm: {
+        selectFieldName: [
+          {
+            value: 'beijing1',
+            key: 'New York1',
+          },
+          {
+            value: 'shanghai1',
+            key: 'London1',
+          },
+        ],
+        selectFieldType: [
+          {
+            value: 'beijing2',
+            key: 'New York2',
+          },
+          {
+            value: 'shanghai2',
+            key: 'London2',
+          },
+        ],
+        selectClassify: [
+          {
+            value: 'beijing3',
+            key: 'New York3',
+          },
+          {
+            value: 'shanghai3',
+            key: 'London3',
+          },
+        ],
+        selectProcessRule: [
+          {
+            value: 'beijing4',
+            key: 'New York4',
+          },
+          {
+            value: 'shanghai4',
+            key: 'London4',
+          },
+        ],
+      },
     };
-  },
-  methods: {
-    ok() {
-      this.$Message.info('Clicked ok');
-    },
-    cancel() {
-      this.$Message.info('Clicked cancel');
-    },
   },
 };
 </script>
 
 <template>
-  <div>
-    <div class="details-menu">
-      <div>
+  <row>
+    <!-- 扩展字段列表 -->
+    <Col span="12">
+    <div>
+      <div class="details-menu">
         <span class="table-content-title-icon"></span>
-        <span class="table-content-title-content"><b>元数据管理</b></span>
+        <span class="table-content-title-content"><b>扩展字段列表</b></span>
       </div>
-      <Button
-        type="primary"
-        @click="addField = true">
-        新增字段</Button>
-      <Modal
-        v-model="addField"
-        title="新增字段"
-        @on-cancel="cancel"
-        @on-ok="ok">
+      <div class="left-content">
+        <Table
+          :columns="extendFieldTable.tableTitle"
+          :data="extendFieldTable.extendFieldData">
+        </Table>
+      </div>
+    </div>
+    </Col>
+    <!-- 内部字段关联 -->
+    <Col span="12">
+    <div class="right-content">
+      <div class="details-menu">
+        <span class="table-content-title-icon"></span>
+        <span class="table-content-title-content"><b>内部字段关联</b></span>
+      </div>
+      <div>
         <Form
           :label-width="100"
-          :model="addForm">
+          :model="externalFormItem">
           <Row>
-            <Col span="22">
-            <FormItem label="字段名称：">
-              <Input/>
+            <Col span="24">
+            <FormItem label="扩展字段名称：">
+              <Select v-model="insideFieldForm.selectFieldName">
+                <Option
+                  v-for="item of insideFieldForm.selectFieldName"
+                  :key="item.value"
+                  :value="item.value">{{ item.key }}</Option>
+              </Select>
             </FormItem>
-            </Col>
+          </Col>
           </Row>
           <Row>
-            <Col span="22">
+            <Col span="24">
             <FormItem label="字段类型：">
-              <Input/>
+              <Select v-model="insideFieldForm.selectFieldType">
+                <Option
+                  v-for="item of insideFieldForm.selectFieldType"
+                  :key="item.value"
+                  :value="item.value">{{ item.key }}</Option>
+              </Select>
             </FormItem>
-            </Col>
+          </Col>
           </Row>
           <Row>
-            <Col span="22">
-            <FormItem label="字段长度：">
-              <Input/>
+            <Col span="24">
+            <FormItem label="字段分类：">
+              <Select v-model="insideFieldForm.selectClassify">
+                <Option
+                  v-for="item of insideFieldForm.selectClassify"
+                  :key="item.value"
+                  :value="item.value">{{ item.key }}</Option>
+              </Select>
             </FormItem>
-            </Col>
+          </Col>
           </Row>
           <Row>
-            <Col span="22">
-            <FormItem label="是否允许为空：">
-              <Checkbox v-model="single">是</Checkbox>
+            <Col span="24">
+            <FormItem label="处理规则：">
+              <Select v-model="insideFieldForm.selectProcessRule">
+                <Option
+                  v-for="item of insideFieldForm.selectProcessRule"
+                  :key="item.value"
+                  :value="item.value">{{ item.key }}</Option>
+              </Select>
             </FormItem>
-            </Col>
+          </Col>
           </Row>
         </Form>
-      </Modal>
+      </div>
     </div>
-    <Table
-      :columns="tableTitle"
-      :data="tableData">
-    </Table>
-    <div>
-</div></div></template>
+    </Col>
+  </row>
+</template>
 
 <style lang="less" scoped>
+@import '../../../styles/components/common.less';
 .details-menu {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   margin-bottom: 14px;
 }
-.table-content-title-icon {
-  width: 3px;
-  height: 5px;
-  border: 2px solid #2d8cf0;
+.left-content {
+  padding: 5px 20px 0px 1px;
 }
-.table-content-title-content {
-  font-size: 14px;
-  padding-left: 8px;
-}
-/deep/.k-table {
-  td {
-    background-color: #f1f3f7;
-  }
-  th {
-    background-color: #dcdee2;
-  }
+.right-content {
+  padding: 5px 20px 0px 1px;
 }
 </style>
