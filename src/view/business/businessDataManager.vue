@@ -25,8 +25,11 @@ export default {
         <Tab-pane
           label="元数据管理"
           name="name1">
+          <!--左侧查询 -->
           <DataDisplay></DataDisplay>
+          <!--左侧树 -->
           <BusinessSort></BusinessSort>
+          <!--左侧标签 -->
           <BusinessLable></BusinessLable>
         </Tab-pane>
         <Tab-pane
@@ -35,7 +38,7 @@ export default {
       </Tabs>
     </div>
     <div id="right-context">
-
+      <!--右侧表格 -->
       <BusinessTable></BusinessTable>
     </div>
   </div>

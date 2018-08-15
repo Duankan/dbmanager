@@ -3,10 +3,10 @@ export default {
   name: 'BusinessTable',
   data() {
     return {
-      tableData: [],
-      tableHeight: 200,
-      totalCount: '',
-      pageIndex: '',
+      tableData: [], //表格数据
+      tableHeight: 200, //表格的高度
+      totalCount: 1, //表格总页数
+      pageIndex: 1, //表格当前页
       tableColumns1: [
         {
           type: 'selection',
@@ -24,16 +24,16 @@ export default {
         {
           title: '标签',
           key: 'keyword',
-          render: (h, params) => {
-            return h('div');
-          },
+          // render: (h, params) => {
+          //   return h('div');
+          // },
         },
         {
           title: '分类',
           key: 'restype',
-          render: (h, params) => {
-            return h('div');
-          },
+          // render: (h, params) => {
+          //   return h('div');
+          // },
         },
 
         {
@@ -57,7 +57,7 @@ export default {
         },
         {
           title: '创建时间',
-          key: 'update',
+          key: 'createtime',
           // render: (h, params) => {
           //   const row = params.row;
           //   return h('div', this.formatDate(row.update));
@@ -105,12 +105,12 @@ export default {
     };
   },
   mounted() {
+    //调用获取表格数据的方法
     this.mocktableData();
     //自适应高度
     this.tableHeight = document.getElementsByClassName('table-content')[0].offsetHeight - 200;
-    var that = this;
-    window.onresize = function temp() {
-      that.tableHeight = document.getElementsByClassName('table-content')[0].offsetHeight - 200;
+    window.onresize = temp => {
+      this.tableHeight = document.getElementsByClassName('table-content')[0].offsetHeight - 200;
     };
   },
   methods: {
@@ -122,21 +122,34 @@ export default {
         orderfield: '', //排序字段
         sort: '', //排序方式
         pageinfo: {
-          pageIndex: '', //当前页
+          pageIndex: this.pageIndex, //当前页
           pageSize: 10, //每页总数
           orderby: '', //排序字段
         },
       });
-
+      //获取表格数据
       this.tableData = response.data.dataSource;
+      //获取表格总页数
       this.totalCount = response.data.pageInfo.totalCount;
+      //获取当前页
       this.pageIndex = response.data.pageInfo.pageIndex;
-      // debugger;
     },
     changePage(currPage) {
-      this.mocktableData();
-
-      debugger;
+      //获取点击后的页码
+      this.pageIndex = currPage;
+      //重新渲染跳转的页面
+      this.mocktableData(this.pageIndex);
+    },
+    remove(index) {
+      this.data6.splice(index, 1);
+    },
+    show(index) {
+      this.$Modal.info({
+        title: 'User Info',
+        content: `Name：${this.data6[index].name}<br>Age：${this.data6[index].age}<br>Address：${
+          this.data6[index].address
+        }`,
+      });
     },
   },
   // formatDate(date) {
@@ -162,8 +175,8 @@ export default {
       :height="tableHeight"
       :columns="tableColumns1"
     ></Table>
-    <div style="margin: 10px;overflow: hidden">
-      <div style="float: right;">
+    <div class="page">
+      <div class="page-item">
         <Page
           :total="totalCount"
           :current="pageIndex"
@@ -194,15 +207,18 @@ export default {
   font-size: 14px;
   padding-left: 8px;
 }
-table > tr {
-  height: 20px;
-}
-
 .table-content-btn {
   width: 100%;
   height: 45px;
+  button {
+    float: right;
+  }
 }
-.table-content-btn button {
-  float: right;
+.page {
+  margin: 10px;
+  overflow: hidden;
+  .page-item {
+    float: right;
+  }
 }
 </style>

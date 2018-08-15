@@ -5,89 +5,15 @@ export default {
     return {
       dataTree: [
         {
-          title: '文件夹',
+          title: '',
           expand: true,
-          render: (h, { root, node, data }) => {
-            return h(
-              'span',
-              {
-                style: {
-                  display: 'inline-block',
-                  width: '100%',
-                },
-              },
-              [
-                h('span', [
-                  h('Icon', {
-                    props: {
-                      type: 'ios-folder',
-                    },
-                    style: {
-                      marginRight: '8px',
-                      fontSize: '10px',
-                      color: '#ff9900',
-                    },
-                  }),
-                  h('span', data.title),
-                ]),
-                h(
-                  'span',
-                  {
-                    style: {
-                      display: 'inline-block',
-                      float: 'right',
-                      marginRight: '32px',
-                    },
-                  }[
-                    h('Button', {
-                      props: Object.assign({}, this.ButtonProps, {
-                        icon: 'ios-plus-empty',
-                        // type: 'primary',
-                      }),
-                      style: {
-                        marginRight: '5px',
-                        padding: '0px 3px',
-                      },
-                      on: {
-                        click: () => {
-                          this.append(data);
-                        },
-                      },
-                    })
-                  ]
-                ),
-              ]
-            );
-          },
           children: [
             {
-              title: '文件夹一',
+              title: '',
               expand: true,
               children: [
                 {
-                  title: '数据1',
-                  expand: true,
-                },
-                {
-                  title: '数据2',
-                  expand: true,
-                },
-              ],
-            },
-            {
-              title: '文件夹二',
-              expand: true,
-              children: [
-                {
-                  title: '数据1',
-                  expand: true,
-                },
-                {
-                  title: '数据2',
-                  expand: true,
-                },
-                {
-                  title: '数据3',
+                  title: '',
                   expand: true,
                 },
               ],
@@ -95,131 +21,23 @@ export default {
           ],
         },
       ],
-      ButtonProps: {
-        type: 'default',
-        size: 'small',
-      },
+      // ButtonProps: {
+      //   type: 'default',
+      //   size: 'small',
+      // },       :render="renderContent"
     };
   },
+  mounted() {
+    this.searchTree();
+  },
   methods: {
-    renderContent(h, { root, node, data }) {
-      return h(
-        'span',
-        {
-          style: {
-            display: 'inline-block',
-            width: '100%',
-          },
-        },
-        [
-          h(
-            'span',
-            // {
-            //   style: {
-            //     width: '85px',
-            //     background: 'none',
-            //   },
-            // },
-            [
-              h('Icon', {
-                props: {
-                  type: 'ios-paper-outline',
-                },
-                style: {
-                  marginRight: '5px',
-                },
-              }),
-              h(
-                'k-input',
-                {
-                  props: {
-                    size: 'small',
-                    value: data.title,
-                    readonly: true,
-                  },
-                  style: {
-                    width: '65px',
-                  },
-                },
-                data.title
-              ),
-            ]
-          ),
-          h(
-            'span',
-            {
-              style: {
-                display: 'inline-block',
-                float: 'right',
-                marginRight: '10px',
-              },
-            },
-            [
-              h('Button', {
-                props: Object.assign({}, this.ButtonProps, {
-                  icon: 'ios-plus-empty',
-                }),
-                style: {
-                  marginRight: '5px',
-                  padding: '0px 3px',
-                },
-                on: {
-                  click: () => {
-                    this.append(data);
-                  },
-                },
-              }),
-              h('Button', {
-                props: Object.assign({}, this.ButtonProps, {
-                  icon: 'ios-minus-empty',
-                }),
-                style: {
-                  marginRight: '5px',
-                  padding: '0px 3px',
-                },
-                on: {
-                  click: () => {
-                    this.remove(root, node, data);
-                  },
-                },
-              }),
-              // h('Button', {
-              //   props: Object.assign({}, this.ButtonProps, {
-              //     icon: 'ios-compose-outline',
-              //   }),
-              //   style: {
-              //     padding: '0px 3px',
-              //   },
-              //   on: {
-              //     click: () => {
-              //       this.edit(root, node, data);
-              //     },
-              //   },
-              // }),
-            ]
-          ),
-        ]
-      );
-    },
-    append(data) {
-      const children = data.children || [];
-      debugger;
-      children.push({
-        title: '数据',
-        expand: true,
-      });
-      this.$set(data, 'children', children);
-    },
-    remove(root, node, data) {
-      const parentKey = root.find(el => el === node).parent;
-      const parent = root.find(el => el.nodeKey === parentKey).node;
-      const index = parent.children.indexOf(data);
-      parent.children.splice(index, 1);
+    async searchTree() {
+      const response = await api.db.findalltype({});
+      this.dataTree = response.data;
     },
   },
 };
 </script>
-
 <template>
   <div class="main">
     <div
@@ -231,7 +49,8 @@ export default {
       <span>资源分类</span>
       <Tree
         :data="dataTree"
-        :render="renderContent"></Tree>
+
+      ></Tree>
 </div></div></template>
 
 <style lang="less" scoped>
@@ -256,5 +75,11 @@ export default {
   line-height: 8px;
   background-color: #2d8cf0;
   margin-right: 5px;
+}
+/deep/.k-input {
+  background: none;
+  border: none;
+  // cursor: default;
+  color: #515a6e;
 }
 </style>

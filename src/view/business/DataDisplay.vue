@@ -36,7 +36,8 @@ export default {
     <FormItem label="关键字：">
       <Input
         v-model="formItem.input"
-        placeholder="请输入关键字"></Input>
+        placeholder="请输入关键字">
+      </Input>
     </FormItem>
     <FormItem>
       <Button type="primary" >查询</Button>

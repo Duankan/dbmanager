@@ -1,0 +1,42 @@
+.color-transparent() {
+  background-color: transparent;
+}
+//input框背景颜色透明
+/deep/.k-input {
+  .color-transparent();
+}
+//select框背景透明
+/deep/.k-select-selection {
+  .color-transparent();
+}
+// 标签图标
+.table-content-title-icon {
+  width: 3px;
+  height: 5px;
+  border: 2px solid #2d8cf0;
+}
+.table-content-title-content {
+  font-size: 14px;
+  padding-left: 8px;
+}
+// 表格颜色
+/deep/.k-table {
+  td {
+    background-color: #f1f3f7;
+  }
+  th {
+    background-color: #dcdee2;
+  }
+}
+//两端对齐
+.flex-space-between() {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+// 表单上下间距
+.k-form-item {
+  margin-bottom: 18px;
+  vertical-align: top;
+  zoom: 1;
+}
