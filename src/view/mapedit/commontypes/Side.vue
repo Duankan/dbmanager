@@ -71,15 +71,15 @@ export default {
     Stroke() {
       const Stroke = {
         strColor: this.colors,
-        colorField: this.fieldColour,
+        colorField: this.fieldColour, //依据字段
         dashs: this.dashs,
-        numDashOffset: this.imaginaryExcursion,
-        strLineCap: this.lineCap,
-        strLineJoin: this.lineConnect,
-        numOpacity: this.lucency / 100,
-        numWidth: this.breadth,
-        widthField: this.fieldNum,
-        graphicStroke: null, //   这个位子加线符号的
+        numDashOffset: this.imaginaryExcursion, //虚线便宜
+        strLineCap: this.lineCap, //线毛
+        strLineJoin: this.lineConnect, //线连接
+        numOpacity: this.lucency / 透明100,
+        numWidth: this.breadth, //宽度
+        widthField: this.fieldNum, //依据字段
+        graphicStroke: null, //   这个位子加线符号的？？？？？？
       };
       var strStroke = JSON.stringify(Stroke);
       return Stroke;

@@ -3,40 +3,102 @@ export default {
   name: 'BusinessLable',
   data() {
     return {
+      value: '',
       newAddText: '',
-      nextTodoId: 7,
       datas: [], //标签数据
+      labelsData: [],
     };
+  },
+  //监听数据列表
+  watch: {
+    datas: {
+      handler(newVals) {
+        this.labelsData = [];
+        //给对象添加isEdit属性并赋值
+        newVals.forEach(element => {
+          this.$set(element, 'isEdit', false);
+        });
+      },
+      immediate: true,
+    },
   },
   mounted() {
     this.lableDatas();
   },
   methods: {
     async lableDatas() {
-      const response = await api.db.findAllTags({});
+      const response = await api.db.findall({});
       this.datas = response.data;
     },
     //添加列表
     async addNewList() {
-      const response = await api.db.addTaqs({
-        name: this.newAddText, //标签名
-        remark: '', //描述
-        type: 1, //类型（0-空间数据，1-业务数据）
-      });
-      debugger;
-      this.newAddText = '标签' + this.nextTodoId;
-      this.datas.push({
-        id: this.nextTodoId++,
-        text: this.newAddText,
+      this.$Modal.confirm({
+        render: h => {
+          return h('Input', {
+            props: {
+              value: this.newAddText,
+              autofocus: true,
+              placeholder: '请输入标签名',
+            },
+            on: {
+              input: val => {
+                this.newAddText = val;
+              },
+            },
+          });
+        },
+        onOk: async val => {
+          const response = await api.db.addTaqs({
+            name: this.newAddText, //标签名
+            remark: '', //描述
+            type: 1, //类型（0-空间数据，1-业务数据）
+          });
+          this.lableDatas();
+
+          this.$Message.info('添加成功');
+          this.newAddText = '';
+        },
+        onCancel: () => {
+          this.$Message.info('取消');
+        },
       });
     },
     //删除列表
-    removeList(index) {
-      this.datas.splice(index, 1);
+    async removeList(id) {
+      this.$Modal.confirm({
+        title: '删除标签',
+        content: '<p>确定删除该标签？</p>',
+        onOk: async () => {
+          const response = await api.db.deleteTaqs({ id: id });
+          this.datas.splice(
+            this.datas.findIndex(item => {
+              return id === item.id;
+            }),
+            1
+          );
+          this.$Message.info('已删除');
+        },
+        onCancel: () => {
+          this.$Message.info('取消');
+        },
+      });
     },
     //编辑列表
-    editList(event) {
+    async editList(event, item) {
+      //获取当前input焦点
       event.target.parentElement.getElementsByTagName('input')[0].focus();
+      item.isEdit = true;
+    },
+
+    async updateList(item) {
+      const response = await api.db.updateTaqs({
+        id: item.id, //id
+        name: item.name, //标签名
+        remark: item.remark, //描述
+        type: 1, //类型（0-空间数据，1-业务数据）
+      });
+      item.isEdit = false;
+      this.$Message.info('修改成功');
     },
   },
 };
@@ -59,27 +121,35 @@ export default {
     </div>
     <div class="lable">
       <div
-        v-for="(list, index) in datas"
+        v-for="(item, index) in datas"
         :key="index"
         class="lable-list">
         <input
-          v-model="list.name"
+          v-model="item.name"
           type="text"
           class="lable-input-list"
         />
+
         <Icon
           class="lable-list-content-icons"
           type="ios-close-outline"
           size="16"
-          @click.native="removeList(index)"></Icon>
+          @click.native="removeList(item.id)"></Icon>
         <Icon
+          v-if="!item.isEdit"
           class="lable-list-content-icon"
           type="android-create"
           size="16"
-          @click.native="editList($event)"
+          @click.native="editList($event,item)"
         ></Icon>
+        <Icon
+          v-else
+          type="ios-checkmark"
+          size="16"
+          class="lable-list-content-icon-update"
+          @click.native="updateList(item)"></Icon>
       </input>
-      </div>
+      </icon></div>
     </div>
 
   </div>
@@ -112,36 +182,43 @@ export default {
   height: calc(100%-40px);
   overflow-y: auto;
   margin-top: 3px;
-}
-.lable-list {
-  width: 100%;
-  height: 25px;
-  background-color: #f8f8f9;
-  margin-top: 8px;
-  border-radius: 5px;
-  padding-left: 10px;
-  line-height: 25px;
+  .lable-list {
+    width: 100%;
+    height: 25px;
+    background-color: #f8f8f9;
+    margin-top: 8px;
+    border-radius: 5px;
+    padding-left: 10px;
+    line-height: 25px;
+    .lable-list-content-icon {
+      padding-right: 4%;
+      cursor: pointer;
+      float: right;
+      line-height: 25px;
+    }
+    .lable-list-content-icons {
+      cursor: pointer;
+      float: right;
+      padding-right: 7px;
+      line-height: 25px;
+    }
+    .lable-list-content-icon-update {
+      color: green;
+      cursor: pointer;
+      float: right;
+      padding-right: 7px;
+      line-height: 25px;
+    }
+    .lable-input-list {
+      height: 25px;
+      border: 0;
+      background: none;
+    }
+  }
 }
 .lable-list-icon {
   float: right;
   padding-right: 7px;
   cursor: pointer;
-}
-.lable-list-content-icon {
-  padding-right: 4%;
-  cursor: pointer;
-  float: right;
-  line-height: 25px;
-}
-.lable-list-content-icons {
-  cursor: pointer;
-  float: right;
-  padding-right: 7px;
-  line-height: 25px;
-}
-.lable-input-list {
-  height: 25px;
-  border: 0;
-  background: none;
 }
 </style>

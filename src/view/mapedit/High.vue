@@ -161,6 +161,15 @@ export default {
         statisticsFields: [{ field: 'gid', operate: 'count' }],
         typename: 'ktw:' + this.msg.data.name,
       };
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+      param = { statistics: JSON.stringify(param) };
+      console.log(param);
+
+>>>>>>> 3edc97538bfc01dde4c8865cb9b897649ef0f938
+>>>>>>> 367385df4c87cf9ac08931bfe0b3e1d62eede416
       // param = { statistics: JSON.stringify(param) };
       L.ajax({
         url: `${config.project.highgisUrl}/hgis/ows?service=wps&request=aggregate`,
@@ -203,7 +212,7 @@ export default {
     <RadioGroup v-model="soleAndSection">
       <radio label="uniquex">
       <span>唯一值</span> </radio>
-      <radio 
+      <radio
         label="quantilex" >
       <span>分段数</span></radio>
     </RadioGroup>
@@ -237,15 +246,15 @@ export default {
       <ColorRibbon
         ref="ColorRibbon"
         style="width:150px"></ColorRibbon>
-  
+
       <span
         v-show="soleAndSection=='quantilex'">
         <span>分类：</span>
         <InputNumber
-          :min="2" 
+          :min="2"
           v-model="value1"
         ></InputNumber>
-        <Button @click="getColor">确定</Button> 
+        <Button @click="getColor">确定</Button>
       </span>
       <span
         v-show="soleAndSection=='uniquex'">
