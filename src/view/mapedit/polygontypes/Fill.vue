@@ -59,11 +59,7 @@ export default {
       font: [], //绑定的字体
     };
   },
-  computed: {
-    Fills() {
-      return this.getFill();
-    },
-  },
+  computed: {},
   watch: {
     opacityField: function() {
       if (this.opacityField == '-none-' || this.opacityField == null) {
