@@ -30,16 +30,16 @@ export default {
         {
           title: '标签',
           key: 'keyword',
-          render: (h, params) => {
-            return h('div');
-          },
+          // render: (h, params) => {
+          //   return h('div');
+          // },
         },
         {
           title: '分类',
           key: 'restype',
-          render: (h, params) => {
-            return h('div');
-          },
+          // render: (h, params) => {
+          //   return h('div');
+          // },
         },
 
         {
@@ -63,7 +63,7 @@ export default {
         },
         {
           title: '创建时间',
-          key: 'update',
+          key: 'createtime',
           // render: (h, params) => {
           //   const row = params.row;
           //   return h('div', this.formatDate(row.update));

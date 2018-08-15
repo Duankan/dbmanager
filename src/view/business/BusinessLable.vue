@@ -6,7 +6,21 @@ export default {
       value: '',
       newAddText: '',
       datas: [], //标签数据
+      labelsData: [],
     };
+  },
+  //监听数据列表
+  watch: {
+    datas: {
+      handler(newVals) {
+        this.labelsData = [];
+        //给对象添加isEdit属性并赋值
+        newVals.forEach(element => {
+          this.$set(element, 'isEdit', false);
+        });
+      },
+      immediate: true,
+    },
   },
   mounted() {
     this.lableDatas();
@@ -39,9 +53,8 @@ export default {
             remark: '', //描述
             type: 1, //类型（0-空间数据，1-业务数据）
           });
-          this.datas.push({
-            name: this.newAddText,
-          });
+          this.lableDatas();
+
           this.$Message.info('添加成功');
           this.newAddText = '';
         },
@@ -71,42 +84,21 @@ export default {
       });
     },
     //编辑列表
-    async editList(list) {
-      // e.target.parentElement.getElementsByTagName('input')[0].focus();
+    async editList(event, item) {
+      //获取当前input焦点
+      event.target.parentElement.getElementsByTagName('input')[0].focus();
+      item.isEdit = true;
+    },
 
-      debugger;
-
-      // this.$Modal.confirm({
-      //   render(h) {
-      //     return (
-      //       <Input
-      //         value={list.name}
-      //         onOn-change={e => {
-      //           list.name = e.target.value;
-      //         }}
-      //         nativeOnClick={e => e.stopPropagation()}
-      //       />
-      //     );
-      //   },
-      //   onOk: async val => {
-      //     const response = await api.db.addTaqs({
-      //       id: list.id, //id
-      //       name: list.name, //标签名
-      //       remark: '', //描述
-      //       type: 1, //类型（0-空间数据，1-业务数据）
-      //     });
-      //     const statusCode = response.status;
-      //     if (statusCode == 200) {
-      //       return (name = this.newAddText), this.$Message.info('更改成功');
-      //     } else if (statusCode == 500) {
-      //       this.$Message.info('服务端异常，更改失败');
-      //     }
-      //     window.location.reload();
-      //   },
-      //   onCancel: () => {
-      //     this.$Message.info('取消');
-      //   },
-      // });
+    async updateList(item) {
+      const response = await api.db.updateTaqs({
+        id: item.id, //id
+        name: item.name, //标签名
+        remark: item.remark, //描述
+        type: 1, //类型（0-空间数据，1-业务数据）
+      });
+      item.isEdit = false;
+      this.$Message.info('修改成功');
     },
   },
 };
@@ -129,28 +121,35 @@ export default {
     </div>
     <div class="lable">
       <div
-        v-for="(list, index) in datas"
+        v-for="(item, index) in datas"
         :key="index"
         class="lable-list">
         <input
-          v-model="list.name"
+          v-model="item.name"
           type="text"
-
           class="lable-input-list"
         />
+
         <Icon
           class="lable-list-content-icons"
           type="ios-close-outline"
           size="16"
-          @click.native="removeList(list.id)"></Icon>
+          @click.native="removeList(item.id)"></Icon>
         <Icon
+          v-if="!item.isEdit"
           class="lable-list-content-icon"
           type="android-create"
           size="16"
-          @click.native="editList(list)"
+          @click.native="editList($event,item)"
         ></Icon>
+        <Icon
+          v-else
+          type="ios-checkmark"
+          size="16"
+          class="lable-list-content-icon-update"
+          @click.native="updateList(item)"></Icon>
       </input>
-      </div>
+      </icon></div>
     </div>
 
   </div>
@@ -203,11 +202,17 @@ export default {
       padding-right: 7px;
       line-height: 25px;
     }
+    .lable-list-content-icon-update {
+      color: green;
+      cursor: pointer;
+      float: right;
+      padding-right: 7px;
+      line-height: 25px;
+    }
     .lable-input-list {
       height: 25px;
       border: 0;
       background: none;
-      cursor: pointer;
     }
   }
 }

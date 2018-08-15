@@ -1,17 +1,133 @@
 <script>
+import StyleTable from './StyleTable';
+import Public from './common/Public';
+import LineStyle from './common/LineStyle';
+import * as helps from '@/utils/helps';
 export default {
   name: 'StyleEdit',
-  components: {},
+  components: { StyleTable, Public, LineStyle },
   props: {
     layerNode: {
       type: Object,
       default: null,
     },
+    // styleType: {
+    //   type: String,
+    //   default: 'SingleSytle', //单一样式
+    // },
+  },
+  data() {
+    return {
+      testStr: '',
+      tableHeight: 0,
+      styleType: 'SingleSytle', //是否是单一样式
+      isOpenStyleTable: false,
+      layerType: '',
+      layerTypeText: '',
+      styleName: '',
+      styleAliasName: '',
+      fieldNumS: [],
+      fieldNoNumS: [],
+    };
+  },
+  computed: {
+    getLineStr: function() {
+      var lineStr = '';
+      if (this.layerType == 'polyline') {
+        lineStr = '线';
+      } else {
+        lineStr = '边';
+      }
+      return lineStr;
+    },
+  },
+  watch: {
+    layerNode: {
+      handler(val) {
+        if (val.resource.shapeType.toUpperCase() == 'POLYGON') {
+          this.layerType = 'polygon';
+          this.layerTypeText = '面';
+        } else if (val.resource.shapeType.toUpperCase() == 'POINT') {
+          this.layerType = 'point';
+          this.layerTypeText = '点';
+        } else if (val.resource.shapeType.toUpperCase() == 'LINESTRING') {
+          this.layerType = 'polyline';
+          this.layerTypeText = '线';
+        } else if (val.resource.shapeType == 'polyline') {
+          this.layerType = 'polyline';
+          this.layerTypeText = '线';
+        }
+        this.getLayerStyleName();
+        this.getSldByName();
+        this.getfield();
+      },
+      immediate: true,
+    },
+  },
+  mounted() {
+    //自适应高度
+    this.tableHeight = document.getElementsByClassName('main')[0].offsetHeight - 220;
+    window.onresize = temp => {
+      this.tableHeight = document.getElementsByClassName('main')[0].offsetHeight - 220;
+      document.getElementsByClassName('styleMainCollapse')[0].style.height =
+        this.tableHeight + 'px';
+    };
+    document.getElementsByClassName('styleMainCollapse')[0].style.height = this.tableHeight + 'px';
   },
   methods: {
+    //样式设置返回
     back() {
       this.$emit('back-event');
     },
+    //单一样式和组合样式切换
+    styleGroupChange() {
+      if (this.styleType == 'SingleSytle') {
+        this.tableHeight = document.getElementsByClassName('main')[0].offsetHeight - 220;
+        document.getElementsByClassName('styleMainCollapse')[0].style.height =
+          this.tableHeight + 'px';
+      } else {
+        this.tableHeight = document.getElementsByClassName('main')[0].offsetHeight - 400;
+        document.getElementsByClassName('styleMainCollapse')[0].style.height =
+          this.tableHeight + 'px';
+      }
+    },
+    //打开样式高级设置
+    openRuleByGroup() {},
+    //获取样式名称
+    getLayerStyleName() {
+      this.styleName = new URL(this.layerNode.serviceUrl).searchParams.get('styles');
+    },
+    //获取样式别名
+    async getSldByName() {
+      const response = await api.db.getSldByName({ style: this.styleName });
+      this.styleAliasName = response.data.nameLayers[0].style[0].name;
+    },
+    //获取图层所有字段信息
+    async getfield() {
+      const response = await api.db.findService({
+        resourceId: this.layerNode.resourceId, // 资源id
+        serivestatus: 0, // 服务状态(0 开启 1 关闭)
+        baseservicetype: 1, // 基础服务
+        metadataLayer: this.layerNode.resource.metadataLayer, // 元数据图层
+      });
+      if (response.data.length > 1) {
+        for (let i = 0; i < response.data[1].schema.length; i++) {
+          let all = helps.schemaReservedFileds.indexOf(response.data[1].schema[i].name);
+          if (all == -1 && response.data[1].schema[i].type != 'String') {
+            this.fieldNumS.push(response.data[1].schema[i]);
+          }
+          if (all == -1 && response.data[1].schema[i].type == 'String') {
+            this.fieldNoNumS.push(response.data[1].schema[i]);
+          }
+        }
+      }
+      debugger;
+    },
+    // //打开样式列表
+    // openSytleTable() {
+    //   debugger;
+    //   this.isOpenStyleTable = true;
+    // },
   },
 };
 </script>
@@ -26,6 +142,144 @@ export default {
       <span class="title">编辑图层:</span>
       <span class="layername">{{ layerNode.resource.alias }}</span>
     </div>
+    <Card class="context-card">
+      <p slot="title">
+        <SvgIcon
+          :size="18"
+          :icon-class="'style-'+layerType"></SvgIcon>
+        <span class="title">{{ layerTypeText+'样式' }}</span>
+      </p>
+      <Tooltip 
+        slot="extra" 
+        :content="!isOpenStyleTable?'所有'+layerTypeText+'样式列表':'返回'" 
+        placement="right">
+        <a 
+          href="javascript:void(0);" 
+          @click="isOpenStyleTable=!isOpenStyleTable"><SvgIcon 
+            :size="18"
+            :icon-class="isOpenStyleTable?'style-back':'style-table'"></SvgIcon></a>
+      </Tooltip>
+      <div v-if="!isOpenStyleTable">
+        <div style="margin-bottom:8px;">
+          <span>当前样式名称：</span>
+          <span 
+            class="style-name">{{ styleName }}</span>
+        </div>
+        <Row>
+          <Col span="9">当前样式别名：</Col>
+          <Col span="15"> <Input 
+            v-model="styleAliasName" 
+            size="small"
+            placeholder="样式别名"></Input></Col>
+        </Row>
+        <div style="margin-top:8px;vertical-align:middle;height:20px;">
+          <RadioGroup 
+            v-model="styleType" 
+            style="line-height:19px;"
+            @on-change="styleGroupChange">
+            <Radio label="SingleSytle">单一样式</Radio>
+            <Radio label="MultipleSytle">组合样式</Radio>
+          </RadioGroup>
+          <a 
+            class="open-rule-group"
+            href="javascript:void(0);"
+            @click="openRuleByGroup">高级设置</a>
+        </div>
+        <Card 
+          v-if="styleType=='MultipleSytle'" 
+          class="group-card">
+          <div class="group-card-context-div">
+            <div class="ruleTitle">
+              <span class="title">所有规则</span>
+              <Button 
+                icon="plus"
+                type="primary" 
+                size="small"
+                class="addRule">创建规则</Button>
+            </div>
+            <Tag 
+              style="widht:120px;"
+              type="border" 
+              closable 
+              color="blue">规则一</Tag>
+            <Tag 
+              type="border" 
+              closable 
+              color="blue">规则一</Tag>
+            <Tag 
+              type="border" 
+              closable 
+              color="blue">规则一</Tag>
+            <Tag 
+              type="border" 
+              closable 
+              color="blue">规则一</Tag>
+            <Tag 
+              type="border" 
+              closable 
+              color="blue">规则一</Tag>
+            <Tag 
+              type="border" 
+              closable 
+              color="blue">规则一</Tag>
+            <Tag 
+              type="border" 
+              closable 
+              color="blue">规则一</Tag>
+            <Tag 
+              type="border" 
+              closable 
+              color="blue">规则一</Tag>
+            <Tag 
+              type="border" 
+              closable 
+              color="blue">规则一</Tag>
+            <Tag 
+              type="border" 
+              closable 
+              color="blue">规则一</Tag>
+            <Tag 
+              type="border" 
+              closable 
+              color="blue">规则一</Tag>
+          </div>
+        </Card>
+        <div class="styleMainCollapse">
+          <Collapse 
+            value="1" 
+            simple>
+            <Panel name="1"> 通用<Public 
+              slot="content" 
+              :layer-type="layerType" 
+              :field-num-s="fieldNumS"
+              :style-type="styleType"/></Panel>
+            <Panel name="2">
+              {{ getLineStr+'样式' }}
+              <LineStyle 
+                slot="content" 
+                :layer-type="layerType" 
+                :field-num-s="fieldNumS"
+                :field-no-num-s="fieldNoNumS"
+                :style-type="styleType"/>
+            </Panel>
+            <Panel name="3">
+              标注
+              <p slot="content">乔纳森·伊夫是一位工业设计师，现任Apple公司设计师兼资深副总裁，英国爵士。他曾参与设计了iPod，iMac，iPhone，iPad等众多苹果产品。除了乔布斯，他是对苹果那些著名的产品最有影响力的人。</p>
+            </Panel>
+            <Panel name="4">
+              线符号
+              <p slot="content">乔纳森·伊夫是一位工业设计师，现任Apple公司设计师兼资深副总裁，英国爵士。他曾参与设计了iPod，iMac，iPhone，iPad等众多苹果产品。除了乔布斯，他是对苹果那些著名的产品最有影响力的人。</p>
+            </Panel>
+            <Panel name="5">
+              筛选条件过滤
+              <p slot="content">乔纳森·伊夫是一位工业设计师，现任Apple公司设计师兼资深副总裁，英国爵士。他曾参与设计了iPod，iMac，iPhone，iPad等众多苹果产品。除了乔布斯，他是对苹果那些著名的产品最有影响力的人。</p>
+            </Panel>
+          </Collapse>
+        </div>
+      </div>
+      <div 
+        v-else ><StyleTable :layer-type="layerType"/></div>
+    </Card>
   </div>
 </template>
 
@@ -51,6 +305,59 @@ export default {
     overflow: hidden; //超出的隐藏
     display: inline-block;
     vertical-align: middle;
+  }
+
+  .context-card {
+    width: 100%;
+    height: calc(~'100% - 60px');
+    margin-top: 8px;
+  }
+
+  .group-card {
+    width: 100%;
+    height: 166px;
+    margin-top: 8px;
+    .group-card-context-div {
+      text-align: center;
+      height: 150px;
+      overflow-y: auto;
+    }
+  }
+
+  .ruleTitle {
+    text-align: left;
+    height: 30px;
+  }
+
+  .styleMainCollapse {
+    width: 100%;
+    margin-top: 8px;
+    overflow-y: auto;
+  }
+
+  .addRule {
+    float: right;
+    margin-right: 8px;
+  }
+
+  .style-name {
+    color: #2d8cf0;
+    font-weight: bold;
+  }
+
+  .open-rule-group {
+    font-size: 12px;
+    float: right;
+    line-height: 20px;
+    color: #2d8cf0;
+  }
+
+  /deep/.k-card-body {
+    padding: 8px;
+  }
+
+  /deep/.k-collapse-header {
+    padding-left: 16px;
   }
 }
 </style>
