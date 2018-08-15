@@ -3,7 +3,7 @@ import DataDisplay from './DataDisplay';
 import BusinessSort from './BusinessSort';
 import BusinessLable from './BusinessLable';
 import BusinessTable from './BusinessTable';
-// import DataDetails from './DataDetails';
+import DataDetails from './DataDetails';
 export default {
   name: 'BusinessDataManager',
   components: {
@@ -11,7 +11,7 @@ export default {
     BusinessSort,
     BusinessLable,
     BusinessTable,
-    // DataDetails,
+    DataDetails,
     //  <BusinessTable></BusinessTable>
     // <DataDetails></DataDetails>
   },
@@ -40,6 +40,8 @@ export default {
     <div id="right-context">
       <!--右侧表格 -->
       <BusinessTable></BusinessTable>
+      <!--元数据详情-->
+      <!--<DataDetails></DataDetails>-->
     </div>
   </div>
 </template>

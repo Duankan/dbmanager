@@ -1,6 +1,12 @@
 <script>
 export default {
   name: 'IncidenceRelation',
+  props: {
+    rowData: {
+      type: Object,
+      default: null,
+    },
+  },
   data() {
     return {
       //外部关联表单
@@ -40,49 +46,55 @@ export default {
             key: 'London2',
           },
         ],
-        radio: '2',
+        radio: '0',
       },
       //外部关联表格
       externalTable: {
         title: [
           {
             title: '源表名',
-            key: 'name',
+            key: 'databaseName',
             className: 'demo-table-info-column',
+            align: 'center',
           },
           {
             title: '源字段',
-            key: 'field',
+            key: 'columnSrc',
+            align: 'center',
           },
           {
             title: '关联表名',
-            key: 'relevanceName',
+            key: 'tableName',
+            align: 'center',
           },
           {
             title: '关联字段名',
-            key: 'relevanceField',
+            key: 'columnDes',
+            align: 'center',
             width: 98,
           },
           {
             title: '关联关系',
-            key: 'incidenceRelation',
+            key: 'relatedType ',
+            align: 'center',
           },
         ],
+        //外部关联表格数据
         data: [
-          {
-            name: 'table1',
-            field: 'column1',
-            relevanceName: 'table2',
-            relevanceField: 'column1',
-            incidenceRelation: '强关联',
-          },
-          {
-            name: 'table1',
-            field: 'column1',
-            relevanceName: 'table2',
-            relevanceField: 'column1',
-            incidenceRelation: '强关联',
-          },
+          // {
+          //   databaseName: 18,
+          //   columnSrc: 'New',
+          //   tableName: 'table',
+          //   columnDes: 'table',
+          //   relatedType: 'table',
+          // },
+          // {
+          //   databaseName: 18,
+          //   columnSrc: 'New',
+          //   tableName: 'table',
+          //   columnDes: 'table',
+          //   relatedType: 'table',
+          // },
         ],
       },
       //内部关联表单
@@ -116,31 +128,28 @@ export default {
         title: [
           {
             title: '源字段',
-            key: 'field',
+            key: 'columnSrc',
+            align: 'center',
           },
           {
             title: '关联字段名',
-            key: 'relevanceName',
+            key: 'columnDes',
+            align: 'center',
           },
           {
             title: '关联关系',
-            key: 'incidenceRelation',
+            key: 'relatedType',
+            align: 'center',
           },
         ],
-        data: [
-          {
-            field: 'column1',
-            relevanceName: 'table2',
-            incidenceRelation: '强关联',
-          },
-          {
-            field: 'column1',
-            relevanceName: 'table2',
-            incidenceRelation: '强关联',
-          },
-        ],
+        //内部关联表格数据
+        data: [],
       },
     };
+  },
+  mounted() {
+    // this.externalTable.data = JSON.parse(this.rowData.relatedcolumn);
+    // this.innerTable.data = JSON.parse(this.rowData.outrelatedcolumn);
   },
 };
 </script>
@@ -162,7 +171,7 @@ export default {
           <Row>
             <Col span="12">
             <FormItem label="源表名：">
-              <Input v-model="externalFormItem.sourceTableName"></Input>
+              <Input></Input>
             </FormItem>
             </Col>
             <Col span="12">
@@ -202,8 +211,8 @@ export default {
             <Col span="18">
             <FormItem label="关联关系：">
               <RadioGroup v-model="externalFormItem.radio">
-                <Radio label="1">强关联</Radio>
-                <Radio label="2">强关联</Radio>
+                <Radio label="0">强关联</Radio>
+                <Radio label="1">弱关联</Radio>
               </RadioGroup>
             </FormItem>
             </Col>
@@ -223,7 +232,6 @@ export default {
       </div>
     </div>
     </Col>
-    <div><Divider type="vertical" /></div>
     <!-- 内部字段关联 -->
     <Col span="12">
     <div class="relevance-content">
@@ -264,8 +272,8 @@ export default {
             <Col span="18">
             <FormItem label="关联关系：">
               <RadioGroup v-model="innerFormItem.radio">
-                <Radio label="1">强关联</Radio>
-                <Radio label="2">强关联</Radio>
+                <Radio label="0">强关联</Radio>
+                <Radio label="1">弱关联</Radio>
               </RadioGroup>
             </FormItem>
             </Col>
@@ -299,12 +307,9 @@ export default {
     float: right;
   }
 }
-.ivu-table td.demo-table-info-column {
-  background-color: #2db7f5;
-  color: #fff;
-}
-.relevance-content {
-  padding: 5px 20px 0px 1px;
+/deep/.k-table td.demo-table-info-column {
+  background-color: #dcdee2;
+  border: 1px solid #dcdee2;
 }
 /deep/.k-form-item-label {
   padding: 10px 0px;

@@ -1,8 +1,16 @@
 <script>
 export default {
   name: 'ExtendField',
+  props: {
+    rowData: {
+      type: Object,
+      default: null,
+    },
+  },
   data() {
     return {
+      //表格数据
+      tableData: [],
       //表格标题
       tableTitle: [
         {
@@ -12,14 +20,17 @@ export default {
         {
           title: '字段名称',
           key: 'name',
+          align: 'center',
         },
         {
           title: '数据类型',
-          key: 'dataType',
+          key: 'type',
+          align: 'center',
         },
         {
           title: '是否允许为空',
-          key: 'status',
+          key: 'allowNull',
+          align: 'center',
           render: (h, params) => {
             const row = params.row;
             const color = row.status === 1 ? 'green' : 'red';
@@ -75,24 +86,14 @@ export default {
           },
         },
       ],
-      //表格数据
-      tableData: [
-        {
-          name: 'RT192476',
-          dataType: 'string',
-          status: 1,
-        },
-        {
-          name: 'RT192476',
-          dataType: 'string',
-          status: 0,
-        },
-      ],
       //新增字段
       addField: false,
       //对话框数据
       addForm: {},
     };
+  },
+  mounted() {
+    this.tableData = JSON.parse(this.rowData.rescolumn);
   },
   methods: {
     ok() {
@@ -106,7 +107,7 @@ export default {
 </script>
 
 <template>
-  <div>
+  <div class="details-content">
     <div class="details-menu">
       <div>
         <span class="table-content-title-icon"></span>
@@ -159,13 +160,16 @@ export default {
       :columns="tableTitle"
       :data="tableData">
     </Table>
-    <div>
-</div></div></template>
+  </div>
+</template>
 
 <style lang="less" scoped>
 @import '../../../styles/components/common.less';
-.details-menu {
-  .flex-space-between();
-  margin-bottom: 14px;
+.details-content {
+  padding: 1px;
+  .details-menu {
+    .flex-space-between();
+    margin-bottom: 14px;
+  }
 }
 </style>

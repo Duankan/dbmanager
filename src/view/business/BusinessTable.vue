@@ -1,12 +1,18 @@
 <script>
+import DataDetails from './DataDetails';
 export default {
   name: 'BusinessTable',
+  components: {
+    DataDetails,
+  },
   data() {
     return {
+      display: true,
       tableData: [], //表格数据
       tableHeight: 200, //表格的高度
       totalCount: 1, //表格总页数
       pageIndex: 1, //表格当前页
+      selectData: null,
       tableColumns1: [
         {
           type: 'selection',
@@ -92,7 +98,11 @@ export default {
                   },
                   on: {
                     click: () => {
-                      this.show(params.index);
+                      // 隐藏元数据管理页面
+                      this.display = false;
+                      this.selectData = params.row;
+                      // debugger;
+                      // this.show(params.index);
                     },
                   },
                 },
@@ -165,27 +175,35 @@ export default {
 
 <template>
   <div class="table-content">
-    <div class="table-content-title">
-      <span class="table-content-title-icon"></span>
-      <span class="table-content-title-content"><b>元数据管理</b></span>
-    </div>
-    <div class="table-content-btn"> <Button type="primary">新增</Button></div>
-    <Table
-      :data="tableData"
-      :height="tableHeight"
-      :columns="tableColumns1"
-    ></Table>
-    <div class="page">
-      <div class="page-item">
-        <Page
-          :total="totalCount"
-          :current="pageIndex"
-          @on-change="changePage"
-        ></Page>
+    <div
+      v-if="display">
+      <div class="table-content-title">
+        <span class="table-content-title-icon"></span>
+        <span class="table-content-title-content"><b>元数据管理</b></span>
+      </div>
+      <div class="table-content-btn"> <Button type="primary">新增</Button></div>
+      <Table
+        :data="tableData"
+        :height="tableHeight"
+        :columns="tableColumns1"
+      ></Table>
+      <div class="page">
+        <div class="page-item">
+          <Page
+            :total="totalCount"
+            :current="pageIndex"
+            @on-change="changePage"
+          ></Page>
+        </div>
       </div>
     </div>
+    <div
+      v-else>
+      <DataDetails
+        :business-data="selectData"
+        @backEvent="display=true"></DataDetails>
+    </div>
   </div>
-
 </template>
 
 <style lang="less" scoped>
