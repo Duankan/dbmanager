@@ -121,14 +121,11 @@ export default {
                   props: {
                     size: 'small',
                     value: data.title,
-                    // autofocus: true,
-                    ref: 'inputfocus',
-                    // readonly: true,
-                    // disabled: true,
                   },
                   style: {
                     width: '76px',
                   },
+                  ref: 'tree',
                 },
                 data.title
               ),
@@ -181,7 +178,7 @@ export default {
                 },
                 on: {
                   click: () => {
-                    this.edit(event);
+                    this.edit(root, node, data);
                   },
                 },
               }),
@@ -255,7 +252,7 @@ export default {
       });
     },
     edit(root, node, data) {
-      this.$refs.inputfocus;
+      this.$refs.input;
       debugger;
 
       // this.$Modal.confirm({
@@ -288,6 +285,7 @@ export default {
       size="20"/>
       <span>资源分类</span>
       <Tree
+        ref="tree"
         :data="dataTree"
         :render="renderContent"
       ></Tree>
