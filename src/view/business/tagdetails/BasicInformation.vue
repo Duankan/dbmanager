@@ -17,11 +17,11 @@ export default {
   methods: {
     async modBasicInformation() {
       console.log(this.rowData.begdate);
-      if (this.rowData.add !== true) {
-        const response = await api.db.updatebasicinfo(this.rowData);
+      if (this.rowData.add == true) {
+        const response = await api.db.addbasicinfoBusiness(this.rowData);
+      } else {
+        const response = await api.db.updatebasicinfoBusiness(this.rowData);
       }
-      // this.rowData.add === true?
-      // const response = await api.db.updatebasicinfo(this.rowData):
     },
   },
 };
