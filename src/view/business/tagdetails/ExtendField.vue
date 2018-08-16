@@ -176,7 +176,9 @@ export default {
         <span class="table-content-title-icon"></span>
         <span class="table-content-title-content"><b>扩展字段列表</b></span>
       </div>
-      <div class="relevance-content">
+      <div
+        :class="{shade:rowData.readonly}"
+        class="relevance-content">
         <Table
           :columns="extendFieldTable.tableTitle"
           :data="extendFieldTable.extendFieldData">
@@ -186,7 +188,9 @@ export default {
     </Col>
     <!-- 内部字段关联 -->
     <Col span="12">
-    <div class="relevance-content">
+    <div
+      :class="{shade:rowData.readonly}"
+      class="relevance-content">
       <div class="details-menu">
         <span class="table-content-title-icon"></span>
         <span class="table-content-title-content"><b>内部字段关联</b></span>
@@ -258,6 +262,7 @@ export default {
     </div>
     <Col span="24">
     <Button
+      v-show="!rowData.readonly"
       class="btn-right"
       type="primary"
       @click="addField = true">

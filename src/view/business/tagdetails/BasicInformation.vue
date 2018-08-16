@@ -14,6 +14,16 @@ export default {
       // readonly: false,
     };
   },
+  methods: {
+    async modBasicInformation() {
+      console.log(this.rowData.begdate);
+      if (this.rowData.add !== true) {
+        const response = await api.db.updatebasicinfo(this.rowData);
+      }
+      // this.rowData.add === true?
+      // const response = await api.db.updatebasicinfo(this.rowData):
+    },
+  },
 };
 </script>
 
@@ -27,7 +37,6 @@ export default {
       <FormItem label="业务资源标题：">
         <Input
           v-model="rowData.restitle"
-          readonly
           placeholder="给目标起个名字"/>
       </FormItem>
       </Col>
@@ -35,7 +44,6 @@ export default {
       <FormItem label="资源分类：">
         <Input
           v-model="rowData.restype"
-          disabled
           placeholder="单选" />
       </FormItem>
       </Col>
@@ -71,14 +79,16 @@ export default {
         <DatePicker
           v-model="rowData.begdate"
           type="date"
-          placeholder="Select date"></DatePicker>
+          format="yyyy-MM-dd"
+          placeholder="选择起始时间"></DatePicker>
         </Col>
         <Col span="1">至</Col>
         <Col span="8">
         <DatePicker
           v-model="rowData.enddate"
           type="date"
-          placeholder="Select date"></DatePicker>
+          format="yyyy-MM-dd"
+          placeholder="选择结束时间"></DatePicker>
         </Col>
       </FormItem>
     </Row>
@@ -109,7 +119,8 @@ export default {
       <Button
         v-show="!rowData.readonly"
         class="details-button-right"
-        type="primary">
+        type="primary"
+        @click="modBasicInformation">
         保存</Button>
       </Col>
     </Row>

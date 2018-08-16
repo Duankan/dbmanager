@@ -107,13 +107,16 @@ export default {
 </script>
 
 <template>
-  <div class="details-content">
+  <div
+    :class="{shade:rowData.readonly}"
+    class="details-content">
     <div class="details-menu">
       <div>
         <span class="table-content-title-icon"></span>
         <span class="table-content-title-content"><b>元数据管理</b></span>
       </div>
       <Button
+        v-show="!rowData.readonly"
         type="primary"
         @click="addField = true">
         新增字段</Button>
