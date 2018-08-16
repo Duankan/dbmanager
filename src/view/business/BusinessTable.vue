@@ -205,9 +205,9 @@ export default {
     //     }`,
     //   });
     // },
+    //时间格式化
     formatDate(datas) {
       datas = new Date(new Date().getTime());
-      debugger;
       const y = datas.getFullYear();
       let m = datas.getMonth() + 1;
       m = m < 10 ? '0' + m : m;
