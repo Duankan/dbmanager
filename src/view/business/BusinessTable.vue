@@ -109,6 +109,25 @@ export default {
                 },
                 '编辑'
               ),
+              h(
+                'a',
+                {
+                  props: {},
+                  style: {
+                    marginRight: '5px',
+                  },
+                  on: {
+                    click: () => {
+                      // 隐藏元数据管理页面
+                      this.display = false;
+                      this.selectData = params.row;
+                      // debugger;
+                      // this.show(params.index);
+                    },
+                  },
+                },
+                '预览'
+              ),
             ]);
           },
         },

@@ -26,6 +26,7 @@ export default {
     this.lableDatas();
   },
   methods: {
+    //查询所有标签
     async lableDatas() {
       const response = await api.db.findall({});
       this.datas = response.data;
@@ -89,7 +90,7 @@ export default {
       event.target.parentElement.getElementsByTagName('input')[0].focus();
       item.isEdit = true;
     },
-
+    //编辑列表
     async updateList(item) {
       const response = await api.db.updateTaqs({
         id: item.id, //id
@@ -129,7 +130,6 @@ export default {
           type="text"
           class="lable-input-list"
         />
-
         <Icon
           class="lable-list-content-icons"
           type="ios-close-outline"
