@@ -1,4 +1,5 @@
 <script>
+import { date } from '@ktw/ktools';
 import DataDetails from './DataDetails';
 export default {
   name: 'BusinessTable',
@@ -67,7 +68,7 @@ export default {
           render: (h, params) => {
             const row = params.row;
             const datas = row.createdate;
-            return h('div', this.formatDate(datas));
+            return h('div', date.format(new Date(datas), 'YYYY-M-D'));
           },
         },
         {
@@ -206,15 +207,15 @@ export default {
     //   });
     // },
     //时间格式化
-    formatDate(datas) {
-      datas = new Date(new Date().getTime());
-      const y = datas.getFullYear();
-      let m = datas.getMonth() + 1;
-      m = m < 10 ? '0' + m : m;
-      let d = datas.getDate();
-      d = d < 10 ? '0' + d : d;
-      return y + '-' + m + '-' + d;
-    },
+    // formatDate(datas) {
+    //   datas = new Date(new Date().getTime());
+    //   const y = datas.getFullYear();
+    //   let m = datas.getMonth() + 1;
+    //   m = m < 10 ? '0' + m : m;
+    //   let d = datas.getDate();
+    //   d = d < 10 ? '0' + d : d;
+    //   return y + '-' + m + '-' + d;
+    // },
   },
 };
 </script>
