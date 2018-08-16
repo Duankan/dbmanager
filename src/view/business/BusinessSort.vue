@@ -121,6 +121,8 @@ export default {
                   props: {
                     size: 'small',
                     value: data.title,
+                    // autofocus: true,
+                    ref: 'inputfocus',
                     // readonly: true,
                     // disabled: true,
                   },
@@ -179,7 +181,7 @@ export default {
                 },
                 on: {
                   click: () => {
-                    this.edit(root, node, data, event);
+                    this.edit(event);
                   },
                 },
               }),
@@ -209,7 +211,6 @@ export default {
           //获取当前点击的id
           const id = data.data.id;
           const remark = data.data.remark;
-          debugger;
           //把当前添加的数据放到id的子节点里
           const children = data.children || [];
           children.push({
@@ -227,7 +228,7 @@ export default {
           this.searchTree();
         },
         onCancel: () => {
-          this.$Message.info('添加失败');
+          this.$Message.info('取消');
         },
       });
     },
@@ -254,7 +255,9 @@ export default {
       });
     },
     edit(root, node, data) {
+      this.$refs.inputfocus;
       debugger;
+
       // this.$Modal.confirm({
       //   render: h => {
       //     return h('Input', {
