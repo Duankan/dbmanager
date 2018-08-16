@@ -101,6 +101,7 @@ export default {
                       // 隐藏元数据管理页面
                       this.display = false;
                       this.selectData = params.row;
+                      this.selectData.readonly = true;
                       // debugger;
                       // this.show(params.index);
                     },

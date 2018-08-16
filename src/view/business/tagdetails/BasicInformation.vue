@@ -11,6 +11,7 @@ export default {
   data() {
     return {
       formItem: {},
+      // readonly: false,
     };
   },
 };
@@ -19,12 +20,14 @@ export default {
 <template>
   <Form
     :label-width="100"
+    :class="{shade:rowData.readonly}"
     :model="rowData">
     <Row>
       <Col span="9">
       <FormItem label="业务资源标题：">
         <Input
           v-model="rowData.restitle"
+          readonly
           placeholder="给目标起个名字"/>
       </FormItem>
       </Col>
@@ -32,6 +35,7 @@ export default {
       <FormItem label="资源分类：">
         <Input
           v-model="rowData.restype"
+          disabled
           placeholder="单选" />
       </FormItem>
       </Col>
@@ -83,6 +87,7 @@ export default {
       <FormItem label="标签关键字：">
         <Input
           :rows="4"
+          v-model="rowData.keyword"
           type="textarea"
           placeholder="请选择多个标签管理里面的标签" />
       </FormItem>
@@ -102,6 +107,7 @@ export default {
     <Row>
       <Col span="18">
       <Button
+        v-show="!rowData.readonly"
         class="details-button-right"
         type="primary">
         保存</Button>
