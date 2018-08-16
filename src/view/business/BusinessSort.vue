@@ -4,6 +4,7 @@ export default {
   data() {
     return {
       treeId: '',
+      readonly: true,
       dataTree: [
         {
           title: '',
@@ -85,7 +86,7 @@ export default {
   },
   methods: {
     async searchTree() {
-      const response = await api.db.findalltype({});
+      const response = await api.db.findalltypeBusiness({});
       this.dataTree = response.data;
     },
     renderContent(h, { root, node, data }) {
@@ -121,6 +122,7 @@ export default {
                   props: {
                     size: 'small',
                     value: data.title,
+                    readonly: false,
                   },
                   style: {
                     width: '76px',
@@ -215,7 +217,7 @@ export default {
             expand: true,
           });
           // this.$set(data, 'children', children);
-          const response = await api.db.add({
+          const response = await api.db.addBusiness({
             name: data.name, //分类名
             remark: remark, //描述
             parid: id, //父节点ID
@@ -236,7 +238,7 @@ export default {
         title: '删除分类',
         content: '<p>确定删除该分类？</p>',
         onOk: async id => {
-          const response = await api.db.delete({ id: treeId });
+          const response = await api.db.deleteBusiness({ id: treeId });
           //获取父节点
           const parentKey = root.find(el => el === node).parent;
           //获取当前节点
@@ -252,7 +254,8 @@ export default {
       });
     },
     edit(root, node, data) {
-      this.$refs.input;
+      this.$refs;
+      // event.target.parentElement;
       debugger;
 
       // this.$Modal.confirm({
