@@ -158,7 +158,9 @@ export default {
   <Row :gutter="24">
     <!-- 外部字段关联 -->
     <Col span="12">
-    <div class="relevance-content">
+    <div
+      :class="{shade:rowData.readonly}"
+      class="relevance-content">
       <div class="details-menu">
         <span class="table-content-title-icon"></span>
         <span class="table-content-title-content"><b>外部关联字段</b></span>
@@ -217,7 +219,10 @@ export default {
             </FormItem>
             </Col>
             <Col span="6">
-            <Button type="primary">创建关联</Button>
+            <Button
+              v-show="!rowData.readonly"
+              type="primary">创建关联
+            </Button>
             </Col>
           </Row>
         </Form>
@@ -234,7 +239,9 @@ export default {
     </Col>
     <!-- 内部字段关联 -->
     <Col span="12">
-    <div class="relevance-content">
+    <div
+      :class="{shade:rowData.readonly}"
+      class="relevance-content">
       <div class="details-menu">
         <span class="table-content-title-icon"></span>
         <span class="table-content-title-content"><b>内部关联字段</b></span>
@@ -278,7 +285,10 @@ export default {
             </FormItem>
             </Col>
             <Col span="6">
-            <Button type="primary">创建关联</Button>
+            <Button
+              v-show="!rowData.readonly"
+              type="primary">
+              创建关联</Button>
             </Col>
           </Row>
         </Form>

@@ -102,9 +102,6 @@ export default {
                       // 隐藏元数据管理页面
                       this.display = false;
                       this.selectData = params.row;
-                      this.selectData.readonly = true;
-                      // debugger;
-                      // this.show(params.index);
                     },
                   },
                 },
@@ -122,8 +119,8 @@ export default {
                       // 隐藏元数据管理页面
                       this.display = false;
                       this.selectData = params.row;
-                      // debugger;
-                      // this.show(params.index);
+                      //预览flag
+                      this.selectData.readonly = true;
                     },
                   },
                 },
@@ -189,6 +186,17 @@ export default {
         },
       });
     },
+    //返回元数据页面更新数据
+    queryData() {
+      this.display = true;
+      mocktableData();
+    },
+    //新增元数据
+    addData() {
+      this.display = false;
+      this.selectData = {};
+      this.selectData.add = true;
+    },
     // show(index) {
     //   this.$Modal.info({
     //     title: 'User Info',
@@ -219,7 +227,13 @@ export default {
         <span class="table-content-title-icon"></span>
         <span class="table-content-title-content"><b>元数据管理</b></span>
       </div>
-      <div class="table-content-btn"> <Button type="primary">新增</Button></div>
+      <div class="table-content-btn">
+        <Button
+          type="primary"
+          @click="addData">
+          新增
+        </Button>
+      </div>
       <Table
         :data="tableData"
         :height="tableHeight"
@@ -239,7 +253,7 @@ export default {
       v-else>
       <DataDetails
         :business-data="selectData"
-        @backEvent="display=true"></DataDetails>
+        @backEvent="queryData"></DataDetails>
     </div>
   </div>
 </template>
