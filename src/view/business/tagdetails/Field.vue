@@ -128,28 +128,29 @@ export default {
           <Row>
             <Col span="22">
             <FormItem label="字段名称：">
-              <Input/>
+              <Input v-model="addForm.name"/>
             </FormItem>
             </Col>
           </Row>
           <Row>
             <Col span="22">
             <FormItem label="字段类型：">
-              <Input/>
+              <Input v-model="addForm.type"/>
             </FormItem>
             </Col>
           </Row>
           <Row>
             <Col span="22">
             <FormItem label="字段长度：">
-              <Input/>
+              <Input v-model="addForm.length"/>
             </FormItem>
             </Col>
           </Row>
           <Row>
             <Col span="22">
             <FormItem label="是否允许为空：">
-              <Checkbox>是</Checkbox>
+              <Input v-model="addForm.allownull"/>
+              <Checkbox label="是"></Checkbox>
             </FormItem>
             </Col>
           </Row>
