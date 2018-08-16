@@ -67,7 +67,6 @@ export default {
           render: (h, params) => {
             const row = params.row;
             const datas = row.createdate;
-            debugger;
             return h('div', this.formatDate(datas));
           },
         },
@@ -190,7 +189,7 @@ export default {
     //返回元数据页面更新数据
     queryData() {
       this.display = true;
-      mocktableData();
+      this.mocktableData();
     },
     //新增元数据
     addData() {
