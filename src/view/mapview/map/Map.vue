@@ -6,6 +6,62 @@ export default {
   events: {
     'on-set-bbox': 'setBbox',
   },
+  data() {
+    const size = 16;
+    return {
+      //工具栏
+      plugin: [
+        {
+          plugin: 'HomeView',
+          option: {
+            size: 16,
+          },
+        },
+        {
+          plugin: 'PreView',
+          option: {
+            size: 16,
+          },
+        },
+        {
+          plugin: 'NextView',
+          option: {
+            size: 16,
+          },
+        },
+        {
+          plugin: 'Position',
+          option: {
+            size: 16,
+          },
+        },
+        {
+          plugin: 'Measure',
+          option: { type: 'length', content: '测量长度', iconClass: 'measurelength', size: 16 },
+        },
+        {
+          plugin: 'Measure',
+          option: { type: 'area', content: '测量面积', iconClass: 'measurearea', size: 16 },
+        },
+        {
+          plugin: 'PointQuery',
+          option: { size: 16 },
+        },
+        {
+          plugin: 'PolygonQuery',
+          option: { size: 16 },
+        },
+        {
+          plugin: 'RectQuery',
+          option: { size: 16 },
+        },
+        {
+          plugin: 'ClearMapTools',
+          option: { size: 16 },
+        },
+      ],
+    };
+  },
   mounted() {
     this.$events.emit('on-getdraw-refs', { drawRefs: this.$refs, REFS }, true);
   },
@@ -50,7 +106,8 @@ export default {
       ref="map">
       <slot/>
       <NavControl/>
-      <MapSearch/>
+      <MapTool :plugins="plugin" />
+      <!--<MapSearch/>-->
       <LayerTree/>
       <LayerCollect/>
       <TileWMSLayer/>
@@ -97,5 +154,15 @@ export default {
   -webkit-transform: translateX(-50%);
   transform: translateX(-50%);
   z-index: 800;
+}
+
+.k-maptool {
+  top: 25px;
+  left: 100px;
+  border-radius: 2px;
+  z-index: 3000;
+  /deep/ .k-maptool-btn {
+    padding: 4px 10px !important;
+  }
 }
 </style>
