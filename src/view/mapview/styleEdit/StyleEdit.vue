@@ -2,10 +2,12 @@
 import StyleTable from './StyleTable';
 import Public from './common/Public';
 import LineStyle from './common/LineStyle';
+import FillStyle from './common/FillStyle';
+import MarkStyle from './common/MarkStyle';
 import * as helps from '@/utils/helps';
 export default {
   name: 'StyleEdit',
-  components: { StyleTable, Public, LineStyle },
+  components: { StyleTable, Public, LineStyle, FillStyle, MarkStyle },
   props: {
     layerNode: {
       type: Object,
@@ -37,6 +39,15 @@ export default {
         lineStr = '线';
       } else {
         lineStr = '边';
+      }
+      return lineStr;
+    },
+    getFileStr: function() {
+      var lineStr = '';
+      if (this.layerType == 'polygon') {
+        lineStr = '面';
+      } else if (this.layerType == 'point') {
+        lineStr = '点';
       }
       return lineStr;
     },
@@ -121,7 +132,6 @@ export default {
           }
         }
       }
-      debugger;
     },
     // //打开样式列表
     // openSytleTable() {
@@ -262,13 +272,25 @@ export default {
                 :field-no-num-s="fieldNoNumS"
                 :style-type="styleType"/>
             </Panel>
-            <Panel name="3">
-              标注
-              <p slot="content">乔纳森·伊夫是一位工业设计师，现任Apple公司设计师兼资深副总裁，英国爵士。他曾参与设计了iPod，iMac，iPhone，iPad等众多苹果产品。除了乔布斯，他是对苹果那些著名的产品最有影响力的人。</p>
+            <Panel 
+              v-show="layerType == 'point'||layerType == 'polygon'" 
+              name="3">
+              {{ getFileStr+'填充' }}
+              <FillStyle 
+                slot="content" 
+                :layer-type="layerType" 
+                :field-num-s="fieldNumS"
+                :field-no-num-s="fieldNoNumS"
+                :style-type="styleType"/>
             </Panel>
             <Panel name="4">
-              线符号
-              <p slot="content">乔纳森·伊夫是一位工业设计师，现任Apple公司设计师兼资深副总裁，英国爵士。他曾参与设计了iPod，iMac，iPhone，iPad等众多苹果产品。除了乔布斯，他是对苹果那些著名的产品最有影响力的人。</p>
+              标注
+              <MarkStyle
+                slot="content" 
+                :layer-type="layerType" 
+                :field-num-s="fieldNumS"
+                :field-no-num-s="fieldNoNumS"
+                :style-type="styleType"/>
             </Panel>
             <Panel name="5">
               筛选条件过滤

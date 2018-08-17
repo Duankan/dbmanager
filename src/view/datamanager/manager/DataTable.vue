@@ -287,7 +287,9 @@ export default {
         item._userName = item.userName ? item.userName : item.createusername || '-';
         item._size = item.size != undefined ? filesize(item.size) : '-';
         item._pubState = item.resourceTypeId == '2' ? item.pubState : '-';
-        item._updateTime = date.format(new Date(item.updateTime), 'YYYY-M-D HH:mm');
+        item._updateTime = item.updateTime
+          ? date.format(new Date(item.updateTime), 'YYYY-M-D HH:mm')
+          : '';
         item._index = index;
         return item;
       });
