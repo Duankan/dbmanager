@@ -3,9 +3,11 @@ export default {
   name: 'BusinessSort',
   data() {
     return {
+      treeId: '',
+      readonly: true,
       dataTree: [
         {
-          title: '文件夹',
+          title: '',
           expand: true,
           render: (h, { root, node, data }) => {
             return h(
@@ -41,7 +43,7 @@ export default {
                   }[
                     h('Button', {
                       props: Object.assign({}, this.ButtonProps, {
-                        icon: 'ios-plus-empty',
+                        // icon: 'ios-plus-empty',
                         // type: 'primary',
                       }),
                       style: {
@@ -61,33 +63,11 @@ export default {
           },
           children: [
             {
-              title: '文件夹一',
+              title: '',
               expand: true,
               children: [
                 {
-                  title: '数据1',
-                  expand: true,
-                },
-                {
-                  title: '数据2',
-                  expand: true,
-                },
-              ],
-            },
-            {
-              title: '文件夹二',
-              expand: true,
-              children: [
-                {
-                  title: '数据1',
-                  expand: true,
-                },
-                {
-                  title: '数据2',
-                  expand: true,
-                },
-                {
-                  title: '数据3',
+                  title: '',
                   expand: true,
                 },
               ],
@@ -101,7 +81,14 @@ export default {
       },
     };
   },
+  mounted() {
+    this.searchTree();
+  },
   methods: {
+    async searchTree() {
+      const response = await api.db.findalltypeBusiness({});
+      this.dataTree = response.data;
+    },
     renderContent(h, { root, node, data }) {
       return h(
         'span',
@@ -123,7 +110,7 @@ export default {
             [
               h('Icon', {
                 props: {
-                  type: 'ios-paper-outline',
+                  type: 'ios-folder-outline',
                 },
                 style: {
                   marginRight: '5px',
@@ -135,12 +122,12 @@ export default {
                   props: {
                     size: 'small',
                     value: data.title,
-                    // readonly: true,
-                    // disabled: true,
+                    readonly: false,
                   },
                   style: {
-                    width: '65px',
+                    width: '76px',
                   },
+                  ref: 'tree',
                 },
                 data.title
               ),
@@ -202,39 +189,95 @@ export default {
         ]
       );
     },
+    //添加树节点
     append(data) {
-      const children = data.children || [];
-
-      children.push({
-        title: '数据',
-        expand: true,
+      this.$Modal.confirm({
+        render: h => {
+          return h('Input', {
+            props: {
+              value: data.name, //添加的节点名
+              // autofocus: true,
+              placeholder: '请输入分类名',
+            },
+            on: {
+              input: val => {
+                data.name = val;
+              },
+            },
+          });
+        },
+        onOk: async () => {
+          //获取当前点击的id
+          const id = data.data.id;
+          const remark = data.data.remark;
+          //把当前添加的数据放到id的子节点里
+          const children = data.children || [];
+          children.push({
+            title: data.name,
+            expand: true,
+          });
+          // this.$set(data, 'children', children);
+          const response = await api.db.addBusiness({
+            name: data.name, //分类名
+            remark: remark, //描述
+            parid: id, //父节点ID
+          });
+          this.$Message.info('添加成功');
+          //渲染页面
+          this.searchTree();
+        },
+        onCancel: () => {
+          this.$Message.info('取消');
+        },
       });
-      this.$set(data, 'children', children);
     },
-    remove(root, node, data) {
-      //获取根节点
-      const parentKey = root.find(el => el === node).parent;
-      //获取父节点
-      const parent = root.find(el => el.nodeKey === parentKey).node;
-      //获取当前节点
-      const index = parent.children.indexOf(data);
-      parent.children.splice(index, 1);
+    // 删除树节点
+    async remove(root, node, data) {
+      const treeId = data.data.id;
+      this.$Modal.confirm({
+        title: '删除分类',
+        content: '<p>确定删除该分类？</p>',
+        onOk: async id => {
+          const response = await api.db.deleteBusiness({ id: treeId });
+          //获取父节点
+          const parentKey = root.find(el => el === node).parent;
+          //获取当前节点
+          const parent = root.find(el => el.nodeKey === parentKey).node;
+          //获取当前节点的值
+          const index = parent.children.indexOf(data);
+          parent.children.splice(index, 1);
+          this.$Message.info('已删除');
+        },
+        onCancel: () => {
+          this.$Message.info('取消');
+        },
+      });
     },
     edit(root, node, data) {
+      this.$refs;
+      // event.target.parentElement;
       debugger;
-      // //获取根节点
-      // const parentKey = root.find(el => el === node).parent;
-      //  //获取父节点
-      // const parent = root.find(el => el.nodeKey === parentKey).node;
-      // // //获取当前节点
-      // const index = parent.children.indexOf(data);
-      //  //获取当前节点的名称
-      //  parent.children[index].title;
+
+      // this.$Modal.confirm({
+      //   render: h => {
+      //     return h('Input', {
+      //       props: {
+      //         value: this.value,
+      //         autofocus: true,
+      //         placeholder: '请输入分类名',
+      //       },
+      //       on: {
+      //         input: val => {
+      //           this.value = val;
+      //         },
+      //       },
+      //     });
+      //   },
+      // });
     },
   },
 };
 </script>
-
 <template>
   <div class="main">
     <div
@@ -245,8 +288,10 @@ export default {
       size="20"/>
       <span>资源分类</span>
       <Tree
+        ref="tree"
         :data="dataTree"
-        :render="renderContent"></Tree>
+        :render="renderContent"
+      ></Tree>
 </div></div></template>
 
 <style lang="less" scoped>
