@@ -163,11 +163,6 @@ export default {
       };
       param = { statistics: JSON.stringify(param) };
       console.log(param);
-<<<<<<< HEAD
-      param = { statistics: JSON.stringify(param) };
-      console.log(param);
-=======
->>>>>>> e598418936180b4873c03d5090b77b724ff2953f
       // param = { statistics: JSON.stringify(param) };
       L.ajax({
         url: `${config.project.highgisUrl}/hgis/ows?service=wps&request=aggregate`,
