@@ -24,7 +24,7 @@
     "@ktw/kbus": "^0.1.0",
     "@ktw/kcharts": "^1.0.0",
     "@ktw/kcore": "^1.3.0",
-    "@ktw/kmap": "^1.2.3",
+    "@ktw/kmap": "^1.3.2",
     "@ktw/ktools": "^1.0.0",
     "@ktw/log": "^0.1.0",
     "@ktw/message": "^0.1.0",

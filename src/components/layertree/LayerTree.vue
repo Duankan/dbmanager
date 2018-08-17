@@ -1,4 +1,5 @@
 <script>
+import LayerEditBar from '@/components/layeredit/LayerEditBar';
 export default {
   name: 'LayerTree',
   data() {
@@ -73,12 +74,22 @@ export default {
               <svg-icon
                 size={16}
                 icon-class={'delete'}
+                title="全部删除"
                 nativeOnClick={() => this.removeLayer(root, node, data)}
               />
             </span>
           </span>
         );
       } else {
+        let layerEdit = (
+          <svg-icon
+            size={16}
+            icon-class={'edit'}
+            color={'#1296db'}
+            title="图层编辑"
+            nativeOnClick={() => this.editLayer(root, node, data)}
+          />
+        );
         return (
           <div class={'k-tree-group'}>
             <ellipsis length={18}>{data.title}</ellipsis>
@@ -86,12 +97,14 @@ export default {
               <svg-icon
                 size={16}
                 icon-class={'position'}
+                title="图层定位"
                 nativeOnClick={() => this.positionLayer(root, node, data)}
               />
-
+              {data.type == 'WMS' ? layerEdit : ''}
               <svg-icon
                 size={16}
                 icon-class={'delete'}
+                title="图层删除"
                 nativeOnClick={() => this.deleteLayer(root, node, data)}
               />
             </span>
@@ -125,6 +138,7 @@ export default {
     },
     // 图层排序，node(放置的位置)，dragNode(当前节点)
     sort(position, node, dragNode) {
+      if (node.nodeKey == 0) return;
       // position 靠近下边缘 1, 靠近上边缘 -1
       this.$store.commit('SET_MAP_WMSLAYER_SORT', {
         position,
@@ -135,8 +149,6 @@ export default {
     },
     // 移除图层
     deleteLayer(root, node, data) {
-      console.log([data.name]);
-      console.log(this.$store);
       this.$store.commit('SET_MAP_GOCLAYER_DELETE', [data.name]);
     },
     // 移除全部图层
@@ -147,6 +159,26 @@ export default {
     // 图层定位
     positionLayer(root, node, data) {
       this.$events.emit('on-set-bbox', { bbox: data.bbox, index: node.nodeKey });
+    },
+    //编辑图层要素
+    editLayer(root, node, data) {
+      let container = this.$store.getters.mapManager._map._container;
+      let pnl = this.$FloatPanel.create({
+        title: '图层编辑工具栏',
+        width: 270,
+        position: {
+          x: container.clientWidth - 300,
+          y: 230,
+        },
+        parent: container,
+        render: h => {
+          return h(LayerEditBar, {
+            props: {
+              layer: data.name,
+            },
+          });
+        },
+      });
     },
     // 切换图层面板显示隐藏
     toggle() {
@@ -307,7 +339,7 @@ export default {
     position: absolute;
     top: 0px;
     right: 50px;
-    width: 260px;
+    width: 280px;
 
     /deep/ .k-card-head {
       padding: 4px 10px;
