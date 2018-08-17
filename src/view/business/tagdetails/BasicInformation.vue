@@ -1,4 +1,5 @@
 <script>
+import { date } from '@ktw/ktools';
 // 基本信息详情页
 export default {
   name: 'BasicInformation',
@@ -18,8 +19,12 @@ export default {
     async modBasicInformation() {
       console.log(this.rowData.begdate);
       if (this.rowData.add == true) {
+        this.rowData.enddate = date.format(new Date(this.rowData.enddate), 'YYYY-M-D');
+        this.rowData.begdate = date.format(new Date(this.rowData.enddate), 'YYYY-M-D');
         const response = await api.db.addbasicinfoBusiness(this.rowData);
       } else {
+        this.rowData.enddate = date.format(new Date(this.rowData.enddate), 'YYYY-M-D');
+        this.rowData.begdate = date.format(new Date(this.rowData.enddate), 'YYYY-M-D');
         const response = await api.db.updatebasicinfoBusiness(this.rowData);
       }
     },

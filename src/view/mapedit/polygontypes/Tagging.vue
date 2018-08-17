@@ -194,7 +194,6 @@ export default {
     <p class="p">
       <span>晕轮:</span>
       <ColorPicker
-
         v-model="strColorY"
         size="large"
         class="colorsStyle" />
