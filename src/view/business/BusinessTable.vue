@@ -1,4 +1,5 @@
 <script>
+import { date } from '@ktw/ktools';
 import DataDetails from './DataDetails';
 export default {
   name: 'BusinessTable',
@@ -63,11 +64,12 @@ export default {
         },
         {
           title: '创建时间',
-          key: 'createtime',
-          // render: (h, params) => {
-          //   const row = params.row;
-          //   return h('div', this.formatDate(row.update));
-          // },
+          key: 'createdate',
+          render: (h, params) => {
+            const row = params.row;
+            const datas = row.createdate;
+            return h('div', date.format(new Date(datas), 'YYYY-M-D'));
+          },
         },
         {
           title: '操作',
@@ -83,7 +85,7 @@ export default {
                   },
                   on: {
                     click: () => {
-                      this.remove(params.index);
+                      this.remove(params);
                     },
                   },
                 },
@@ -101,12 +103,29 @@ export default {
                       // 隐藏元数据管理页面
                       this.display = false;
                       this.selectData = params.row;
-                      // debugger;
-                      // this.show(params.index);
                     },
                   },
                 },
                 '编辑'
+              ),
+              h(
+                'a',
+                {
+                  props: {},
+                  style: {
+                    marginRight: '5px',
+                  },
+                  on: {
+                    click: () => {
+                      // 隐藏元数据管理页面
+                      this.display = false;
+                      this.selectData = params.row;
+                      //预览flag
+                      this.selectData.readonly = true;
+                    },
+                  },
+                },
+                '预览'
               ),
             ]);
           },
@@ -125,7 +144,7 @@ export default {
   },
   methods: {
     async mocktableData() {
-      const response = await api.db.findpagelist({
+      const response = await api.db.findpagelistbusiness({
         name: '', //表名
         restype: '', //资源分类
         keyword: '', //标签关键字
@@ -144,32 +163,60 @@ export default {
       //获取当前页
       this.pageIndex = response.data.pageInfo.pageIndex;
     },
+    //页码
     changePage(currPage) {
       //获取点击后的页码
       this.pageIndex = currPage;
       //重新渲染跳转的页面
       this.mocktableData(this.pageIndex);
     },
-    remove(index) {
-      this.data6.splice(index, 1);
-    },
-    show(index) {
-      this.$Modal.info({
-        title: 'User Info',
-        content: `Name：${this.data6[index].name}<br>Age：${this.data6[index].age}<br>Address：${
-          this.data6[index].address
-        }`,
+    //删除元数据
+    remove(params) {
+      const id = params.row.id;
+      this.$Modal.confirm({
+        title: '删除数据',
+        content: '<p>确定删除该数据？</p>',
+        onOk: async () => {
+          const response = await api.db.deleteBusiness({ id: id });
+          this.tableData.splice(params.index, 1);
+          this.$Message.info('已删除');
+          this.mocktableData();
+        },
+        onCancel: () => {
+          this.$Message.info('取消');
+        },
       });
     },
+    //返回元数据页面更新数据
+    queryData() {
+      this.display = true;
+      this.mocktableData();
+    },
+    //新增元数据
+    addData() {
+      this.display = false;
+      this.selectData = {};
+      this.selectData.add = true;
+    },
+    // show(index) {
+    //   this.$Modal.info({
+    //     title: 'User Info',
+    //     content: `Name：${this.data6[index].name}<br>Age：${this.data6[index].age}<br>Address：${
+    //       this.data6[index].address
+    //     }`,
+    //   });
+    // },
+    //时间格式化
+    // formatDate(datas) {
+    //   datas = new Date(new Date().getTime());
+    //   const y = datas.getFullYear();
+    //   let m = datas.getMonth() + 1;
+    //   m = m < 10 ? '0' + m : m;
+    //   let d = datas.getDate();
+    //   d = d < 10 ? '0' + d : d;
+    //   return y + '-' + m + '-' + d;
+    // },
   },
-  // formatDate(date) {
-  //   const y = date.getFullYear();
-  //   let m = date.getMonth() + 1;
-  //   m = m < 10 ? '0' + m : m;
-  //   let d = date.getDate();
-  //   d = d < 10 ? '0' + d : d;
-  //   return y + '-' + m + '-' + d;
-  // },
 };
 </script>
 
@@ -181,7 +228,13 @@ export default {
         <span class="table-content-title-icon"></span>
         <span class="table-content-title-content"><b>元数据管理</b></span>
       </div>
-      <div class="table-content-btn"> <Button type="primary">新增</Button></div>
+      <div class="table-content-btn">
+        <Button
+          type="primary"
+          @click="addData">
+          新增
+        </Button>
+      </div>
       <Table
         :data="tableData"
         :height="tableHeight"
@@ -201,7 +254,7 @@ export default {
       v-else>
       <DataDetails
         :business-data="selectData"
-        @backEvent="display=true"></DataDetails>
+        @backEvent="queryData"></DataDetails>
     </div>
   </div>
 </template>

@@ -41,6 +41,14 @@ export default {
       v-if="display"
       class="main">
       <div
+        v-if="businessData.readonly"
+        class="data-content"
+        @click="ok()">
+        <Icon type="arrow-left-a"></Icon>
+        <span class="data-content-title"><b>元数据详情</b></span>
+      </div>
+      <div
+        v-else
         class="data-content"
         @click="goBack = true">
         <Icon type="arrow-left-a"></Icon>
@@ -50,7 +58,7 @@ export default {
         v-model="goBack"
         title="返回"
         @on-ok="ok">
-        <p>放弃目前更改，返回元数据管理</p>
+        <p>我已保存更改项，点击确认按钮返回元数据管理页面</p>
       </modal>
       <Tabs value="name1">
         <TabPane

@@ -107,13 +107,16 @@ export default {
 </script>
 
 <template>
-  <div class="details-content">
+  <div
+    :class="{shade:rowData.readonly}"
+    class="details-content">
     <div class="details-menu">
       <div>
         <span class="table-content-title-icon"></span>
         <span class="table-content-title-content"><b>元数据管理</b></span>
       </div>
       <Button
+        v-show="!rowData.readonly"
         type="primary"
         @click="addField = true">
         新增字段</Button>
@@ -128,28 +131,29 @@ export default {
           <Row>
             <Col span="22">
             <FormItem label="字段名称：">
-              <Input/>
+              <Input v-model="addForm.name"/>
             </FormItem>
             </Col>
           </Row>
           <Row>
             <Col span="22">
             <FormItem label="字段类型：">
-              <Input/>
+              <Input v-model="addForm.type"/>
             </FormItem>
             </Col>
           </Row>
           <Row>
             <Col span="22">
             <FormItem label="字段长度：">
-              <Input/>
+              <Input v-model="addForm.length"/>
             </FormItem>
             </Col>
           </Row>
           <Row>
             <Col span="22">
             <FormItem label="是否允许为空：">
-              <Checkbox>是</Checkbox>
+              <Input v-model="addForm.allownull"/>
+              <Checkbox label="是"></Checkbox>
             </FormItem>
             </Col>
           </Row>

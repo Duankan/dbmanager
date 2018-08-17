@@ -1,4 +1,5 @@
 <script>
+import { date } from '@ktw/ktools';
 // 基本信息详情页
 export default {
   name: 'BasicInformation',
@@ -11,7 +12,22 @@ export default {
   data() {
     return {
       formItem: {},
+      // readonly: false,
     };
+  },
+  methods: {
+    async modBasicInformation() {
+      console.log(this.rowData.begdate);
+      if (this.rowData.add == true) {
+        this.rowData.enddate = date.format(new Date(this.rowData.enddate), 'YYYY-M-D');
+        this.rowData.begdate = date.format(new Date(this.rowData.enddate), 'YYYY-M-D');
+        const response = await api.db.addbasicinfoBusiness(this.rowData);
+      } else {
+        this.rowData.enddate = date.format(new Date(this.rowData.enddate), 'YYYY-M-D');
+        this.rowData.begdate = date.format(new Date(this.rowData.enddate), 'YYYY-M-D');
+        const response = await api.db.updatebasicinfoBusiness(this.rowData);
+      }
+    },
   },
 };
 </script>
@@ -19,6 +35,7 @@ export default {
 <template>
   <Form
     :label-width="100"
+    :class="{shade:rowData.readonly}"
     :model="rowData">
     <Row>
       <Col span="9">
@@ -67,14 +84,16 @@ export default {
         <DatePicker
           v-model="rowData.begdate"
           type="date"
-          placeholder="Select date"></DatePicker>
+          format="yyyy-MM-dd"
+          placeholder="选择起始时间"></DatePicker>
         </Col>
         <Col span="1">至</Col>
         <Col span="8">
         <DatePicker
           v-model="rowData.enddate"
           type="date"
-          placeholder="Select date"></DatePicker>
+          format="yyyy-MM-dd"
+          placeholder="选择结束时间"></DatePicker>
         </Col>
       </FormItem>
     </Row>
@@ -83,6 +102,7 @@ export default {
       <FormItem label="标签关键字：">
         <Input
           :rows="4"
+          v-model="rowData.keyword"
           type="textarea"
           placeholder="请选择多个标签管理里面的标签" />
       </FormItem>
@@ -102,8 +122,10 @@ export default {
     <Row>
       <Col span="18">
       <Button
+        v-show="!rowData.readonly"
         class="details-button-right"
-        type="primary">
+        type="primary"
+        @click="modBasicInformation">
         保存</Button>
       </Col>
     </Row>
