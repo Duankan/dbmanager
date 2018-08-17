@@ -5,6 +5,7 @@ export default {
     return {
       value: '',
       newAddText: '',
+      readonly: true,
       datas: [], //标签数据
       labelsData: [],
     };
@@ -26,8 +27,9 @@ export default {
     this.lableDatas();
   },
   methods: {
+    //查询所有标签
     async lableDatas() {
-      const response = await api.db.findall({});
+      const response = await api.db.findallBusiness({});
       this.datas = response.data;
     },
     //添加列表
@@ -48,7 +50,7 @@ export default {
           });
         },
         onOk: async val => {
-          const response = await api.db.addTaqs({
+          const response = await api.db.addTaqsBusiness({
             name: this.newAddText, //标签名
             remark: '', //描述
             type: 1, //类型（0-空间数据，1-业务数据）
@@ -69,7 +71,7 @@ export default {
         title: '删除标签',
         content: '<p>确定删除该标签？</p>',
         onOk: async () => {
-          const response = await api.db.deleteTaqs({ id: id });
+          const response = await api.db.deleteTaqsBusiness({ id: id });
           this.datas.splice(
             this.datas.findIndex(item => {
               return id === item.id;
@@ -85,13 +87,14 @@ export default {
     },
     //编辑列表
     async editList(event, item) {
+      this.readonly = false;
       //获取当前input焦点
       event.target.parentElement.getElementsByTagName('input')[0].focus();
       item.isEdit = true;
     },
-
+    //编辑列表
     async updateList(item) {
-      const response = await api.db.updateTaqs({
+      const response = await api.db.updateTaqsBusiness({
         id: item.id, //id
         name: item.name, //标签名
         remark: item.remark, //描述
@@ -99,6 +102,7 @@ export default {
       });
       item.isEdit = false;
       this.$Message.info('修改成功');
+      this.readonly = true;
     },
   },
 };
@@ -126,10 +130,10 @@ export default {
         class="lable-list">
         <input
           v-model="item.name"
+          :readonly="readonly"
           type="text"
           class="lable-input-list"
         />
-
         <Icon
           class="lable-list-content-icons"
           type="ios-close-outline"

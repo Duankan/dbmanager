@@ -22,7 +22,7 @@ export default {
       <span>查询</span>
     </div>
     <FormItem label="名称：" >
-      <Select v-model="formItem.select">
+      <Select v-model="formItem.name">
       </Select>
     </FormItem>
     <FormItem label="标签：" >

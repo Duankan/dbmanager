@@ -1,5 +1,17 @@
+// 表格单元格高度
+@td-height: 32px;
+//表格标题颜色
+@table-th: #dcdee2;
+//表格内容颜色
+@table-td: #f1f3f7;
+//背景透明
 .color-transparent() {
   background-color: transparent;
+}
+//标签圆点背景色透明
+/deep/.k-tag-dot {
+  border: none !important;
+  .color-transparent() !important;
 }
 //input框背景颜色透明
 /deep/.k-input {
@@ -19,13 +31,15 @@
   font-size: 14px;
   padding-left: 8px;
 }
-// 表格颜色
+// 表格颜色高度
 /deep/.k-table {
   td {
-    background-color: #f1f3f7;
+    background-color: @table-td;
+    height: @td-height;
   }
   th {
-    background-color: #dcdee2;
+    background-color: @table-th;
+    height: @td-height;
   }
 }
 //两端对齐
@@ -39,4 +53,21 @@
   margin-bottom: 18px;
   vertical-align: top;
   zoom: 1;
+}
+//左右两侧位置
+.relevance-content {
+  padding: 5px 20px 0px 1px;
+}
+//透明遮罩层表单只读
+.shade {
+  position: relative;
+}
+.shade:before {
+  content: '';
+  z-index: 1;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
 }
