@@ -127,6 +127,7 @@ export default {
   border-radius: 3px;
   z-index: 3000;
   min-width: 150px;
+  user-select: none;
 
   .drag-title {
     height: 30px;
@@ -153,6 +154,7 @@ export default {
   .k-draggable,
   .cursor {
     cursor: move;
+    user-select: none;
   }
 }
 </style>

@@ -94,7 +94,7 @@ export default {
         let item = this.uploadFiles[i];
         let fileData = {
           hasparent: '0',
-          resourcetypeid: '20001',
+          resourcetypeid: this.typeId,
         };
         this.$refs.upload.post(item, fileData);
       }
@@ -129,14 +129,19 @@ export default {
       this.visibleChange(false);
     },
     //模拟增量包更新
-    async addPackageMock() {
+    async addPackageMock(resource) {
       return new Promise((resolve, reject) => {
-        let data = {
-          statusCode: 200,
-          message: '成功',
-          data: 'task_' + Number(new Date()),
-        };
-        resolve(data);
+        const response = api.db.addpackage(
+          {
+            name: this.node.name,
+            updatePath: resource.data.path,
+          },
+          {},
+          {
+            headers: { Authorization: 'Basic YWRtaW46Z2Vvc2VydmVy' },
+          }
+        );
+        resolve(response);
       });
     },
     //新增轮询任务
