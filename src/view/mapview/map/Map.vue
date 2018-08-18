@@ -103,7 +103,8 @@ export default {
     </ContextMenu>
     <BaseMap
       v-contextmenu:contextmenu
-      ref="map">
+      ref="map"
+    >
       <slot/>
       <NavControl/>
       <MapTool :plugins="plugin" />
@@ -160,7 +161,7 @@ export default {
   top: 25px;
   left: 100px;
   border-radius: 2px;
-  z-index: 3000;
+  z-index: 900;
   /deep/ .k-maptool-btn {
     padding: 4px 10px !important;
   }

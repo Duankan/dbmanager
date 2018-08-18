@@ -153,7 +153,6 @@ export default {
           值: value[1],
         });
       }
-      debugger;
     },
     getColor() {
       var param = {
@@ -161,11 +160,14 @@ export default {
         statisticsFields: [{ field: 'gid', operate: 'count' }],
         typename: 'ktw:' + this.msg.data.name,
       };
+<<<<<<< HEAD
       param = { statistics: JSON.stringify(param) };
       console.log(param);
       param = { statistics: JSON.stringify(param) };
       console.log(param);
       // param = { statistics: JSON.stringify(param) };
+=======
+>>>>>>> ca18d0f09578ab0baecdf56795d47520f2c44a9c
       L.ajax({
         url: `${config.project.highgisUrl}/hgis/ows?service=wps&request=aggregate`,
         success: this.statisticsSuccess,

@@ -29,6 +29,16 @@ class AddEditor extends EditorBase {
    */
   drawFinish(e) {
     this.entity.setGeometry(e);
+    this.entity.setLayerInfo(this.layerInfo);
+    // 查询要素
+    this.store
+      .dispatch('MAP_WFS_PARAMS', {
+        url: this.layerInfo.wfsLayer.servicesurl,
+      })
+      .then(response => {
+        this.entity.setDescribeFeatureType(response);
+        // TODO: 设置表单
+      });
   }
 
   /**
