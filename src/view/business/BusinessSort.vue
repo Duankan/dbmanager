@@ -4,7 +4,8 @@ export default {
   data() {
     return {
       treeId: '',
-      readonly: true,
+      treeDatas: [],
+      // show: true,
       dataTree: [
         {
           title: '',
@@ -81,6 +82,20 @@ export default {
       },
     };
   },
+  //监听数据列表
+  watch: {
+    dataTree: {
+      handler(newVals) {
+        this.treeDatas = [];
+        //给对象添加isEdit属性并赋值
+        newVals.forEach(element => {
+          this.$set(element, 'isEdit', false);
+        });
+        this.$emit('dataChangeEvnet', newVals);
+      },
+      immediate: true,
+    },
+  },
   mounted() {
     this.searchTree();
   },
@@ -122,7 +137,6 @@ export default {
                   props: {
                     size: 'small',
                     value: data.title,
-                    readonly: false,
                   },
                   style: {
                     width: '76px',
@@ -146,6 +160,7 @@ export default {
               h('Button', {
                 props: Object.assign({}, this.ButtonProps, {
                   icon: 'ios-plus-empty',
+                  treeData: data.isEdit,
                 }),
                 style: {
                   marginRight: '5px',
@@ -160,6 +175,7 @@ export default {
               h('Button', {
                 props: Object.assign({}, this.ButtonProps, {
                   icon: 'ios-minus-empty',
+                  treeData: data.isEdit,
                 }),
                 style: {
                   marginRight: '5px',
@@ -174,13 +190,37 @@ export default {
               h('Button', {
                 props: Object.assign({}, this.ButtonProps, {
                   icon: 'ios-compose-outline',
+                  treeData: data.isEdit,
                 }),
                 style: {
+                  marginRight: '5px',
                   padding: '0px 3px',
                 },
                 on: {
                   click: () => {
-                    this.edit(root, node, data);
+                    if (!data.isEdit) {
+                      // data.isEdit = false;
+                      this.edit(event, root, node, data);
+                    }
+                  },
+                },
+              }),
+              h('Button', {
+                props: Object.assign({}, this.ButtonProps, {
+                  icon: 'ios-checkmark',
+                  treeData: data.isEdit,
+                }),
+                style: {
+                  padding: '0px 3px',
+                  color: 'green',
+                },
+                on: {
+                  click: () => {
+                    // debugger;
+                    // if (!data.isEdit) {
+                    //   data.isEdit = true;
+                    this.updatas(root, node, data);
+                    // }
                   },
                 },
               }),
@@ -238,7 +278,7 @@ export default {
         title: '删除分类',
         content: '<p>确定删除该分类？</p>',
         onOk: async id => {
-          const response = await api.db.deleteBusiness({ id: treeId });
+          const response = await api.db.deletetypeBusiness({ id: treeId });
           //获取父节点
           const parentKey = root.find(el => el === node).parent;
           //获取当前节点
@@ -253,27 +293,23 @@ export default {
         },
       });
     },
-    edit(root, node, data) {
-      this.$refs;
-      // event.target.parentElement;
+    edit(event, root, node, data) {
+      event.target.parentElement.parentElement.parentElement
+        .getElementsByTagName('span')[0]
+        .getElementsByTagName('input')[0]
+        .focus();
+    },
+    async updatas(root, node, data) {
+      const id = data.data.id;
+      const remark = data.data.remark;
+      const name = data.data.title;
+      const response = await api.db.updateBusiness({
+        id: id,
+        name: name,
+        remark: remark,
+      });
       debugger;
-
-      // this.$Modal.confirm({
-      //   render: h => {
-      //     return h('Input', {
-      //       props: {
-      //         value: this.value,
-      //         autofocus: true,
-      //         placeholder: '请输入分类名',
-      //       },
-      //       on: {
-      //         input: val => {
-      //           this.value = val;
-      //         },
-      //       },
-      //     });
-      //   },
-      // });
+      this.$Message.info('修改成功');
     },
   },
 };
