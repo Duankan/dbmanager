@@ -21,7 +21,8 @@ class AddEditor extends EditorBase {
     });
     //开始绘制
     this.geoEditor.fireDrawEvents(this.drawFinish.bind(this));
-    this.geoEditor.startDraw(this.shapeType);
+    // this.geoEditor.startDraw(this.shapeType);
+    this.geoEditor.startDraw('polygon');
   }
 
   /**

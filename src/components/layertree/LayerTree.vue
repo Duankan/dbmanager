@@ -1,5 +1,6 @@
 <script>
 import LayerEditBar from '@/components/layeredit/LayerEditBar';
+import LayerHistory from '@/components/layerhistory/LayerHistory';
 export default {
   name: 'LayerTree',
   data() {
@@ -90,6 +91,14 @@ export default {
             nativeOnClick={() => this.editLayer(root, node, data)}
           />
         );
+        let layerHistory = (
+          <svg-icon
+            size={16}
+            icon-class={'history'}
+            title="历史版本"
+            nativeOnClick={() => this.layerHistory(root, node, data)}
+          />
+        );
         return (
           <div class={'k-tree-group'}>
             <ellipsis length={18}>{data.title}</ellipsis>
@@ -101,6 +110,7 @@ export default {
                 nativeOnClick={() => this.positionLayer(root, node, data)}
               />
               {data.type == 'WMS' ? layerEdit : ''}
+              {data.type == 'WMS' ? layerHistory : ''}
               <svg-icon
                 size={16}
                 icon-class={'delete'}
@@ -179,6 +189,37 @@ export default {
           });
         },
       });
+    },
+    //查看图层历史版本
+    async layerHistory(root, node, data) {
+      const response = await api.db.getVersionByName({ id: data.name });
+      if (response.data) {
+        if (response.data.length > 0) {
+          let container = this.$store.getters.mapManager._map._container;
+          let pnl = this.$FloatPanel.create({
+            title: '图层历史版本',
+            width: 285,
+            height: 500,
+            position: {
+              x: container.clientWidth - 360,
+              y: 10,
+            },
+            closeBehavior: true,
+            parent: container,
+            render: h => {
+              return h(LayerHistory, {
+                props: {
+                  layerData: response.data,
+                },
+              });
+            },
+          });
+        } else {
+          this.$Message.warning('该图层没有历史版本！');
+        }
+      } else {
+        this.$Message.warning('该图层没有历史版本！');
+      }
     },
     // 切换图层面板显示隐藏
     toggle() {

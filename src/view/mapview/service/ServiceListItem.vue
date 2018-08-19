@@ -109,7 +109,7 @@ export default {
           @click.native="edit"
         ></Icon>
         <Icon
-          type="ios-search-strong"
+          type="eye"
           size="32"
           color="#fff"
           @click.native="view"></Icon>
