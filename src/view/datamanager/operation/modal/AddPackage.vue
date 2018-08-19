@@ -131,9 +131,13 @@ export default {
     //模拟增量包更新
     async addPackageMock(resource) {
       return new Promise((resolve, reject) => {
+        const url = new URL(this.node.serviceList[0].servicesurl);
+        const name = url.searchParams.get('layers')
+          ? url.searchParams.get('layers')
+          : url.searchParams.get('typeName');
         const response = api.db.addpackage(
           {
-            name: this.node.name,
+            name,
             updatePath: resource.data.path,
           },
           {},
