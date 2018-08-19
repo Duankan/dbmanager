@@ -83,6 +83,13 @@ export default {
         this.originalLayerName
       ][0].servicesurl.replace(this.originalLayerName, item.layer.name);
       const url = new URL(layerUrl);
+      debugger;
+      var styleName = 'EditPointStyle';
+      if (item.layer.style.name == 'point') {
+        styleName = 'EditPointStyle';
+      } else if (item.layer.style.name == 'polygon') {
+        styleName = 'ktw_fffffffe46997ca7';
+      }
       const temporaryData = {
         [this.originalLayerName]: {
           url: url.origin + url.pathname,
@@ -96,7 +103,7 @@ export default {
             item.layer.latLonBox.maxy,
           crs: item.layer.srs,
           layers: item.layer.name,
-          styles: 'EditPointStyle',
+          styles: styleName,
         },
       };
       this.$store.commit('SET_MAP_TEMPORARYLAYERS', temporaryData);
