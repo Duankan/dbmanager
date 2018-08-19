@@ -81,8 +81,9 @@ const notification = {
       if (target) {
         let idx = state.tasks.indexOf(target);
         state.tasks.splice(idx, 1);
+        let stateText = target.successful ? '成功！' : '失败！';
         let message = {
-          content: `${target.taskName}${target.taskType}已完成!`,
+          content: `${target.taskName}${target.taskType}${stateText}`,
           result: target.result,
         };
         this.commit(types.ADD_NOTIFY_MESSAGE, message);
