@@ -29,6 +29,7 @@ class AddEditor extends EditorBase {
    * 绘制完成
    */
   drawFinish(e) {
+    e.openPopup();
     this.entity.setGeometry(e);
     this.entity.setLayerInfo(this.layerInfo);
     // 查询要素
