@@ -87,7 +87,12 @@ export default {
       this.$FloatPanel.remove(this.panelId);
     },
     doClose() {
+      this.$emit('close');
       this.closeBehavior ? this.close() : this.hide();
+    },
+    //获取内容组件
+    getContent() {
+      return this.$children[0].$children[0].$children[1];
     },
   },
 };

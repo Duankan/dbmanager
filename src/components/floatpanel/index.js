@@ -48,6 +48,11 @@ class FloatPanelManager {
           {
             props,
             ref: 'floatPanel',
+            on: {
+              close: () => {
+                options.onClose && options.onClose();
+              },
+            },
           },
           [options.render ? options.render(h) : '']
         );

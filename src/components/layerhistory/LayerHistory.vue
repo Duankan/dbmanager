@@ -14,6 +14,12 @@ export default {
       default: '',
     },
   },
+  data() {
+    return {
+      //当前浏览的历史图层
+      currentLayer: null,
+    };
+  },
   methods: {
     //格式化时间
     formatDate(time) {
@@ -21,12 +27,19 @@ export default {
     },
     //图层预览
     layerView(item) {
+      //this.clearLayerView();
+      this.$nextTick(p => {
+        this.addLayerView(item);
+      });
+      this.currentLayer = item.layer.name;
+    },
+    //添加图层预览
+    addLayerView(item) {
       this.$store.getters.ogcLayers.forEach(layer => layer.setVisible(false));
       var layerUrl = this.$store.state.map.serviceList[
         this.originalLayerName
       ][0].servicesurl.replace(this.originalLayerName, item.layer.name);
       const url = new URL(layerUrl);
-      debugger;
       var styleName = 'EditPointStyle';
       if (item.layer.style.name == 'point') {
         styleName = 'EditPointStyle';
@@ -34,7 +47,7 @@ export default {
         styleName = 'ktw_fffffffe46997ca7';
       }
       const temporaryData = {
-        [this.originalLayerName]: {
+        [item.layer.name]: {
           url: url.origin + url.pathname,
           bbox:
             item.layer.latLonBox.minx +
@@ -50,6 +63,18 @@ export default {
         },
       };
       this.$store.commit('SET_MAP_TEMPORARYLAYERS', temporaryData);
+    },
+    //清除图层预览
+    clearLayerView() {
+      if (this.currentLayer) {
+        this.$store.commit('SET_MAP_TEMPORARYLAYERS_DELETE', [this.currentLayer]);
+      }
+      this.currentLayer = null;
+    },
+    //重置控件
+    reset() {
+      this.clearLayerView();
+      this.$store.getters.ogcLayers.forEach(layer => layer.setVisible(true));
     },
   },
 };
