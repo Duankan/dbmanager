@@ -80,60 +80,11 @@ export default {
 };
 </script>
 <template>
-<<<<<<< HEAD
-  <div class="main">
-=======
   <div class="layer-history-wrapper">
->>>>>>> 64c26990a0a7ca66ee6ec30fd51dc4f2b3d080ee
     <Timeline>
       <TimelineItem
         v-for="item in layerData"
         :key="item.id">
-<<<<<<< HEAD
-        <p class="time">{{ formatDate(item.createTime) }}</p>
-        <p class="content">{{ '图层名称:'+item.layer.name }}</p>
-        <SvgIcon
-          :size="18"
-          color="#1296db"
-          icon-class="eye"
-          title="图层预览"
-          @click.native="layerView(item)"/>
-        <SvgIcon
-          :size="18"
-          color="#1296db"
-          style="margin-left:4px;"
-          icon-class="search"
-          title="查询统计"/>
-        <SvgIcon
-          :size="16"
-          style="margin-left:4px;"
-          icon-class="contrast"
-          color="#1296db"
-          title="图层对比"
-        />
-      </svgicon></svgicon></TimelineItem>
-    </Timeline>
-  </div>
-</template>
-<style scoped>
-.main {
-  margin: 8px;
-  width: 100%;
-  height: 100%;
-}
-.time {
-  font-size: 14px;
-  font-weight: bold;
-  width: 100%;
-}
-.content {
-  font-size: 14px;
-  width: 230px;
-  text-overflow: ellipsis; //让超出的用...实现
-  white-space: nowrap; //禁止换行
-  overflow: hidden; //超出的隐藏
-  display: inline-block;
-=======
         <p class="history-time">{{ formatDate(item.createTime) }}</p>
         <p
           :title="item.layer.name"
@@ -189,6 +140,5 @@ export default {
       opacity: 0.8;
     }
   }
->>>>>>> 64c26990a0a7ca66ee6ec30fd51dc4f2b3d080ee
 }
 </style>
