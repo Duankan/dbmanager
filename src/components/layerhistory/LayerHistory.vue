@@ -1,8 +1,10 @@
 <script>
 import { date } from '@ktw/ktools';
+import QueryLayerHistory from './QueryLayerHistory';
 
 export default {
   name: 'LayerHistory',
+  components: { QueryLayerHistory },
   props: {
     layerData: {
       type: Array,
@@ -14,19 +16,30 @@ export default {
       default: '',
     },
   },
+  data() {
+    return {
+      isShowQueryList: false,
+      queryLayerData: {},
+    };
+  },
   methods: {
     //格式化时间
     formatDate(time) {
       return date.format(new Date(time), 'YYYY-M-D HH:mm');
     },
-    //图层预览
-    layerView(item) {
-      this.$store.getters.ogcLayers.forEach(layer => layer.setVisible(false));
+    // 设置图层信息
+    setLayerInfo(layerName) {
       var layerUrl = this.$store.state.map.serviceList[
         this.originalLayerName
-      ][0].servicesurl.replace(this.originalLayerName, item.layer.name);
+      ][0].servicesurl.replace(this.originalLayerName, layerName);
       const url = new URL(layerUrl);
-      debugger;
+      return {
+        baseUrl: url.origin + url.pathname,
+      };
+    },
+    //图层预览
+    layerView(item) {
+      const layerInfo = this.setLayerInfo(item.layer.name);
       var styleName = 'EditPointStyle';
       if (item.layer.style.name == 'point') {
         styleName = 'EditPointStyle';
@@ -35,7 +48,7 @@ export default {
       }
       const temporaryData = {
         [this.originalLayerName]: {
-          url: url.origin + url.pathname,
+          url: layerInfo.baseUrl,
           bbox:
             item.layer.latLonBox.minx +
             ',' +
@@ -51,64 +64,21 @@ export default {
       };
       this.$store.commit('SET_MAP_TEMPORARYLAYERS', temporaryData);
     },
+    // 属性查询
+    showQueryList(data) {
+      this.isShowQueryList = true;
+      const layerInfo = this.setLayerInfo(data.layer.name);
+      this.queryLayerData = { ...data, ...layerInfo };
+    },
   },
 };
 </script>
 <template>
-<<<<<<< HEAD
-  <div class="main">
-=======
   <div class="layer-history-wrapper">
->>>>>>> 64c26990a0a7ca66ee6ec30fd51dc4f2b3d080ee
-    <Timeline>
+    <Timeline v-if="!isShowQueryList">
       <TimelineItem
         v-for="item in layerData"
         :key="item.id">
-<<<<<<< HEAD
-        <p class="time">{{ formatDate(item.createTime) }}</p>
-        <p class="content">{{ '图层名称:'+item.layer.name }}</p>
-        <SvgIcon
-          :size="18"
-          color="#1296db"
-          icon-class="eye"
-          title="图层预览"
-          @click.native="layerView(item)"/>
-        <SvgIcon
-          :size="18"
-          color="#1296db"
-          style="margin-left:4px;"
-          icon-class="search"
-          title="查询统计"/>
-        <SvgIcon
-          :size="16"
-          style="margin-left:4px;"
-          icon-class="contrast"
-          color="#1296db"
-          title="图层对比"
-        />
-      </svgicon></svgicon></TimelineItem>
-    </Timeline>
-  </div>
-</template>
-<style scoped>
-.main {
-  margin: 8px;
-  width: 100%;
-  height: 100%;
-}
-.time {
-  font-size: 14px;
-  font-weight: bold;
-  width: 100%;
-}
-.content {
-  font-size: 14px;
-  width: 230px;
-  text-overflow: ellipsis; //让超出的用...实现
-  white-space: nowrap; //禁止换行
-  overflow: hidden; //超出的隐藏
-  display: inline-block;
-=======
         <p class="history-time">{{ formatDate(item.createTime) }}</p>
         <p
           :title="item.layer.name"
@@ -125,7 +95,8 @@ export default {
             color="#1296db"
             style="margin-left:4px;"
             icon-class="search"
-            title="查询统计"/>
+            title="查询统计"
+            @click.native="showQueryList(item)"/>
           <SvgIcon
             :size="16"
             style="margin-left:4px;"
@@ -135,12 +106,21 @@ export default {
         </div>
       </TimelineItem>
     </Timeline>
+    <div
+      v-if="isShowQueryList"
+      class="layer-his-list">
+      <Icon
+        type="close-round"
+        @click.native="isShowQueryList = false"></Icon>
+      <QueryLayerHistory :layer-data="queryLayerData"></QueryLayerHistory>
+    </div>
   </div>
 
 </template>
 
-<style lang="less">
+<style lang="less" scoped>
 .layer-history-wrapper {
+  position: relative;
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
@@ -164,6 +144,19 @@ export default {
       opacity: 0.8;
     }
   }
->>>>>>> 64c26990a0a7ca66ee6ec30fd51dc4f2b3d080ee
+  .layer-his-list {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    > .k-icon {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      cursor: pointer;
+    }
+  }
 }
 </style>
