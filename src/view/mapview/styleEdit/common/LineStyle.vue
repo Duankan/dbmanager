@@ -36,6 +36,8 @@ export default {
         lineConnect: 'null', //绑定的线连接
       },
       fonts: [], //获取所有字体样式
+      lineCapS: [],
+      lineConnectS: [],
     };
   },
 };

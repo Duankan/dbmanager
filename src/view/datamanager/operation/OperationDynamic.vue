@@ -236,6 +236,7 @@ export default {
       this.deleteModal = true;
       this.deleteNodes = this.selectNodes;
     },
+    creataHistroyLayer() {},
   },
 };
 </script>
@@ -295,6 +296,11 @@ export default {
         :disabled="!single"
         type="ghost"
         @click="addPackage">增量包更新</Button>
+      <Button
+        v-if="showAddPackage"
+        :disabled="!single"
+        type="ghost"
+        @click="creataHistroyLayer">历史图层生成</Button>
       <Button
         v-if="showRename"
         :disabled="!single"

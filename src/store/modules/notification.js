@@ -39,12 +39,15 @@ const notification = {
     [types.START_POLL_TASK](state, taskId) {
       let pollTask = state.tasks.find(p => p.taskId == taskId);
       let pollHandler = async () => {
-        let progress = pollTask.progress + 5;
+        // let progress = pollTask.progress + 5;
+        const response = await api.db.getbyid({
+          id: taskId,
+        });
         this.commit(types.UPDATE_POLL_TASK, {
           taskId: pollTask.taskId,
-          progress: progress,
+          progress: Number(response.data.progress) * 100,
         });
-        if (progress < 100) {
+        if (response.data.progress < 1 && response.data.successful) {
           setTimeout(pollHandler, 2000);
         }
       };

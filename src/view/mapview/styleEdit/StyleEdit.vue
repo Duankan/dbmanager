@@ -4,10 +4,11 @@ import Public from './common/Public';
 import LineStyle from './common/LineStyle';
 import FillStyle from './common/FillStyle';
 import MarkStyle from './common/MarkStyle';
+import AttributeFilter from './common/AttributeFilter';
 import * as helps from '@/utils/helps';
 export default {
   name: 'StyleEdit',
-  components: { StyleTable, Public, LineStyle, FillStyle, MarkStyle },
+  components: { StyleTable, Public, LineStyle, FillStyle, MarkStyle, AttributeFilter },
   props: {
     layerNode: {
       type: Object,
@@ -294,8 +295,12 @@ export default {
             </Panel>
             <Panel name="5">
               筛选条件过滤
-              <p slot="content">乔纳森·伊夫是一位工业设计师，现任Apple公司设计师兼资深副总裁，英国爵士。他曾参与设计了iPod，iMac，iPhone，iPad等众多苹果产品。除了乔布斯，他是对苹果那些著名的产品最有影响力的人。</p>
-            </Panel>
+              <AttributeFilter 
+                slot="content" 
+                :layer-type="layerType" 
+                :field-num-s="fieldNumS"
+                :field-no-num-s="fieldNoNumS"
+                :style-type="styleType"/>           </Panel>
           </Collapse>
         </div>
       </div>
