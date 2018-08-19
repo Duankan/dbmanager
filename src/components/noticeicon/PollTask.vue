@@ -36,10 +36,17 @@ export default {
       let completedTasks = pollTasks.filter(p => p.progress >= 100);
       completedTasks.forEach(p => {
         this.$events.emit(`on-poll-complete`, p);
-        this.$Notice.success({
-          title: p.taskType,
-          desc: `${p.taskName}${p.taskType}已完成!`,
-        });
+        if (p.successful) {
+          this.$Notice.success({
+            title: p.taskType,
+            desc: `${p.taskName}${p.taskType}成功!`,
+          });
+        } else {
+          this.$Notice.error({
+            title: p.taskType,
+            desc: `${p.taskName}${p.taskType}失败!`,
+          });
+        }
         this.$store.commit(types.COMPLETE_POLL_TASK, p.taskId);
       });
     },

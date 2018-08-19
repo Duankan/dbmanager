@@ -100,10 +100,10 @@ export default {
       return this.selectNodes[0] && canAppend(this.selectNodes[0]) && this.selectNodes[0].pubState;
     },
     showAddPackage() {
-      return this.selectNodes[0] && canAppend(this.selectNodes[0]) && this.selectNodes[0].pubState;
+      return this.selectNodes[0] && isVector(this.selectNodes[0]) && this.selectNodes[0].pubState;
     },
     showAddHistory() {
-      return this.selectNodes[0] && canAppend(this.selectNodes[0]) && this.selectNodes[0].pubState;
+      return this.selectNodes[0] && isVector(this.selectNodes[0]) && this.selectNodes[0].pubState;
     },
     showRename() {
       return this.selectNodes[0] && !isFile(this.selectNodes[0]);
