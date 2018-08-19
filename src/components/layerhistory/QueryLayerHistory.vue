@@ -12,24 +12,25 @@ export default {
       features: [],
       listData: [],
       totalPages: 0,
+      pageIndex: 1,
     };
   },
   watch: {
     layerData: {
       handler(newVal) {
         if (Object.keys(newVal).length !== 0) {
-          this.queryLayer();
+          this.queryLayer(1);
         }
       },
       immediate: true,
     },
   },
   methods: {
-    queryLayer() {
+    queryLayer(pageIndex) {
       this.$store
         .dispatch('MAP_WFS_QUERY', {
           url: `${this.layerData.baseUrl}?typeName=${this.layerData.layer.name}`,
-          pageIndex: 1,
+          pageIndex,
           pageSize: 10,
           options: {},
         })
@@ -54,6 +55,9 @@ export default {
       const layerPro = Object.values(item);
       return layerPro[layerPro.length - 1];
     },
+    changePage(pageIdx) {
+      this.queryLayer(pageIdx);
+    },
   },
 };
 </script>
@@ -75,8 +79,13 @@ export default {
         </ul>
       </li>
     </ul>
-    <div class="his-page">
-    </div>
+    <Page
+      :current="pageIndex"
+      :total="totalPages"
+      size="small"
+      show-total
+      @on-change="changePage"
+    ></Page>
   </div>
 </template>
 
@@ -133,6 +142,17 @@ export default {
   }
   .list-edit {
     color: #ffff00;
+  }
+
+  .k-page {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 35px;
+    line-height: 35px;
+    padding-left: 8px;
+    text-align: center;
+    background-color: #fff;
   }
 }
 </style>
