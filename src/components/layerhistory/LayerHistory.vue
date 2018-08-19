@@ -1,69 +1,185 @@
-<style scoped>
-.main {
-  margin: 8px;
-  width: 100%;
-  height: 100%;
-}
-.time {
-  font-size: 14px;
-  font-weight: bold;
-  width: 100%;
-}
-.content {
-  font-size: 14px;
-  font-weight: bold;
-  width: 130px;
-  text-overflow: ellipsis; //让超出的用...实现
-  white-space: nowrap; //禁止换行
-  overflow: hidden; //超出的隐藏
-  display: inline-block;
-}
-.layername {
-  color: #007acc;
-  font-size: 14px;
-  font-weight: bold;
-  width: 130px;
-  text-overflow: ellipsis; //让超出的用...实现
-  white-space: nowrap; //禁止换行
-  overflow: hidden; //超出的隐藏
-  display: inline-block;
-  vertical-align: middle;
-}
-</style>
-<template>
-  <div class="main">
-    <Timeline>
-      <TimelineItem 
-        v-for="item in layerData" 
-        :key="item.id"> 
-        <p class="time">{{ formatDate(item.createTime) }}</p>
-        <p class="content">{{ '图层名称:'+item.layer.name }}</p>
-      </TimelineItem>
-    </Timeline>
-  </div>
-
-</template>
 <script>
+import { date } from '@ktw/ktools';
+import QueryLayerHistory from './QueryLayerHistory';
+
 export default {
   name: 'LayerHistory',
+  components: { QueryLayerHistory },
   props: {
     layerData: {
       type: Array,
       default: () => [],
     },
+    //原始图层名称
+    originalLayerName: {
+      type: String,
+      default: '',
+    },
+  },
+  data() {
+    return {
+      isShowQueryList: false,
+      queryLayerData: {},
+      //当前浏览的历史图层
+      currentLayer: null,
+    };
   },
   methods: {
+    //格式化时间
     formatDate(time) {
-      var date = new Date(time);
-      var year = date.getFullYear(),
-        month = date.getMonth() + 1, //月份是从0开始的
-        day = date.getDate(),
-        hour = date.getHours(),
-        min = date.getMinutes(),
-        sec = date.getSeconds();
-      var newTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
-      return newTime;
+      return date.format(new Date(time), 'YYYY-M-D HH:mm');
+    },
+    // 设置图层信息
+    setLayerInfo(layerName) {
+      this.$store.getters.ogcLayers.forEach(layer => layer.setVisible(false));
+      var layerUrl = this.$store.state.map.serviceList[
+        this.originalLayerName
+      ][0].servicesurl.replace(this.originalLayerName, layerName);
+      const url = new URL(layerUrl);
+      return {
+        baseUrl: url.origin + url.pathname,
+      };
+    },
+    //图层预览
+    layerView(item) {
+      //this.clearLayerView();
+      this.$nextTick(p => {
+        this.addLayerView(item);
+      });
+      this.currentLayer = item.layer.name;
+    },
+    //添加图层预览
+    addLayerView(item) {
+      const layerInfo = this.setLayerInfo(item.layer.name);
+      var styleName = 'EditPointStyle';
+      if (item.layer.style.name == 'point') {
+        styleName = 'EditPointStyle';
+      } else if (item.layer.style.name == 'polygon') {
+        styleName = 'ktw_fffffffe46997ca7';
+      }
+      const temporaryData = {
+        [item.layer.name]: {
+          url: layerInfo.baseUrl,
+          bbox:
+            item.layer.latLonBox.minx +
+            ',' +
+            item.layer.latLonBox.miny +
+            ',' +
+            item.layer.latLonBox.maxx +
+            ',' +
+            item.layer.latLonBox.maxy,
+          crs: item.layer.srs,
+          layers: item.layer.name,
+          styles: styleName,
+        },
+      };
+      this.$store.commit('SET_MAP_TEMPORARYLAYERS', temporaryData);
+    },
+    // 属性查询
+    showQueryList(data) {
+      this.isShowQueryList = true;
+      const layerInfo = this.setLayerInfo(data.layer.name);
+      this.queryLayerData = { ...data, ...layerInfo };
+    },
+    //清除图层预览
+    clearLayerView() {
+      if (this.currentLayer) {
+        this.$store.commit('SET_MAP_TEMPORARYLAYERS_DELETE', [this.currentLayer]);
+      }
+      this.currentLayer = null;
+    },
+    //重置控件
+    reset() {
+      this.clearLayerView();
+      this.$store.getters.ogcLayers.forEach(layer => layer.setVisible(true));
     },
   },
 };
 </script>
+<template>
+  <div class="layer-history-wrapper">
+    <Timeline v-if="!isShowQueryList">
+      <TimelineItem
+        v-for="item in layerData"
+        :key="item.id">
+        <p class="history-time">{{ formatDate(item.createTime) }}</p>
+        <p
+          :title="item.layer.name"
+          class="history-layer">{{ '图层名称：'+item.layer.name }}</p>
+        <div class="history-buttons">
+          <SvgIcon
+            :size="18"
+            color="#1296db"
+            icon-class="eye"
+            title="图层预览"
+            @click.native="layerView(item)"/>
+          <SvgIcon
+            :size="18"
+            color="#1296db"
+            style="margin-left:4px;"
+            icon-class="search"
+            title="查询统计"
+            @click.native="showQueryList(item)"/>
+          <SvgIcon
+            :size="16"
+            style="margin-left:4px;"
+            icon-class="contrast"
+            color="#1296db"
+            title="图层对比"/>
+        </div>
+      </TimelineItem>
+    </Timeline>
+    <div
+      v-if="isShowQueryList"
+      class="layer-his-list">
+      <Icon
+        type="close-round"
+        @click.native="isShowQueryList = false"></Icon>
+      <QueryLayerHistory :layer-data="queryLayerData"></QueryLayerHistory>
+    </div>
+  </div>
+
+</template>
+
+<style lang="less" scoped>
+.layer-history-wrapper {
+  position: relative;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  .k-timeline {
+    margin: 10px;
+  }
+  .history-time {
+    font-weight: bold;
+  }
+  .history-layer {
+    height: 24px;
+    line-height: 24px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    color: #333333;
+  }
+  .k-svgicon {
+    cursor: pointer;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+  .layer-his-list {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    > .k-icon {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      cursor: pointer;
+    }
+  }
+}
+</style>

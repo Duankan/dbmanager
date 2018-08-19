@@ -1,4 +1,5 @@
 import { geo2Wkt } from '@/utils/helps';
+import { deepCopy } from '@/utils/assist';
 import axios from 'axios';
 
 /** 要素基础信息xml
@@ -76,6 +77,7 @@ class EditEntity {
     this.queryUrl = url.origin + '/master/wfs';
     this.layerName = url.searchParams.get('layers');
     this.layerSrs = url.searchParams.get('srs');
+    this.styles = url.searchParams.get('styles');
     this.aliasName = this.layerInfo.wmsLayer.title;
   }
 
@@ -163,12 +165,13 @@ class EditEntity {
    * @memberof EditEntity
    */
   setXml(propertiesXml) {
-    feaStr = feaStr.replace(/wfs_featureType/g, this.aliasName); //设置图层名
-    feaStr = feaStr.replace('wfs_featureNS', 'http://www.opengeospatial.net/ktw'); // 设置工作区地址
-    feaStr = feaStr.replace('wfs_poslist', propertiesXml.coords.join(' ')); //设置新增坐标
-    feaStr = feaStr.replace(/wfs_srs/g, this.layerSrs); //设置参考系
-    feaStr = feaStr.replace('wfs_featureProperties', propertiesXml.propertiesXml); // 设置新增图形字段
-    return feaStr;
+    let xml = deepCopy(feaStr);
+    xml = xml.replace(/wfs_featureType/g, this.aliasName); //设置图层名
+    xml = xml.replace('wfs_featureNS', 'http://www.opengeospatial.net/ktw'); // 设置工作区地址
+    xml = xml.replace('wfs_poslist', propertiesXml.coords.join(' ')); //设置新增坐标
+    xml = xml.replace(/wfs_srs/g, this.layerSrs); //设置参考系
+    xml = xml.replace('wfs_featureProperties', propertiesXml.propertiesXml); // 设置新增图形字段
+    return xml;
   }
 
   /**
@@ -178,7 +181,6 @@ class EditEntity {
     let entity = this.convertEntity();
     let propertiesXml = this.setFeatureStr();
     if (propertiesXml.coords && propertiesXml.coords.length > 0) {
-      let layerId;
       const xmlData = this.setXml(propertiesXml);
       const response = await axios.post(this.queryUrl, xmlData, {
         headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
@@ -193,10 +195,12 @@ class EditEntity {
           layers => layers.options.layers === this.layerName
         );
         if (editLayer.length !== 0) {
-          layerId = editLayer[0]._leaflet_id;
+          editLayer[0].redraw();
+          const bounds = this.map.getCenter();
+          const copyBounds = deepCopy(bounds);
+          copyBounds.lat += 0.003;
+          this.map.panTo({ lat: copyBounds.lat, lng: copyBounds.lng });
         }
-        const layers = this.map._layers[layerId];
-        layers.redraw();
       }
     }
   }

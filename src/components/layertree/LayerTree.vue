@@ -14,6 +14,10 @@ export default {
       },
       showPanel: false,
       showTree: true,
+      //历史图层window
+      historyHandler: null,
+      //编辑功能window
+      editHandler: null,
     };
   },
   computed: {
@@ -172,7 +176,8 @@ export default {
     },
     //编辑图层要素
     editLayer(root, node, data) {
-      let container = this.$store.getters.mapManager._map._container;
+      this.closeEditWindow();
+      let container = this.$store.getters.mapManager._map._container.parentElement;
       let pnl = this.$FloatPanel.create({
         title: '图层编辑工具栏',
         width: 270,
@@ -192,34 +197,58 @@ export default {
     },
     //查看图层历史版本
     async layerHistory(root, node, data) {
+      this.closeHistoryWindow();
       const response = await api.db.getVersionByName({ id: data.name });
       if (response.data) {
         if (response.data.length > 0) {
-          let container = this.$store.getters.mapManager._map._container;
-          let pnl = this.$FloatPanel.create({
-            title: '图层历史版本',
-            width: 285,
-            height: 500,
-            position: {
-              x: container.clientWidth - 360,
-              y: 10,
-            },
-            closeBehavior: true,
-            parent: container,
-            render: h => {
-              return h(LayerHistory, {
-                props: {
-                  layerData: response.data,
-                },
-              });
-            },
-          });
+          this.createHistoryWindow(response.data, data.name);
         } else {
           this.$Message.warning('该图层没有历史版本！');
         }
       } else {
         this.$Message.warning('该图层没有历史版本！');
       }
+    },
+    //创建历史图层窗口
+    createHistoryWindow(data, layerName) {
+      let container = this.$store.getters.mapManager._map._container.parentElement;
+      let self = this;
+      this.historyHandler = this.$FloatPanel.create({
+        title: '图层历史版本',
+        width: 285,
+        height: container.clientHeight - 100,
+        position: {
+          x: container.clientWidth - 360,
+          y: 20,
+        },
+        parent: container,
+        disableDrag: true,
+        render: h => {
+          return h(LayerHistory, {
+            props: {
+              layerData: data,
+              originalLayerName: layerName,
+            },
+          });
+        },
+        onClose() {
+          self.historyHandler.getContent().reset();
+        },
+      });
+    },
+    //关闭历史图层窗口
+    closeHistoryWindow() {
+      if (this.historyHandler) {
+        this.$FloatPanel.remove(this.historyHandler.panelId);
+      }
+      this.historyHandler = null;
+    },
+    //关闭编辑窗口
+    closeEditWindow() {
+      if (this.editHandler) {
+        this.$FloatPanel.remove(this.editHandler.panelId);
+      }
+      this.editHandler = null;
     },
     // 切换图层面板显示隐藏
     toggle() {

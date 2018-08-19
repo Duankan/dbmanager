@@ -42,12 +42,17 @@ class FloatPanelManager {
     let vm = new Vue({
       store: this.store, //Vuex在全局设置mixin(见vuex组件注入源码)，这里设置store会注入到所有组件树
       render(h) {
-        const props = Object.assign(defaultOpts, options);
+        const props = Object.assign({}, defaultOpts, options);
         return h(
           FloatPanel,
           {
             props,
             ref: 'floatPanel',
+            on: {
+              close: () => {
+                options.onClose && options.onClose();
+              },
+            },
           },
           [options.render ? options.render(h) : '']
         );
