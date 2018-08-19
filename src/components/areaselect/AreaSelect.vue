@@ -74,7 +74,7 @@ export default {
             simpleFeatureFlag: true,
             tolerance: '0',
             // wfsUrl: this.wfsUrl,
-            wfsUrl: 'http://192.168.1.147:8085/master/ktw/ows?service=wfs&typeName=ktw:highgisshp',
+            wfsUrl: 'http://192.168.1.147:8085/master/ktw/ows?service=wfs&typeName=ktw:xzqcunx',
           });
           this.$nextTick(() => {
             this.$store.commit('SET_MAP_GEOJSON', { geojson: response.data, type: 'always' });
