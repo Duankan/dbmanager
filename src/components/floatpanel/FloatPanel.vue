@@ -45,6 +45,11 @@ export default {
       type: Boolean,
       default: false,
     },
+    //禁用拖拽
+    disableDrag: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -92,7 +97,7 @@ export default {
     v-show="visible"
     :style="wrapStyle"
     :default-position="position"
-    :disabled="true"
+    :disabled="disableDrag"
     bounds="parent"
     class="float-panel-wrapper"
     handle="strong">
@@ -135,7 +140,7 @@ export default {
     line-height: 30px;
     border-bottom: 1px solid #d9d9d9;
     background-color: #318cf0;
-    color: #fff;
+    color: #ffffff;
     border-radius: 2px 2px 0 0;
     padding-left: 7px;
     position: relative;
@@ -149,7 +154,7 @@ export default {
   }
 
   .panel-content {
-    background-color: #fff;
+    background-color: #ffffff;
   }
 
   .k-draggable,
