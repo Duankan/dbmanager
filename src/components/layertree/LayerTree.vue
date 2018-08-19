@@ -199,7 +199,7 @@ export default {
           let pnl = this.$FloatPanel.create({
             title: '图层历史版本',
             width: 285,
-            height: 500,
+            height: container.clientHeight - 60,
             position: {
               x: container.clientWidth - 360,
               y: 10,
@@ -210,6 +210,7 @@ export default {
               return h(LayerHistory, {
                 props: {
                   layerData: response.data,
+                  originalLayerName: data.name,
                 },
               });
             },
