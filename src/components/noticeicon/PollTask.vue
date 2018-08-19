@@ -35,6 +35,7 @@ export default {
       let pollTasks = tasks || [];
       let completedTasks = pollTasks.filter(p => p.progress >= 100);
       completedTasks.forEach(p => {
+        this.$events.emit(`on-poll-complete`, p);
         this.$Notice.success({
           title: p.taskType,
           desc: `${p.taskName}${p.taskType}已完成!`,

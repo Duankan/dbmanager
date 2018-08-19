@@ -351,3 +351,15 @@ export function coords2Latlngs(geometry) {
   }
   return latlngs;
 }
+
+/**
+ * 获取服务名
+ * @param {String} serviceUrl 服务地址
+ */
+export function getServiceName(serviceUrl) {
+  let url = new URL(serviceUrl);
+  const name = url.searchParams.get('layers')
+    ? url.searchParams.get('layers')
+    : url.searchParams.get('typeName');
+  return name;
+}

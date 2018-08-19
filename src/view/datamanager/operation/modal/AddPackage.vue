@@ -2,6 +2,7 @@
 import config from 'config';
 import * as types from '@/store/types';
 import { date } from '@ktw/ktools';
+import { getServiceName } from '@/utils/helps';
 
 /*
  * 增量包上传模块
@@ -39,10 +40,6 @@ export default {
     };
   },
   computed: {
-    //当前目录
-    current() {
-      return this.$store.state.app.currentDirectory;
-    },
     //当前选择节点
     node() {
       return this.$store.state.app.selectNodes[0];
@@ -118,16 +115,17 @@ export default {
     },
     //增量包更新
     async addPackage(resources) {
-      let requests = resources.map(p => this.addPackageMock(p));
+      let requests = resources.map(p => this.addPackageRequest(p));
       let responses = await Promise.all(requests);
       this.addPollTask(responses);
       this.loading = false;
       this.$Notice.info({
         title: `${this.node.name}增量包上传完成`,
-        desc: `增量包更新任务已进入后台队列，处理完成后会通知用户！`,
+        desc: `增量包更新任务已进入后台队列，可在任务列表中查看进度！`,
       });
       this.visibleChange(false);
     },
+<<<<<<< HEAD
     //模拟增量包更新
     async addPackageMock(resource) {
       return new Promise((resolve, reject) => {
@@ -138,15 +136,27 @@ export default {
         const response = api.db.addpackage(
           {
             name,
+=======
+    //增量包更新
+    async addPackageRequest(resource) {
+      let layerName = getServiceName(this.node.serviceList[0].servicesurl);
+      const response = api.db
+        .addpackage(
+          {
+            name: layerName,
+>>>>>>> 4458183a4a3286b738175028a49f6e009ec1513f
             updatePath: resource.data.path,
           },
           {},
           {
             headers: { Authorization: 'Basic YWRtaW46Z2Vvc2VydmVy' },
           }
-        );
-        resolve(response);
-      });
+        )
+        .catch(p => {
+          this.loading = false;
+          this.$Message.error('增量包更新失败！');
+        });
+      return response;
     },
     //新增轮询任务
     addPollTask(responses) {
