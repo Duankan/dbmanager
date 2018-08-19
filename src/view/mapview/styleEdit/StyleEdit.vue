@@ -305,7 +305,9 @@ export default {
         </div>
       </div>
       <div 
-        v-else ><StyleTable :layer-type="layerType"/></div>
+        v-else ><StyleTable 
+          :layer-type="layerType" 
+          :layer-node="layerNode"/></div>
     </Card>
   </div>
 </template>
