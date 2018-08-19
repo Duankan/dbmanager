@@ -67,18 +67,20 @@ export default {
         class="his-list-item">
         <i>{{ rowIdx +1 }}</i>
         <ul
-          v-for="(prop,proIdx) in Object.keys(row)"
-          :key="proIdx"
           class="his-item-detail">
-          <li>{{ prop }}：{{ row[prop] }}</li>
-
+          <li
+            v-for="(prop,proIdx) in Object.keys(row)"
+            :key="proIdx">
+          <span class="detail-label">{{ prop }}：</span>{{ row[prop] }}</li>
         </ul>
       </li>
     </ul>
+    <div class="his-page">
+    </div>
   </div>
 </template>
 
-<style lang="less" scoped>
+<style lang="less">
 .db-query-his {
   .his-list {
     margin: 5px 10px;
@@ -87,6 +89,8 @@ export default {
     position: relative;
     cursor: pointer;
     border-radius: 2px;
+    margin-top: 5px;
+    background: #f3f3f3;
     &:hover {
       background: #eeeeee;
     }
@@ -94,9 +98,9 @@ export default {
       position: absolute;
       width: 18px;
       height: 18px;
-      top: 2px;
-      left: 2px;
-      background-color: red;
+      top: 5px;
+      left: 5px;
+      background-color: #2b85e4;
       text-align: center;
       font-style: normal;
       color: #ffffff;
@@ -104,7 +108,19 @@ export default {
     }
     .his-item-detail {
       margin-left: 30px;
+      margin-top: 5px;
+      color: #333333;
+      > li {
+        margin: 2px;
+      }
     }
+    .detail-label {
+      font-weight: bold;
+      color: #e96900;
+    }
+  }
+  .his-page {
+    margin: 10px;
   }
   .list-original {
     color: #0000ff;
