@@ -201,32 +201,40 @@ export default {
       const response = await api.db.getVersionByName({ id: data.name });
       if (response.data) {
         if (response.data.length > 0) {
-          let container = this.$store.getters.mapManager._map._container.parentElement;
-          this.historyHandler = this.$FloatPanel.create({
-            title: '图层历史版本',
-            width: 285,
-            height: container.clientHeight - 100,
-            position: {
-              x: container.clientWidth - 360,
-              y: 10,
-            },
-            parent: container,
-            disableDrag: true,
-            render: h => {
-              return h(LayerHistory, {
-                props: {
-                  layerData: response.data,
-                  originalLayerName: data.name,
-                },
-              });
-            },
-          });
+          this.createHistoryWindow(response.data, data.name);
         } else {
           this.$Message.warning('该图层没有历史版本！');
         }
       } else {
         this.$Message.warning('该图层没有历史版本！');
       }
+    },
+    //创建历史图层窗口
+    createHistoryWindow(data, layerName) {
+      let container = this.$store.getters.mapManager._map._container.parentElement;
+      let self = this;
+      this.historyHandler = this.$FloatPanel.create({
+        title: '图层历史版本',
+        width: 285,
+        height: container.clientHeight - 100,
+        position: {
+          x: container.clientWidth - 360,
+          y: 20,
+        },
+        parent: container,
+        disableDrag: true,
+        render: h => {
+          return h(LayerHistory, {
+            props: {
+              layerData: data,
+              originalLayerName: layerName,
+            },
+          });
+        },
+        onClose() {
+          self.historyHandler.getContent().reset();
+        },
+      });
     },
     //关闭历史图层窗口
     closeHistoryWindow() {

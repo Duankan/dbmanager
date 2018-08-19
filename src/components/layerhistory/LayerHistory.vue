@@ -20,6 +20,8 @@ export default {
     return {
       isShowQueryList: false,
       queryLayerData: {},
+      //当前浏览的历史图层
+      currentLayer: null,
     };
   },
   methods: {
@@ -29,6 +31,7 @@ export default {
     },
     // 设置图层信息
     setLayerInfo(layerName) {
+      this.$store.getters.ogcLayers.forEach(layer => layer.setVisible(false));
       var layerUrl = this.$store.state.map.serviceList[
         this.originalLayerName
       ][0].servicesurl.replace(this.originalLayerName, layerName);
@@ -39,6 +42,14 @@ export default {
     },
     //图层预览
     layerView(item) {
+      //this.clearLayerView();
+      this.$nextTick(p => {
+        this.addLayerView(item);
+      });
+      this.currentLayer = item.layer.name;
+    },
+    //添加图层预览
+    addLayerView(item) {
       const layerInfo = this.setLayerInfo(item.layer.name);
       var styleName = 'EditPointStyle';
       if (item.layer.style.name == 'point') {
@@ -47,7 +58,7 @@ export default {
         styleName = 'ktw_fffffffe46997ca7';
       }
       const temporaryData = {
-        [this.originalLayerName]: {
+        [item.layer.name]: {
           url: layerInfo.baseUrl,
           bbox:
             item.layer.latLonBox.minx +
@@ -69,6 +80,18 @@ export default {
       this.isShowQueryList = true;
       const layerInfo = this.setLayerInfo(data.layer.name);
       this.queryLayerData = { ...data, ...layerInfo };
+    },
+    //清除图层预览
+    clearLayerView() {
+      if (this.currentLayer) {
+        this.$store.commit('SET_MAP_TEMPORARYLAYERS_DELETE', [this.currentLayer]);
+      }
+      this.currentLayer = null;
+    },
+    //重置控件
+    reset() {
+      this.clearLayerView();
+      this.$store.getters.ogcLayers.forEach(layer => layer.setVisible(true));
     },
   },
 };
