@@ -2,6 +2,9 @@ import * as types from '../types';
 import api from 'api';
 import { date, uuid, cloneDeep } from '@ktw/ktools';
 
+//轮询时间间隔
+const REQUEST_TIMEOUT = 5000;
+
 /**
  * 任务队列消息中心store模块
  */
@@ -30,6 +33,7 @@ const notification = {
         pollTask = {
           ...task,
           progress: 0,
+          result: null,
         };
         state.tasks.push(pollTask);
       }
@@ -39,25 +43,27 @@ const notification = {
     [types.START_POLL_TASK](state, taskId) {
       let pollTask = state.tasks.find(p => p.taskId == taskId);
       let pollHandler = async () => {
-        // let progress = pollTask.progress + 5;
         const response = await api.db.getbyid({
           id: taskId,
         });
+        let data = response.data;
         this.commit(types.UPDATE_POLL_TASK, {
           taskId: pollTask.taskId,
-          progress: Number(response.data.progress) * 100,
+          progress: Number(data.progress) * 100,
+          result: data.result,
         });
-        if (response.data.progress < 1 && response.data.successful) {
-          setTimeout(pollHandler, 2000);
+        if (!data.complete) {
+          setTimeout(pollHandler, REQUEST_TIMEOUT);
         }
       };
       pollHandler();
     },
     //更新轮询任务
-    [types.UPDATE_POLL_TASK](state, { taskId, progress } = task) {
+    [types.UPDATE_POLL_TASK](state, { taskId, progress, result } = task) {
       let target = state.tasks.find(p => p.taskId == taskId);
       if (target) {
         target.progress = progress;
+        target.result = result;
       }
     },
     //完成轮询任务
@@ -68,6 +74,7 @@ const notification = {
         state.tasks.splice(idx, 1);
         let message = {
           content: `${target.taskName}${target.taskType}已完成!`,
+          result: target.result,
         };
         this.commit(types.ADD_NOTIFY_MESSAGE, message);
       }

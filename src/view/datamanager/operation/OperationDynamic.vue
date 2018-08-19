@@ -7,6 +7,7 @@ import DeleteResource from './modal/DeleteResource';
 import UploadMataData from './modal/UploadMataData';
 import AppendData from './modal/AppendData';
 import AddPackage from './modal/AddPackage';
+import AddHostory from './modal/AddHostory';
 import BatchPublish from '@/components/batchpublish/BatchPublish';
 import * as types from '@/store/types';
 import { isDirectory, isFile, isVector, isGisResource, canView, canAppend } from '@/utils';
@@ -21,6 +22,7 @@ export default {
     UploadMataData,
     AppendData,
     AddPackage,
+    AddHostory,
     BatchPublish,
   },
   data() {
@@ -39,6 +41,7 @@ export default {
       updateMataModal: false,
       appendDataModal: false,
       addPackageModal: false,
+      addHistoryModal: false,
     };
   },
   computed: {
@@ -97,6 +100,9 @@ export default {
       return this.selectNodes[0] && canAppend(this.selectNodes[0]) && this.selectNodes[0].pubState;
     },
     showAddPackage() {
+      return this.selectNodes[0] && canAppend(this.selectNodes[0]) && this.selectNodes[0].pubState;
+    },
+    showAddHistory() {
       return this.selectNodes[0] && canAppend(this.selectNodes[0]) && this.selectNodes[0].pubState;
     },
     showRename() {
@@ -236,7 +242,9 @@ export default {
       this.deleteModal = true;
       this.deleteNodes = this.selectNodes;
     },
-    creataHistroyLayer() {},
+    addHistoryLayer() {
+      this.addHistoryModal = true;
+    },
   },
 };
 </script>
@@ -297,10 +305,10 @@ export default {
         type="ghost"
         @click="addPackage">增量包更新</Button>
       <Button
-        v-if="showAddPackage"
+        v-if="showAddHistory"
         :disabled="!single"
         type="ghost"
-        @click="creataHistroyLayer">历史图层生成</Button>
+        @click="addHistoryLayer">历史图层生成</Button>
       <Button
         v-if="showRename"
         :disabled="!single"
@@ -374,6 +382,8 @@ export default {
     </AppendData>
     <AddPackage v-model="addPackageModal">
     </AddPackage>
+    <AddHostory v-model="addHistoryModal">
+    </AddHostory>
   </div>
 </template>
 
