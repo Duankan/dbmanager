@@ -92,6 +92,7 @@ export default {
     v-show="visible"
     :style="wrapStyle"
     :default-position="position"
+    :disabled="true"
     bounds="parent"
     class="float-panel-wrapper"
     handle="strong">
