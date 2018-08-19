@@ -181,7 +181,6 @@ class EditEntity {
     let entity = this.convertEntity();
     let propertiesXml = this.setFeatureStr();
     if (propertiesXml.coords && propertiesXml.coords.length > 0) {
-      let layerId;
       const xmlData = this.setXml(propertiesXml);
       const response = await axios.post(this.queryUrl, xmlData, {
         headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
