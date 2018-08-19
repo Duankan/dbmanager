@@ -125,16 +125,13 @@ export default {
       });
       this.visibleChange(false);
     },
-    //模拟增量包更新
-    async addPackageMock(resource) {
-      return new Promise((resolve, reject) => {
-        const url = new URL(this.node.serviceList[0].servicesurl);
-        const name = url.searchParams.get('layers')
-          ? url.searchParams.get('layers')
-          : url.searchParams.get('typeName');
-        const response = api.db.addpackage(
+    //增量包更新
+    async addPackageRequest(resource) {
+      let layerName = getServiceName(this.node.serviceList[0].servicesurl);
+      const response = api.db
+        .addpackage(
           {
-            name,
+            name: layerName,
             updatePath: resource.data.path,
           },
           {},
