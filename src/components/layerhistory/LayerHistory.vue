@@ -42,7 +42,7 @@ export default {
     },
     //图层预览
     layerView(item) {
-      //this.clearLayerView();
+      this.clearLayerView();
       this.$nextTick(p => {
         this.addLayerView(item);
       });
