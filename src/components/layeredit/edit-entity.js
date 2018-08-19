@@ -197,11 +197,11 @@ class EditEntity {
         );
         if (editLayer.length !== 0) {
           editLayer[0].redraw();
+          const bounds = this.map.getCenter();
+          const copyBounds = deepCopy(bounds);
+          copyBounds.lat += 0.003;
+          this.map.panTo({ lat: copyBounds.lat, lng: copyBounds.lng });
         }
-        const bounds = this.map.getCenter();
-        const copyBounds = deepCopy(bounds);
-        copyBounds.lat += 0.003;
-        this.map.panTo({ lat: copyBounds.lat, lng: copyBounds.lng });
       }
     }
   }
