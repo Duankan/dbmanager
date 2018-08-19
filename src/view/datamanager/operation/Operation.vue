@@ -67,7 +67,7 @@ export default {
   }
   &-dynamic {
     float: left;
-    margin-left: 32px;
+    margin-left: 16px;
   }
   &-search {
     float: right;
