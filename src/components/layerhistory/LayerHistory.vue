@@ -42,7 +42,7 @@ export default {
     },
     //图层预览
     layerView(item) {
-      //this.clearLayerView();
+      this.clearLayerView();
       this.$nextTick(p => {
         this.addLayerView(item);
       });
@@ -132,10 +132,17 @@ export default {
     <div
       v-if="isShowQueryList"
       class="layer-his-list">
-      <Icon
-        type="close-round"
-        @click.native="isShowQueryList = false"></Icon>
-      <QueryLayerHistory :layer-data="queryLayerData"></QueryLayerHistory>
+      <div class="layer-his-title">
+        <Icon
+          :size="18"
+          type="arrow-left-a"
+          title="返回时间轴"
+          @click.native="isShowQueryList = false"></Icon>
+        <span>数据列表</span>
+      </div>
+      <div class="layer-his-content">
+        <QueryLayerHistory :layer-data="queryLayerData"></QueryLayerHistory>
+      </div>
     </div>
   </div>
 
@@ -168,18 +175,38 @@ export default {
     }
   }
   .layer-his-list {
+    position: relative;
+    height: 100%;
+  }
+  .layer-his-title {
     position: absolute;
     top: 0;
-    bottom: 0;
+    left: 0;
+    height: 26px;
+    line-height: 26px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #666666;
+    padding: 0 10px;
+    .k-icon {
+      font-size: 18px;
+      position: relative;
+      top: 2px;
+      margin-right: 3px;
+      cursor: pointer;
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+  .layer-his-content {
+    position: absolute;
+    top: 26px;
     left: 0;
     right: 0;
-    background-color: #fff;
-    > .k-icon {
-      position: absolute;
-      top: 5px;
-      right: 10px;
-      cursor: pointer;
-    }
+    bottom: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 }
 </style>

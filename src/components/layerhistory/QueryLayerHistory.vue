@@ -40,7 +40,6 @@ export default {
             this.listData.push(feature.properties);
           });
           this.totalPages = response.totalFeatures;
-          console.log(this);
         });
     },
     titleClass(type) {
@@ -61,32 +60,51 @@ export default {
 
 <template>
   <div class="db-query-his">
-    <h5>查看数据</h5>
-    <div class="history-list">
-      <Card
-        v-for="(item,index) in listData"
-        :key="index"
-        dis-hover >
-        <p
-          slot="title"
-          :class="titleClass(item.optype)">{{ setListTitle(item) }}</p>
-        <p>Content of card</p>
-      </Card>
-    </div>
+    <ul class="his-list">
+      <li
+        v-for="(row,rowIdx) in listData"
+        :key="rowIdx"
+        class="his-list-item">
+        <i>{{ rowIdx +1 }}</i>
+        <ul
+          v-for="(prop,proIdx) in Object.keys(row)"
+          :key="proIdx"
+          class="his-item-detail">
+          <li>{{ prop }}：{{ row[prop] }}</li>
+
+        </ul>
+      </li>
+    </ul>
   </div>
 </template>
 
 <style lang="less" scoped>
 .db-query-his {
-  > h5 {
-    margin-left: 10px;
-    height: 20px;
-    line-height: 20px;
+  .his-list {
+    margin: 5px 10px;
   }
-
-  .history-list {
-    height: calc(~'100vh');
-    width: 100%;
+  .his-list-item {
+    position: relative;
+    cursor: pointer;
+    border-radius: 2px;
+    &:hover {
+      background: #eeeeee;
+    }
+    > i {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      top: 2px;
+      left: 2px;
+      background-color: red;
+      text-align: center;
+      font-style: normal;
+      color: #ffffff;
+      border-radius: 2px;
+    }
+    .his-item-detail {
+      margin-left: 30px;
+    }
   }
   .list-original {
     color: #0000ff;
