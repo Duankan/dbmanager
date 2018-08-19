@@ -125,7 +125,6 @@ export default {
       });
       this.visibleChange(false);
     },
-<<<<<<< HEAD
     //模拟增量包更新
     async addPackageMock(resource) {
       return new Promise((resolve, reject) => {
@@ -136,15 +135,6 @@ export default {
         const response = api.db.addpackage(
           {
             name,
-=======
-    //增量包更新
-    async addPackageRequest(resource) {
-      let layerName = getServiceName(this.node.serviceList[0].servicesurl);
-      const response = api.db
-        .addpackage(
-          {
-            name: layerName,
->>>>>>> 4458183a4a3286b738175028a49f6e009ec1513f
             updatePath: resource.data.path,
           },
           {},
