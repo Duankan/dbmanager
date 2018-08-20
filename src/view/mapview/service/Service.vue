@@ -53,8 +53,8 @@ export default {
 
 <template>
   <div class="main">
-    <div 
-      v-if="isTree" 
+    <div
+      v-if="isTree"
       class="service">
       <Input
         v-model="filterText"
@@ -88,12 +88,17 @@ export default {
         </Tooltip>
       </div>
       <div class="service-container">
-        <ServiceList 
-          v-if="showList" 
+        <ServiceList
+          v-if="showList"
+          :condition="{title: filterText}"
+          :filter-text="filterText"
           @style-edit-event="mapLayerEditStyle"
         />
-        <ServiceTree v-else />
-        <!--<keep-alive>
+        <ServiceTree
+          v-else
+          :condition="{title: filterText}"
+          :filter-text="filterText"/>
+          <!--<keep-alive>
           <component
             :is="componentId"
             :condition="{title: filterText}"
@@ -101,11 +106,11 @@ export default {
         </keep-alive>-->
       </div>
     </div>
-    <div 
-      v-else 
+    <div
+      v-else
       class="mapStyle">
-      <StyleEdit 
-        :layer-node="layerNode" 
+      <StyleEdit
+        :layer-node="layerNode"
         @back-event="(event)=>isTree = true"/>
     </div>
   </div>
