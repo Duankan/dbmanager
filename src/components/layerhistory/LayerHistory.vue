@@ -102,7 +102,8 @@ export default {
     <Timeline v-if="!isShowQueryList">
       <TimelineItem
         v-for="item in layerData"
-        :key="item.id">
+        :key="item.id"
+        @click.native="layerView(item)">
         <p class="history-time">{{ formatDate(item.createTime) }}</p>
         <p
           :title="item.layer.name"
@@ -180,6 +181,9 @@ export default {
   .layer-his-list {
     position: relative;
     height: 100%;
+  }
+  .k-timeline-item {
+    cursor: pointer;
   }
   .layer-his-title {
     position: absolute;
