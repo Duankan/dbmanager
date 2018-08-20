@@ -76,7 +76,7 @@ export default {
         v-for="(row,rowIdx) in listData"
         :key="rowIdx"
         class="his-list-item"
-        @click="highLight(item,rowIdx)">
+        @click="highLight(row,rowIdx)">
         <i :class="titleClass(row.optype)">{{ rowIdx +1 }}</i>
         <ul
           class="his-item-detail">
