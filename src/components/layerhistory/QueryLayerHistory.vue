@@ -69,7 +69,7 @@ export default {
         v-for="(row,rowIdx) in listData"
         :key="rowIdx"
         class="his-list-item">
-        <i>{{ rowIdx +1 }}</i>
+        <i :class="titleClass(row.optype)">{{ rowIdx +1 }}</i>
         <ul
           class="his-item-detail">
           <li
@@ -92,7 +92,7 @@ export default {
 <style lang="less">
 .db-query-his {
   .his-list {
-    margin: 5px 10px;
+    margin: 5px 10px 40px 5px;
   }
   .his-list-item {
     position: relative;
@@ -132,16 +132,16 @@ export default {
     margin: 10px;
   }
   .list-original {
-    color: #0000ff;
+    background: #0000ff !important;
   }
   .list-add {
-    color: #00ff00;
+    background: #00ff00 !important;
   }
   .list-delete {
-    color: #ff0000;
+    background: #ff0000 !important;
   }
   .list-edit {
-    color: #ffff00;
+    background: #ffff00 !important;
   }
 
   .k-page {
