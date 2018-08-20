@@ -62,6 +62,9 @@ export default {
       const row = JSON.parse(JSON.stringify(this.features[index]));
       this.$store.commit('SET_MAP_GEOJSON', { geojson: row, type: 'once' });
     },
+    clear() {
+      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
+    },
   },
 };
 </script>
@@ -74,7 +77,7 @@ export default {
         :key="rowIdx"
         class="his-list-item"
         @click="highLight(item,rowIdx)">
-        <i :class="titleClass(row.optype)">{{ rowIdx +1 }}</i>>
+        <i :class="titleClass(row.optype)">{{ rowIdx +1 }}</i>
         <ul
           class="his-item-detail">
           <li

@@ -92,6 +92,7 @@ export default {
     reset() {
       this.clearLayerView();
       this.$store.getters.ogcLayers.forEach(layer => layer.setVisible(true));
+      this.$refs.history.clear();
     },
   },
 };
@@ -141,7 +142,9 @@ export default {
         <span>数据列表</span>
       </div>
       <div class="layer-his-content">
-        <QueryLayerHistory :layer-data="queryLayerData"></QueryLayerHistory>
+        <QueryLayerHistory
+          ref="history"
+          :layer-data="queryLayerData"></QueryLayerHistory>
       </div>
     </div>
   </div>
