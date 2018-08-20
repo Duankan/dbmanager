@@ -12,24 +12,25 @@ export default {
       features: [],
       listData: [],
       totalPages: 0,
+      pageIndex: 1,
     };
   },
   watch: {
     layerData: {
       handler(newVal) {
         if (Object.keys(newVal).length !== 0) {
-          this.queryLayer();
+          this.queryLayer(1);
         }
       },
       immediate: true,
     },
   },
   methods: {
-    queryLayer() {
+    queryLayer(pageIndex) {
       this.$store
         .dispatch('MAP_WFS_QUERY', {
           url: `${this.layerData.baseUrl}?typeName=${this.layerData.layer.name}`,
-          pageIndex: 1,
+          pageIndex,
           pageSize: 10,
           options: {},
         })
@@ -40,7 +41,6 @@ export default {
             this.listData.push(feature.properties);
           });
           this.totalPages = response.totalFeatures;
-          console.log(this);
         });
     },
     titleClass(type) {
@@ -55,38 +55,81 @@ export default {
       const layerPro = Object.values(item);
       return layerPro[layerPro.length - 1];
     },
+    changePage(pageIdx) {
+      this.queryLayer(pageIdx);
+    },
   },
 };
 </script>
 
 <template>
   <div class="db-query-his">
-    <h5>查看数据</h5>
-    <div class="history-list">
-      <Card
-        v-for="(item,index) in listData"
-        :key="index"
-        dis-hover >
-        <p
-          slot="title"
-          :class="titleClass(item.optype)">{{ setListTitle(item) }}</p>
-        <p>Content of card</p>
-      </Card>
-    </div>
+    <ul class="his-list">
+      <li
+        v-for="(row,rowIdx) in listData"
+        :key="rowIdx"
+        class="his-list-item">
+        <i>{{ rowIdx +1 }}</i>
+        <ul
+          class="his-item-detail">
+          <li
+            v-for="(prop,proIdx) in Object.keys(row)"
+            :key="proIdx">
+          <span class="detail-label">{{ prop }}：</span>{{ row[prop] }}</li>
+        </ul>
+      </li>
+    </ul>
+    <Page
+      :current="pageIndex"
+      :total="totalPages"
+      size="small"
+      show-total
+      @on-change="changePage"
+    ></Page>
   </div>
 </template>
 
-<style lang="less" scoped>
+<style lang="less">
 .db-query-his {
-  > h5 {
-    margin-left: 10px;
-    height: 20px;
-    line-height: 20px;
+  .his-list {
+    margin: 5px 10px;
   }
-
-  .history-list {
-    height: calc(~'100vh');
-    width: 100%;
+  .his-list-item {
+    position: relative;
+    cursor: pointer;
+    border-radius: 2px;
+    margin-top: 5px;
+    background: #f3f3f3;
+    &:hover {
+      background: #eeeeee;
+    }
+    > i {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      top: 5px;
+      left: 5px;
+      background-color: #2b85e4;
+      text-align: center;
+      font-style: normal;
+      color: #ffffff;
+      border-radius: 2px;
+    }
+    .his-item-detail {
+      margin-left: 30px;
+      margin-top: 5px;
+      color: #333333;
+      > li {
+        margin: 2px;
+      }
+    }
+    .detail-label {
+      font-weight: bold;
+      color: #e96900;
+    }
+  }
+  .his-page {
+    margin: 10px;
   }
   .list-original {
     color: #0000ff;
@@ -99,6 +142,17 @@ export default {
   }
   .list-edit {
     color: #ffff00;
+  }
+
+  .k-page {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 35px;
+    line-height: 35px;
+    padding-left: 8px;
+    text-align: center;
+    background-color: #fff;
   }
 }
 </style>

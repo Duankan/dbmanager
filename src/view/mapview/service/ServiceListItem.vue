@@ -49,6 +49,7 @@ export default {
       }
     },
     edit() {
+      this.view();
       this.$emit('style-edit-event', this.node);
       // this.vm = this.$window({
       //   title: '图层编辑',
