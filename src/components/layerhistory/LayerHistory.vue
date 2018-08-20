@@ -92,7 +92,9 @@ export default {
     reset() {
       this.clearLayerView();
       this.$store.getters.ogcLayers.forEach(layer => layer.setVisible(true));
-      this.$refs.history.clear();
+      if (this.$refs.history) {
+        this.$refs.history.clear();
+      }
     },
   },
 };
