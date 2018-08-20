@@ -58,6 +58,10 @@ export default {
     changePage(pageIdx) {
       this.queryLayer(pageIdx);
     },
+    highLight(item, index) {
+      const row = JSON.parse(JSON.stringify(this.features[index]));
+      this.$store.commit('SET_MAP_GEOJSON', { geojson: row, type: 'once' });
+    },
   },
 };
 </script>
@@ -68,7 +72,8 @@ export default {
       <li
         v-for="(row,rowIdx) in listData"
         :key="rowIdx"
-        class="his-list-item">
+        class="his-list-item"
+        @click="highLight(item,rowIdx)">
         <i>{{ rowIdx +1 }}</i>
         <ul
           v-for="(prop,proIdx) in Object.keys(row)"
