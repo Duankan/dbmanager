@@ -4,8 +4,7 @@ export default {
   data() {
     return {
       treeId: '',
-      mouseon: false,
-      mouseons: true,
+
       isEdit: false,
       treeDatas: [],
       dataTree: [
@@ -45,10 +44,7 @@ export default {
                     },
                   }[
                     h('Button', {
-                      props: Object.assign({}, this.ButtonProps, {
-                        // icon: 'ios-plus-empty',
-                        // type: 'primary',
-                      }),
+                      props: Object.assign({}, this.ButtonProps, {}),
                       style: {
                         marginRight: '5px',
                         padding: '0px 3px',
@@ -139,12 +135,10 @@ export default {
                   props: {
                     size: 'small',
                     value: data.title,
-                    // readonly: true,
                   },
                   style: {
                     width: '76px',
                   },
-                  // ref: 'tree',
                 },
                 data.title
               ),
@@ -164,7 +158,7 @@ export default {
                 props: Object.assign({}, this.ButtonProps, {
                   icon: 'ios-plus-empty',
                 }),
-                class: { textdanger: this.mouseon, flag: this.isEdit },
+                class: { textdanger: data.isEdits },
                 style: {
                   marginRight: '5px',
                   padding: '0px 3px',
@@ -179,7 +173,7 @@ export default {
                 props: Object.assign({}, this.ButtonProps, {
                   icon: 'ios-minus-empty',
                 }),
-                class: { textdanger: this.mouseon, flag: this.isEdit },
+                class: { textdanger: data.isEdits },
                 style: {
                   marginRight: '5px',
                   padding: '0px 3px',
@@ -195,15 +189,14 @@ export default {
                   icon: 'ios-compose-outline',
                   readonly: false,
                 }),
-                class: { textdanger: this.mouseon, flag: this.isEdit },
+                class: { textdanger: data.isEdits },
                 style: {
                   marginRight: '5px',
                   padding: '0px 3px',
                 },
                 on: {
                   click: () => {
-                    this.isEdit;
-                    debugger;
+                    data.isEdits = true;
                     this.edit(event, data);
                   },
                 },
@@ -212,14 +205,14 @@ export default {
                 props: Object.assign({}, this.ButtonProps, {
                   icon: 'ios-checkmark',
                 }),
-                class: { textdangers: this.mouseons, flag: this.isEdit },
+                class: { textdangers: !data.isEdits },
                 style: {
                   padding: '0px 3px',
                   color: 'green',
                 },
                 on: {
                   click: () => {
-                    this.updatas(root, node, data);
+                    this.updatas(data);
                   },
                 },
               }),
@@ -235,7 +228,6 @@ export default {
           return h('Input', {
             props: {
               value: data.name, //添加的节点名
-              // autofocus: true,
               placeholder: '请输入分类名',
             },
             on: {
@@ -293,19 +285,18 @@ export default {
       });
     },
     //编辑按钮
-    edit(event, root, node, data) {
-      this.mouseon = true;
-      this.mouseons = false;
+    edit(event, data) {
       event.target.parentElement.parentElement.parentElement
         .getElementsByTagName('span')[0]
         .getElementsByTagName('input')[0]
         .focus();
     },
     //编辑数据
-    async updatas(root, node, data) {
-      const id = data.data.id;
-      const remark = data.data.remark;
-      const name = value;
+    async updatas(index) {
+      const id = index.data.id;
+      const remark = index.data.remark;
+      const name = index.data.name;
+      debugger;
       const response = await api.db.updateBusiness({
         id: id,
         name: name,

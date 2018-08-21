@@ -83,12 +83,6 @@ export default {
         :data="treeDatas"
         v-model="treeDatas"
       ></Cascader>
-      <!--
-      <Option
-        //   v-for="item in treeDatas"
-        //   :value="item.title"
-        //   :key="item.title">{{ item.title }}</Option>
-      </Select>-->
     </select></FormItem>
     <FormItem label="关键字：">
       <Input
