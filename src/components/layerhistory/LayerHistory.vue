@@ -106,6 +106,9 @@ export default {
         v-for="item in layerData"
         :key="item.id"
         @click.native="layerView(item)">
+        <Icon 
+          slot="dot" 
+          type="map"></Icon>
         <p class="history-time">{{ formatDate(item.createTime) }}</p>
         <p
           :title="item.layer.name"
