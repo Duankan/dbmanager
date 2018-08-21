@@ -45,17 +45,15 @@ class UpdateEditor extends EditorBase {
    */
   initEditor(feature) {
     this.geoEditor.clearLayers();
-    this.formEditor = FormEditor.createAddForm(this.schemas, {
+    this.formEditor = FormEditor.createEditForm(this.schemas, feature.properties, {
       onEvent: this.dispatchEvent.bind(this),
     });
     this.entity.setProperty(this.formEditor.model);
     this.geoEditor.setPopup(this.formEditor.el, null, {
       maxWidth: 435,
     });
-    let a = feature.geometry.coordinates[0];
     let latlngs = coords2Latlngs(feature.geometry);
-    // this.geoEditor.createGeometry(this.shapeType, latlngs);
-    this.geoEditor.createGeometry('polygon', latlngs);
+    this.geoEditor.createGeometry(this.shapeType, latlngs).openPopup();
     this.geoEditor.editGeometry();
   }
 

@@ -21,8 +21,7 @@ class AddEditor extends EditorBase {
     });
     //开始绘制
     this.geoEditor.fireDrawEvents(this.drawFinish.bind(this));
-    // this.geoEditor.startDraw(this.shapeType);
-    this.geoEditor.startDraw('polygon');
+    this.geoEditor.startDraw(this.shapeType);
   }
 
   /**
@@ -31,23 +30,13 @@ class AddEditor extends EditorBase {
   drawFinish(e) {
     e.openPopup();
     this.entity.setGeometry(e);
-    this.entity.setLayerInfo(this.layerInfo);
-    // 查询要素
-    this.store
-      .dispatch('MAP_WFS_PARAMS', {
-        url: this.layerInfo.wfsLayer.servicesurl,
-      })
-      .then(response => {
-        this.entity.setDescribeFeatureType(response);
-        // TODO: 设置表单
-      });
   }
 
   /**
    * 保存图形
    */
-  save() {
-    this.entity.insert();
+  async save() {
+    await this.entity.insert();
   }
 
   /**

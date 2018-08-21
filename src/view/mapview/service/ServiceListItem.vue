@@ -38,6 +38,7 @@ export default {
       });
       const search = url.parse(this.node.serviceUrl).search;
       const layers = search.layers ? search.layers : search.typeName;
+      response.data.forEach(p => (p.resource = this.node.resource));
       if (response.data.length === 1) {
         this.$store.commit(SET_MAP_SERVICELIST, {
           [layers]: [response.data[0]],
