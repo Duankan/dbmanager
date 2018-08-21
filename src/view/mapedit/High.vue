@@ -153,7 +153,6 @@ export default {
           值: value[1],
         });
       }
-      debugger;
     },
     getColor() {
       var param = {

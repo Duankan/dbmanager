@@ -49,6 +49,7 @@ export default {
       }
     },
     edit() {
+      this.view();
       this.$emit('style-edit-event', this.node);
       // this.vm = this.$window({
       //   title: '图层编辑',
@@ -109,7 +110,7 @@ export default {
           @click.native="edit"
         ></Icon>
         <Icon
-          type="ios-search-strong"
+          type="eye"
           size="32"
           color="#fff"
           @click.native="view"></Icon>

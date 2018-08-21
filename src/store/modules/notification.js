@@ -2,6 +2,9 @@ import * as types from '../types';
 import api from 'api';
 import { date, uuid, cloneDeep } from '@ktw/ktools';
 
+//轮询时间间隔
+const REQUEST_TIMEOUT = 5000;
+
 /**
  * 任务队列消息中心store模块
  */
@@ -30,6 +33,8 @@ const notification = {
         pollTask = {
           ...task,
           progress: 0,
+          successful: false,
+          result: null,
         };
         state.tasks.push(pollTask);
       }
@@ -39,22 +44,35 @@ const notification = {
     [types.START_POLL_TASK](state, taskId) {
       let pollTask = state.tasks.find(p => p.taskId == taskId);
       let pollHandler = async () => {
-        let progress = pollTask.progress + 5;
+        const response = await api.db.getbyid({
+          id: taskId,
+        });
+        let data = response.data;
+        let progress = 0;
+        if (data.complete && !data.successful) {
+          progress = 100;
+        } else {
+          progress = Number(data.progress) * 100;
+        }
         this.commit(types.UPDATE_POLL_TASK, {
           taskId: pollTask.taskId,
           progress: progress,
+          successful: data.successful,
+          result: data.result,
         });
-        if (progress < 100) {
-          setTimeout(pollHandler, 2000);
+        if (!data.complete) {
+          setTimeout(pollHandler, REQUEST_TIMEOUT);
         }
       };
       pollHandler();
     },
     //更新轮询任务
-    [types.UPDATE_POLL_TASK](state, { taskId, progress } = task) {
+    [types.UPDATE_POLL_TASK](state, { taskId, progress, successful, result } = task) {
       let target = state.tasks.find(p => p.taskId == taskId);
       if (target) {
         target.progress = progress;
+        target.successful = successful;
+        target.result = result;
       }
     },
     //完成轮询任务
@@ -63,8 +81,10 @@ const notification = {
       if (target) {
         let idx = state.tasks.indexOf(target);
         state.tasks.splice(idx, 1);
+        let stateText = target.successful ? '成功！' : '失败！';
         let message = {
-          content: `${target.taskName}${target.taskType}已完成!`,
+          content: `${target.taskName}${target.taskType}${stateText}`,
+          result: target.result,
         };
         this.commit(types.ADD_NOTIFY_MESSAGE, message);
       }

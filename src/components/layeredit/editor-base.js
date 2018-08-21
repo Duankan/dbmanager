@@ -28,7 +28,7 @@ class EditorBase {
     //表单编辑器对象
     this.formEditor = null;
     //编辑实体
-    this.entity = new EditEntity();
+    this.entity = new EditEntity(this.geoEditor, this.store, this.map);
   }
 
   /**

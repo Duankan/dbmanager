@@ -79,7 +79,7 @@ export default {
       prop="authSrId">
       <Input
         v-model="objCondition.authSrId"
-        placeholder="请输入您需要查询的空间参考"
+        placeholder="请输入您需要查询的空间参考ID"
         @on-change="doGetData"></Input>
     </FormItem>
     <FormItem class="show-crs">

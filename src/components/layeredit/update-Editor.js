@@ -53,10 +53,9 @@ class UpdateEditor extends EditorBase {
       maxWidth: 435,
     });
     let a = feature.geometry.coordinates[0];
-    debugger;
-
     let latlngs = coords2Latlngs(feature.geometry);
-    this.geoEditor.createGeometry(this.shapeType, latlngs);
+    // this.geoEditor.createGeometry(this.shapeType, latlngs);
+    this.geoEditor.createGeometry('polygon', latlngs);
     this.geoEditor.editGeometry();
   }
 
