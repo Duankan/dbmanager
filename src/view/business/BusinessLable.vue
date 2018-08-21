@@ -134,6 +134,7 @@ export default {
           :readonly="readonly"
           type="text"
           class="lable-input-list"
+         
         />
         <Icon
           class="lable-list-content-icons"

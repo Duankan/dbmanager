@@ -40,6 +40,12 @@ export default {
 
       //获取表格数据
     },
+    //清空按钮
+    empty() {
+      this.formItem.name = '';
+      this.formItem.input = '';
+      this.formItem.select = '';
+    },
   },
 };
 </script>
@@ -94,10 +100,9 @@ export default {
       <Button
         type="primary"
         @click="searchData">查询</Button>
-      <Button style="margin-left: 8px">清空</Button>
+      <Button @click="empty">清空</Button>
     </FormItem>
   </Form>
-
 </template>
 
 <style lang="less" scoped>
@@ -113,7 +118,6 @@ form {
   margin-bottom: 3px !important;
   padding-top: 5px !important;
 }
-
 .top {
   width: 100%;
   height: 20px;

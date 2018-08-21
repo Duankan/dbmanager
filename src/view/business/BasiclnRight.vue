@@ -1,14 +1,11 @@
 <script>
 export default {
-  name: 'BusinessSort',
+  name: 'BasiclnRight',
   data() {
     return {
       treeId: '',
-      mouseon: false,
-      mouseons: true,
-      isEdit: false,
       treeDatas: [],
-      dataTree: [
+      dataTrees: [
         {
           title: '',
           expand: true,
@@ -45,10 +42,7 @@ export default {
                     },
                   }[
                     h('Button', {
-                      props: Object.assign({}, this.ButtonProps, {
-                        // icon: 'ios-plus-empty',
-                        // type: 'primary',
-                      }),
+                      props: Object.assign({}, this.ButtonProps, {}),
                       style: {
                         marginRight: '5px',
                         padding: '0px 3px',
@@ -86,12 +80,12 @@ export default {
   },
   //监听数据列表
   watch: {
-    dataTree: {
+    dataTrees: {
       handler(newVals) {
         this.treeDatas = [];
         //给对象添加isEdit属性并赋值
         newVals.forEach(element => {
-          this.$set(element, 'isEdits', false);
+          this.$set(element, 'isEdit', false);
         });
         this.$emit('dataChangeEvnet', newVals);
       },
@@ -99,14 +93,16 @@ export default {
     },
   },
   mounted() {
-    this.searchTree();
+    this.searchTrees();
   },
   methods: {
-    async searchTree() {
-      const response = await api.db.findalltypeBusiness({});
-      this.dataTree = response.data;
+    async searchTrees() {
+      debugger;
+      const response = await api.db.findallwithmatadata({ id: '402881d8651debac01651deeee640002' });
+
+      this.dataTrees = response.data;
     },
-    renderContent(h, { root, node, data }) {
+    renderContents(h, { root, node, data }) {
       return h(
         'span',
         {
@@ -163,8 +159,8 @@ export default {
               h('Button', {
                 props: Object.assign({}, this.ButtonProps, {
                   icon: 'ios-plus-empty',
+                  treeData: data.isEdit,
                 }),
-                class: { textdanger: this.mouseon, flag: this.isEdit },
                 style: {
                   marginRight: '5px',
                   padding: '0px 3px',
@@ -178,8 +174,8 @@ export default {
               h('Button', {
                 props: Object.assign({}, this.ButtonProps, {
                   icon: 'ios-minus-empty',
+                  treeData: data.isEdit,
                 }),
-                class: { textdanger: this.mouseon, flag: this.isEdit },
                 style: {
                   marginRight: '5px',
                   padding: '0px 3px',
@@ -193,33 +189,39 @@ export default {
               h('Button', {
                 props: Object.assign({}, this.ButtonProps, {
                   icon: 'ios-compose-outline',
+                  treeData: data.isEdit,
                   readonly: false,
                 }),
-                class: { textdanger: this.mouseon, flag: this.isEdit },
                 style: {
                   marginRight: '5px',
                   padding: '0px 3px',
                 },
                 on: {
                   click: () => {
-                    this.isEdit;
-                    debugger;
-                    this.edit(event, data);
+                    if (!data.isEdit) {
+                      // data.isEdit = false;
+
+                      this.edit(event, root, node, data);
+                    }
                   },
                 },
               }),
               h('Button', {
                 props: Object.assign({}, this.ButtonProps, {
                   icon: 'ios-checkmark',
+                  treeData: data.isEdit,
                 }),
-                class: { textdangers: this.mouseons, flag: this.isEdit },
                 style: {
                   padding: '0px 3px',
                   color: 'green',
                 },
                 on: {
                   click: () => {
+                    // debugger;
+                    // if (!data.isEdit) {
+                    //   data.isEdit = true;
                     this.updatas(root, node, data);
+                    // }
                   },
                 },
               }),
@@ -263,7 +265,7 @@ export default {
           });
           this.$Message.info('添加成功');
           //渲染页面
-          this.searchTree();
+          this.searchTrees();
         },
         onCancel: () => {
           this.$Message.info('取消');
@@ -292,26 +294,24 @@ export default {
         },
       });
     },
-    //编辑按钮
     edit(event, root, node, data) {
-      this.mouseon = true;
-      this.mouseons = false;
       event.target.parentElement.parentElement.parentElement
         .getElementsByTagName('span')[0]
         .getElementsByTagName('input')[0]
         .focus();
+      // readonly = false;
     },
-    //编辑数据
     async updatas(root, node, data) {
       const id = data.data.id;
       const remark = data.data.remark;
-      const name = value;
+      debugger;
+      const name = data.data.title;
       const response = await api.db.updateBusiness({
         id: id,
         name: name,
         remark: remark,
       });
-      debugger;
+
       this.$Message.info('修改成功');
     },
   },
@@ -328,8 +328,8 @@ export default {
       <span>资源分类</span>
       <Tree
         ref="tree"
-        :data="dataTree"
-        :render="renderContent"
+        :data="dataTrees"
+        :render="renderContents"
       ></Tree>
 </div></div></template>
 
@@ -365,11 +365,5 @@ export default {
   &:visited {
     border-color: #ffffff;
   }
-}
-/deep/.textdanger {
-  display: none;
-}
-/deep/.textdangers {
-  display: none;
 }
 </style>
