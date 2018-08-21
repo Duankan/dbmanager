@@ -19,12 +19,28 @@ export default {
   data() {
     return {
       formItem: {},
+      typeData: '',
+      typeTreeData: [],
     };
+  },
+  watch: {
+    treeDatas: {
+      handler(newVals) {
+        if (newVals) {
+          this.typeTreeData = [];
+          newVals.forEach(element => {
+            var newObj = Object.assign({}, element);
+            this.addLableText(newObj);
+            this.typeTreeData.push(newObj);
+          });
+        }
+      },
+      immediate: true,
+    },
   },
   methods: {
     async searchData() {
       const tableDatas = this.tableDatas;
-      debugger;
       const response = await api.db.findpagelistbusiness({
         name: '', //表名
         restype: '', //资源分类
@@ -45,6 +61,20 @@ export default {
       this.formItem.name = '';
       this.formItem.input = '';
       this.formItem.select = '';
+    },
+    addLableText(item) {
+      debugger;
+      if (item) {
+        this.$set(item, 'label', item.title);
+        this.$set(item, 'value', item.title);
+      }
+      if (item.children) {
+        if (item.children.length > 0) {
+          item.children.forEach(element => {
+            this.addLableText(element);
+          });
+        }
+      }
     },
   },
 };
@@ -79,9 +109,10 @@ export default {
       </Select>
     </FormItem>
     <FormItem label="分类：" >
-      <Cascader
-        :data="treeDatas"
-        v-model="treeDatas"
+      <Cascader 
+        :data="typeTreeData"
+        v-model="typeData"
+        transfer
       ></Cascader>
     </select></FormItem>
     <FormItem label="关键字：">
