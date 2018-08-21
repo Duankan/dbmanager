@@ -1,6 +1,7 @@
 import EditorBase from './editor-base';
 import FormEditor from './form-editor';
 import { coords2Latlngs } from '@/utils/helps';
+import { Message, Modal } from '@ktw/kcore';
 
 /**
  * 编辑要素编辑器
@@ -13,7 +14,8 @@ class UpdateEditor extends EditorBase {
     //重置编辑器
     this.reset();
     //绘制一个点
-    this.geoEditor.fireDrawEvents(this.drawFinish.bind(this), this.editFinish.bind(this));
+    this.geoEditor.fireDrawEvents(this.drawFinish.bind(this));
+    this.geoEditor.setDrawTooltip('point', true, '选择一个编辑图形');
     this.geoEditor.startDraw('point');
   }
 
@@ -35,6 +37,9 @@ class UpdateEditor extends EditorBase {
       .then(p => {
         if (p.features.length > 0) {
           this.initEditor(p.features[0]);
+        } else {
+          Message.warning('没有选中编辑图形！');
+          this.reset();
         }
       });
   }
@@ -44,25 +49,31 @@ class UpdateEditor extends EditorBase {
    * @param {any} feature
    */
   initEditor(feature) {
-    this.geoEditor.clearLayers();
+    this.geoEditor.destory();
     this.formEditor = FormEditor.createEditForm(this.schemas, feature.properties, {
       onEvent: this.dispatchEvent.bind(this),
     });
     this.entity.setProperty(this.formEditor.model);
+    this.geoEditor.fireDrawEvents(null, this.editFinish.bind(this));
     this.geoEditor.setPopup(this.formEditor.el, null, {
       maxWidth: 435,
     });
     let latlngs = coords2Latlngs(feature.geometry);
-    this.geoEditor.createGeometry(this.shapeType, latlngs).openPopup();
+    let geometry = this.geoEditor.createGeometry(this.shapeType, latlngs);
+    geometry.openPopup();
     this.geoEditor.editGeometry();
+    this.entity.setGeometry(geometry);
   }
 
   /**
    * 编辑完成
    * @param {any} e 图形
    */
-  editFinish(e) {
-    this.entity.setGeometry(e);
+  async editFinish(e) {
+    this.entity.setGeometry(e[0]);
+    await this.entity.update();
+    this.reset();
+    this.refreshLayer();
   }
 
   /**
@@ -73,15 +84,18 @@ class UpdateEditor extends EditorBase {
   }
 
   /**
-   * 重置编辑
+   * 删除图形
    */
-  reset() {
-    if (this.formEditor) {
-      this.formEditor.remove();
-      this.formEditor = null;
-    }
-    this.geoEditor.clearLayers();
-    this.entity.reset();
+  delete() {
+    Modal.confirm({
+      title: '删除确认',
+      content: '您确定要删除图形吗？',
+      onOk: async () => {
+        await this.entity.delete();
+        this.reset();
+        this.refreshLayer();
+      },
+    });
   }
 }
 

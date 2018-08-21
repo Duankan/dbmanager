@@ -82,7 +82,7 @@ class FormEditor {
                   保存
                 </Button>
                 <Button
-                  type="ghost"
+                  type="error"
                   onClick={e => {
                     onEvent('reset', model);
                   }}
@@ -171,9 +171,9 @@ class FormEditor {
                   保存
                 </Button>
                 <Button
-                  type="ghost"
+                  type="error"
                   onClick={e => {
-                    onEvent('reset', model);
+                    onEvent('delete', model);
                   }}
                 >
                   删除

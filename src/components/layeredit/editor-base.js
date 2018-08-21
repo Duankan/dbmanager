@@ -1,6 +1,5 @@
 import * as kmap from '@ktw/kmap';
 import EditEntity from './edit-entity';
-import FormEditor from './form-editor';
 
 /**
  * 编辑器基类
@@ -46,18 +45,26 @@ class EditorBase {
    * 刷新图层
    */
   refreshLayer() {
-    this.geoEditor.clearLayers();
-    this.reset();
     const editLayer = this.store.getters.ogcLayers.filter(
-      layers => layers.options.layers === this.layerName
+      layers => layers.options.layers === this.layerInfo.name
     );
     if (editLayer.length !== 0) {
-      editLayer[0].redraw();
+      // editLayer[0].redraw();
       const bounds = this.map.getCenter();
-      const copyBounds = deepCopy(bounds);
-      copyBounds.lat += 0.003;
-      this.map.panTo({ lat: copyBounds.lat, lng: copyBounds.lng });
+      this.map.panTo({ lat: bounds.lat, lng: bounds.lng + 0.003 });
     }
+  }
+
+  /**
+   * 重置编辑
+   */
+  reset() {
+    if (this.formEditor) {
+      this.formEditor.remove();
+      this.formEditor = null;
+    }
+    this.geoEditor.destory();
+    this.entity.reset();
   }
 }
 

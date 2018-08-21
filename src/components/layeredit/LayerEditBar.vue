@@ -69,7 +69,7 @@ export default {
         type="error"
         @click.stop="reset">
         <Icon type="close-round"></Icon>
-        重置</Button>
+        清除</Button>
       <Button
         size="small"
         type="success"
