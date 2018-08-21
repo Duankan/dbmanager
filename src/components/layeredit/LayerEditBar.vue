@@ -34,12 +34,14 @@ export default {
     editFeature() {
       this.layerEditor.editFeature();
     },
+    //批量入库
+    batchCommit() {
+      this.layerEditor.addTransaction();
+    },
     //重置
     reset() {
       this.layerEditor.reset();
     },
-    //批量入库
-    batchSave() {},
   },
 };
 </script>
@@ -71,8 +73,9 @@ export default {
       <Button
         size="small"
         type="success"
-        @click.stop="batchSave">
-        <Icon type="upload"></Icon>
+        @click.stop="batchCommit">
+        <Icon
+          type="upload"></Icon>
         批量入库</Button>
     </div>
   </div>

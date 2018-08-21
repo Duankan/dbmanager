@@ -2,7 +2,7 @@
 // Template version: 1.2.7
 // see http://vuejs-templates.github.io/webpack for documentation.
 
-const path = require('path');
+const path = require ('path');
 
 module.exports = {
   dev: {
@@ -49,12 +49,12 @@ module.exports = {
 
   build: {
     // Template for index.html
-    index: path.resolve(__dirname, '../dist/index.html'),
+    index: path.resolve (__dirname, '../dist/index.html'),
 
     // Paths
-    assetsRoot: path.resolve(__dirname, '../dist'),
+    assetsRoot: path.resolve (__dirname, '../dist'),
     assetsSubDirectory: 'static',
-    assetsPublicPath: './',
+    assetsPublicPath: '../dbmanager/',
 
     // Deploy path
     deployPath: '/home/ktw/software/webapp_v2/ktw_tomcat/webapps',

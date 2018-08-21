@@ -20,7 +20,7 @@ class EditorBase {
     //Vuex Store
     this.store = store;
     //图层类型
-    this.shapeType = layerInfo.wmsLayer.defaltstyle;
+    this.shapeType = layerInfo.wmsLayer.resource.shapeType;
     //字段信息
     this.schemas = layerInfo.wmsLayer.schema;
     //图形编辑器对象
@@ -28,7 +28,7 @@ class EditorBase {
     //表单编辑器对象
     this.formEditor = null;
     //编辑实体
-    this.entity = new EditEntity(this.geoEditor, this.store, this.map);
+    this.entity = new EditEntity(this.layerInfo);
   }
 
   /**
@@ -39,6 +39,24 @@ class EditorBase {
   dispatchEvent(eventName, args) {
     if (this[eventName]) {
       this[eventName](args);
+    }
+  }
+
+  /**
+   * 刷新图层
+   */
+  refreshLayer() {
+    this.geoEditor.clearLayers();
+    this.reset();
+    const editLayer = this.store.getters.ogcLayers.filter(
+      layers => layers.options.layers === this.layerName
+    );
+    if (editLayer.length !== 0) {
+      editLayer[0].redraw();
+      const bounds = this.map.getCenter();
+      const copyBounds = deepCopy(bounds);
+      copyBounds.lat += 0.003;
+      this.map.panTo({ lat: copyBounds.lat, lng: copyBounds.lng });
     }
   }
 }
