@@ -1,7 +1,10 @@
 import EditorBase from './editor-base';
 import FormEditor from './form-editor';
-import { coords2Latlngs } from '@/utils/helps';
+import GeometryUtil from './geometry-utils';
 import { Message, Modal } from '@ktw/kcore';
+
+//缓冲像素距离
+const BUFFER_PIXEL = 3;
 
 /**
  * 编辑要素编辑器
@@ -15,23 +18,32 @@ class UpdateEditor extends EditorBase {
     this.reset();
     //绘制一个点
     this.geoEditor.fireDrawEvents(this.drawFinish.bind(this));
-    this.geoEditor.setDrawTooltip('point', true, '选择一个编辑图形');
-    this.geoEditor.startDraw('point');
+    this.geoEditor.startDraw(
+      'point',
+      {},
+      {
+        same: true,
+        start: '选择一个编辑图形',
+      }
+    );
   }
 
   /**
    * 绘制完成
    */
   drawFinish(e) {
-    //点选查询
+    //点选缓冲查询
+    let buffer = GeometryUtil.pixel2LngLat(this.map, BUFFER_PIXEL);
+    let point = e.getLatLng();
+    let sqlFilter = `INTERSECTS(the_geom,buffer(POINT(${point.lat} ${point.lng}),${buffer}))`;
     this.store
       .dispatch('MAP_WFS_QUERY', {
-        url: this.layerInfo.wfsLayer.wfsurl,
+        url: this.layerInfo.wfsInfo.wfsurl,
         pageIndex: 1,
         pageSize: 5,
         options: {
           type: 'POST',
-          geometry: e,
+          cql_filter: sqlFilter,
         },
       })
       .then(p => {
@@ -58,11 +70,11 @@ class UpdateEditor extends EditorBase {
     this.geoEditor.setPopup(this.formEditor.el, null, {
       maxWidth: 435,
     });
-    let latlngs = coords2Latlngs(feature.geometry);
+    let latlngs = GeometryUtil.coords2Latlngs(feature.geometry);
     let geometry = this.geoEditor.createGeometry(this.shapeType, latlngs);
+    this.entity.setGeometry(geometry);
     geometry.openPopup();
     this.geoEditor.editGeometry();
-    this.entity.setGeometry(geometry);
   }
 
   /**
@@ -70,7 +82,9 @@ class UpdateEditor extends EditorBase {
    * @param {any} e 图形
    */
   async editFinish(e) {
-    this.entity.setGeometry(e[0]);
+    if (e.length > 0) {
+      this.entity.setGeometry(e[0]);
+    }
     await this.entity.update();
     this.reset();
     this.refreshLayer();

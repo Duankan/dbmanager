@@ -154,6 +154,7 @@ export default {
     sort(position, node, dragNode) {
       if (node.nodeKey == 0) return;
       // position 靠近下边缘 1, 靠近上边缘 -1
+      debugger;
       this.$store.commit('SET_MAP_WMSLAYER_SORT', {
         position,
         dragNodeId: dragNode.id,
@@ -178,12 +179,12 @@ export default {
     editLayer(root, node, data) {
       this.closeEditWindow();
       let container = this.$store.getters.mapManager._map._container.parentElement;
-      let pnl = this.$FloatPanel.create({
+      this.editHandler = this.$FloatPanel.create({
         title: '图层编辑工具栏',
         width: 270,
         position: {
           x: container.clientWidth - 300,
-          y: 230,
+          y: 300,
         },
         parent: container,
         render: h => {
@@ -246,6 +247,7 @@ export default {
     //关闭编辑窗口
     closeEditWindow() {
       if (this.editHandler) {
+        this.editHandler.getContent().reset();
         this.$FloatPanel.remove(this.editHandler.panelId);
       }
       this.editHandler = null;

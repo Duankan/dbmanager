@@ -323,36 +323,6 @@ export function getFileAccept(dataTypeId) {
 }
 
 /**
- * Geometry转WKT格式
- * @param {L.Geometry} geometry 图形对象
- */
-export function geo2Wkt(geometry, reverse = false) {
-  let geojson = geometry.toGeoJSON();
-  let wktFormat = new L.Format.WKT();
-  let wkt = wktFormat.readToWKT(geojson, reverse);
-  return wkt;
-}
-
-/**
- * wfs查询图形转leaflet图形
- * @param {*} geometry 图形
- */
-export function coords2Latlngs(geometry) {
-  let segments = geometry.coordinates;
-  let latlngs = [];
-  for (let i = 0; i < segments[0].length; i++) {
-    let pnts = [];
-    let parts = segments[0][i];
-    for (let j = 0; j < parts.length; j++) {
-      let t = parts[j];
-      pnts.push([t[1], t[0]]);
-    }
-    latlngs.push(pnts);
-  }
-  return latlngs;
-}
-
-/**
  * 获取服务名
  * @param {String} serviceUrl 服务地址
  */
