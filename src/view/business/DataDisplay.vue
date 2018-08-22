@@ -3,10 +3,10 @@ export default {
   name: 'DataDisplay',
 
   props: {
-    lableData: {
-      type: Array,
-      default: () => [],
-    },
+    // lableData: {
+    //   type: Array,
+    //   default: () => [],
+    // },
     tableDatas: {
       type: Array,
       default: () => [],
@@ -19,57 +19,73 @@ export default {
   data() {
     return {
       formItem: {},
-      typeData: '',
+      typeData: [],
       typeTreeData: [],
     };
+  },
+  computed: {
+    //标签数据
+    tagData() {
+      return this.$store.state.metadata.tagData;
+    },
   },
   watch: {
     treeDatas: {
       handler(newVals) {
         if (newVals) {
+          //复制treeDatas的数据给typeTreeData,用来存放treeDatas里面的数据
           this.typeTreeData = [];
           newVals.forEach(element => {
-            var newObj = Object.assign({}, element);
-            this.addLableText(newObj);
-            this.typeTreeData.push(newObj);
+            //var newObj = Object.assign({}, element);
+            //在addLableText里添加两个属性
+            if (element.data) {
+              this.addLableText(element);
+              this.typeTreeData.push(element);
+            }
           });
         }
       },
       immediate: true,
     },
   },
+  // created() {
+  //   this.$store.dispatch(types.SEARCH_LABLE_DATA);
+  // },
   methods: {
     async searchData() {
-      const tableDatas = this.tableDatas;
+      const restype = this.typeData[this.typeData.length - 1];
       const response = await api.db.findpagelistbusiness({
-        name: '', //表名
-        restype: '', //资源分类
-        keyword: '', //标签关键字
+        name: this.formItem.input, //关键字
+        restype: restype, //资源分类
+        keyword: this.formItem.select, //标签
         orderfield: '', //排序字段
         sort: '', //排序方式
         pageinfo: {
-          pageIndex: this.pageIndex, //当前页
+          pageIndex: 1, //当前页
           pageSize: 10, //每页总数
           orderby: '', //排序字段
         },
       });
-
-      //获取表格数据
     },
+
     //清空按钮
     empty() {
       this.formItem.name = '';
       this.formItem.input = '';
       this.formItem.select = '';
+      this.typeData = '';
     },
     addLableText(item) {
-      debugger;
       if (item) {
         this.$set(item, 'label', item.title);
-        this.$set(item, 'value', item.title);
+        this.$set(item, 'value', item.data.id);
       }
+
+      //判断是否有子节点
       if (item.children) {
+        //判断子节点的个数是否大于0
         if (item.children.length > 0) {
+          //大于0就继续往下循环递归
           item.children.forEach(element => {
             this.addLableText(element);
           });
@@ -92,27 +108,29 @@ export default {
         size="20"/>
       <span>查询</span>
     </div>
-    <FormItem label="名称：" >
+    <!--<FormItem
+      label="名称：">
       <Select v-model="formItem.name">
         <Option
           v-for="item in tableDatas"
           :value="item.name"
           :key="item.name">{{ item.name }}</Option>
       </Select>
-    </FormItem>
+    </FormItem>-->
     <FormItem label="标签：" >
       <Select v-model="formItem.select">
         <Option
-          v-for="item in lableData"
+          v-for="item in tagData"
           :value="item.name"
           :key="item.name">{{ item.name }}</Option>
       </Select>
     </FormItem>
     <FormItem label="分类：" >
-      <Cascader 
+      <Cascader
         :data="typeTreeData"
         v-model="typeData"
         transfer
+
       ></Cascader>
     </select></FormItem>
     <FormItem label="关键字：">
@@ -124,7 +142,7 @@ export default {
     <FormItem>
       <Button
         type="primary"
-        @click="searchData">查询</Button>
+        @click="searchData(formItem)">查询</Button>
       <Button @click="empty">清空</Button>
     </FormItem>
   </Form>

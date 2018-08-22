@@ -208,14 +208,7 @@ export default {
       this.selectData = {};
       this.selectData.add = true;
     },
-    // show(index) {
-    //   this.$Modal.info({
-    //     title: 'User Info',
-    //     content: `Name：${this.data6[index].name}<br>Age：${this.data6[index].age}<br>Address：${
-    //       this.data6[index].address
-    //     }`,
-    //   });
-    // },
+
     //时间格式化
     formatDate(datas) {
       if (datas) {

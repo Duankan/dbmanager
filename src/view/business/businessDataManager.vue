@@ -19,7 +19,7 @@ export default {
   },
   data() {
     return {
-      labelsData: [],
+      // labelsData: [],
       tableDatas: [],
       treeDatas: [],
     };
@@ -29,10 +29,10 @@ export default {
   // },
   methods: {
     //把子组件抛过来的事件的数据通过data传过来
-    dataChange(data) {
-      //把传过来的数据放到新的数组里面
-      this.labelsData = data;
-    },
+    // dataChange(data) {
+    //   //把传过来的数据放到新的数组里面
+    //   this.labelsData = data;
+    // },
     //表格数据传过来
     tableDataChange(data) {
       this.tableDatas = data;

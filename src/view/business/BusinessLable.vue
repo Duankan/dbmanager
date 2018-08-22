@@ -1,4 +1,5 @@
 <script>
+import * as types from '@/store/types';
 export default {
   name: 'BusinessLable',
   data() {
@@ -6,33 +7,37 @@ export default {
       value: '',
       newAddText: '',
       readonly: true,
-      datas: [], //标签数据
+      // datas: [], //标签数据
       labelsData: [],
     };
   },
-  //监听数据列表
-  watch: {
-    datas: {
-      handler(newVals) {
-        this.labelsData = [];
-        //给对象添加isEdit属性并赋值
-        newVals.forEach(element => {
-          this.$set(element, 'isEdit', false);
-        });
-        //向父组抛传事件
-        this.$emit('dataChangeEvnet', newVals);
-      },
-      immediate: true,
+  computed: {
+    tagData() {
+      return this.$store.state.metadata.tagData;
     },
   },
-  mounted() {
+  // 监听数据列表
+  // watch: {
+  //   datas: {
+  //     handler(newVals) {
+  //       this.labelsData = [];
+  //       //给对象添加isEdit属性并赋值
+  //       newVals.forEach(element => {
+  //         this.$set(element, 'isEdit', false);
+  //       });
+  //       //向父组抛传事件
+  //       // this.$emit('dataChangeEvnet', newVals);
+  //     },
+  //     immediate: true,
+  //   },
+  // },
+  created() {
     this.lableDatas();
   },
   methods: {
     //查询所有标签
-    async lableDatas() {
-      const response = await api.db.findallBusiness({});
-      this.datas = response.data;
+    lableDatas() {
+      this.$store.dispatch(types.SEARCH_LABLE_DATA);
     },
     //添加列表
     async addNewList() {
@@ -73,8 +78,8 @@ export default {
         content: '<p>确定删除该标签？</p>',
         onOk: async () => {
           const response = await api.db.deleteTaqsBusiness({ id: id });
-          this.datas.splice(
-            this.datas.findIndex(item => {
+          this.tagData.splice(
+            this.tagData.findIndex(item => {
               return id === item.id;
             }),
             1
@@ -102,7 +107,6 @@ export default {
         type: 1, //类型（0-空间数据，1-业务数据）
       });
       item.isEdit = false;
-      debugger;
       this.$Message.info('修改成功');
       this.readonly = true;
     },
@@ -127,7 +131,7 @@ export default {
     </div>
     <div class="lable">
       <div
-        v-for="(item, index) in datas"
+        v-for="(item, index) in tagData"
         :key="index"
         class="lable-list">
         <input
@@ -135,7 +139,6 @@ export default {
           :readonly="readonly"
           type="text"
           class="lable-input-list"
-
         />
         <Icon
           class="lable-list-content-icons"
@@ -220,6 +223,7 @@ export default {
       height: 25px;
       border: 0;
       background: none;
+      cursor: default;
     }
   }
 }

@@ -139,6 +139,11 @@ export default {
                   style: {
                     width: '76px',
                   },
+                  on: {
+                    'on-change': e => {
+                      data.value = e.target.value;
+                    },
+                  },
                 },
                 data.title
               ),
@@ -213,6 +218,7 @@ export default {
                 on: {
                   click: () => {
                     this.updatas(data);
+                    data.isEdits = false;
                   },
                 },
               }),
@@ -295,14 +301,14 @@ export default {
     async updatas(index) {
       const id = index.data.id;
       const remark = index.data.remark;
-      const name = index.data.name;
-      debugger;
+      const name = index.value;
+      const oldname = index.title;
       const response = await api.db.updateBusiness({
         id: id,
         name: name,
         remark: remark,
+        oldname: oldname,
       });
-      debugger;
       this.$Message.info('修改成功');
     },
   },
