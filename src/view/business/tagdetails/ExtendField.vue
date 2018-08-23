@@ -10,122 +10,91 @@ export default {
   },
   data() {
     return {
-      //扩展字段列表
-      extendFieldTable: {
-        tableTitle: [
-          {
-            title: '扩展字段名称',
-            key: 'name',
-            align: 'center',
-          },
-          {
-            title: '字段类型',
-            key: 'dataType',
-            align: 'center',
-          },
-          {
-            title: '处理规则',
-            key: 'processRule',
-            align: 'center',
-          },
-          {
-            title: '操作',
-            key: 'operation',
-            render: (h, params) => {
-              return h('div', [
-                h(
-                  'a',
-                  {
-                    props: {},
-                    style: {
-                      marginRight: '5px',
-                    },
-                    on: {
-                      click: () => {
-                        this.remove(params.index);
-                      },
+      //扩展字段列表数据
+      tableData: [],
+      //扩展字段列表标题
+      tableTitle: [
+        {
+          title: '扩展字段名称',
+          key: 'name',
+          align: 'center',
+        },
+        {
+          title: '字段类型',
+          key: 'type',
+          align: 'center',
+        },
+        {
+          title: '处理规则',
+          key: 'extendMethod',
+          align: 'center',
+        },
+        {
+          title: '操作',
+          key: 'operation',
+          render: (h, params) => {
+            return h('div', [
+              h(
+                'a',
+                {
+                  props: {},
+                  style: {
+                    marginRight: '5px',
+                  },
+                  on: {
+                    click: () => {
+                      this.remove(params.index);
                     },
                   },
-                  '删除'
-                ),
-                h(
-                  'a',
-                  {
-                    props: {},
-                    style: {
-                      marginRight: '5px',
-                    },
-                    on: {
-                      click: () => {
-                        this.show(params.index);
-                      },
+                },
+                '删除'
+              ),
+              h(
+                'a',
+                {
+                  props: {},
+                  style: {
+                    marginRight: '5px',
+                  },
+                  on: {
+                    click: () => {
+                      this.show(params.index);
                     },
                   },
-                  '修改'
-                ),
-              ]);
-            },
+                },
+                '修改'
+              ),
+            ]);
+          },
+        },
+      ],
+      //新增扩展字段
+      addExtendField: {},
+      //内部字段关联下拉框
+      extendFieldSelect: {
+        type: [
+          {
+            value: 'int',
+            key: 'int',
+          },
+          {
+            value: 'char',
+            key: 'char',
           },
         ],
-        extendFieldData: [
+        classfiy: [
           {
-            name: 'RT192476',
-            dataType: 'string',
-            processRule: 'where 1=1',
+            value: '字段分类1',
+            key: '字段分类1',
           },
           {
-            name: 'RT192476',
-            dataType: 'string',
-            processRule: 'where 1=1',
+            value: '字段分类2',
+            key: '字段分类2',
           },
         ],
       },
-      //内部字段关联
+      //规则参数
       innerFieldForm: {
-        //扩展字段名称
-        selectFieldName: [
-          {
-            value: 'beijing1',
-            key: 'New York1',
-          },
-          {
-            value: 'shanghai1',
-            key: 'London1',
-          },
-        ],
-        //字段类型
-        selectFieldType: [
-          {
-            value: 'beijing2',
-            key: 'New York2',
-          },
-          {
-            value: 'shanghai2',
-            key: 'London2',
-          },
-        ],
-        //字段分类
-        selectClassify: [
-          {
-            value: 'beijing3',
-            key: 'New York3',
-          },
-          {
-            value: 'shanghai3',
-            key: 'London3',
-          },
-        ],
-        //处理规则
-        selectProcessRule: [
-          {
-            value: 'beijing4',
-            key: 'New York4',
-          },
-          {
-            value: 'shanghai4',
-            key: 'London4',
-          },
-        ],
         //规则参数标题
         innerFieldTableTitle: [
           {
@@ -152,11 +121,28 @@ export default {
         ],
       },
       addField: false,
-      //新增字段数据
-      addForm: {},
     };
   },
+  mounted() {
+    //表格数据处理
+    if (this.rowData.extendmeta) {
+      this.tableData = JSON.parse(this.rowData.extendmeta);
+      console.log(this.tableData);
+    }
+  },
   methods: {
+    //新增字段
+    async addFieldData() {
+      const response = await api.db
+        .addExtendedFields({
+          id: this.rowData.id,
+          dto: this.addExtendField,
+        })
+        .then(p => {
+          this.tableData.push(this.addExtendField);
+        });
+      console.log(this.addExtendField);
+    },
     ok() {
       this.$Message.info('Clicked ok');
     },
@@ -180,8 +166,8 @@ export default {
         :class="{shade:rowData.readonly}"
         class="relevance-content">
         <Table
-          :columns="extendFieldTable.tableTitle"
-          :data="extendFieldTable.extendFieldData">
+          :columns="tableTitle"
+          :data="tableData">
         </Table>
       </div>
     </div>
@@ -197,55 +183,60 @@ export default {
       </div>
       <Form
         :label-width="100"
-        :model="innerFieldForm"
+        :model="addExtendField"
         label-position="left">
         <Row>
           <Col span="24">
           <FormItem label="扩展字段名称：">
-            <Select v-model="innerFieldForm.selectFieldName.select">
-              <Option
-                v-for="item of innerFieldForm.selectFieldName"
-                :key="item.value"
-                :value="item.value">{{ item.key }}</Option>
-            </Select>
+            <Input
+              v-model="addExtendField.name"
+              placeholder="扩展字段名称" />
           </FormItem>
             </Col>
         </Row>
         <Row>
           <Col span="24">
           <FormItem label="字段类型：">
-            <Select v-model="innerFieldForm.selectFieldType.select">
+            <Select v-model="addExtendField.type">
               <Option
-                v-for="item of innerFieldForm.selectFieldType"
+                v-for="item of extendFieldSelect.type"
                 :key="item.value"
-                :value="item.value">{{ item.key }}</Option>
+                :value="item.value">{{ item.key }}
+              </Option>
             </Select>
           </FormItem>
-            </Col>
+          </Col>
         </Row>
         <Row>
           <Col span="24">
           <FormItem label="字段分类：">
-            <Select v-model="innerFieldForm.selectClassify.select">
+            <Select v-model="addExtendField.classfiy">
               <Option
-                v-for="item of innerFieldForm.selectClassify"
+                v-for="item of extendFieldSelect.classfiy"
                 :key="item.value"
-                :value="item.value">{{ item.key }}</Option>
+                :value="item.value">{{ item.key }}
+              </Option>
             </Select>
+          </FormItem>
+          </Col>
+        </Row>
+        <Row>
+          <Col span="24">
+          <FormItem label="处理规则：">
+            <Input
+              :rows="4"
+              v-model="addExtendField.extendmethod"
+              type="textarea"
+              placeholder="请选择多个标签管理里面的标签" />
           </FormItem>
             </Col>
         </Row>
         <Row>
           <Col span="24">
-          <FormItem label="处理规则：">
-            <Select v-model="innerFieldForm.selectProcessRule.select">
-              <Option
-                v-for="item of innerFieldForm.selectProcessRule"
-                :key="item.value"
-                :value="item.value">{{ item.key }}</Option>
-            </Select>
+          <FormItem label="是否允许为空：">
+            <Checkbox v-model="addExtendField.allownull">是</Checkbox>
           </FormItem>
-            </Col>
+          </Col>
         </Row>
         <Row>
           <Col span="24">
@@ -256,36 +247,18 @@ export default {
               border>
             </Table>
           </div>
-            </Col>
+          </Col>
         </Row>
       </Form>
     </div>
+    </Col>
     <Col span="24">
     <Button
       v-show="!rowData.readonly"
       class="btn-right"
       type="primary"
-      @click="addField = true">
-      新增字段</Button>
-    <Modal
-      v-model="addField"
-      title="新增字段"
-      @on-cancel="cancel"
-      @on-ok="ok">
-      <Form
-        :label-width="100"
-        :model="addForm">
-        <Row>
-          <Col span="22">
-          <FormItem label="字段名称：">
-            <Input/>
-          </FormItem>
-            </Col>
-        </Row>
-      </Form>
-    </Modal>
-      </Col>
-    </div>
+      @click="addFieldData">新增字段
+    </Button>
     </Col>
   </row>
 </template>

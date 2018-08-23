@@ -13,8 +13,10 @@ export default {
       listData: [],
       totalPages: 0,
       pageIndex: 1,
+      changeType: '1=1',
     };
   },
+  computed: {},
   watch: {
     layerData: {
       handler(newVal) {
@@ -26,21 +28,24 @@ export default {
     },
   },
   methods: {
-    queryLayer(pageIndex) {
+    queryLayer() {
       this.$store
         .dispatch('MAP_WFS_QUERY', {
           url: `${this.layerData.baseUrl}?typeName=${this.layerData.layer.name}`,
-          pageIndex,
+          pageIndex: this.pageIndex,
           pageSize: 10,
-          options: {},
+          options: { cql_filter: this.changeType },
         })
         .then(response => {
           this.listData = [];
           this.features = response.features;
-          response.features.forEach(feature => {
-            this.listData.push(feature.properties);
-          });
-          this.totalPages = response.totalFeatures;
+          if (response.features) {
+            response.features.forEach(feature => {
+              this.$set(feature.properties, 'isMore', false);
+              this.listData.push(feature.properties);
+            });
+            this.totalPages = response.totalFeatures;
+          }
         });
     },
     titleClass(type) {
@@ -58,30 +63,74 @@ export default {
     changePage(pageIdx) {
       this.queryLayer(pageIdx);
     },
+    highLight(item, index) {
+      const row = JSON.parse(JSON.stringify(this.features[index]));
+      this.$store.commit('SET_MAP_GEOJSON', { geojson: row, type: 'once' });
+    },
+    clear() {
+      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
+    },
+    moreView(row, rowIdx) {
+      this.listData[rowIdx].isMore = true;
+      for (var i = 0; i < this.listData.length; i++) {
+        if (i != rowIdx) {
+          this.listData[i].isMore = false;
+        }
+      }
+    },
+    isMoreView: function(row, prop, proIdx) {
+      debugger;
+      var isShow = false;
+      if (prop != 'optype' && prop != 'isMore') {
+        if (!row.isMore) {
+          if (proIdx < 6) {
+            isShow = true;
+          }
+        } else {
+          isShow = true;
+        }
+      }
+      return isShow;
+    },
   },
 };
 </script>
 
 <template>
   <div class="db-query-his">
+    <RadioGroup 
+      v-model="changeType"
+      style="width:100%;text-align: center;"
+      type="button" 
+      @on-change="queryLayer">
+      <Radio label="1=1">全部</Radio>
+      <Radio label="optype=1">新增</Radio>
+      <Radio label="optype=2">编辑</Radio>
+      <Radio label="optype=3">删除</Radio>
+    </RadioGroup>
     <ul class="his-list">
       <li
         v-for="(row,rowIdx) in listData"
         :key="rowIdx"
-        class="his-list-item">
-        <i>{{ rowIdx +1 }}</i>
+        class="his-list-item"
+        @click="highLight(row,rowIdx)">
+        <i :class="titleClass(row.optype)">{{ rowIdx +1 }}</i>
         <ul
           class="his-item-detail">
           <li
             v-for="(prop,proIdx) in Object.keys(row)"
+            v-show="isMoreView(row,prop,proIdx)" 
             :key="proIdx">
-          <span class="detail-label">{{ prop }}：</span>{{ row[prop] }}</li>
+            <span 
+            class="detail-label">{{ prop }}：</span>{{ row[prop] }}</li>
+          <li><span @click="moreView(row,rowIdx)">查看详情</span></li>
         </ul>
       </li>
     </ul>
     <Page
       :current="pageIndex"
       :total="totalPages"
+      style="width:100%"
       size="small"
       show-total
       @on-change="changePage"
@@ -92,14 +141,13 @@ export default {
 <style lang="less">
 .db-query-his {
   .his-list {
-    margin: 5px 10px;
+    margin: 5px 10px 40px 5px;
   }
   .his-list-item {
     position: relative;
     cursor: pointer;
     border-radius: 2px;
     margin-top: 5px;
-    background: #f3f3f3;
     &:hover {
       background: #eeeeee;
     }
@@ -125,23 +173,23 @@ export default {
     }
     .detail-label {
       font-weight: bold;
-      color: #e96900;
+      color: #3385ff;
     }
   }
   .his-page {
     margin: 10px;
   }
   .list-original {
-    color: #0000ff;
+    background: #0000ff !important;
   }
   .list-add {
-    color: #00ff00;
+    background: #00ff00 !important;
   }
   .list-delete {
-    color: #ff0000;
+    background: #ff0000 !important;
   }
   .list-edit {
-    color: #ffff00;
+    background: #ffff00 !important;
   }
 
   .k-page {
@@ -151,8 +199,10 @@ export default {
     height: 35px;
     line-height: 35px;
     padding-left: 8px;
+    padding-right: 8px;
     text-align: center;
     background-color: #fff;
+    width: 100%;
   }
 }
 </style>

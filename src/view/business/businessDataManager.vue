@@ -4,6 +4,7 @@ import BusinessSort from './BusinessSort';
 import BusinessLable from './BusinessLable';
 import BusinessTable from './BusinessTable';
 import DataDetails from './DataDetails';
+// import BasiclnRight from './BasiclnRight';
 export default {
   name: 'BusinessDataManager',
   components: {
@@ -12,6 +13,7 @@ export default {
     BusinessLable,
     BusinessTable,
     DataDetails,
+    // BasiclnRight,
     //  <BusinessTable></BusinessTable>
     // <DataDetails></DataDetails>
   },
@@ -62,7 +64,9 @@ export default {
         </Tab-pane>
         <Tab-pane
           label="业务数据展示"
-          name="name2">标签二的内容</Tab-pane>
+          name="name2">
+          <!--<BasiclnRight></BasiclnRight>-->
+        </Tab-pane>
       </Tabs>
     </div>
     <div id="right-context">

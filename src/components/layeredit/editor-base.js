@@ -1,6 +1,5 @@
 import * as kmap from '@ktw/kmap';
 import EditEntity from './edit-entity';
-import FormEditor from './form-editor';
 
 /**
  * 编辑器基类
@@ -20,15 +19,15 @@ class EditorBase {
     //Vuex Store
     this.store = store;
     //图层类型
-    this.shapeType = layerInfo.wmsLayer.defaltstyle;
+    this.shapeType = layerInfo.wmsInfo.resource.shapeType;
     //字段信息
-    this.schemas = layerInfo.wmsLayer.schema;
+    this.schemas = layerInfo.wmsInfo.schema;
     //图形编辑器对象
     this.geoEditor = new kmap.default.kmapAPI.DrawGeometry(map);
     //表单编辑器对象
     this.formEditor = null;
     //编辑实体
-    this.entity = new EditEntity(this.geoEditor, this.store, this.map);
+    this.entity = new EditEntity(this.layerInfo);
   }
 
   /**
@@ -40,6 +39,27 @@ class EditorBase {
     if (this[eventName]) {
       this[eventName](args);
     }
+  }
+
+  /**
+   * 刷新图层
+   */
+  refreshLayer() {
+    //this.layerInfo.layer.redraw();
+    const bounds = this.map.getCenter();
+    this.map.panTo({ lat: bounds.lat, lng: bounds.lng + 0.003 });
+  }
+
+  /**
+   * 重置编辑
+   */
+  reset() {
+    if (this.formEditor) {
+      this.formEditor.remove();
+      this.formEditor = null;
+    }
+    this.geoEditor.destory();
+    this.entity.reset();
   }
 }
 

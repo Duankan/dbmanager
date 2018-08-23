@@ -160,11 +160,14 @@ export default {
         statisticsFields: [{ field: 'gid', operate: 'count' }],
         typename: 'ktw:' + this.msg.data.name,
       };
+<<<<<<< HEAD
       param = { statistics: JSON.stringify(param) };
       console.log(param);
       param = { statistics: JSON.stringify(param) };
       console.log(param);
       // param = { statistics: JSON.stringify(param) };
+=======
+>>>>>>> b6958a3c69bb37fd57776688fff6fe403825bb8b
       L.ajax({
         url: `${config.project.highgisUrl}/hgis/ows?service=wps&request=aggregate`,
         success: this.statisticsSuccess,

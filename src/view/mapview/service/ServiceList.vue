@@ -84,7 +84,7 @@ export default {
     :on-reach-bottom="handleBottomEdge"
     :distance-to-edge="[10,10]"
     :height="height">
-    <ServiceListItem 
+    <ServiceListItem
       v-for="service in serviceList"
       :key="service.serviceId"
       :node="service"

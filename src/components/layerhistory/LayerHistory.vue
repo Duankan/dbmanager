@@ -92,6 +92,9 @@ export default {
     reset() {
       this.clearLayerView();
       this.$store.getters.ogcLayers.forEach(layer => layer.setVisible(true));
+      if (this.$refs.history) {
+        this.$refs.history.clear();
+      }
     },
   },
 };
@@ -101,7 +104,11 @@ export default {
     <Timeline v-if="!isShowQueryList">
       <TimelineItem
         v-for="item in layerData"
-        :key="item.id">
+        :key="item.id"
+        @click.native="layerView(item)">
+        <Icon 
+          slot="dot" 
+          type="map"></Icon>
         <p class="history-time">{{ formatDate(item.createTime) }}</p>
         <p
           :title="item.layer.name"
@@ -141,7 +148,9 @@ export default {
         <span>数据列表</span>
       </div>
       <div class="layer-his-content">
-        <QueryLayerHistory :layer-data="queryLayerData"></QueryLayerHistory>
+        <QueryLayerHistory
+          ref="history"
+          :layer-data="queryLayerData"></QueryLayerHistory>
       </div>
     </div>
   </div>
@@ -177,6 +186,9 @@ export default {
   .layer-his-list {
     position: relative;
     height: 100%;
+  }
+  .k-timeline-item {
+    cursor: pointer;
   }
   .layer-his-title {
     position: absolute;
