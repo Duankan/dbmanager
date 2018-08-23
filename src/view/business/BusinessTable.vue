@@ -103,6 +103,16 @@ export default {
                       // 隐藏元数据管理页面
                       this.display = false;
                       this.selectData = params.row;
+                      // 其它tab页可点
+                      this.selectData.pointer = false;
+                      this.selectData.enddate = date.format(
+                        new Date(this.selectData.enddate),
+                        'YYYY-M-D'
+                      );
+                      this.selectData.begdate = date.format(
+                        new Date(this.selectData.begdate),
+                        'YYYY-M-D'
+                      );
                     },
                   },
                 },
@@ -120,6 +130,16 @@ export default {
                       // 隐藏元数据管理页面
                       this.display = false;
                       this.selectData = params.row;
+                      // 其它tab页可点
+                      this.selectData.pointer = false;
+                      this.selectData.enddate = date.format(
+                        new Date(this.selectData.enddate),
+                        'YYYY-M-D'
+                      );
+                      this.selectData.begdate = date.format(
+                        new Date(this.selectData.begdate),
+                        'YYYY-M-D'
+                      );
                       //预览flag
                       this.selectData.readonly = true;
                     },
@@ -197,6 +217,12 @@ export default {
       this.display = false;
       this.selectData = {};
       this.selectData.add = true;
+      this.selectData.pointer = true;
+    },
+    //更新标签页数据
+    updateData1() {
+      this.mocktableData();
+      debugger;
     },
     // show(index) {
     //   this.$Modal.info({
@@ -254,7 +280,10 @@ export default {
       v-else>
       <DataDetails
         :business-data="selectData"
-        @backEvent="queryData"></DataDetails>
+        @backEvent="queryData"
+        @updateData="updateData1"
+      >
+      </DataDetails>
     </div>
   </div>
 </template>

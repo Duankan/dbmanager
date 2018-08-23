@@ -9,21 +9,9 @@ export default {
   },
   data() {
     return {
-      //外部关联表单
-      externalFormItem: {
-        //源表名
-        sourceTableName: 'table1',
-        // 源字段下拉框
-        selectSourceField: [
-          {
-            value: 'beijing',
-            key: 'New York',
-          },
-          {
-            value: 'shanghai',
-            key: 'London',
-          },
-        ],
+      //外部关联字段
+      externalData: {
+        sourceName: '',
         // 关联表名下拉
         selectTableName: [
           {
@@ -46,8 +34,8 @@ export default {
             key: 'London2',
           },
         ],
-        radio: '0',
       },
+      radio: '0',
       //外部关联表格
       externalTable: {
         title: [
@@ -100,7 +88,7 @@ export default {
       //内部关联表单
       innerFormItem: {
         // 源字段下拉框
-        selectSourceField: [
+        selectcolumnsrc: [
           {
             value: 'beijing',
             key: 'New York',
@@ -121,7 +109,6 @@ export default {
             key: 'London2',
           },
         ],
-        radio: '1',
       },
       //内部关联表格
       innerTable: {
@@ -148,8 +135,19 @@ export default {
     };
   },
   mounted() {
-    // this.externalTable.data = JSON.parse(this.rowData.relatedcolumn);
-    // this.innerTable.data = JSON.parse(this.rowData.outrelatedcolumn);
+    //源表名
+    this.externalData.sourceName = this.rowData.name;
+    //源字段下拉框数据
+    this.externalData.columnsrcData = JSON.parse(this.rowData.rescolumn);
+    //源字段初始值
+    this.externalData.columnsrc = this.externalData.columnsrcData[0].name;
+    //获取关联表名
+    // async queryTableName() {
+    //   const response = await api.db.findFieldsByTableName()
+    //   .then(p => {
+    //     console.log(response);
+    //   });
+    // },
   },
 };
 </script>
@@ -168,21 +166,24 @@ export default {
       <div class="left-content">
         <Form
           :label-width="70"
-          :model="externalFormItem"
+          :model="externalData"
           label-position="left">
           <Row>
             <Col span="12">
             <FormItem label="源表名：">
-              <Input></Input>
+              <Input
+                v-model="externalData.sourceName"
+                disabled
+              />
             </FormItem>
             </Col>
             <Col span="12">
             <FormItem label="源字段：">
-              <Select v-model="externalFormItem.selectSourceField.select">
+              <Select v-model="externalData.columnsrc">
                 <Option
-                  v-for="item of externalFormItem.selectSourceField"
-                  :key="item.value"
-                  :value="item.value">{{ item.key }}</Option>
+                  v-for="item of externalData.columnsrcData"
+                  :key="item.name"
+                  :value="item.name">{{ item.name }}</Option>
               </Select>
             </FormItem>
             </Col>
@@ -190,50 +191,48 @@ export default {
           <Row>
             <Col span="12">
             <FormItem label="关联表名：">
-              <Select v-model="externalFormItem.selectTableName.select">
+              <Select v-model="externalData.tablename">
                 <Option
-                  v-for="item of externalFormItem.selectTableName"
+                  v-for="item of externalData.selectTableName"
                   :key="item.value"
-                  :value="item.value">{{ item.key }}</Option>
+                  :value="item.value">{{ item.value }}</Option>
               </Select>
             </FormItem>
-            </Col>
+              </Col>
             <Col span="12">
             <FormItem label="关联字段：">
-              <Select v-model="externalFormItem.selectField.select">
+              <Select v-model="externalData.columndes">
                 <Option
-                  v-for="item of externalFormItem.selectField"
+                  v-for="item of externalData.selectField"
                   :key="item.value"
-                  :value="item.value">{{ item.key }}</Option>
+                  :value="item.value">{{ item.value }}</Option>
               </Select>
             </FormItem>
-            </Col>
+              </Col>
           </Row>
           <Row class="relevance-header">
             <Col span="18">
             <FormItem label="关联关系：">
-              <RadioGroup v-model="externalFormItem.radio">
+              <RadioGroup v-model="externalData.relatedtype">
                 <Radio label="0">强关联</Radio>
                 <Radio label="1">弱关联</Radio>
               </RadioGroup>
             </FormItem>
-            </Col>
+              </Col>
             <Col span="6">
             <Button
               v-show="!rowData.readonly"
               type="primary">创建关联
             </Button>
-            </Col>
+              </Col>
           </Row>
         </Form>
-        <Row>
-          <Col span="24">
-          <Table
-            :columns="externalTable.title"
-            :data="externalTable.data">
-          </Table>
-        </Col>
-        </Row>
+        <Col span="24">
+        <Table
+          :columns="externalTable.title"
+          :data="externalTable.data">
+        </Table>
+          </Col>
       </div>
     </div>
     </Col>
@@ -254,11 +253,11 @@ export default {
           <Row>
             <Col span="24">
             <FormItem label="源字段：">
-              <Select v-model=" innerFormItem.selectSourceField.select">
+              <Select v-model="externalData.columnsrc">
                 <Option
-                  v-for="item of innerFormItem.selectSourceField"
-                  :key="item.value"
-                  :value="item.value">{{ item.key }}</Option>
+                  v-for="item of externalData.columnsrcData"
+                  :key="item.name"
+                  :value="item.name">{{ item.name }}</Option>
               </Select>
             </FormItem>
           </Col>
@@ -266,7 +265,7 @@ export default {
           <Row>
             <Col span="24">
             <FormItem label="关联字段：">
-              <Select v-model=" innerFormItem.selectField.select">
+              <Select v-model=" innerFormItem.selectField">
                 <Option
                   v-for="item of innerFormItem.selectField"
                   :key="item.value"
