@@ -82,7 +82,7 @@ class FormEditor {
                   保存
                 </Button>
                 <Button
-                  type="ghost"
+                  type="error"
                   onClick={e => {
                     onEvent('reset', model);
                   }}
@@ -128,6 +128,7 @@ class FormEditor {
       render: h => {
         let formItems = [];
         for (let key in model) {
+          if (key.toLowerCase() == 'bbox') continue;
           let field = model[key];
           let editor = '';
           if (field.inputType == 'InputNumber') {
@@ -171,9 +172,9 @@ class FormEditor {
                   保存
                 </Button>
                 <Button
-                  type="ghost"
+                  type="error"
                   onClick={e => {
-                    onEvent('reset', model);
+                    onEvent('delete', model);
                   }}
                 >
                   删除

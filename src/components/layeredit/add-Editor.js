@@ -37,18 +37,8 @@ class AddEditor extends EditorBase {
    */
   async save() {
     await this.entity.insert();
-  }
-
-  /**
-   * 重置编辑器
-   */
-  reset() {
-    if (this.formEditor) {
-      this.formEditor.remove();
-      this.formEditor = null;
-    }
-    this.geoEditor.clearLayers();
-    this.entity.reset();
+    this.reset();
+    this.refreshLayer();
   }
 }
 

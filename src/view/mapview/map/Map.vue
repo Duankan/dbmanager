@@ -1,4 +1,5 @@
 <script>
+import Kmap from '@ktw/kmap';
 const REFS = ['polygon', 'rectangle', 'marker', 'polyline', 'circle'];
 
 export default {
@@ -66,8 +67,12 @@ export default {
     this.$events.emit('on-getdraw-refs', { drawRefs: this.$refs, REFS }, true);
   },
   methods: {
-    setBbox({ bbox, index }) {
+    setBbox({ bbox, index, type }) {
       if (bbox) {
+        const status = {
+          wms() {},
+          wmts() {},
+        };
         this.$refs.map.setBounds(bbox);
       } else {
         this.$store.getters.ogcLayers[index - 1].fitBounds();

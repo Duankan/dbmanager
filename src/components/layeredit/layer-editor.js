@@ -3,6 +3,7 @@ import UpdateEditor from './update-Editor';
 import { Notice, Message } from '@ktw/kcore';
 import { date } from '@ktw/ktools';
 import * as types from '@/store/types';
+import * as kmap from '@ktw/kmap';
 
 /**
  * 图层编辑器对象
@@ -21,16 +22,48 @@ class LayerEditor {
     //地图对象
     this.map = this.store.getters.mapManager._map;
     //图层信息
-    let serviceList = this.store.state.map.serviceList[this.layer];
-    let wmsLayer = serviceList.find(p => p.servicestype == 12);
-    let wfsLayer = serviceList.find(p => p.servicestype == 6);
-    this.layerInfo = { name: layer, wmsLayer, wfsLayer };
+    this.layerInfo = this.getLayerInfo();
     //新增图形编辑器对象
     this.addEditor = new AddEditor(this.map, this.layerInfo, this.store);
     //编辑图形编辑器对象
     this.updateEditor = new UpdateEditor(this.map, this.layerInfo, this.store);
     //当前编辑器
     this.currentEditor = null;
+    //设置编辑图层
+    this.setEditLayer();
+  }
+
+  /**
+   * 获取图层信息
+   */
+  getLayerInfo() {
+    let serviceList = this.store.state.map.serviceList[this.layer];
+    let wmsInfo = serviceList.find(p => p.servicestype == 12);
+    let wfsInfo = serviceList.find(p => p.servicestype == 6);
+    let ogcLayer = this.store.getters.ogcLayers.find(p => p.options.layers == this.layer);
+    return {
+      name: this.layer,
+      layer: ogcLayer,
+      wmsInfo,
+      wfsInfo,
+    };
+  }
+
+  /**
+   * 将定位图层定位并移动到最上层
+   */
+  setEditLayer() {
+    //图层移动
+    let layers = this.store.getters.ogcLayers;
+    if (layers.length > 1) {
+      this.store.commit('SET_MAP_WMSLAYER_SORT', {
+        position: -1,
+        dragNodeId: this.layerInfo.layer._leaflet_id,
+        dropNodeId: layers[0]._leaflet_id,
+      });
+    }
+    //图层定位
+    kmap.default.kmapAPI.commonFunction.defineWMSCRS(this.map, this.layerInfo.layer);
   }
 
   //新增要素

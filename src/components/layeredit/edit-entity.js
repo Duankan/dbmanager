@@ -1,6 +1,8 @@
 import { deepCopy } from '@/utils/assist';
 import config from 'config';
 import axios from 'axios';
+import GeometryUtil from './geometry-utils';
+import { Message, Notice } from '@ktw/kcore';
 
 //图层标记
 const LAYER_FLAG = '{LAYER_FLAG}';
@@ -37,6 +39,10 @@ const ADD_TEMPLATE = `
 const UPDATE_TEMPLATE = `
 <Transaction xmlns="http://www.opengis.net/wfs" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" service="WFS" version="2017.06.21" xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.1.0/wfs.xsd">
   <Update typeName="${LAYER_FLAG}">
+    <Property>
+      <Name>geometry</Name>
+      <Value>${GEOMETRY_FLAG}</Value>
+    </Property>
     ${PROPERTY_FLAG}
     <Filter xmlns="http://www.opengis.net/ogc">
       <FeatureId fid="${ID_FLAG}"/>
@@ -66,8 +72,8 @@ const POLYLINE_TEMPLATE = `
   <lineStringMember>
     <LineString srsName="${SPATIAL_FLAG}">
       <posList>${COORD_FLAG}</posList>
-    <LineString>
-  <lineStringMember>
+    </LineString>
+  </lineStringMember>
 </MultiLineString>`;
 
 //面图形模板
@@ -102,11 +108,15 @@ const GEOMETRY_TEMPLATE = {
  * 编辑实体
  */
 class EditEntity {
+  /**
+   * 构造编辑实体
+   * @param {any} layerInfo 图形信息
+   */
   constructor(layerInfo) {
     //图层信息
     this.layerInfo = layerInfo;
     //服务地址
-    this.serviceUrl = `${config.project.hgisServer}/wfs`;
+    this.serviceUrl = `${config.project.hgisServer}/wfs?isupdateindex=0`;
     //编辑属性
     this.property = null;
     //编辑图形
@@ -152,21 +162,26 @@ class EditEntity {
    * @param {string} operate 操作类型
    */
   convertPropertiesToXml(operate) {
+    let parts = [];
     const converts = {
-      add(key, value) {
-        return `<${key}>${value}</${key}>`;
+      add() {
+        Object.keys(this.property).forEach(p => {
+          if (this.property[p].editable) {
+            let value = this.property[p].value;
+            let part = `<${p}>${value}</${p}>`;
+            parts.push(part);
+          }
+        });
       },
-      update(key, value) {
-        return `<Property><Name>${key}</Name><Value>${value}</Value></Property>`;
+      update() {
+        Object.keys(this.property).forEach(p => {
+          let value = this.property[p].value;
+          let part = `<Property><Name>${p}</Name><Value>${value}</Value></Property>`;
+          parts.push(part);
+        });
       },
     };
-    let parts = [];
-    Object.keys(this.property).forEach(p => {
-      if (this.property[p].editable) {
-        let part = converts[operate].call(this, p, this.property[p].value);
-        parts.push(part);
-      }
-    });
+    converts[operate].call(this);
     return parts.join('');
   }
 
@@ -174,20 +189,11 @@ class EditEntity {
    * 转换图形为xml
    */
   convertGeometryToXml() {
-    const points = this.geometry.getLatLngs();
-    let coords = [];
-    if (points.length > 0) {
-      points[0].forEach(point => {
-        coords.push(point.lng);
-        coords.push(point.lat);
-      });
-      coords.push(points[0][0].lng);
-      coords.push(points[0][0].lat);
-    }
-    let shapeType = this.layerInfo.wmsLayer.resource.shapeType;
+    let coords = GeometryUtil.geo2Coords(this.geometry);
+    let shapeType = this.layerInfo.wmsInfo.resource.shapeType;
     let xml = deepCopy(GEOMETRY_TEMPLATE[shapeType]);
     xml = this.replace(xml, COORD_FLAG, coords.join(' '));
-    xml = this.replace(xml, SPATIAL_FLAG, this.layerInfo.wmsLayer.csys);
+    xml = this.replace(xml, SPATIAL_FLAG, this.layerInfo.wmsInfo.csys);
     return xml;
   }
 
@@ -203,15 +209,31 @@ class EditEntity {
 
   /**
    * 转换实体为XML
-   * @param {String} operate 操作类型
    */
   convertEntityToXml(operate) {
-    let strProperty = this.convertPropertiesToXml(operate);
-    let strGeometry = this.convertGeometryToXml();
-    let template = deepCopy(FEATURE_TEMPLATE[operate]);
-    let xml = this.replace(template, LAYER_FLAG, this.layerInfo.wmsLayer.title);
-    xml = this.replace(xml, PROPERTY_FLAG, strProperty);
-    xml = this.replace(xml, GEOMETRY_FLAG, strGeometry);
+    let xml = deepCopy(FEATURE_TEMPLATE[operate]);
+    const converts = {
+      add() {
+        let strProperty = this.convertPropertiesToXml(operate);
+        let strGeometry = this.convertGeometryToXml();
+        xml = this.replace(xml, LAYER_FLAG, this.layerInfo.wmsInfo.title);
+        xml = this.replace(xml, PROPERTY_FLAG, strProperty);
+        xml = this.replace(xml, GEOMETRY_FLAG, strGeometry);
+      },
+      update() {
+        let strProperty = this.convertPropertiesToXml(operate);
+        let strGeometry = this.convertGeometryToXml();
+        xml = this.replace(xml, LAYER_FLAG, this.layerInfo.name);
+        xml = this.replace(xml, PROPERTY_FLAG, strProperty);
+        xml = this.replace(xml, GEOMETRY_FLAG, strGeometry);
+        xml = this.replace(xml, ID_FLAG, this.property.gid.value);
+      },
+      delete() {
+        xml = this.replace(xml, LAYER_FLAG, this.layerInfo.name);
+        xml = this.replace(xml, ID_FLAG, this.property.gid.value);
+      },
+    };
+    converts[operate].call(this);
     return xml;
   }
 
@@ -220,22 +242,63 @@ class EditEntity {
    */
   async insert() {
     let xmlData = this.convertEntityToXml('add');
-    const response = await axios.post(this.serviceUrl, xmlData, {
-      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-      dataType: 'text',
-      traditional: true,
+    const msg = Message.loading({
+      content: '正在保存...',
+      duration: 0,
     });
+    const response = await axios.post(this.serviceUrl, xmlData, {
+      headers: { 'Content-Type': 'application/xml' },
+      responseType: 'text',
+    });
+    setTimeout(msg, 0);
+    Notice.success({
+      title: '新增要素成功！',
+      duration: 1.5,
+    });
+    return response;
   }
 
   /**
    * 更新记录
    */
-  async update() {}
+  async update() {
+    let xmlData = this.convertEntityToXml('update');
+    const msg = Message.loading({
+      content: '正在保存...',
+      duration: 0,
+    });
+    const response = await axios.post(this.serviceUrl, xmlData, {
+      headers: { 'Content-Type': 'application/xml' },
+      responseType: 'text',
+    });
+    setTimeout(msg, 0);
+    Notice.success({
+      title: '编辑要素成功！',
+      duration: 1.5,
+    });
+    return response;
+  }
 
   /**
    * 删除记录
    */
-  async delete() {}
+  async delete() {
+    let xmlData = this.convertEntityToXml('delete');
+    const msg = Message.loading({
+      content: '正在删除...',
+      duration: 0,
+    });
+    const response = await axios.post(this.serviceUrl, xmlData, {
+      headers: { 'Content-Type': 'application/xml' },
+      responseType: 'text',
+    });
+    setTimeout(msg, 0);
+    Notice.success({
+      title: '删除要素成功！',
+      duration: 1.5,
+    });
+    return response;
+  }
 }
 
 export default EditEntity;

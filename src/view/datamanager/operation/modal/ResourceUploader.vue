@@ -154,6 +154,7 @@ export default {
       if (!addValid) return;
       //刷新目录节点
       await this.$store.dispatch(types.APP_NODES_FETCH, this.current);
+      debugger;
       this.loading = false;
       this.visibleChange(false);
       this.$Message.success('文件上传成功！');
