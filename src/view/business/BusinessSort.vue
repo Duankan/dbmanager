@@ -1,12 +1,10 @@
 <script>
+import * as types from '@/store/types';
 export default {
   name: 'BusinessSort',
   data() {
     return {
       treeId: '',
-
-      isEdit: false,
-      treeDatas: [],
       dataTree: [
         {
           title: '',
@@ -80,27 +78,31 @@ export default {
       },
     };
   },
-  //监听数据列表
-  watch: {
-    dataTree: {
-      handler(newVals) {
-        this.treeDatas = [];
-        //给对象添加isEdit属性并赋值
-        newVals.forEach(element => {
-          this.$set(element, 'isEdits', false);
-        });
-        this.$emit('dataChangeEvnet', newVals);
-      },
-      immediate: true,
+  computed: {
+    treeData() {
+      return this.$store.state.metadata.treeData;
     },
   },
+  // //监听数据列表
+  // watch: {
+  //   dataTree: {
+  //     handler(newVals) {
+  //       this.treeDatas = [];
+  //       //给对象添加isEdit属性并赋值
+  //       newVals.forEach(element => {
+  //         this.$set(element, 'isEdits', false);
+  //       });
+  //       this.$emit('dataChangeEvnet', newVals);
+  //     },
+  //     immediate: true,
+  //   },
+  // },
   mounted() {
     this.searchTree();
   },
   methods: {
-    async searchTree() {
-      const response = await api.db.findalltypeBusiness({});
-      this.dataTree = response.data;
+    searchTree() {
+      this.$store.dispatch(types.SEARCH_TREE_DATA);
     },
     renderContent(h, { root, node, data }) {
       return h(
@@ -325,7 +327,7 @@ export default {
       <span>资源分类</span>
       <Tree
         ref="tree"
-        :data="dataTree"
+        :data="treeData"
         :render="renderContent"
       ></Tree>
 </div></div></template>

@@ -7,8 +7,6 @@ export default {
       value: '',
       newAddText: '',
       readonly: true,
-      // datas: [], //标签数据
-      labelsData: [],
     };
   },
   computed: {
@@ -16,21 +14,7 @@ export default {
       return this.$store.state.metadata.tagData;
     },
   },
-  // 监听数据列表
-  // watch: {
-  //   datas: {
-  //     handler(newVals) {
-  //       this.labelsData = [];
-  //       //给对象添加isEdit属性并赋值
-  //       newVals.forEach(element => {
-  //         this.$set(element, 'isEdit', false);
-  //       });
-  //       //向父组抛传事件
-  //       // this.$emit('dataChangeEvnet', newVals);
-  //     },
-  //     immediate: true,
-  //   },
-  // },
+
   created() {
     this.lableDatas();
   },
@@ -110,6 +94,10 @@ export default {
       this.$Message.info('修改成功');
       this.readonly = true;
     },
+    //对表格数据进行筛选
+    searchTableTag(id) {
+      this.$store.dispatch(types.SEARCH_TABLE_TAG, id);
+    },
   },
 };
 </script>
@@ -133,12 +121,14 @@ export default {
       <div
         v-for="(item, index) in tagData"
         :key="index"
-        class="lable-list">
+        class="lable-list"
+        checkbox>
         <input
           v-model="item.name"
           :readonly="readonly"
-          type="text"
           class="lable-input-list"
+          type="text"
+          @click="searchTableTag(item.id)"
         />
         <Icon
           class="lable-list-content-icons"

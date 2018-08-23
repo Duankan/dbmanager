@@ -2,25 +2,25 @@
 export default {
   name: 'DataDisplay',
 
-  props: {
-    // lableData: {
-    //   type: Array,
-    //   default: () => [],
-    // },
-    tableDatas: {
-      type: Array,
-      default: () => [],
-    },
-    treeDatas: {
-      type: [Array, String, Object],
-      default: () => {},
-    },
-  },
+  // props: {
+  //   // lableData: {
+  //   //   type: Array,
+  //   //   default: () => [],
+  //   // },
+  //   // tableDatas: {
+  //   //   type: Array,
+  //   //   default: () => [],
+  //   // },
+  //   // treeDatas: {
+  //   //   type: [Array, String, Object],
+  //   //   default: () => {},
+  //   // },
+  // },
   data() {
     return {
       formItem: {},
-      typeData: [],
-      typeTreeData: [],
+      // typeData: [],
+      // typeTreeData: [],
     };
   },
   computed: {
@@ -28,19 +28,23 @@ export default {
     tagData() {
       return this.$store.state.metadata.tagData;
     },
+    //分类数据
+    treeData() {
+      return this.$store.state.metadata.treeData;
+    },
   },
   watch: {
     treeDatas: {
       handler(newVals) {
         if (newVals) {
           //复制treeDatas的数据给typeTreeData,用来存放treeDatas里面的数据
-          this.typeTreeData = [];
+          // this.typeTreeData = [];
           newVals.forEach(element => {
             //var newObj = Object.assign({}, element);
             //在addLableText里添加两个属性
             if (element.data) {
               this.addLableText(element);
-              this.typeTreeData.push(element);
+              this.treeData.push(element);
             }
           });
         }
@@ -48,32 +52,30 @@ export default {
       immediate: true,
     },
   },
-  // created() {
-  //   this.$store.dispatch(types.SEARCH_LABLE_DATA);
-  // },
+
   methods: {
-    async searchData() {
-      const restype = this.typeData[this.typeData.length - 1];
-      const response = await api.db.findpagelistbusiness({
-        name: this.formItem.input, //关键字
-        restype: restype, //资源分类
-        keyword: this.formItem.select, //标签
-        orderfield: '', //排序字段
-        sort: '', //排序方式
-        pageinfo: {
-          pageIndex: 1, //当前页
-          pageSize: 10, //每页总数
-          orderby: '', //排序字段
-        },
-      });
-    },
+    // async searchData() {
+    //   const restype = this.typeData[this.typeData.length - 1];
+    //   const response = await api.db.findpagelistbusiness({
+    //     name: this.formItem.input, //关键字
+    //     restype: restype, //资源分类
+    //     keyword: this.formItem.select, //标签
+    //     orderfield: '', //排序字段
+    //     sort: '', //排序方式
+    //     pageinfo: {
+    //       pageIndex: 1, //当前页
+    //       pageSize: 10, //每页总数
+    //       orderby: '', //排序字段
+    //     },
+    //   });
+    // },
 
     //清空按钮
     empty() {
       this.formItem.name = '';
       this.formItem.input = '';
       this.formItem.select = '';
-      this.typeData = '';
+      this.treeData = '';
     },
     addLableText(item) {
       if (item) {
@@ -127,10 +129,9 @@ export default {
     </FormItem>
     <FormItem label="分类：" >
       <Cascader
-        :data="typeTreeData"
-        v-model="typeData"
+        :data="treeData"
+        v-model="treeData"
         transfer
-
       ></Cascader>
     </select></FormItem>
     <FormItem label="关键字：">

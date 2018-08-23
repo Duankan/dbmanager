@@ -1,5 +1,6 @@
 <script>
 import { date } from '@ktw/ktools';
+import * as types from '@/store/types';
 import DataDetails from './DataDetails';
 export default {
   name: 'BusinessTable',
@@ -133,16 +134,23 @@ export default {
       ],
     };
   },
-  watch: {
-    tableData: {
-      handler(newVals) {
-        this.tableDatas = [];
-        //向父组抛传事件
-        this.$emit('dataChangeEvnet', newVals);
-      },
-      immediate: true,
+  computed: {
+    tableDatas() {
+      return this.$store.state.metadata.tableDatas;
     },
   },
+
+  // watch: {
+  //   tableData: {
+  //     handler(newVals) {
+  //       debugger;
+  //       // this.tableDatas = [];
+  //       //向父组抛传事件
+  //       // this.$emit('dataChangeEvnet', newVals);
+  //     },
+  //     immediate: true,
+  //   },
+  // },
   mounted() {
     //调用获取表格数据的方法
     this.mocktableData();
@@ -153,25 +161,8 @@ export default {
     };
   },
   methods: {
-    async mocktableData() {
-      const response = await api.db.findpagelistbusiness({
-        name: '', //表名
-        restype: '', //资源分类
-        keyword: '', //标签关键字
-        orderfield: '', //排序字段
-        sort: '', //排序方式
-        pageinfo: {
-          pageIndex: this.pageIndex, //当前页
-          pageSize: 10, //每页总数
-          orderby: '', //排序字段
-        },
-      });
-      //获取表格数据
-      this.tableData = response.data.dataSource;
-      //获取表格总页数
-      this.totalCount = response.data.pageInfo.totalCount;
-      //获取当前页
-      this.pageIndex = response.data.pageInfo.pageIndex;
+    mocktableData() {
+      this.$store.dispatch(types.SEARCH_TABLE_TAG);
     },
     //页码
     changePage(currPage) {
@@ -241,7 +232,7 @@ export default {
         </Button>
       </div>
       <Table
-        :data="tableData"
+        :data="tableDatas"
         :height="tableHeight"
         :columns="tableColumns1"
       ></Table>
