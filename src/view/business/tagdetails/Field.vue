@@ -9,6 +9,8 @@ export default {
   },
   data() {
     return {
+      //字段操作标题
+      fieldOperat: '',
       //表格数据
       tableData: [],
       //表格标题
@@ -75,8 +77,17 @@ export default {
                     marginRight: '5px',
                   },
                   on: {
-                    click: () => {
-                      this.show(params.index);
+                    click: async e => {
+                      //替换标题
+                      this.fieldOperat = '修改字段';
+                      //打开模板
+                      this.addField = true;
+                      this.addForm = params.row;
+                      console.log(this.addForm);
+                      const response = await api.db.updateFields({
+                        id: this.rowData.id,
+                        dto: this.addForm,
+                      });
                     },
                   },
                 },
@@ -86,22 +97,40 @@ export default {
           },
         },
       ],
-      //新增字段
+      //对话框模板显示
       addField: false,
       //对话框数据
       addForm: {},
     };
   },
   mounted() {
-    this.tableData = JSON.parse(this.rowData.rescolumn);
+    //表格数据处理
+    if (this.rowData.rescolumn) {
+      this.tableData = JSON.parse(this.rowData.rescolumn);
+      console.log(this.tableData);
+    }
   },
   methods: {
-    ok() {
-      this.$Message.info('Clicked ok');
+    //打开新增字段模板
+    openAddField() {
+      this.addField = true;
+      this.fieldOperat = '新增字段';
+      this.addForm = {};
     },
-    cancel() {
-      this.$Message.info('Clicked cancel');
+    // 新增字段
+    async addFieldData() {
+      const response = await api.db
+        .addFields({
+          id: this.rowData.id,
+          dto: this.addForm,
+        })
+        .then(p => {
+          this.tableData.push(this.addForm);
+        });
+      this.addForm = {};
+      console.log(this.rowData);
     },
+    cancel() {},
   },
 };
 </script>
@@ -118,13 +147,13 @@ export default {
       <Button
         v-show="!rowData.readonly"
         type="primary"
-        @click="addField = true">
+        @click="openAddField">
         新增字段</Button>
       <Modal
         v-model="addField"
-        title="新增字段"
+        :title = "fieldOperat"
         @on-cancel="cancel"
-        @on-ok="ok">
+        @on-ok="addFieldData">
         <Form
           :label-width="100"
           :model="addForm">
@@ -152,8 +181,7 @@ export default {
           <Row>
             <Col span="22">
             <FormItem label="是否允许为空：">
-              <Input v-model="addForm.allownull"/>
-              <Checkbox label="是"></Checkbox>
+              <Checkbox v-model="addForm.allownull">是</Checkbox>
             </FormItem>
             </Col>
           </Row>

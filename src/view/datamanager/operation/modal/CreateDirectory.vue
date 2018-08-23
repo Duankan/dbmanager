@@ -58,6 +58,7 @@ export default {
             owner: 1, //拥有者类型(0:用户 1:组织)
           });
           this.$store.dispatch(types.APP_NODES_FETCH, this.current);
+
           this.$emit('input', false);
           this.$refs['form'].resetFields();
         }

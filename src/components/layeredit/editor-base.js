@@ -19,9 +19,9 @@ class EditorBase {
     //Vuex Store
     this.store = store;
     //图层类型
-    this.shapeType = layerInfo.wmsLayer.resource.shapeType;
+    this.shapeType = layerInfo.wmsInfo.resource.shapeType;
     //字段信息
-    this.schemas = layerInfo.wmsLayer.schema;
+    this.schemas = layerInfo.wmsInfo.schema;
     //图形编辑器对象
     this.geoEditor = new kmap.default.kmapAPI.DrawGeometry(map);
     //表单编辑器对象
@@ -45,14 +45,9 @@ class EditorBase {
    * 刷新图层
    */
   refreshLayer() {
-    const editLayer = this.store.getters.ogcLayers.filter(
-      layers => layers.options.layers === this.layerInfo.name
-    );
-    if (editLayer.length !== 0) {
-      // editLayer[0].redraw();
-      const bounds = this.map.getCenter();
-      this.map.panTo({ lat: bounds.lat, lng: bounds.lng + 0.003 });
-    }
+    //this.layerInfo.layer.redraw();
+    const bounds = this.map.getCenter();
+    this.map.panTo({ lat: bounds.lat, lng: bounds.lng + 0.003 });
   }
 
   /**

@@ -4,6 +4,7 @@ import ExtendField from './tagdetails/ExtendField';
 import Field from './tagdetails/Field';
 import IncidenceRelation from './tagdetails/IncidenceRelation';
 import BusinessTable from './BusinessTable';
+
 export default {
   name: 'DataDetails',
   components: {
@@ -23,14 +24,52 @@ export default {
     return {
       // 显示隐藏DataDetails
       display: true,
-      //对话框显示
-      goBack: false,
+      //行数据
+      copyBusinessData: this.businessData,
+      //tabValue
+      // tabValue: 'name1',
     };
   },
+  computed: {
+    setTabClasses() {
+      return this.copyBusinessData.pointer;
+    },
+  },
+  // watch: {
+  //   copyBusinessData: {
+  //     handler(newVal) {
+  //       debugger;
+  //     },
+  //     immediate: true,
+  //   },
+  // },
+  mounted() {
+    this.$set(this.copyBusinessData, 'pointer', true);
+  },
   methods: {
-    ok() {
+    //提示返回
+    verifyGoBack() {
+      this.$Modal.confirm({
+        title: '返回',
+        content: '<p>已保存当前更改，返回元数据管理页面</p>',
+        onOk: () => {
+          this.goBack();
+        },
+      });
+    },
+    goBack() {
       this.$emit('backEvent');
     },
+    pointer(id) {
+      this.copyBusinessData.id = id;
+      this.copyBusinessData.pointer = false;
+      this.copyBusinessData = { ...this.copyBusinessData };
+      // this.tabVaule = 'name2';
+    },
+    // pointer(res) {
+    //   this.copyBusinessData.pointer = res;
+    //   this.copyBusinessData = { ...this.copyBusinessData };
+    // },
   },
 };
 </script>
@@ -41,47 +80,49 @@ export default {
       v-if="display"
       class="main">
       <div
-        v-if="businessData.readonly"
+        v-if="copyBusinessData.readonly"
         class="data-content"
-        @click="ok()">
+        @click="goBack()">
         <Icon type="arrow-left-a"></Icon>
         <span class="data-content-title"><b>元数据详情</b></span>
       </div>
       <div
         v-else
         class="data-content"
-        @click="goBack = true">
+        @click="verifyGoBack">
         <Icon type="arrow-left-a"></Icon>
         <span class="data-content-title"><b>元数据详情</b></span>
       </div>
-      <modal
-        v-model="goBack"
-        title="返回"
-        @on-ok="ok">
-        <p>我已保存更改项，点击确认按钮返回元数据管理页面</p>
-      </modal>
-      <Tabs value="name1">
+      <Tabs>
         <TabPane
+          :disabled="setTabClasses"
           label="基本信息"
           name="name1">
           <div class="data-details">
-            <BasicInformation :row-data="businessData"></BasicInformation>
+            <BasicInformation
+              :row-data="copyBusinessData"
+              @on-tagEvent="pointer"
+            >
+            </BasicInformation>
           </div>
         </TabPane>
         <TabPane
+          :disabled="setTabClasses"
           label="字段"
           name="name2">
-          <Field :row-data="businessData"></Field>
+          <Field :row-data="copyBusinessData"></Field>
         </TabPane>
         <TabPane
+          :disabled="setTabClasses"
           label="关联关系"
           name="name3">
-          <IncidenceRelation :row-data="businessData"></IncidenceRelation>
+          <IncidenceRelation :row-data="copyBusinessData"></IncidenceRelation>
         </TabPane>
         <TabPane
+          :disabled="setTabClasses"
           label="扩展字段"
           name="name4">
-          <ExtendField :row-data="businessData"></ExtendField>
+          <ExtendField :row-data="copyBusinessData"></ExtendField>
         </TabPane>
       </Tabs>
     </div>
@@ -109,5 +150,9 @@ export default {
 .data-details {
   margin-left: 30px;
 }
+/deep/.active {
+  pointer-events: none;
+  cursor: default;
+  color: #ccc;
+}
 </style>
-</div></template>

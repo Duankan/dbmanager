@@ -128,6 +128,7 @@ class FormEditor {
       render: h => {
         let formItems = [];
         for (let key in model) {
+          if (key.toLowerCase() == 'bbox') continue;
           let field = model[key];
           let editor = '';
           if (field.inputType == 'InputNumber') {
