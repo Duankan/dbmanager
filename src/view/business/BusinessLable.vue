@@ -19,6 +19,8 @@ export default {
         newVals.forEach(element => {
           this.$set(element, 'isEdit', false);
         });
+        //向父组抛传事件
+        this.$emit('dataChangeEvnet', newVals);
       },
       immediate: true,
     },
@@ -56,7 +58,6 @@ export default {
             type: 1, //类型（0-空间数据，1-业务数据）
           });
           this.lableDatas();
-
           this.$Message.info('添加成功');
           this.newAddText = '';
         },
@@ -101,6 +102,7 @@ export default {
         type: 1, //类型（0-空间数据，1-业务数据）
       });
       item.isEdit = false;
+      debugger;
       this.$Message.info('修改成功');
       this.readonly = true;
     },
@@ -133,6 +135,7 @@ export default {
           :readonly="readonly"
           type="text"
           class="lable-input-list"
+
         />
         <Icon
           class="lable-list-content-icons"

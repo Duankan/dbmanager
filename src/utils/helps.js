@@ -229,6 +229,11 @@ export function filterSchema(schemas) {
   return fields;
 }
 
+//过滤schema字段，去掉保留字段
+export function filterSchema2(schemas) {
+  return schemas.filter(p => schemaReservedFileds.indexOf(p.name) < 0);
+}
+
 //元数据保留字段
 const metaReservedFields = [
   'geom',
@@ -315,4 +320,16 @@ export function getFileAccept(dataTypeId) {
     default:
       return '*.*';
   }
+}
+
+/**
+ * 获取服务名
+ * @param {String} serviceUrl 服务地址
+ */
+export function getServiceName(serviceUrl) {
+  let url = new URL(serviceUrl);
+  const name = url.searchParams.get('layers')
+    ? url.searchParams.get('layers')
+    : url.searchParams.get('typeName');
+  return name;
 }

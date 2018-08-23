@@ -38,6 +38,7 @@ export default {
       });
       const search = url.parse(this.node.serviceUrl).search;
       const layers = search.layers ? search.layers : search.typeName;
+      response.data.forEach(p => (p.resource = this.node.resource));
       if (response.data.length === 1) {
         this.$store.commit(SET_MAP_SERVICELIST, {
           [layers]: [response.data[0]],
@@ -49,6 +50,7 @@ export default {
       }
     },
     edit() {
+      this.view();
       this.$emit('style-edit-event', this.node);
       // this.vm = this.$window({
       //   title: '图层编辑',
@@ -109,7 +111,7 @@ export default {
           @click.native="edit"
         ></Icon>
         <Icon
-          type="ios-search-strong"
+          type="eye"
           size="32"
           color="#fff"
           @click.native="view"></Icon>

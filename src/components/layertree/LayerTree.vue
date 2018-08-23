@@ -1,4 +1,6 @@
 <script>
+import LayerEditBar from '@/components/layeredit/LayerEditBar';
+import LayerHistory from '@/components/layerhistory/LayerHistory';
 export default {
   name: 'LayerTree',
   data() {
@@ -12,6 +14,10 @@ export default {
       },
       showPanel: false,
       showTree: true,
+      //历史图层window
+      historyHandler: null,
+      //编辑功能window
+      editHandler: null,
     };
   },
   computed: {
@@ -73,12 +79,30 @@ export default {
               <svg-icon
                 size={16}
                 icon-class={'delete'}
+                title="全部删除"
                 nativeOnClick={() => this.removeLayer(root, node, data)}
               />
             </span>
           </span>
         );
       } else {
+        let layerEdit = (
+          <svg-icon
+            size={16}
+            icon-class={'edit'}
+            color={'#1296db'}
+            title="图层编辑"
+            nativeOnClick={() => this.editLayer(root, node, data)}
+          />
+        );
+        let layerHistory = (
+          <svg-icon
+            size={16}
+            icon-class={'history'}
+            title="历史版本"
+            nativeOnClick={() => this.layerHistory(root, node, data)}
+          />
+        );
         return (
           <div class={'k-tree-group'}>
             <ellipsis length={18}>{data.title}</ellipsis>
@@ -86,12 +110,15 @@ export default {
               <svg-icon
                 size={16}
                 icon-class={'position'}
+                title="图层定位"
                 nativeOnClick={() => this.positionLayer(root, node, data)}
               />
-
+              {data.type == 'WMS' ? layerEdit : ''}
+              {data.type == 'WMS' ? layerHistory : ''}
               <svg-icon
                 size={16}
                 icon-class={'delete'}
+                title="图层删除"
                 nativeOnClick={() => this.deleteLayer(root, node, data)}
               />
             </span>
@@ -125,7 +152,9 @@ export default {
     },
     // 图层排序，node(放置的位置)，dragNode(当前节点)
     sort(position, node, dragNode) {
+      if (node.nodeKey == 0) return;
       // position 靠近下边缘 1, 靠近上边缘 -1
+      debugger;
       this.$store.commit('SET_MAP_WMSLAYER_SORT', {
         position,
         dragNodeId: dragNode.id,
@@ -135,8 +164,6 @@ export default {
     },
     // 移除图层
     deleteLayer(root, node, data) {
-      console.log([data.name]);
-      console.log(this.$store);
       this.$store.commit('SET_MAP_GOCLAYER_DELETE', [data.name]);
     },
     // 移除全部图层
@@ -147,6 +174,83 @@ export default {
     // 图层定位
     positionLayer(root, node, data) {
       this.$events.emit('on-set-bbox', { bbox: data.bbox, index: node.nodeKey });
+    },
+    //编辑图层要素
+    editLayer(root, node, data) {
+      this.closeEditWindow();
+      let container = this.$store.getters.mapManager._map._container.parentElement;
+      this.editHandler = this.$FloatPanel.create({
+        title: '图层编辑工具栏',
+        width: 270,
+        position: {
+          x: container.clientWidth - 300,
+          y: 300,
+        },
+        parent: container,
+        render: h => {
+          return h(LayerEditBar, {
+            props: {
+              layer: data.name,
+            },
+          });
+        },
+      });
+    },
+    //查看图层历史版本
+    async layerHistory(root, node, data) {
+      this.closeHistoryWindow();
+      const response = await api.db.getVersionByName({ id: data.name });
+      if (response.data) {
+        if (response.data.length > 0) {
+          this.createHistoryWindow(response.data, data.name);
+        } else {
+          this.$Message.warning('该图层没有历史版本！');
+        }
+      } else {
+        this.$Message.warning('该图层没有历史版本！');
+      }
+    },
+    //创建历史图层窗口
+    createHistoryWindow(data, layerName) {
+      let container = this.$store.getters.mapManager._map._container.parentElement;
+      let self = this;
+      this.historyHandler = this.$FloatPanel.create({
+        title: '图层历史版本',
+        width: 285,
+        height: container.clientHeight - 100,
+        position: {
+          x: container.clientWidth - 360,
+          y: 20,
+        },
+        parent: container,
+        disableDrag: true,
+        render: h => {
+          return h(LayerHistory, {
+            props: {
+              layerData: data,
+              originalLayerName: layerName,
+            },
+          });
+        },
+        onClose() {
+          self.historyHandler.getContent().reset();
+        },
+      });
+    },
+    //关闭历史图层窗口
+    closeHistoryWindow() {
+      if (this.historyHandler) {
+        this.$FloatPanel.remove(this.historyHandler.panelId);
+      }
+      this.historyHandler = null;
+    },
+    //关闭编辑窗口
+    closeEditWindow() {
+      if (this.editHandler) {
+        this.editHandler.getContent().reset();
+        this.$FloatPanel.remove(this.editHandler.panelId);
+      }
+      this.editHandler = null;
     },
     // 切换图层面板显示隐藏
     toggle() {
@@ -307,7 +411,7 @@ export default {
     position: absolute;
     top: 0px;
     right: 50px;
-    width: 260px;
+    width: 280px;
 
     /deep/ .k-card-head {
       padding: 4px 10px;

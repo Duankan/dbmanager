@@ -68,7 +68,7 @@ export default {
           render: (h, params) => {
             const row = params.row;
             const datas = row.createdate;
-            return h('div', date.format(new Date(datas), 'YYYY-M-D'));
+            return h('div', this.formatDate(datas));
           },
         },
         {
@@ -153,6 +153,16 @@ export default {
       ],
     };
   },
+  watch: {
+    tableData: {
+      handler(newVals) {
+        this.tableDatas = [];
+        //向父组抛传事件
+        this.$emit('dataChangeEvnet', newVals);
+      },
+      immediate: true,
+    },
+  },
   mounted() {
     //调用获取表格数据的方法
     this.mocktableData();
@@ -233,15 +243,17 @@ export default {
     //   });
     // },
     //时间格式化
-    // formatDate(datas) {
-    //   datas = new Date(new Date().getTime());
-    //   const y = datas.getFullYear();
-    //   let m = datas.getMonth() + 1;
-    //   m = m < 10 ? '0' + m : m;
-    //   let d = datas.getDate();
-    //   d = d < 10 ? '0' + d : d;
-    //   return y + '-' + m + '-' + d;
-    // },
+    formatDate(datas) {
+      if (datas) {
+        datas = new Date(new Date(datas).getTime());
+        const y = datas.getFullYear();
+        let m = datas.getMonth() + 1;
+        m = m < 10 ? '0' + m : m;
+        let d = datas.getDate();
+        d = d < 10 ? '0' + d : d;
+        return y + '-' + m + '-' + d;
+      }
+    },
   },
 };
 </script>

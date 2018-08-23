@@ -4,7 +4,9 @@ export default {
   data() {
     return {
       treeId: '',
-      readonly: true,
+
+      isEdit: false,
+      treeDatas: [],
       dataTree: [
         {
           title: '',
@@ -42,10 +44,7 @@ export default {
                     },
                   }[
                     h('Button', {
-                      props: Object.assign({}, this.ButtonProps, {
-                        // icon: 'ios-plus-empty',
-                        // type: 'primary',
-                      }),
+                      props: Object.assign({}, this.ButtonProps, {}),
                       style: {
                         marginRight: '5px',
                         padding: '0px 3px',
@@ -80,6 +79,20 @@ export default {
         size: 'small',
       },
     };
+  },
+  //监听数据列表
+  watch: {
+    dataTree: {
+      handler(newVals) {
+        this.treeDatas = [];
+        //给对象添加isEdit属性并赋值
+        newVals.forEach(element => {
+          this.$set(element, 'isEdits', false);
+        });
+        this.$emit('dataChangeEvnet', newVals);
+      },
+      immediate: true,
+    },
   },
   mounted() {
     this.searchTree();
@@ -122,12 +135,10 @@ export default {
                   props: {
                     size: 'small',
                     value: data.title,
-                    readonly: false,
                   },
                   style: {
                     width: '76px',
                   },
-                  ref: 'tree',
                 },
                 data.title
               ),
@@ -147,6 +158,7 @@ export default {
                 props: Object.assign({}, this.ButtonProps, {
                   icon: 'ios-plus-empty',
                 }),
+                class: { textdanger: data.isEdits },
                 style: {
                   marginRight: '5px',
                   padding: '0px 3px',
@@ -161,6 +173,7 @@ export default {
                 props: Object.assign({}, this.ButtonProps, {
                   icon: 'ios-minus-empty',
                 }),
+                class: { textdanger: data.isEdits },
                 style: {
                   marginRight: '5px',
                   padding: '0px 3px',
@@ -174,13 +187,32 @@ export default {
               h('Button', {
                 props: Object.assign({}, this.ButtonProps, {
                   icon: 'ios-compose-outline',
+                  readonly: false,
                 }),
+                class: { textdanger: data.isEdits },
                 style: {
+                  marginRight: '5px',
                   padding: '0px 3px',
                 },
                 on: {
                   click: () => {
-                    this.edit(root, node, data);
+                    data.isEdits = true;
+                    this.edit(event, data);
+                  },
+                },
+              }),
+              h('Button', {
+                props: Object.assign({}, this.ButtonProps, {
+                  icon: 'ios-checkmark',
+                }),
+                class: { textdangers: !data.isEdits },
+                style: {
+                  padding: '0px 3px',
+                  color: 'green',
+                },
+                on: {
+                  click: () => {
+                    this.updatas(data);
                   },
                 },
               }),
@@ -196,7 +228,6 @@ export default {
           return h('Input', {
             props: {
               value: data.name, //添加的节点名
-              // autofocus: true,
               placeholder: '请输入分类名',
             },
             on: {
@@ -238,7 +269,7 @@ export default {
         title: '删除分类',
         content: '<p>确定删除该分类？</p>',
         onOk: async id => {
-          const response = await api.db.deleteBusiness({ id: treeId });
+          const response = await api.db.deletetypeBusiness({ id: treeId });
           //获取父节点
           const parentKey = root.find(el => el === node).parent;
           //获取当前节点
@@ -253,27 +284,26 @@ export default {
         },
       });
     },
-    edit(root, node, data) {
-      this.$refs;
-      // event.target.parentElement;
+    //编辑按钮
+    edit(event, data) {
+      event.target.parentElement.parentElement.parentElement
+        .getElementsByTagName('span')[0]
+        .getElementsByTagName('input')[0]
+        .focus();
+    },
+    //编辑数据
+    async updatas(index) {
+      const id = index.data.id;
+      const remark = index.data.remark;
+      const name = index.data.name;
       debugger;
-
-      // this.$Modal.confirm({
-      //   render: h => {
-      //     return h('Input', {
-      //       props: {
-      //         value: this.value,
-      //         autofocus: true,
-      //         placeholder: '请输入分类名',
-      //       },
-      //       on: {
-      //         input: val => {
-      //           this.value = val;
-      //         },
-      //       },
-      //     });
-      //   },
-      // });
+      const response = await api.db.updateBusiness({
+        id: id,
+        name: name,
+        remark: remark,
+      });
+      debugger;
+      this.$Message.info('修改成功');
     },
   },
 };
@@ -320,7 +350,17 @@ export default {
 /deep/.k-input {
   background: none;
   border: none;
-  // cursor: default;
+  cursor: default;
   color: #515a6e;
+  &:active,
+  &:visited {
+    border-color: #ffffff;
+  }
+}
+/deep/.textdanger {
+  display: none;
+}
+/deep/.textdangers {
+  display: none;
 }
 </style>
