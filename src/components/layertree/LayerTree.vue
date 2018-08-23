@@ -1,6 +1,7 @@
 <script>
 import LayerEditBar from '@/components/layeredit/LayerEditBar';
 import LayerHistory from '@/components/layerhistory/LayerHistory';
+const layerType = [{ key: 0, type: 'wms' }, { key: 1, type: 'wmts' }];
 export default {
   name: 'LayerTree',
   data() {
@@ -33,13 +34,14 @@ export default {
         },
       ];
       layerData[0].children = this.ogcLayers.map(layer => {
-        let type;
+        let type, getType;
         if (layer) {
-          if (layer.wmsParams) {
-            type = layer.wmsParams.service;
-          } else if (layer.wmtsParams) {
-            type = layer.wmtsParams.service;
+          if (layer instanceof L.NonTiledLayer.WMS) {
+            getType = layerType.find(item => item.key === 0);
+          } else if (layer instanceof L.TileLayer.WMTS) {
+            getType = layerType.find(item => item.key === 1);
           }
+          type = getType.type;
           return {
             id: layer._leaflet_id,
             name: layer.options.layers ? layer.options.layers : layer.options.layer,
@@ -113,8 +115,8 @@ export default {
                 title="图层定位"
                 nativeOnClick={() => this.positionLayer(root, node, data)}
               />
-              {data.type == 'WMS' ? layerEdit : ''}
-              {data.type == 'WMS' ? layerHistory : ''}
+              {data.type == 'wms' ? layerEdit : ''}
+              {data.type == 'wmts' ? layerHistory : ''}
               <svg-icon
                 size={16}
                 icon-class={'delete'}
@@ -172,7 +174,7 @@ export default {
     },
     // 图层定位
     positionLayer(root, node, data) {
-      this.$events.emit('on-set-bbox', { bbox: data.bbox, index: node.nodeKey });
+      this.$events.emit('on-set-bbox', { bbox: data.bbox, index: node.nodeKey, type: data.type });
     },
     //编辑图层要素
     editLayer(root, node, data) {
