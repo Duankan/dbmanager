@@ -4,8 +4,7 @@ export default {
   data() {
     return {
       treeId: '',
-
-      isEdit: false,
+      // isEdit: false,
       treeDatas: [],
       dataTree: [
         {
@@ -89,7 +88,7 @@ export default {
         newVals.forEach(element => {
           this.$set(element, 'isEdits', false);
         });
-        this.$emit('dataChangeEvnet', newVals);
+        this.$emit('on-dataTreeChangeEvnet', newVals);
       },
       immediate: true,
     },
@@ -138,6 +137,11 @@ export default {
                   },
                   style: {
                     width: '76px',
+                  },
+                  on: {
+                    'on-change': e => {
+                      data.value = e.target.value;
+                    },
                   },
                 },
                 data.title
@@ -212,7 +216,14 @@ export default {
                 },
                 on: {
                   click: () => {
-                    this.updatas(data);
+                    if (!data.value) {
+                      this.$Message.error('分类名不能为空');
+                      data.isEdits = true;
+                    } else {
+                      this.updatas(data);
+                      data.isEdits = false;
+                      this.$Message.success('修改成功');
+                    }
                   },
                 },
               }),
@@ -238,24 +249,28 @@ export default {
           });
         },
         onOk: async () => {
-          //获取当前点击的id
-          const id = data.data.id;
-          const remark = data.data.remark;
-          //把当前添加的数据放到id的子节点里
-          const children = data.children || [];
-          children.push({
-            title: data.name,
-            expand: true,
-          });
-          // this.$set(data, 'children', children);
-          const response = await api.db.addBusiness({
-            name: data.name, //分类名
-            remark: remark, //描述
-            parid: id, //父节点ID
-          });
-          this.$Message.info('添加成功');
-          //渲染页面
-          this.searchTree();
+          if (!data.name) {
+            this.$Message.error('输入不能为空');
+          } else {
+            //获取当前点击的id
+            const id = data.data.id;
+            const remark = data.data.remark;
+            //把当前添加的数据放到id的子节点里
+            const children = data.children || [];
+            children.push({
+              title: data.name,
+              expand: true,
+            });
+            // this.$set(data, 'children', children);
+            const response = await api.db.addBusiness({
+              name: data.name, //分类名
+              remark: remark, //描述
+              parid: id, //父节点ID
+            });
+            this.$Message.info('添加成功');
+            //渲染页面
+            this.searchTree();
+          }
         },
         onCancel: () => {
           this.$Message.info('取消');
@@ -293,17 +308,17 @@ export default {
     },
     //编辑数据
     async updatas(index) {
+      this.edit();
       const id = index.data.id;
       const remark = index.data.remark;
-      const name = index.data.name;
-      debugger;
+      const name = index.value;
+      const oldname = index.title;
       const response = await api.db.updateBusiness({
         id: id,
         name: name,
         remark: remark,
+        oldname: oldname,
       });
-      debugger;
-      this.$Message.info('修改成功');
     },
   },
 };

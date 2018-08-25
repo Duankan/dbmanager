@@ -1,12 +1,9 @@
 <script>
+import * as types from '@/store/types';
 export default {
   name: 'DataDisplay',
 
   props: {
-    lableData: {
-      type: Array,
-      default: () => [],
-    },
     tableDatas: {
       type: Array,
       default: () => [],
@@ -18,58 +15,86 @@ export default {
   },
   data() {
     return {
-      formItem: {},
-      typeData: '',
+      formItem: {
+        select: [],
+        multiple: '',
+      },
+      ruleInline: {},
+      typeData: [],
       typeTreeData: [],
     };
+  },
+  computed: {
+    //标签数据
+    tagData() {
+      return this.$store.state.metadata.tagData;
+    },
   },
   watch: {
     treeDatas: {
       handler(newVals) {
         if (newVals) {
+          //复制treeDatas的数据给typeTreeData,用来存放treeDatas里面的数据
           this.typeTreeData = [];
+          // this.typeTreeData = newVals;
           newVals.forEach(element => {
-            var newObj = Object.assign({}, element);
-            this.addLableText(newObj);
-            this.typeTreeData.push(newObj);
+            //var newObj = Object.assign({}, element);
+            //在addLableText里添加两个属性
+            if (element.data) {
+              this.addLableText(element);
+              this.typeTreeData.push(element);
+            }
           });
         }
       },
       immediate: true,
     },
   },
+
   methods: {
-    async searchData() {
-      const tableDatas = this.tableDatas;
+    async searchData(formItem) {
+      // if (!this.formItem.multiple || !this.formItem.select|| this.formItem.input == '') {
+      //   console.log('不能为空');
+      // } else {
+      const restype = this.formItem.multiple[this.formItem.multiple.length - 1];
+      const select = this.formItem.select.join(',');
       const response = await api.db.findpagelistbusiness({
-        name: '', //表名
-        restype: '', //资源分类
-        keyword: '', //标签关键字
+        name: this.formItem.input, //关键字
+        restype: restype, //资源分类
+        keyword: select, //标签
         orderfield: '', //排序字段
         sort: '', //排序方式
         pageinfo: {
           pageIndex: this.pageIndex, //当前页
+          totalCount: this.totalCount,
           pageSize: 10, //每页总数
           orderby: '', //排序字段
         },
       });
-
-      //获取表格数据
+      this.totalCount = response.data.pageInfo.totalCount;
+      this.pageIndex = response.data.pageInfo.pageIndex;
+      this.$emit('on-dataChangeEvnet', response.data);
+      // }
     },
+
     //清空按钮
     empty() {
-      this.formItem.name = '';
+      this.formItem.multiple = '';
       this.formItem.input = '';
-      this.formItem.select = '';
+      this.tagData = '';
+      // this.formItem.select = '';
+      this.searchData();
     },
     addLableText(item) {
-      debugger;
       if (item) {
         this.$set(item, 'label', item.title);
-        this.$set(item, 'value', item.title);
+        this.$set(item, 'value', item.data.id);
       }
+      //判断是否有子节点
       if (item.children) {
+        //判断子节点的个数是否大于0
         if (item.children.length > 0) {
+          //大于0就继续往下循环递归
           item.children.forEach(element => {
             this.addLableText(element);
           });
@@ -83,6 +108,7 @@ export default {
 <template>
   <Form
     :model="formItem"
+    :rules="ruleInline"
     :label-width="60"
     label-position="left">
     <div
@@ -92,30 +118,39 @@ export default {
         size="20"/>
       <span>查询</span>
     </div>
-    <FormItem label="名称：" >
+    <!--<FormItem
+      label="名称：">
       <Select v-model="formItem.name">
         <Option
           v-for="item in tableDatas"
           :value="item.name"
           :key="item.name">{{ item.name }}</Option>
       </Select>
-    </FormItem>
-    <FormItem label="标签：" >
-      <Select v-model="formItem.select">
+    </FormItem>-->
+    <FormItem
+      label="标签："
+      prop="select">
+      <Select
+        v-model="formItem.select"
+        multiple >
         <Option
-          v-for="item in lableData"
+          v-for="item in tagData"
           :value="item.name"
-          :key="item.name">{{ item.name }}</Option>
+          :key="item.name"
+        >{{ item.name }}</Option>
       </Select>
     </FormItem>
-    <FormItem label="分类：" >
-      <Cascader 
-        :data="typeTreeData"
-        v-model="typeData"
+    <FormItem
+      label="分类：" >
+      <Cascader
+        :data="treeDatas"
+        v-model="formItem.multiple"
         transfer
       ></Cascader>
-    </select></FormItem>
-    <FormItem label="关键字：">
+    </FormItem>
+    <FormItem
+      label="关键字："
+    >
       <Input
         v-model="formItem.input"
         placeholder="请输入关键字">
@@ -124,7 +159,7 @@ export default {
     <FormItem>
       <Button
         type="primary"
-        @click="searchData">查询</Button>
+        @click="searchData(formItem)">查询</Button>
       <Button @click="empty">清空</Button>
     </FormItem>
   </Form>

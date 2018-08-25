@@ -6,6 +6,12 @@ export default {
   components: {
     DataDetails,
   },
+  props: {
+    tableDatas: {
+      type: Array,
+      default: () => [],
+    },
+  },
   data() {
     return {
       display: true,
@@ -103,16 +109,6 @@ export default {
                       // 隐藏元数据管理页面
                       this.display = false;
                       this.selectData = params.row;
-                      // 其它tab页可点
-                      this.selectData.pointer = false;
-                      this.selectData.enddate = date.format(
-                        new Date(this.selectData.enddate),
-                        'YYYY-M-D'
-                      );
-                      this.selectData.begdate = date.format(
-                        new Date(this.selectData.begdate),
-                        'YYYY-M-D'
-                      );
                     },
                   },
                 },
@@ -130,16 +126,6 @@ export default {
                       // 隐藏元数据管理页面
                       this.display = false;
                       this.selectData = params.row;
-                      // 其它tab页可点
-                      this.selectData.pointer = false;
-                      this.selectData.enddate = date.format(
-                        new Date(this.selectData.enddate),
-                        'YYYY-M-D'
-                      );
-                      this.selectData.begdate = date.format(
-                        new Date(this.selectData.begdate),
-                        'YYYY-M-D'
-                      );
                       //预览flag
                       this.selectData.readonly = true;
                     },
@@ -154,11 +140,15 @@ export default {
     };
   },
   watch: {
-    tableData: {
+    tableDatas: {
       handler(newVals) {
-        this.tableDatas = [];
+        this.tableData = newVals.dataSource;
+
+        // this.pageIndex = newVals.pageInfo.pageIndex;
+
+        // this.totalCount=;
         //向父组抛传事件
-        this.$emit('dataChangeEvnet', newVals);
+        // this.$emit('dataChangeEvnet', newVals);
       },
       immediate: true,
     },
@@ -183,6 +173,7 @@ export default {
         pageinfo: {
           pageIndex: this.pageIndex, //当前页
           pageSize: 10, //每页总数
+          totalCount: this.totalCount,
           orderby: '', //排序字段
         },
       });
@@ -227,21 +218,8 @@ export default {
       this.display = false;
       this.selectData = {};
       this.selectData.add = true;
-      this.selectData.pointer = true;
     },
-    //更新标签页数据
-    updateData1() {
-      this.mocktableData();
-      debugger;
-    },
-    // show(index) {
-    //   this.$Modal.info({
-    //     title: 'User Info',
-    //     content: `Name：${this.data6[index].name}<br>Age：${this.data6[index].age}<br>Address：${
-    //       this.data6[index].address
-    //     }`,
-    //   });
-    // },
+
     //时间格式化
     formatDate(datas) {
       if (datas) {
@@ -292,10 +270,7 @@ export default {
       v-else>
       <DataDetails
         :business-data="selectData"
-        @backEvent="queryData"
-        @updateData="updateData1"
-      >
-      </DataDetails>
+        @backEvent="queryData"></DataDetails>
     </div>
   </div>
 </template>

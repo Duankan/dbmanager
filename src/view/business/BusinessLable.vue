@@ -1,4 +1,5 @@
 <script>
+import * as types from '@/store/types';
 export default {
   name: 'BusinessLable',
   data() {
@@ -6,33 +7,21 @@ export default {
       value: '',
       newAddText: '',
       readonly: true,
-      datas: [], //标签数据
-      labelsData: [],
     };
   },
-  //监听数据列表
-  watch: {
-    datas: {
-      handler(newVals) {
-        this.labelsData = [];
-        //给对象添加isEdit属性并赋值
-        newVals.forEach(element => {
-          this.$set(element, 'isEdit', false);
-        });
-        //向父组抛传事件
-        this.$emit('dataChangeEvnet', newVals);
-      },
-      immediate: true,
+  computed: {
+    tagData() {
+      return this.$store.state.metadata.tagData;
     },
   },
-  mounted() {
+
+  created() {
     this.lableDatas();
   },
   methods: {
     //查询所有标签
-    async lableDatas() {
-      const response = await api.db.findallBusiness({});
-      this.datas = response.data;
+    lableDatas() {
+      this.$store.dispatch(types.SEARCH_LABLE_DATA);
     },
     //添加列表
     async addNewList() {
@@ -52,14 +41,18 @@ export default {
           });
         },
         onOk: async val => {
-          const response = await api.db.addTaqsBusiness({
-            name: this.newAddText, //标签名
-            remark: '', //描述
-            type: 1, //类型（0-空间数据，1-业务数据）
-          });
-          this.lableDatas();
-          this.$Message.info('添加成功');
-          this.newAddText = '';
+          if (this.newAddText) {
+            const response = await api.db.addTaqsBusiness({
+              name: this.newAddText, //标签名
+              remark: '', //描述
+              type: 1, //类型（0-空间数据，1-业务数据）
+            });
+            this.lableDatas();
+            this.$Message.success('添加成功');
+            this.newAddText = '';
+          } else {
+            this.$Message.error('输入不能为空');
+          }
         },
         onCancel: () => {
           this.$Message.info('取消');
@@ -73,8 +66,8 @@ export default {
         content: '<p>确定删除该标签？</p>',
         onOk: async () => {
           const response = await api.db.deleteTaqsBusiness({ id: id });
-          this.datas.splice(
-            this.datas.findIndex(item => {
+          this.tagData.splice(
+            this.tagData.findIndex(item => {
               return id === item.id;
             }),
             1
@@ -95,17 +88,25 @@ export default {
     },
     //编辑列表
     async updateList(item) {
-      const response = await api.db.updateTaqsBusiness({
-        id: item.id, //id
-        name: item.name, //标签名
-        remark: item.remark, //描述
-        type: 1, //类型（0-空间数据，1-业务数据）
-      });
-      item.isEdit = false;
-      debugger;
-      this.$Message.info('修改成功');
-      this.readonly = true;
+      if (!item.name) {
+        this.$Message.error('标签不能为空');
+        item.isEdit = true;
+      } else {
+        const response = await api.db.updateTaqsBusiness({
+          id: item.id, //id
+          name: item.name, //标签名
+          remark: item.remark, //描述
+          type: 1, //类型（0-空间数据，1-业务数据）
+        });
+        item.isEdit = false;
+        this.$Message.success('修改成功');
+        this.readonly = true;
+      }
     },
+    //对表格数据进行筛选
+    // searchTableTag(id) {
+    //   this.$store.dispatch(types.SEARCH_TABLE_TAG, id);
+    // },
   },
 };
 </script>
@@ -127,19 +128,23 @@ export default {
     </div>
     <div class="lable">
       <div
-        v-for="(item, index) in datas"
+        v-for="(item, index) in tagData"
+
         :key="index"
-        class="lable-list">
+        class="lable-list"
+        checkbox>
         <input
+          ref="item.name"
           v-model="item.name"
           :readonly="readonly"
-          type="text"
           class="lable-input-list"
+          type="text"
 
         />
+        <!--@click="searchTableTag(item.id)"-->
         <Icon
           class="lable-list-content-icons"
-          type="ios-close-outline"
+          type="ios-minus-outline"
           size="16"
           @click.native="removeList(item.id)"></Icon>
         <Icon
@@ -156,7 +161,7 @@ export default {
           class="lable-list-content-icon-update"
           @click.native="updateList(item)"></Icon>
       </input>
-      </icon></div>
+      </div>
     </div>
 
   </div>
@@ -167,7 +172,7 @@ export default {
   width: 100%;
   padding-left: 25px;
   padding-right: 22px;
-  height: calc(~'100vh - 450px');
+  height: calc('100vh - 450px');
   padding: 0px 22px 5px 25px;
   border-top: 0px;
   padding-top: 10px;
@@ -220,6 +225,7 @@ export default {
       height: 25px;
       border: 0;
       background: none;
+      cursor: default;
     }
   }
 }
