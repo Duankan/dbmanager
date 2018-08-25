@@ -129,7 +129,6 @@ export default {
     <div class="lable">
       <div
         v-for="(item, index) in tagData"
-
         :key="index"
         class="lable-list"
         checkbox>

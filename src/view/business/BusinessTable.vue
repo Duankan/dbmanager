@@ -143,9 +143,7 @@ export default {
     tableDatas: {
       handler(newVals) {
         this.tableData = newVals.dataSource;
-
         // this.pageIndex = newVals.pageInfo.pageIndex;
-
         // this.totalCount=;
         //向父组抛传事件
         // this.$emit('dataChangeEvnet', newVals);

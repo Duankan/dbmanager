@@ -4,10 +4,12 @@ export default {
   name: 'DataDisplay',
 
   props: {
+    //表格数据
     tableDatas: {
       type: Array,
       default: () => [],
     },
+    //分类数据
     treeDatas: {
       type: [Array, String, Object],
       default: () => {},
@@ -16,11 +18,10 @@ export default {
   data() {
     return {
       formItem: {
-        select: [],
-        multiple: '',
+        select: [], //标签名
+        multiple: '', //分类id
+        input: '', //关键字
       },
-      ruleInline: {},
-      typeData: [],
       typeTreeData: [],
     };
   },
@@ -38,7 +39,6 @@ export default {
           this.typeTreeData = [];
           // this.typeTreeData = newVals;
           newVals.forEach(element => {
-            //var newObj = Object.assign({}, element);
             //在addLableText里添加两个属性
             if (element.data) {
               this.addLableText(element);
@@ -56,7 +56,9 @@ export default {
       // if (!this.formItem.multiple || !this.formItem.select|| this.formItem.input == '') {
       //   console.log('不能为空');
       // } else {
+      //获取分类的id
       const restype = this.formItem.multiple[this.formItem.multiple.length - 1];
+      //将标签数组转为字符串
       const select = this.formItem.select.join(',');
       const response = await api.db.findpagelistbusiness({
         name: this.formItem.input, //关键字
@@ -66,7 +68,7 @@ export default {
         sort: '', //排序方式
         pageinfo: {
           pageIndex: this.pageIndex, //当前页
-          totalCount: this.totalCount,
+          totalCount: this.totalCount, //总数据
           pageSize: 10, //每页总数
           orderby: '', //排序字段
         },

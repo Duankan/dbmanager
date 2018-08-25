@@ -4,7 +4,6 @@ export default {
   data() {
     return {
       treeId: '',
-      // isEdit: false,
       treeDatas: [],
       dataTree: [
         {
@@ -97,6 +96,7 @@ export default {
     this.searchTree();
   },
   methods: {
+    //查询所有分类
     async searchTree() {
       const response = await api.db.findalltypeBusiness({});
       this.dataTree = response.data;
@@ -314,10 +314,10 @@ export default {
       const name = index.value;
       const oldname = index.title;
       const response = await api.db.updateBusiness({
-        id: id,
-        name: name,
-        remark: remark,
-        oldname: oldname,
+        id: id, //分类id
+        name: name, //新分类名
+        remark: remark, //描述
+        oldname: oldname, //旧分类名
       });
     },
   },
