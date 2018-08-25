@@ -1,11 +1,16 @@
 <script>
 import { date } from '@ktw/ktools';
-import * as types from '@/store/types';
 import DataDetails from './DataDetails';
 export default {
   name: 'BusinessTable',
   components: {
     DataDetails,
+  },
+  props: {
+    tableDatas: {
+      type: Array,
+      default: () => [],
+    },
   },
   data() {
     return {
@@ -104,16 +109,6 @@ export default {
                       // 隐藏元数据管理页面
                       this.display = false;
                       this.selectData = params.row;
-                      // 其它tab页可点
-                      this.selectData.pointer = false;
-                      this.selectData.enddate = date.format(
-                        new Date(this.selectData.enddate),
-                        'YYYY-M-D'
-                      );
-                      this.selectData.begdate = date.format(
-                        new Date(this.selectData.begdate),
-                        'YYYY-M-D'
-                      );
                     },
                   },
                 },
@@ -131,16 +126,6 @@ export default {
                       // 隐藏元数据管理页面
                       this.display = false;
                       this.selectData = params.row;
-                      // 其它tab页可点
-                      this.selectData.pointer = false;
-                      this.selectData.enddate = date.format(
-                        new Date(this.selectData.enddate),
-                        'YYYY-M-D'
-                      );
-                      this.selectData.begdate = date.format(
-                        new Date(this.selectData.begdate),
-                        'YYYY-M-D'
-                      );
                       //预览flag
                       this.selectData.readonly = true;
                     },
@@ -154,23 +139,20 @@ export default {
       ],
     };
   },
-  computed: {
-    tableDatas() {
-      return this.$store.state.metadata.tableDatas;
+  watch: {
+    tableDatas: {
+      handler(newVals) {
+        this.tableData = newVals.dataSource;
+
+        // this.pageIndex = newVals.pageInfo.pageIndex;
+
+        // this.totalCount=;
+        //向父组抛传事件
+        // this.$emit('dataChangeEvnet', newVals);
+      },
+      immediate: true,
     },
   },
-
-  // watch: {
-  //   tableData: {
-  //     handler(newVals) {
-  //       debugger;
-  //       // this.tableDatas = [];
-  //       //向父组抛传事件
-  //       // this.$emit('dataChangeEvnet', newVals);
-  //     },
-  //     immediate: true,
-  //   },
-  // },
   mounted() {
     //调用获取表格数据的方法
     this.mocktableData();
@@ -181,8 +163,26 @@ export default {
     };
   },
   methods: {
-    mocktableData() {
-      this.$store.dispatch(types.SEARCH_TABLE_TAG);
+    async mocktableData() {
+      const response = await api.db.findpagelistbusiness({
+        name: '', //表名
+        restype: '', //资源分类
+        keyword: '', //标签关键字
+        orderfield: '', //排序字段
+        sort: '', //排序方式
+        pageinfo: {
+          pageIndex: this.pageIndex, //当前页
+          pageSize: 10, //每页总数
+          totalCount: this.totalCount,
+          orderby: '', //排序字段
+        },
+      });
+      //获取表格数据
+      this.tableData = response.data.dataSource;
+      //获取表格总页数
+      this.totalCount = response.data.pageInfo.totalCount;
+      //获取当前页
+      this.pageIndex = response.data.pageInfo.pageIndex;
     },
     //页码
     changePage(currPage) {
@@ -218,12 +218,6 @@ export default {
       this.display = false;
       this.selectData = {};
       this.selectData.add = true;
-      this.selectData.pointer = true;
-    },
-    //更新标签页数据
-    updateData1() {
-      this.mocktableData();
-      debugger;
     },
 
     //时间格式化
@@ -258,7 +252,7 @@ export default {
         </Button>
       </div>
       <Table
-        :data="tableDatas"
+        :data="tableData"
         :height="tableHeight"
         :columns="tableColumns1"
       ></Table>
@@ -276,10 +270,7 @@ export default {
       v-else>
       <DataDetails
         :business-data="selectData"
-        @backEvent="queryData"
-        @updateData="updateData1"
-      >
-      </DataDetails>
+        @backEvent="queryData"></DataDetails>
     </div>
   </div>
 </template>

@@ -1,10 +1,11 @@
 <script>
-import * as types from '@/store/types';
 export default {
   name: 'BusinessSort',
   data() {
     return {
       treeId: '',
+      // isEdit: false,
+      treeDatas: [],
       dataTree: [
         {
           title: '',
@@ -78,31 +79,27 @@ export default {
       },
     };
   },
-  computed: {
-    treeData() {
-      return this.$store.state.metadata.treeData;
+  //监听数据列表
+  watch: {
+    dataTree: {
+      handler(newVals) {
+        this.treeDatas = [];
+        //给对象添加isEdit属性并赋值
+        newVals.forEach(element => {
+          this.$set(element, 'isEdits', false);
+        });
+        this.$emit('on-dataTreeChangeEvnet', newVals);
+      },
+      immediate: true,
     },
   },
-  // //监听数据列表
-  // watch: {
-  //   dataTree: {
-  //     handler(newVals) {
-  //       this.treeDatas = [];
-  //       //给对象添加isEdit属性并赋值
-  //       newVals.forEach(element => {
-  //         this.$set(element, 'isEdits', false);
-  //       });
-  //       this.$emit('dataChangeEvnet', newVals);
-  //     },
-  //     immediate: true,
-  //   },
-  // },
   mounted() {
     this.searchTree();
   },
   methods: {
-    searchTree() {
-      this.$store.dispatch(types.SEARCH_TREE_DATA);
+    async searchTree() {
+      const response = await api.db.findalltypeBusiness({});
+      this.dataTree = response.data;
     },
     renderContent(h, { root, node, data }) {
       return h(
@@ -219,8 +216,14 @@ export default {
                 },
                 on: {
                   click: () => {
-                    this.updatas(data);
-                    data.isEdits = false;
+                    if (!data.value) {
+                      this.$Message.error('分类名不能为空');
+                      data.isEdits = true;
+                    } else {
+                      this.updatas(data);
+                      data.isEdits = false;
+                      this.$Message.success('修改成功');
+                    }
                   },
                 },
               }),
@@ -246,24 +249,28 @@ export default {
           });
         },
         onOk: async () => {
-          //获取当前点击的id
-          const id = data.data.id;
-          const remark = data.data.remark;
-          //把当前添加的数据放到id的子节点里
-          const children = data.children || [];
-          children.push({
-            title: data.name,
-            expand: true,
-          });
-          // this.$set(data, 'children', children);
-          const response = await api.db.addBusiness({
-            name: data.name, //分类名
-            remark: remark, //描述
-            parid: id, //父节点ID
-          });
-          this.$Message.info('添加成功');
-          //渲染页面
-          this.searchTree();
+          if (!data.name) {
+            this.$Message.error('输入不能为空');
+          } else {
+            //获取当前点击的id
+            const id = data.data.id;
+            const remark = data.data.remark;
+            //把当前添加的数据放到id的子节点里
+            const children = data.children || [];
+            children.push({
+              title: data.name,
+              expand: true,
+            });
+            // this.$set(data, 'children', children);
+            const response = await api.db.addBusiness({
+              name: data.name, //分类名
+              remark: remark, //描述
+              parid: id, //父节点ID
+            });
+            this.$Message.info('添加成功');
+            //渲染页面
+            this.searchTree();
+          }
         },
         onCancel: () => {
           this.$Message.info('取消');
@@ -301,6 +308,7 @@ export default {
     },
     //编辑数据
     async updatas(index) {
+      this.edit();
       const id = index.data.id;
       const remark = index.data.remark;
       const name = index.value;
@@ -311,7 +319,6 @@ export default {
         remark: remark,
         oldname: oldname,
       });
-      this.$Message.info('修改成功');
     },
   },
 };
@@ -327,7 +334,7 @@ export default {
       <span>资源分类</span>
       <Tree
         ref="tree"
-        :data="treeData"
+        :data="dataTree"
         :render="renderContent"
       ></Tree>
 </div></div></template>
