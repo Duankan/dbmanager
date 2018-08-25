@@ -81,17 +81,23 @@ export default {
       class="main">
       <div
         v-if="copyBusinessData.readonly"
-        class="data-content"
-        @click="goBack()">
+        class="data-content">
         <Icon type="arrow-left-a"></Icon>
-        <span class="data-content-title"><b>元数据详情</b></span>
+        <span
+          class="data-content-title"
+          @click="goBack()">
+          <b>元数据详情</b>
+        </span>
       </div>
       <div
         v-else
-        class="data-content"
-        @click="verifyGoBack">
+        class="data-content">
         <Icon type="arrow-left-a"></Icon>
-        <span class="data-content-title"><b>元数据详情</b></span>
+        <span
+          class="data-content-title"
+          @click="verifyGoBack()">
+          <b>元数据详情</b>
+        </span>
       </div>
       <Tabs>
         <TabPane

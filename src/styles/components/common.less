@@ -4,6 +4,10 @@
 @table-th: #dcdee2;
 //表格内容颜色
 @table-td: #f1f3f7;
+// 表格背景色
+/deep/.k-table-body {
+  background-color: @table-td;
+}
 //背景透明
 .color-transparent() {
   background-color: transparent;
@@ -71,7 +75,15 @@
   bottom: 0;
   left: 0;
 }
-.disabled {
-  pointer-events: none;
-  color: #ccc;
+.flex-end {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
+.btn-left {
+  margin-left: 5px;
+}
+// .disabled {
+//   pointer-events: none;
+//   color: #ccc;
+// }
