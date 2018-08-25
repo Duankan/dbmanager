@@ -80,10 +80,11 @@ export default {
     },
 
     //清空按钮
-    empty() {
+    empty(name) {
       this.formItem.multiple = '';
-      this.formItem.input = '';
-      this.tagData = '';
+      this.$refs[name].resetFields();
+      // this.formItem.input = '';
+      // this.tagData = '';
       // this.formItem.select = '';
       this.searchData();
     },
@@ -109,8 +110,8 @@ export default {
 
 <template>
   <Form
+    :ref="formItem"
     :model="formItem"
-    :rules="ruleInline"
     :label-width="60"
     label-position="left">
     <div
@@ -143,7 +144,8 @@ export default {
       </Select>
     </FormItem>
     <FormItem
-      label="分类：" >
+      label="分类："
+      prop="multiple">
       <Cascader
         :data="treeDatas"
         v-model="formItem.multiple"
@@ -152,6 +154,7 @@ export default {
     </FormItem>
     <FormItem
       label="关键字："
+      prop="input"
     >
       <Input
         v-model="formItem.input"
@@ -162,7 +165,7 @@ export default {
       <Button
         type="primary"
         @click="searchData(formItem)">查询</Button>
-      <Button @click="empty">清空</Button>
+      <Button @click="empty(formItem)">清空</Button>
     </FormItem>
   </Form>
 </template>
