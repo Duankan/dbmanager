@@ -13,23 +13,23 @@ export default {
     return {
       formItem: {},
       copyRowData: this.rowData,
-      //标签页可点击
+      ruleValidate: {
+        requireds: [{ required: true, message: '该值不能为空' }],
+      },
     };
   },
   methods: {
-    /**修改基本信息 */
+    //修改基本信息
     async modBasicInformation() {
       this.copyRowData.enddate = date.format(new Date(this.copyRowData.enddate), 'YYYY-M-D');
       this.copyRowData.begdate = date.format(new Date(this.copyRowData.enddate), 'YYYY-M-D');
+      //判断按钮请求
       if (this.copyRowData.add == true) {
-        const response = await api.db.addbasicinfoBusiness(this.copyRowData);
-        if (response.status === 200) {
-          console.log(response);
-          console.log(response.data);
-          this.$emit('on-tagEvent', response.data);
-        }
+        await api.db.addbasicinfoBusiness(this.copyRowData).then(p => {
+          this.$emit('on-tagEvent', p.data);
+        });
       } else {
-        const response = await api.db.updatebasicinfoBusiness(this.copyRowData);
+        await api.db.updatebasicinfoBusiness(this.copyRowData);
       }
     },
   },
@@ -37,20 +37,26 @@ export default {
 </script>
 
 <template>
+  <!--基本信息表单-->
   <Form
-    :label-width="100"
+    :rules="ruleValidate"
+    :label-width="120"
     :class="{shade:copyRowData.readonly}"
     :model="copyRowData">
     <Row>
       <Col span="9">
-      <FormItem label="业务资源标题：">
+      <FormItem
+        prop="requireds"
+        label="业务资源标题：">
         <Input
           v-model="copyRowData.restitle"
           placeholder="给目标起个名字"/>
       </FormItem>
       </Col>
       <Col span="9">
-      <FormItem label="资源分类：">
+      <FormItem
+        prop="requireds"
+        label="资源分类：">
         <Input
           v-model="copyRowData.restype"
           placeholder="单选" />
@@ -59,14 +65,18 @@ export default {
     </Row>
     <Row>
       <Col span="9">
-      <FormItem label="负责单位：">
+      <FormItem
+        prop="requireds"
+        label="负责单位：">
         <Input
           v-model="copyRowData.rporgname"
           placeholder="负责单位" />
       </FormItem>
       </Col>
       <Col span="9">
-      <FormItem label="负责单位地址：">
+      <FormItem
+        prop="requireds"
+        label="负责单位地址：">
         <Input
           v-model="copyRowData.cndadd"
           placeholder="负责单位地址" />
@@ -75,7 +85,9 @@ export default {
     </Row>
     <Row>
       <Col span="18">
-      <FormItem label="表名：">
+      <FormItem
+        prop="requireds"
+        label="表名：">
         <Input
           v-model="copyRowData.name"
           placeholder="请选择" />
@@ -83,7 +95,9 @@ export default {
       </Col>
     </Row>
     <Row>
-      <FormItem label="数据使用时间：">
+      <FormItem
+        prop="requireds"
+        label="数据使用时间：">
         <Col span="9">
         <DatePicker
           v-model="copyRowData.begdate"
@@ -103,7 +117,9 @@ export default {
     </Row>
     <Row>
       <Col span="18">
-      <FormItem label="标签关键字：">
+      <FormItem
+        prop="requireds"
+        label="标签关键字：">
         <Input
           :rows="4"
           v-model="copyRowData.keyword"
@@ -114,7 +130,9 @@ export default {
     </Row>
     <Row>
       <Col span="18">
-      <FormItem label="摘要：">
+      <FormItem
+        prop="requireds"
+        label="摘要：">
         <Input
           :rows="4"
           v-model="copyRowData.abstract_"
