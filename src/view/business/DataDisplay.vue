@@ -22,6 +22,8 @@ export default {
         multiple: '', //分类id
         input: '', //关键字
       },
+      totalCount: '', //表格总页数
+      pageIndex: '', //表格当前页
       typeTreeData: [],
     };
   },
@@ -52,10 +54,8 @@ export default {
   },
 
   methods: {
+    // 查询按钮
     async searchData(formItem) {
-      // if (!this.formItem.multiple || !this.formItem.select|| this.formItem.input == '') {
-      //   console.log('不能为空');
-      // } else {
       //获取分类的id
       const restype = this.formItem.multiple[this.formItem.multiple.length - 1];
       //将标签数组转为字符串

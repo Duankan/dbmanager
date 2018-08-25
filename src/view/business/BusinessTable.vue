@@ -17,7 +17,7 @@ export default {
       display: true,
       tableData: [], //表格数据
       tableHeight: 200, //表格的高度
-      totalCount: 1, //表格总页数
+      totalCount: '', //表格总页数
       pageIndex: 1, //表格当前页
       selectData: null,
       tableColumns1: [
@@ -143,8 +143,7 @@ export default {
     tableDatas: {
       handler(newVals) {
         this.tableData = newVals.dataSource;
-        // this.pageIndex = newVals.pageInfo.pageIndex;
-        // this.totalCount=;
+        // this.totalCount = newVals.pageInfo.pageCount;
         //向父组抛传事件
         // this.$emit('dataChangeEvnet', newVals);
       },
@@ -175,6 +174,7 @@ export default {
           orderby: '', //排序字段
         },
       });
+
       //获取表格数据
       this.tableData = response.data.dataSource;
       //获取表格总页数

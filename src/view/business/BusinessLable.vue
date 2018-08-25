@@ -129,6 +129,7 @@ export default {
     <div class="lable">
       <div
         v-for="(item, index) in tagData"
+
         :key="index"
         class="lable-list"
         checkbox>
@@ -171,7 +172,7 @@ export default {
   width: 100%;
   padding-left: 25px;
   padding-right: 22px;
-  height: calc('100vh - 450px');
+  height: 353px;
   padding: 0px 22px 5px 25px;
   border-top: 0px;
   padding-top: 10px;
@@ -190,7 +191,7 @@ export default {
 }
 .lable {
   width: 100%;
-  height: calc(100%-40px);
+  height: calc(100% - 40px);
   overflow-y: auto;
   margin-top: 3px;
   .lable-list {
