@@ -44,10 +44,14 @@ const notification = {
     [types.START_POLL_TASK](state, taskId) {
       let pollTask = state.tasks.find(p => p.taskId == taskId);
       let pollHandler = async () => {
-        const response = await api.db.getbyid({
+        let method = pollTask.method || 'getbyid';
+        const response = await api.db[method]({
           id: taskId,
         });
         let data = response.data;
+        if (pollTask.callback) {
+          data = pollHandler.callback(data);
+        }
         let progress = 0;
         if (data.complete && !data.successful) {
           progress = 100;
