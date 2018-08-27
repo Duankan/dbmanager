@@ -37,9 +37,10 @@ export default {
         {
           title: '标签',
           key: 'keyword',
-          // render: (h, params) => {
-          //   return h('div');
-          // },
+          render: (h, params) => {
+            const row = params.row;
+            return h('Tag', params.row.keyword);
+          },
         },
         {
           title: '分类',
@@ -284,6 +285,7 @@ export default {
           <Page
             :total="totalCount"
             :current="pageIndex"
+            show-elevator
             @on-change="changePage"
           ></Page>
         </div>
