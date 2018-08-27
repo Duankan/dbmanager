@@ -8,8 +8,8 @@ export default {
   },
   props: {
     tableDatas: {
-      type: Array,
-      default: () => [],
+      type: Object,
+      default: () => {},
     },
   },
   data() {
@@ -17,7 +17,7 @@ export default {
       display: true,
       tableData: [], //表格数据
       tableHeight: 200, //表格的高度
-      totalCount: '', //表格总页数
+      totalCount: 1, //表格总页数
       pageIndex: 1, //表格当前页
       selectData: null,
       tableColumns1: [
@@ -143,7 +143,7 @@ export default {
     tableDatas: {
       handler(newVals) {
         this.tableData = newVals.dataSource;
-        // this.totalCount = newVals.pageInfo.pageCount;
+        // this.tableData = newVals.dataSource;
         //向父组抛传事件
         // this.$emit('dataChangeEvnet', newVals);
       },
@@ -171,6 +171,7 @@ export default {
           pageIndex: this.pageIndex, //当前页
           pageSize: 10, //每页总数
           totalCount: this.totalCount,
+          pageCount: this.pageCount,
           orderby: '', //排序字段
         },
       });
@@ -179,6 +180,7 @@ export default {
       this.tableData = response.data.dataSource;
       //获取表格总页数
       this.totalCount = response.data.pageInfo.totalCount;
+      this.pageCount = response.data.pageInfo.pageCount;
       //获取当前页
       this.pageIndex = response.data.pageInfo.pageIndex;
     },
