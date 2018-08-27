@@ -116,7 +116,7 @@ export default {
                 nativeOnClick={() => this.positionLayer(root, node, data)}
               />
               {data.type == 'wms' ? layerEdit : ''}
-              {data.type == 'wmts' ? layerHistory : ''}
+              {data.type == 'wms' ? layerHistory : ''}
               <svg-icon
                 size={16}
                 icon-class={'delete'}
@@ -156,7 +156,6 @@ export default {
     sort(position, node, dragNode) {
       if (node.nodeKey == 0) return;
       // position 靠近下边缘 1, 靠近上边缘 -1
-      debugger;
       this.$store.commit('SET_MAP_WMSLAYER_SORT', {
         position,
         dragNodeId: dragNode.id,
@@ -229,7 +228,7 @@ export default {
         render: h => {
           return h(LayerHistory, {
             props: {
-              layerData: data,
+              layerData: data.reverse(),
               originalLayerName: layerName,
             },
           });

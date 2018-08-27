@@ -4,10 +4,12 @@ export default {
   name: 'DataDisplay',
 
   props: {
+    //表格数据
     tableDatas: {
       type: Array,
       default: () => [],
     },
+    //分类数据
     treeDatas: {
       type: [Array, String, Object],
       default: () => {},
@@ -16,11 +18,12 @@ export default {
   data() {
     return {
       formItem: {
-        select: [],
-        multiple: '',
+        select: [], //标签名
+        multiple: '', //分类id
+        input: '', //关键字
       },
-      ruleInline: {},
-      typeData: [],
+      totalCount: '', //表格总页数
+      pageIndex: '', //表格当前页
       typeTreeData: [],
     };
   },
@@ -38,7 +41,6 @@ export default {
           this.typeTreeData = [];
           // this.typeTreeData = newVals;
           newVals.forEach(element => {
-            //var newObj = Object.assign({}, element);
             //在addLableText里添加两个属性
             if (element.data) {
               this.addLableText(element);
@@ -52,11 +54,11 @@ export default {
   },
 
   methods: {
+    // 查询按钮
     async searchData(formItem) {
-      // if (!this.formItem.multiple || !this.formItem.select|| this.formItem.input == '') {
-      //   console.log('不能为空');
-      // } else {
+      //获取分类的id
       const restype = this.formItem.multiple[this.formItem.multiple.length - 1];
+      //将标签数组转为字符串
       const select = this.formItem.select.join(',');
       const response = await api.db.findpagelistbusiness({
         name: this.formItem.input, //关键字
@@ -66,7 +68,7 @@ export default {
         sort: '', //排序方式
         pageinfo: {
           pageIndex: this.pageIndex, //当前页
-          totalCount: this.totalCount,
+          totalCount: this.totalCount, //总数据
           pageSize: 10, //每页总数
           orderby: '', //排序字段
         },
@@ -78,10 +80,11 @@ export default {
     },
 
     //清空按钮
-    empty() {
+    empty(name) {
       this.formItem.multiple = '';
-      this.formItem.input = '';
-      this.tagData = '';
+      this.$refs[name].resetFields();
+      // this.formItem.input = '';
+      // this.tagData = '';
       // this.formItem.select = '';
       this.searchData();
     },
@@ -107,8 +110,8 @@ export default {
 
 <template>
   <Form
+    :ref="formItem"
     :model="formItem"
-    :rules="ruleInline"
     :label-width="60"
     label-position="left">
     <div
@@ -141,7 +144,8 @@ export default {
       </Select>
     </FormItem>
     <FormItem
-      label="分类：" >
+      label="分类："
+      prop="multiple">
       <Cascader
         :data="treeDatas"
         v-model="formItem.multiple"
@@ -150,6 +154,7 @@ export default {
     </FormItem>
     <FormItem
       label="关键字："
+      prop="input"
     >
       <Input
         v-model="formItem.input"
@@ -160,7 +165,7 @@ export default {
       <Button
         type="primary"
         @click="searchData(formItem)">查询</Button>
-      <Button @click="empty">清空</Button>
+      <Button @click="empty(formItem)">清空</Button>
     </FormItem>
   </Form>
 </template>

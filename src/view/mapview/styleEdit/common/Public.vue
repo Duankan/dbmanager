@@ -15,6 +15,10 @@ export default {
       type: Array,
       default: () => [],
     },
+    selectRule: {
+      type: Object,
+      default: () => {},
+    },
     // fieldNoNumS: {
     //   type: Array,
     //   default: () => [],
@@ -23,7 +27,7 @@ export default {
   data() {
     return {
       publicData: {
-        rulename: 'rule1', //绑定的规格名称的值
+        rulename: '', //绑定的规格名称的值
         pointSize: 0, //点大小
         pointSizeField: '', //点大小的设定字段
         pointOffset: 0, //点的偏移量

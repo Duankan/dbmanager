@@ -85,7 +85,7 @@ class UpdateEditor extends EditorBase {
     if (e.length > 0) {
       this.entity.setGeometry(e[0]);
     }
-    await this.entity.update();
+    let data = await this.entity.update();
     this.reset();
     this.refreshLayer();
   }
@@ -105,7 +105,7 @@ class UpdateEditor extends EditorBase {
       title: '删除确认',
       content: '您确定要删除图形吗？',
       onOk: async () => {
-        await this.entity.delete();
+        let data = await this.entity.delete();
         this.reset();
         this.refreshLayer();
       },

@@ -104,6 +104,13 @@ const GEOMETRY_TEMPLATE = {
   polygon: POLYGON_TEMPLATE,
 };
 
+//操作类型
+const OPERATORS = {
+  add: '新增',
+  update: '编辑',
+  delete: '删除',
+};
+
 /**
  * 编辑实体
  */
@@ -238,10 +245,62 @@ class EditEntity {
   }
 
   /**
-   * 插入记录
+   * 转换处理结果
+   * @param {any} response 结果
+   * @param {string} operate 操作类型
    */
-  async insert() {
-    let xmlData = this.convertEntityToXml('add');
+  parseResponse(response, operate) {
+    let operateName = OPERATORS[operate];
+    let result = { success: true, message: `${operateName}要素成功！`, data: null };
+    let converts = {
+      add(xmldoc) {
+        let insertCount = xmldoc.getElementsByTagName('wfs:totalInserted')[0].textContent;
+        if (insertCount == 0) {
+          this.error();
+        } else {
+          let insertRecords = Array.from(
+            xmldoc.getElementsByTagName('wfs:InsertResults')[0].children
+          ).map(p => {
+            return { gid: p.children[0].getAttribute('fid') };
+          });
+          result.data = { count: insertCount, records: insertRecords };
+        }
+      },
+      update(xmldoc) {
+        let updateCount = xmldoc.getElementsByTagName('wfs:totalUpdated')[0].textContent;
+        if (updateCount == 0) {
+          this.error();
+        } else {
+          result.data = { count: updateCount };
+        }
+      },
+      delete(xmldoc) {
+        let deleteCount = xmldoc.getElementsByTagName('wfs:totalDeleted')[0].textContent;
+        if (deleteCount == 0) {
+          this.error();
+        } else {
+          result.data = { count: deleteCount };
+        }
+      },
+      error() {
+        result.success = false;
+        result.message = `${operateName}要素失败！`;
+      },
+    };
+    let parser = new DOMParser();
+    let xmldoc = parser.parseFromString(response.data, 'text/xml');
+    let errors = xmldoc.getElementsByTagName('ows:ExceptionReport');
+    errors.length > 0 && (operate = 'error');
+    converts[operate].call(this, xmldoc);
+    return result;
+  }
+
+  /**
+   * 保存记录
+   * @param {String} operate 操作类型
+   */
+  async save(operate) {
+    let xmlData = this.convertEntityToXml(operate);
     const msg = Message.loading({
       content: '正在保存...',
       duration: 0,
@@ -251,53 +310,34 @@ class EditEntity {
       responseType: 'text',
     });
     setTimeout(msg, 0);
-    Notice.success({
-      title: '新增要素成功！',
-      duration: 1.5,
+    let result = this.parseResponse(response, operate);
+    let notice = result.success ? Notice.success : Notice.error;
+    notice({
+      title: result.message,
+      duration: 2,
     });
-    return response;
+    return result;
+  }
+
+  /**
+   * 插入记录
+   */
+  async insert() {
+    return await this.save('add');
   }
 
   /**
    * 更新记录
    */
   async update() {
-    let xmlData = this.convertEntityToXml('update');
-    const msg = Message.loading({
-      content: '正在保存...',
-      duration: 0,
-    });
-    const response = await axios.post(this.serviceUrl, xmlData, {
-      headers: { 'Content-Type': 'application/xml' },
-      responseType: 'text',
-    });
-    setTimeout(msg, 0);
-    Notice.success({
-      title: '编辑要素成功！',
-      duration: 1.5,
-    });
-    return response;
+    return await this.save('update');
   }
 
   /**
    * 删除记录
    */
   async delete() {
-    let xmlData = this.convertEntityToXml('delete');
-    const msg = Message.loading({
-      content: '正在删除...',
-      duration: 0,
-    });
-    const response = await axios.post(this.serviceUrl, xmlData, {
-      headers: { 'Content-Type': 'application/xml' },
-      responseType: 'text',
-    });
-    setTimeout(msg, 0);
-    Notice.success({
-      title: '删除要素成功！',
-      duration: 1.5,
-    });
-    return response;
+    return await this.save('delete');
   }
 }
 

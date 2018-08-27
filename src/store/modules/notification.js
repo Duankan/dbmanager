@@ -1,6 +1,7 @@
 import * as types from '../types';
 import api from 'api';
 import { date, uuid, cloneDeep } from '@ktw/ktools';
+import * as TaskParsers from '@/components/noticeicon/task-parsers';
 
 //轮询时间间隔
 const REQUEST_TIMEOUT = 5000;
@@ -44,10 +45,15 @@ const notification = {
     [types.START_POLL_TASK](state, taskId) {
       let pollTask = state.tasks.find(p => p.taskId == taskId);
       let pollHandler = async () => {
-        const response = await api.db.getbyid({
+        let method = pollTask.method || 'getbyid';
+        const response = await api.db[method]({
           id: taskId,
         });
         let data = response.data;
+        let parser = pollTask.callback;
+        if (parser && TaskParsers[parser]) {
+          data = TaskParsers[parser](data, taskId);
+        }
         let progress = 0;
         if (data.complete && !data.successful) {
           progress = 100;
