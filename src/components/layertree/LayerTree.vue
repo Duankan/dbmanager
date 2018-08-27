@@ -116,7 +116,7 @@ export default {
                 nativeOnClick={() => this.positionLayer(root, node, data)}
               />
               {data.type == 'wms' ? layerEdit : ''}
-              {data.type == 'wmts' ? layerHistory : ''}
+              {data.type == 'wms' ? layerHistory : ''}
               <svg-icon
                 size={16}
                 icon-class={'delete'}
@@ -229,7 +229,7 @@ export default {
         render: h => {
           return h(LayerHistory, {
             props: {
-              layerData: data,
+              layerData: data.reverse(),
               originalLayerName: layerName,
             },
           });

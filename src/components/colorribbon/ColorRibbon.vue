@@ -126,7 +126,7 @@ export default {
 .ribbon-wrapper {
   width: 100%;
   .k-dropdown-rel {
-    height: 32px;
+    height: 24px;
   }
   .k-dropdown-menu {
     max-height: 200px;
