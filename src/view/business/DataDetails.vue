@@ -31,20 +31,10 @@ export default {
     };
   },
   computed: {
+    //Table页可切换
     setTabClasses() {
       return this.copyBusinessData.pointer;
     },
-  },
-  // watch: {
-  //   copyBusinessData: {
-  //     handler(newVal) {
-  //       debugger;
-  //     },
-  //     immediate: true,
-  //   },
-  // },
-  mounted() {
-    this.$set(this.copyBusinessData, 'pointer', true);
   },
   methods: {
     //提示返回
@@ -61,15 +51,11 @@ export default {
       this.$emit('backEvent');
     },
     pointer(id) {
+      console.log(id);
       this.copyBusinessData.id = id;
       this.copyBusinessData.pointer = false;
       this.copyBusinessData = { ...this.copyBusinessData };
-      // this.tabVaule = 'name2';
     },
-    // pointer(res) {
-    //   this.copyBusinessData.pointer = res;
-    //   this.copyBusinessData = { ...this.copyBusinessData };
-    // },
   },
 };
 </script>

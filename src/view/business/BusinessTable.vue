@@ -109,6 +109,15 @@ export default {
                       // 隐藏元数据管理页面
                       this.display = false;
                       this.selectData = params.row;
+                      // 日期格式化
+                      this.selectData.enddate = date.format(
+                        new Date(this.selectData.enddate),
+                        'YYYY-M-D'
+                      );
+                      this.selectData.begdate = date.format(
+                        new Date(this.selectData.enddate),
+                        'YYYY-M-D'
+                      );
                     },
                   },
                 },
@@ -128,6 +137,15 @@ export default {
                       this.selectData = params.row;
                       //预览flag
                       this.selectData.readonly = true;
+                      // 日期格式化
+                      this.selectData.enddate = date.format(
+                        new Date(this.selectData.enddate),
+                        'YYYY-M-D'
+                      );
+                      this.selectData.begdate = date.format(
+                        new Date(this.selectData.enddate),
+                        'YYYY-M-D'
+                      );
                     },
                   },
                 },
@@ -213,9 +231,14 @@ export default {
     },
     //新增元数据
     addData() {
+      // 显示TAB页
       this.display = false;
+      // 表单清空
       this.selectData = {};
+      // 新增/修改标记
       this.selectData.add = true;
+      // 新增是否提交基本信息标记
+      this.selectData.pointer = true;
     },
 
     //时间格式化
