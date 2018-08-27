@@ -228,7 +228,7 @@ export default {
         render: h => {
           return h(LayerHistory, {
             props: {
-              layerData: data,
+              layerData: data.reverse(),
               originalLayerName: layerName,
             },
           });

@@ -1,10 +1,11 @@
 <script>
 import { date } from '@ktw/ktools';
 import QueryLayerHistory from './QueryLayerHistory';
+import MoreMap from '../moremap/MoreMap';
 
 export default {
   name: 'LayerHistory',
-  components: { QueryLayerHistory },
+  components: { QueryLayerHistory, MoreMap },
   props: {
     layerData: {
       type: Array,
@@ -96,11 +97,44 @@ export default {
         this.$refs.history.clear();
       }
     },
+    moreMap() {
+      let container = document.body;
+      this.historyHandler = this.$FloatPanel.create({
+        title: '图层历史版本  ' + this.originalLayerName,
+        width: container.clientWidth,
+        height: container.clientHeight,
+        position: {
+          x: 0,
+          y: 0,
+        },
+        //parent: container,
+        disableDrag: true,
+        render: h => {
+          return h(MoreMap, {});
+        },
+        onClose() {
+          //self.historyHandler.getContent().reset();
+        },
+      });
+    },
   },
 };
 </script>
 <template>
   <div class="layer-history-wrapper">
+    <div class="title-div">
+      <span>源图层名称:</span>
+      <ellipsis 
+        :length="18" 
+        class="layer-name">{{ originalLayerName }}</ellipsis>
+      <SvgIcon
+        :size="16"
+        style="margin-right:4px;float:right;"
+        icon-class="contrast"
+        color="#1296db"
+        title="图层多屏对比"
+        @click.native="moreMap"/>
+    </div>
     <Timeline v-if="!isShowQueryList">
       <TimelineItem
         v-for="item in layerData"
@@ -127,12 +161,6 @@ export default {
             icon-class="search"
             title="查询统计"
             @click.native="showQueryList(item)"/>
-          <SvgIcon
-            :size="16"
-            style="margin-left:4px;"
-            icon-class="contrast"
-            color="#1296db"
-            title="图层对比"/>
         </div>
       </TimelineItem>
     </Timeline>
@@ -163,6 +191,17 @@ export default {
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
+  .title-div {
+    margin: 8px;
+    font-size: 14px;
+  }
+  /deep/.k-ellipsis {
+    display: inline;
+  }
+  .layer-name {
+    font-weight: bold;
+    color: #2d8cf0;
+  }
   .k-timeline {
     margin: 10px;
   }
