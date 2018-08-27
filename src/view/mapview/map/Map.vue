@@ -1,5 +1,5 @@
 <script>
-import Kmap from '@ktw/kmap';
+import * as kmap from '@ktw/kmap';
 const REFS = ['polygon', 'rectangle', 'marker', 'polyline', 'circle'];
 
 export default {
@@ -67,16 +67,17 @@ export default {
     this.$events.emit('on-getdraw-refs', { drawRefs: this.$refs, REFS }, true);
   },
   methods: {
-    setBbox({ bbox, index, type }) {
-      if (bbox) {
-        const status = {
-          wms() {},
-          wmts() {},
-        };
-        this.$refs.map.setBounds(bbox);
-      } else {
-        this.$store.getters.ogcLayers[index - 1].fitBounds();
-      }
+    setBbox({ index, type }) {
+      const layer = this.$store.getters.ogcLayers[index - 1];
+      const status = {
+        wms() {
+          kmap.default.kmapAPI.commonFunction.defineWMSCRS(this.$refs.map.$mapObject, layer);
+        },
+        wmts() {
+          kmap.default.kmapAPI.commonFunction.defineWMTSCRS(this.$refs.map.$mapObject, layer);
+        },
+      };
+      status[type].call(this);
     },
     handleClick() {},
     drawGeometry(layers) {

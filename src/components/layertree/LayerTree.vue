@@ -1,4 +1,5 @@
 <script>
+import kmap from '@ktw/kmap';
 import LayerEditBar from '@/components/layeredit/LayerEditBar';
 import LayerHistory from '@/components/layerhistory/LayerHistory';
 const layerType = [{ key: 0, type: 'wms' }, { key: 1, type: 'wmts' }];
@@ -46,7 +47,6 @@ export default {
             id: layer._leaflet_id,
             name: layer.options.layers ? layer.options.layers : layer.options.layer,
             title: layer.options.title ? layer.options.title : layer.options.layer,
-            bbox: layer.options.saveBbox,
             opacity: layer.options.opacity,
             type,
             checked: layer.options.visible,
@@ -174,7 +174,7 @@ export default {
     },
     // 图层定位
     positionLayer(root, node, data) {
-      this.$events.emit('on-set-bbox', { bbox: data.bbox, index: node.nodeKey, type: data.type });
+      this.$events.emit('on-set-bbox', { index: node.nodeKey, type: data.type });
     },
     //编辑图层要素
     editLayer(root, node, data) {
