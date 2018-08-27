@@ -210,6 +210,31 @@ export default {
         params.nameField = this.publishForm.nameField;
         params.typeField = this.publishForm.typeField;
       }
+      if (this.publishForm.isVectorTile) {
+        this.publicCacheService(params);
+      } else {
+        this.publicService(params);
+      }
+    },
+    //发布矢量影像服务(非缓存)
+    publicService(params) {
+      api.db
+        .publishService(params)
+        .then(p => {
+          this.publishLoading = false;
+          this.$Message.success('服务发布成功！');
+          // 刷新当前页面
+          const currentNode = this.$store.state.app.currentDirectory;
+          this.$store.dispatch(types.APP_NODES_FETCH, currentNode);
+          // 关闭modal窗口
+          this.visibleChange(false);
+        })
+        .catch(p => {
+          this.publishLoading = false;
+        });
+    },
+    //发布缓存服务
+    publicCacheService(params) {
       api.db
         .publishServiceByTask(params)
         .then(p => {
@@ -221,35 +246,22 @@ export default {
           this.publishLoading = false;
           this.$Message.error('服务发布失败！');
         });
-      // api.db
-      //   .publishService(params)
-      //   .then(p => {
-      //     this.publishLoading = false;
-      //     this.$Message.success('服务发布成功！');
-      //     // 刷新当前页面
-      //     const currentNode = this.$store.state.app.currentDirectory;
-      //     this.$store.dispatch(types.APP_NODES_FETCH, currentNode);
-      //     // 关闭modal窗口
-      //     this.visibleChange(false);
-      //   })
-      //   .catch(p => {
-      //     this.publishLoading = false;
-      //   });
     },
     //新增轮询任务
     addPollTask(taskId) {
-      let callback = data => {
-        return data;
-      };
       let task = {
         taskId,
         method: 'getServiceByTask',
-        callback,
-        taskType: '批量入库',
+        callback: 'parseCacheTask',
+        taskType: '矢量切片',
         taskName: this.node.name,
         taskTime: date.format(new Date(), 'YYYY-M-D HH:mm'),
       };
       this.$store.commit(types.ADD_POLL_TASK, task);
+      this.$Notice.info({
+        title: `${this.node.name}任务已提交`,
+        desc: `生成矢量切片任务已进入后台队列，可在任务列表中查看进度！`,
+      });
     },
     // 处理服务名称
     async handleServiceName(name) {
