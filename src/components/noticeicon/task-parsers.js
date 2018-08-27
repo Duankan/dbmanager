@@ -4,7 +4,9 @@
  * @param {String} taskId 任务ID
  */
 export function parseCacheTask(data, taskId) {
-  let progress = data.mapProgress * 0.5 + data.reduceProgress * 0.5;
+  let mapProgress = parseFloat(data.mapProgress || 0);
+  let reduceProgress = parseFloat(data.reduceProgress || 0);
+  let progress = ((mapProgress + reduceProgress) * 0.5).toFixed(2);
   return {
     id: taskId,
     progress,

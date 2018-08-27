@@ -33,7 +33,7 @@ export default {
     //检查任务完成并通知
     checkFinishTask(tasks) {
       let pollTasks = tasks || [];
-      let completedTasks = pollTasks.filter(p => p.progress >= 100);
+      let completedTasks = pollTasks.filter(p => p.complete);
       completedTasks.forEach(p => {
         this.$events.emit(`on-poll-complete`, p);
         if (p.successful) {

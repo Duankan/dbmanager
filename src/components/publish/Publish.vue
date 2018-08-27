@@ -4,6 +4,8 @@ import api from 'api';
 import { filterSchema, getNodeStyleType } from '@/utils/helps';
 import { date } from '@ktw/ktools';
 
+const TASK_TYPE = '矢量切片';
+
 export default {
   name: 'Publish',
   props: {
@@ -54,6 +56,9 @@ export default {
   created() {
     // 获取空间参考
     this.remoteMethod('');
+  },
+  events: {
+    'on-poll-complete': 'completePollTask',
   },
   methods: {
     visibleChange(visible) {
@@ -174,7 +179,6 @@ export default {
     // 点击发布按钮，发布服务，并将axios对象添加到任务队列
     async publish() {
       if (!this.validateData()) return;
-
       this.publishLoading = true;
       let params = {
         catalogId: this.node.catalogId,
@@ -253,7 +257,7 @@ export default {
         taskId,
         method: 'getServiceByTask',
         callback: 'parseCacheTask',
-        taskType: '矢量切片',
+        taskType: TASK_TYPE,
         taskName: this.node.name,
         taskTime: date.format(new Date(), 'YYYY-M-D HH:mm'),
       };
@@ -262,6 +266,16 @@ export default {
         title: `${this.node.name}任务已提交`,
         desc: `生成矢量切片任务已进入后台队列，可在任务列表中查看进度！`,
       });
+    },
+    //缓存切片任务完成
+    completePollTask(data) {
+      if (data.taskType == TASK_TYPE) {
+        // 刷新当前页面
+        this.$nextTick(p => {
+          const currentNode = this.$store.state.app.currentDirectory;
+          this.$store.dispatch(types.APP_NODES_FETCH, currentNode);
+        });
+      }
     },
     // 处理服务名称
     async handleServiceName(name) {
