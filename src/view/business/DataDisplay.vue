@@ -63,7 +63,6 @@ export default {
       this.formItem.select = '';
     },
     addLableText(item) {
-      debugger;
       if (item) {
         this.$set(item, 'label', item.title);
         this.$set(item, 'value', item.title);
@@ -109,7 +108,7 @@ export default {
       </Select>
     </FormItem>
     <FormItem label="分类：" >
-      <Cascader 
+      <Cascader
         :data="typeTreeData"
         v-model="typeData"
         transfer

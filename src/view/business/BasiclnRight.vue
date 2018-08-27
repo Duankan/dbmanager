@@ -97,7 +97,6 @@ export default {
   },
   methods: {
     async searchTrees() {
-      debugger;
       const response = await api.db.findallwithmatadata({ id: '402881d8651debac01651deeee640002' });
 
       this.dataTrees = response.data;
@@ -304,7 +303,6 @@ export default {
     async updatas(root, node, data) {
       const id = data.data.id;
       const remark = data.data.remark;
-      debugger;
       const name = data.data.title;
       const response = await api.db.updateBusiness({
         id: id,

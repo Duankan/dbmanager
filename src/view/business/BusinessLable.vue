@@ -102,7 +102,6 @@ export default {
         type: 1, //类型（0-空间数据，1-业务数据）
       });
       item.isEdit = false;
-      debugger;
       this.$Message.info('修改成功');
       this.readonly = true;
     },

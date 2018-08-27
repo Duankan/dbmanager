@@ -79,7 +79,6 @@ export default {
       }
     },
     isMoreView: function(row, prop, proIdx) {
-      debugger;
       var isShow = false;
       if (prop != 'optype' && prop != 'isMore') {
         if (!row.isMore) {
@@ -98,10 +97,10 @@ export default {
 
 <template>
   <div class="db-query-his">
-    <RadioGroup 
+    <RadioGroup
       v-model="changeType"
       style="width:100%;text-align: center;"
-      type="button" 
+      type="button"
       @on-change="queryLayer">
       <Radio label="1=1">全部</Radio>
       <Radio label="optype=1">新增</Radio>
@@ -119,9 +118,9 @@ export default {
           class="his-item-detail">
           <li
             v-for="(prop,proIdx) in Object.keys(row)"
-            v-show="isMoreView(row,prop,proIdx)" 
+            v-show="isMoreView(row,prop,proIdx)"
             :key="proIdx">
-            <span 
+            <span
             class="detail-label">{{ prop }}：</span>{{ row[prop] }}</li>
           <li><span @click="moreView(row,rowIdx)">查看详情</span></li>
         </ul>

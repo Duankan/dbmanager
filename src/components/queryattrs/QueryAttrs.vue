@@ -156,7 +156,6 @@ export default {
     },
     //获取查询条件
     getCondition(items) {
-      debugger;
       let cql = '';
       for (let i = 0; i < items.length; i++) {
         if (items[i].field === '' || items[i].compare === '' || items[i].value === '') continue;
@@ -174,7 +173,6 @@ export default {
               : "'"
         }`;
       }
-      debugger;
       return cql.trim();
     },
     //构建table里面的columns
@@ -261,7 +259,7 @@ export default {
       const response = await api.db.batchwebrequest([loadParams]);
       window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
     },
-    // 参数处理
+    // 提取参数处理
     setLoadPrams() {
       let loadParams;
       this.fieldList.forEach(item => {
@@ -280,15 +278,8 @@ export default {
         ...options,
       });
       const queryTack = new L.QueryTask(queryPram);
-
-      for (let item in queryTack._queryParameter.options) {
-        if (!queryTack._queryParameter.options[item]) {
-          delete queryTack._queryParameter.options[item];
-        } else if (item === 'spatialRelationship') {
-          delete queryTack._queryParameter.options[item];
-        }
-      }
       let taskData = queryTack._queryParameter.options;
+
       loadParams = {
         params: taskData,
         fileName: `${name[1]}.zip`,

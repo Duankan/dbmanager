@@ -232,7 +232,6 @@ export default {
     //更新标签页数据
     updateData1() {
       this.mocktableData();
-      debugger;
     },
     // show(index) {
     //   this.$Modal.info({

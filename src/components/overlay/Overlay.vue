@@ -30,6 +30,7 @@ export default {
       outputType: [{ value: 'input', label: 'Input' }],
       computedModules: [{ value: 'fullload', label: '全负载' }],
       analysLoading: false,
+      queryUrl: '',
     };
   },
   computed: {
@@ -171,6 +172,7 @@ export default {
     <FormItem label="绘制方式：">
       <DrawTools
         ref="drawTools"
+        :layer-url="queryUrl"
         :disabled="!hasLayer"
         @on-get-drawlayer="getDrawLayer"></DrawTools>
     </FormItem>

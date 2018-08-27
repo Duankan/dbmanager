@@ -296,13 +296,11 @@ export default {
       const id = index.data.id;
       const remark = index.data.remark;
       const name = index.data.name;
-      debugger;
       const response = await api.db.updateBusiness({
         id: id,
         name: name,
         remark: remark,
       });
-      debugger;
       this.$Message.info('修改成功');
     },
   },
