@@ -229,9 +229,15 @@ export function filterSchema(schemas) {
   return fields;
 }
 
-//过滤schema字段，去掉保留字段
-export function filterSchema2(schemas) {
-  return schemas.filter(p => schemaReservedFileds.indexOf(p.name) < 0);
+//过滤schema字段，筛选出保留字段
+export function remainSchema(schemas) {
+  let fields = [];
+  schemas.forEach(p => {
+    if (schemaReservedFileds.indexOf(p) >= 0) {
+      fields.push(p);
+    }
+  });
+  return fields;
 }
 
 //元数据保留字段

@@ -26,21 +26,6 @@ export default {
       ],
     };
   },
-  methods: {
-    //Tab渲染函数
-    labelRender: (h, ctx) => {
-      debugger;
-      return h('div', [
-        h('span', '标签一'),
-        h('Badge', {
-          props: {
-            count: 2,
-            overflowCount: 100,
-          },
-        }),
-      ]);
-    },
-  },
 };
 </script>
 

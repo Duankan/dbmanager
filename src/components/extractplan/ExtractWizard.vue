@@ -2,6 +2,7 @@
 import SelectResource from './SelectResource';
 import FilterResource from './FilterResource';
 import ExtractRange from './ExtractRange';
+import ExtractFormat from './ExtractFormat';
 
 //向导步骤列表
 const WIZARD_STEPS = [
@@ -20,6 +21,11 @@ const WIZARD_STEPS = [
     title: '提取范围',
     component: 'ExtractRange',
   },
+  {
+    name: 'formatCtrl',
+    title: '提取格式',
+    component: 'ExtractFormat',
+  },
 ];
 
 /*
@@ -31,6 +37,7 @@ export default {
     SelectResource,
     FilterResource,
     ExtractRange,
+    ExtractFormat,
   },
   props: {
     //提取模式：0：矢量提取，1：影像提取
@@ -58,6 +65,8 @@ export default {
         restype: this.extractMode,
         //方案名称
         planname: '',
+        //输出格式,SHAPE-ZIP或GDB
+        outputformat: 'SHAPE-ZIP',
         //方案创建者
         createperson: this.$appUser.id,
         //创建组织
@@ -86,9 +95,10 @@ export default {
     };
   },
   created() {
-    //影像没有过滤步骤
+    //影像没有过滤步骤和格式选择
+    const filters = ['FilterResource', 'ExtractFormat'];
     if (this.extractMode == 1) {
-      this.steps = WIZARD_STEPS.filter(p => p.component != 'FilterResource');
+      this.steps = WIZARD_STEPS.filter(p => filters.indexOf(p.component) < 0);
     } else {
       this.steps = [...WIZARD_STEPS];
     }

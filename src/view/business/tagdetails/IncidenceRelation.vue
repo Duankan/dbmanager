@@ -19,7 +19,7 @@ export default {
       externalBtnDisplay: true,
       //内部关联按钮显示
       innerBtnDisplay: true,
-      // 源字段下拉框
+      //源字段下拉框
       sourceField: [],
       //关联表名下拉框
       selectTableName: [],
@@ -97,6 +97,11 @@ export default {
                       this.externalData = JSON.parse(JSON.stringify(params.row));
                       this.oldExternalData = JSON.parse(JSON.stringify(params.row));
                       this.externalData.relatedtype += '';
+                      //   this.externalData.columndes = params.row.columndes;
+                      //   this.externalData.columnsrc = params.row.columnsrc;
+                      //   console.log(this.externalData);
+                      //   console.log(this.oldExternalData);
+                      //   console.log(params.row);
                     },
                   },
                 },
@@ -188,13 +193,19 @@ export default {
     //获取关联表名
     this.queryTableName();
     //外部关联关系数组
-    this.externalTableData = JSON.parse(this.rowData.outrelatedcolumn).concat();
+    if (this.rowData.outrelatedcolumn) {
+      this.externalTableData = JSON.parse(this.rowData.outrelatedcolumn);
+    }
     //内部关联关系数组
-    this.innerTableData = JSON.parse(this.rowData.relatedcolumn).concat();
+    if (this.rowData.relatedcolumn) {
+      this.innerTableData = JSON.parse(this.rowData.relatedcolumn);
+    }
   },
   methods: {
     querysourceField() {
-      this.sourceField = JSON.parse(this.rowData.rescolumn);
+      if (this.rowData.rescolumn) {
+        this.sourceField = JSON.parse(this.rowData.rescolumn);
+      }
       //源字段初始值
       // this.externalData.columnsrc = this.sourceField[0].name;
     },
@@ -317,7 +328,6 @@ export default {
             <FormItem label="源表名：">
               <Input
                 v-model="externalData.databasename"
-                disabled
               />
             </FormItem>
             </Col>

@@ -2,6 +2,9 @@
 import * as helps from '@/utils/helps';
 import AttributeFilter from './AttributeFilter';
 
+//提取必须字段
+const REQUIRED_FIELDS = ['gid', 'x1', 'y1', 'x2', 'y2', 'Shape_Leng', 'Shape_Area', 'bbox'];
+
 /*
  * 过滤提取资源模块
  */
@@ -41,6 +44,8 @@ export default {
       checkAll: false,
       //字段选择列表
       selectSchemas: [],
+      //保留字段列表
+      reservedSchemas: [],
     };
   },
   created() {
@@ -52,17 +57,18 @@ export default {
       let layer = this.selectLayers[index];
       //查询资源schema信息
       const response = await api.db.findResourceInfo({ id: layer.resid });
-      this.currentSchemas = helps.filterSchema(response.data.schema.map(p => p.name));
+      let fields = response.data.schema.map(p => p.name);
+      this.reservedSchemas = fields.filter(p => REQUIRED_FIELDS.indexOf(p) > 0);
+      this.currentSchemas = helps.filterSchema(fields);
       this.currentFilter = {
         schemas: this.currentSchemas.join(','),
         name: layer.resname,
         filter: layer.filter,
       };
-      this.selectSchemas = layer.schema.split(',');
       this.currentId = layer.resid;
       //下一个刷新周期更新选中字段
       this.$nextTick(() => {
-        this.selectSchemas = layer.schema.split(',');
+        this.selectSchemas = helps.filterSchema(layer.schema.split(','));
         this.selectSchemasChange(this.selectSchemas);
       });
     },
@@ -106,7 +112,7 @@ export default {
     //应用当前更改
     applyCurrentChange() {
       let curLayer = this.selectLayers.find(p => p.resid == this.currentId);
-      curLayer.schema = this.selectSchemas.join(',');
+      curLayer.schema = [...this.selectSchemas, ...this.reservedSchemas].join(',');
       let filter = this.$refs.filterEditor.getFilter();
       if (filter) {
         curLayer.filter = filter;
