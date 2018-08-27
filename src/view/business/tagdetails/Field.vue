@@ -106,7 +106,6 @@ export default {
     //表格数据处理
     if (this.rowData.rescolumn) {
       this.tableData = JSON.parse(this.rowData.rescolumn);
-      console.log(this.tableData);
     }
   },
   methods: {
