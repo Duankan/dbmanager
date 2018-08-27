@@ -14,25 +14,15 @@ export default {
     BusinessTable,
     DataDetails,
     // BasiclnRight,
-    //  <BusinessTable></BusinessTable>
     // <DataDetails></DataDetails>
   },
   data() {
     return {
-      labelsData: [],
-      tableDatas: [],
       treeDatas: [],
+      tableDatas: [],
     };
   },
-  // watch: {
-  //   lableData() {},
-  // },
   methods: {
-    //把子组件抛过来的事件的数据通过data传过来
-    dataChange(data) {
-      //把传过来的数据放到新的数组里面
-      this.labelsData = data;
-    },
     //表格数据传过来
     tableDataChange(data) {
       this.tableDatas = data;
@@ -54,13 +44,13 @@ export default {
           name="name1">
           <!--左侧查询 -->
           <DataDisplay
-            :lable-data="labelsData"
-            :table-datas="tableDatas"
-            :tree-datas="treeDatas"></DataDisplay>
-          <!--左侧树 -->
-          <BusinessSort @dataChangeEvnet="treeDataChange"></BusinessSort>
+            :tree-datas="treeDatas"
+            @on-dataChangeEvnet="tableDataChange"
+          ></DataDisplay>
+          <!--左侧树-->
+          <BusinessSort @on-dataTreeChangeEvnet="treeDataChange"></BusinessSort>
           <!--左侧标签 -->
-          <BusinessLable @dataChangeEvnet="dataChange"></BusinessLable>
+          <BusinessLable ></BusinessLable>
         </Tab-pane>
         <Tab-pane
           label="业务数据展示"
@@ -71,7 +61,9 @@ export default {
     </div>
     <div id="right-context">
       <!--右侧表格 -->
-      <BusinessTable @dataChangeEvnet="tableDataChange"></BusinessTable>
+      <BusinessTable
+        :table-datas="tableDatas"
+      ></BusinessTable>
       <!--元数据详情-->
       <!--<DataDetails></DataDetails>-->
     </div>

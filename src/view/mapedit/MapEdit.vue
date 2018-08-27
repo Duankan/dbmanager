@@ -108,6 +108,7 @@ export default {
         <RadioGroup
           v-model="selectOut"
           type="button"
+          
         >
           <Radio label="选择样式"></Radio>
           <Radio

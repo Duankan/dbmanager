@@ -2,6 +2,7 @@
 import * as types from '@/store/types';
 import api from 'api';
 import { filterSchema, getNodeStyleType } from '@/utils/helps';
+import { date } from '@ktw/ktools';
 
 export default {
   name: 'Publish',
@@ -29,19 +30,7 @@ export default {
       plotTypes: ['1.0', '2.0'],
       plotPlans: ['rasterPlotWorld', 'rasterPlotRect'],
       serviceTypes: [],
-      publishForm: {
-        title: '',
-        crs: '',
-        styles: '',
-        name: '',
-        serviceType: ['12', '6'],
-        nameField: '',
-        typeField: '',
-        minLevel: 8,
-        maxLevel: 17,
-        rasterPlotPlan: 'rasterPlotWorld',
-        rasterRplotType: '2.0',
-      },
+      publishForm: this.createDefaultModel('', ''),
     };
   },
   computed: {
@@ -53,19 +42,7 @@ export default {
     async node(val) {
       if (val) {
         const name = await this.handleServiceName(val.name);
-        this.publishForm = {
-          title: val.name,
-          name,
-          crs: '',
-          styles: '',
-          serviceType: ['12', '6'],
-          nameField: '',
-          typeField: '',
-          minLevel: 8,
-          maxLevel: 17,
-          rasterPlotPlan: 'rasterPlotWorld',
-          rasterRplotType: '2.0',
-        };
+        this.publishForm = this.createDefaultModel(name, val.name);
         this.resourceInfo = val;
         this.showMore = false;
         this.getStyle(val);
@@ -85,6 +62,25 @@ export default {
         this.publishForm.styles = '';
       }
       this.$emit('input', visible);
+    },
+    //创建默认发布模型
+    createDefaultModel(name, title) {
+      return {
+        title,
+        name,
+        crs: '',
+        styles: '',
+        isVectorTile: false,
+        minCacheLevel: 0,
+        maxCacheLevel: 8,
+        serviceType: ['12', '6'],
+        nameField: '',
+        typeField: '',
+        minLevel: 8,
+        maxLevel: 17,
+        rasterPlotPlan: 'rasterPlotWorld',
+        rasterRplotType: '2.0',
+      };
     },
     // 获取样式信息
     async getStyle(node) {
@@ -120,6 +116,15 @@ export default {
       }
       this.publishForm.serviceType = this.serviceTypes.map(p => p.value);
     },
+    //切片选择改变
+    vectorChange(val) {
+      if (val) {
+        this.serviceTypes = [{ key: 'WMTS', value: '5' }, { key: 'WFS', value: '6' }];
+      } else {
+        this.serviceTypes = [{ key: 'WMS', value: '12' }, { key: 'WFS', value: '6' }];
+      }
+      this.publishForm.serviceType = this.serviceTypes.map(p => p.value);
+    },
     //获取字段信息
     getFields() {
       let fields = this.resourceInfo.schema.map(p => p.name);
@@ -138,6 +143,13 @@ export default {
       if (!this.publishForm.name) {
         this.$Message.info('请选择服务名称');
         return false;
+      }
+      //切片服务
+      if (this.publishForm.isVectorTile) {
+        if (this.publishForm.minCacheLevel >= this.publishForm.maxCacheLevel) {
+          this.$Message.info('最大切片等级不能小于最小切片等级');
+          return false;
+        }
       }
       //影像服务
       if (this.publishType == 2) {
@@ -178,6 +190,12 @@ export default {
         title: this.publishForm.title,
         styles: this.publishForm.styles,
       };
+      //切片服务
+      if (this.publishForm.isVectorTile) {
+        params.isVectorTile = this.publishForm.isVectorTile;
+        params.maxLevel = this.publishForm.maxCacheLevel;
+        params.levelNum = this.publishForm.maxCacheLevel - this.publishForm.minCacheLevel + 1;
+      }
       //影像服务
       if (this.publishType == 2) {
         params.inputTransparentColor = '';
@@ -193,19 +211,45 @@ export default {
         params.typeField = this.publishForm.typeField;
       }
       api.db
-        .publishService(params)
+        .publishServiceByTask(params)
         .then(p => {
           this.publishLoading = false;
-          this.$Message.success('服务发布成功！');
-          // 刷新当前页面
-          const currentNode = this.$store.state.app.currentDirectory;
-          this.$store.dispatch(types.APP_NODES_FETCH, currentNode);
-          // 关闭modal窗口
+          this.addPollTask(p.data);
           this.visibleChange(false);
         })
         .catch(p => {
           this.publishLoading = false;
+          this.$Message.error('服务发布失败！');
         });
+      // api.db
+      //   .publishService(params)
+      //   .then(p => {
+      //     this.publishLoading = false;
+      //     this.$Message.success('服务发布成功！');
+      //     // 刷新当前页面
+      //     const currentNode = this.$store.state.app.currentDirectory;
+      //     this.$store.dispatch(types.APP_NODES_FETCH, currentNode);
+      //     // 关闭modal窗口
+      //     this.visibleChange(false);
+      //   })
+      //   .catch(p => {
+      //     this.publishLoading = false;
+      //   });
+    },
+    //新增轮询任务
+    addPollTask(taskId) {
+      let callback = data => {
+        return data;
+      };
+      let task = {
+        taskId,
+        method: 'getServiceByTask',
+        callback,
+        taskType: '批量入库',
+        taskName: this.node.name,
+        taskTime: date.format(new Date(), 'YYYY-M-D HH:mm'),
+      };
+      this.$store.commit(types.ADD_POLL_TASK, task);
     },
     // 处理服务名称
     async handleServiceName(name) {
@@ -357,6 +401,41 @@ export default {
           v-model="publishForm.typeField">
           <Option
             v-for="(item,index) in fieldsInfo"
+            :label="item"
+            :value="item"
+            :key="index">
+            {{ item }}
+          </Option>
+        </Select>
+      </FormItem>
+      <FormItem
+        v-show="publishType==1"
+        label="矢量切片：">
+        <Checkbox
+          v-model="publishForm.isVectorTile"
+          @on-change="vectorChange">是否切片</Checkbox>
+      </FormItem>
+      <FormItem
+        v-show="publishType==1&&publishForm.isVectorTile"
+        label="切片级别：">
+        <label>最小</label>
+        <Select
+          v-model="publishForm.minCacheLevel"
+          class="inline-select">
+          <Option
+            v-for="(item,index) in levels"
+            :label="item"
+            :value="item"
+            :key="index">
+            {{ item }}
+          </Option>
+        </Select>
+        <label>最大</label>
+        <Select
+          v-model="publishForm.maxCacheLevel"
+          class="inline-select">
+          <Option
+            v-for="(item,index) in levels"
             :label="item"
             :value="item"
             :key="index">
