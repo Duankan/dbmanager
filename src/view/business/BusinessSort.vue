@@ -4,8 +4,6 @@ export default {
   data() {
     return {
       treeId: '',
-
-      isEdit: false,
       treeDatas: [],
       dataTree: [
         {
@@ -80,7 +78,7 @@ export default {
       },
     };
   },
-  //监听数据列表
+  // 监听数据列表
   watch: {
     dataTree: {
       handler(newVals) {
@@ -89,7 +87,7 @@ export default {
         newVals.forEach(element => {
           this.$set(element, 'isEdits', false);
         });
-        this.$emit('dataChangeEvnet', newVals);
+        this.$emit('on-dataTreeChangeEvnet', newVals);
       },
       immediate: true,
     },
@@ -98,9 +96,11 @@ export default {
     this.searchTree();
   },
   methods: {
+    //查询所有分类
     async searchTree() {
       const response = await api.db.findalltypeBusiness({});
       this.dataTree = response.data;
+      this.$emit('on-dataTreeChangeEvnet', response.data);
     },
     renderContent(h, { root, node, data }) {
       return h(
@@ -138,6 +138,11 @@ export default {
                   },
                   style: {
                     width: '76px',
+                  },
+                  on: {
+                    'on-change': e => {
+                      data.value = e.target.value;
+                    },
                   },
                 },
                 data.title
@@ -195,9 +200,9 @@ export default {
                   padding: '0px 3px',
                 },
                 on: {
-                  click: () => {
+                  click: $event => {
                     data.isEdits = true;
-                    this.edit(event, data);
+                    this.edit($event, data);
                   },
                 },
               }),
@@ -224,9 +229,11 @@ export default {
     //添加树节点
     append(data) {
       this.$Modal.confirm({
+        title: '资源分类',
         render: h => {
           return h('Input', {
             props: {
+              autofocus: true,
               value: data.name, //添加的节点名
               placeholder: '请输入分类名',
             },
@@ -238,24 +245,27 @@ export default {
           });
         },
         onOk: async () => {
-          //获取当前点击的id
-          const id = data.data.id;
-          const remark = data.data.remark;
-          //把当前添加的数据放到id的子节点里
-          const children = data.children || [];
-          children.push({
-            title: data.name,
-            expand: true,
-          });
-          // this.$set(data, 'children', children);
-          const response = await api.db.addBusiness({
-            name: data.name, //分类名
-            remark: remark, //描述
-            parid: id, //父节点ID
-          });
-          this.$Message.info('添加成功');
-          //渲染页面
-          this.searchTree();
+          if (!data.name) {
+            this.$Message.error('输入不能为空');
+          } else {
+            const children = data.children || [];
+            //获取当前点击的id
+            const id = data.data.id;
+            const remark = data.data.remark;
+            const response = await api.db.addBusiness({
+              name: data.name, //分类名
+              remark: remark, //描述
+              parid: id, //父节点ID
+            });
+            //把当前添加的数据放到id的子节点里
+            children.push({
+              title: data.name,
+              expand: true,
+            });
+            this.$Message.success('添加成功');
+            //渲染页面
+            this.searchTree();
+          }
         },
         onCancel: () => {
           this.$Message.info('取消');
@@ -272,12 +282,14 @@ export default {
           const response = await api.db.deletetypeBusiness({ id: treeId });
           //获取父节点
           const parentKey = root.find(el => el === node).parent;
+          debugger;
           //获取当前节点
           const parent = root.find(el => el.nodeKey === parentKey).node;
           //获取当前节点的值
           const index = parent.children.indexOf(data);
           parent.children.splice(index, 1);
           this.$Message.info('已删除');
+          this.searchTree();
         },
         onCancel: () => {
           this.$Message.info('取消');
@@ -285,23 +297,33 @@ export default {
       });
     },
     //编辑按钮
-    edit(event, data) {
+    async edit(event, data) {
       event.target.parentElement.parentElement.parentElement
         .getElementsByTagName('span')[0]
         .getElementsByTagName('input')[0]
         .focus();
     },
     //编辑数据
-    async updatas(index) {
-      const id = index.data.id;
-      const remark = index.data.remark;
-      const name = index.data.name;
-      const response = await api.db.updateBusiness({
-        id: id,
-        name: name,
-        remark: remark,
-      });
-      this.$Message.info('修改成功');
+    async updatas(index, event) {
+      if (!index.value) {
+        this.$Message.error('输入不能为空');
+        data.isEdits = true;
+      } else {
+        // this.edit();
+        const id = index.data.id;
+        const remark = index.data.remark;
+        const name = index.value;
+        const oldname = index.title;
+        const response = await api.db.updateBusiness({
+          id: id, //分类id
+          name: name, //新分类名
+          remark: remark, //描述
+          oldname: oldname, //旧分类名
+        });
+        this.$Message.success('修改成功');
+        this.searchTree();
+        data.isEdits = true;
+      }
     },
   },
 };

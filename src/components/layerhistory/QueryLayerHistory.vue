@@ -96,51 +96,64 @@ export default {
 </script>
 
 <template>
-  <div class="db-query-his">
-    <RadioGroup
-      v-model="changeType"
-      style="width:100%;text-align: center;"
-      type="button"
-      @on-change="queryLayer">
-      <Radio label="1=1">全部</Radio>
-      <Radio label="optype=1">新增</Radio>
-      <Radio label="optype=2">编辑</Radio>
-      <Radio label="optype=3">删除</Radio>
-    </RadioGroup>
-    <ul class="his-list">
-      <li
-        v-for="(row,rowIdx) in listData"
-        :key="rowIdx"
-        class="his-list-item"
-        @click="highLight(row,rowIdx)">
-        <i :class="titleClass(row.optype)">{{ rowIdx +1 }}</i>
-        <ul
-          class="his-item-detail">
-          <li
-            v-for="(prop,proIdx) in Object.keys(row)"
-            v-show="isMoreView(row,prop,proIdx)"
-            :key="proIdx">
-            <span
-            class="detail-label">{{ prop }}：</span>{{ row[prop] }}</li>
-          <li><span @click="moreView(row,rowIdx)">查看详情</span></li>
-        </ul>
-      </li>
-    </ul>
-    <Page
-      :current="pageIndex"
-      :total="totalPages"
-      style="width:100%"
-      size="small"
-      show-total
-      @on-change="changePage"
-    ></Page>
+  <div>
+
+    <div class="db-query-his">
+      <ul class="his-list">
+        <li
+          v-for="(row,rowIdx) in listData"
+          :key="rowIdx"
+          class="his-list-item"
+          @click="highLight(row,rowIdx)">
+          <i :class="titleClass(row.optype)">{{ rowIdx +1 }}</i>
+          <ul
+            class="his-item-detail">
+            <li
+              v-for="(prop,proIdx) in Object.keys(row)"
+              v-show="isMoreView(row,prop,proIdx)"
+              :key="proIdx">
+              <span
+              class="detail-label">{{ prop }}：</span>{{ row[prop] }}</li>
+            <li><span @click="moreView(row,rowIdx)">查看详情</span></li>
+          </ul>
+        </li>
+      </ul>
+      <RadioGroup
+        v-model="changeType"
+        class="radioGroup"
+        type="button"
+        @on-change="queryLayer">
+        <Radio label="1=1">全部</Radio>
+        <Radio label="optype=1">新增</Radio>
+        <Radio label="optype=2">编辑</Radio>
+        <Radio label="optype=3">删除</Radio>
+      </RadioGroup>
+      <Page
+        :current="pageIndex"
+        :total="totalPages"
+        style="width:100%"
+        size="small"
+        show-total
+        @on-change="changePage"
+      ></Page>
+    </div>
   </div>
 </template>
 
 <style lang="less">
+.radioGroup {
+  position: fixed;
+  background-color: #fff;
+  top: 55px;
+  left: 0;
+  width: 100%;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  text-align: center;
+}
 .db-query-his {
   .his-list {
-    margin: 5px 10px 40px 5px;
+    margin: 50px 10px 40px 5px;
   }
   .his-list-item {
     position: relative;

@@ -6,6 +6,7 @@ import DEFAULT_RIBBONS from './default-ribbons';
 import tinygradient from 'tinygradient';
 
 export default {
+  name: 'ColorRibbon',
   props: {
     //色带列表，不设置为默认色带列表
     ribbonColors: {
@@ -126,7 +127,7 @@ export default {
 .ribbon-wrapper {
   width: 100%;
   .k-dropdown-rel {
-    height: 32px;
+    height: 24px;
   }
   .k-dropdown-menu {
     max-height: 200px;

@@ -14,25 +14,17 @@ export default {
     BusinessTable,
     DataDetails,
     // BasiclnRight,
-    //  <BusinessTable></BusinessTable>
     // <DataDetails></DataDetails>
   },
   data() {
     return {
-      labelsData: [],
-      tableDatas: [],
       treeDatas: [],
+      tableDatas: {},
+      mainDate: '',
+      labelsData: [],
     };
   },
-  // watch: {
-  //   lableData() {},
-  // },
   methods: {
-    //把子组件抛过来的事件的数据通过data传过来
-    dataChange(data) {
-      //把传过来的数据放到新的数组里面
-      this.labelsData = data;
-    },
     //表格数据传过来
     tableDataChange(data) {
       this.tableDatas = data;
@@ -41,6 +33,9 @@ export default {
     treeDataChange(data) {
       this.treeDatas = data;
     },
+    TagDataChange(data) {
+      this.labelsData = data;
+    },
   },
 };
 </script>
@@ -48,30 +43,33 @@ export default {
 <template>
   <div style="width:100%;height:100%;">
     <div id="left-menu">
-      <Tabs value="name1">
+      <Tabs value="mainDate">
         <Tab-pane
           label="元数据管理"
-          name="name1">
+          name="mainDate">
           <!--左侧查询 -->
           <DataDisplay
-            :lable-data="labelsData"
-            :table-datas="tableDatas"
-            :tree-datas="treeDatas"></DataDisplay>
-          <!--左侧树 -->
-          <BusinessSort @dataChangeEvnet="treeDataChange"></BusinessSort>
+            :tree-datas="treeDatas"
+            :labels-data="labelsData"
+            @on-dataChangeEvnet="tableDataChange"
+          ></DataDisplay>
+          <!--左侧树-->
+          <BusinessSort @on-dataTreeChangeEvnet="treeDataChange"></BusinessSort>
           <!--左侧标签 -->
-          <BusinessLable @dataChangeEvnet="dataChange"></BusinessLable>
+          <BusinessLable @on-dataTagChangeEvnet="TagDataChange"></BusinessLable>
         </Tab-pane>
         <Tab-pane
           label="业务数据展示"
-          name="name2">
+          name="mainDate">
           <!--<BasiclnRight></BasiclnRight>-->
         </Tab-pane>
       </Tabs>
     </div>
     <div id="right-context">
       <!--右侧表格 -->
-      <BusinessTable @dataChangeEvnet="tableDataChange"></BusinessTable>
+      <BusinessTable
+        :table-datas="tableDatas"
+      ></BusinessTable>
       <!--元数据详情-->
       <!--<DataDetails></DataDetails>-->
     </div>

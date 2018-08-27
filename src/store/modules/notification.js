@@ -1,6 +1,7 @@
 import * as types from '../types';
 import api from 'api';
 import { date, uuid, cloneDeep } from '@ktw/ktools';
+import * as TaskParsers from '@/components/noticeicon/task-parsers';
 
 //轮询时间间隔
 const REQUEST_TIMEOUT = 5000;
@@ -44,10 +45,15 @@ const notification = {
     [types.START_POLL_TASK](state, taskId) {
       let pollTask = state.tasks.find(p => p.taskId == taskId);
       let pollHandler = async () => {
-        const response = await api.db.getbyid({
+        let method = pollTask.method || 'getbyid';
+        const response = await api.db[method]({
           id: taskId,
         });
         let data = response.data;
+        let parser = pollTask.callback;
+        if (parser && TaskParsers[parser]) {
+          data = TaskParsers[parser](data, taskId);
+        }
         let progress = 0;
         if (data.complete && !data.successful) {
           progress = 100;
@@ -57,6 +63,7 @@ const notification = {
         this.commit(types.UPDATE_POLL_TASK, {
           taskId: pollTask.taskId,
           progress: progress,
+          complete: data.successful,
           successful: data.successful,
           result: data.result,
         });
@@ -67,12 +74,13 @@ const notification = {
       pollHandler();
     },
     //更新轮询任务
-    [types.UPDATE_POLL_TASK](state, { taskId, progress, successful, result } = task) {
-      let target = state.tasks.find(p => p.taskId == taskId);
+    [types.UPDATE_POLL_TASK](state, task) {
+      let target = state.tasks.find(p => p.taskId == task.taskId);
       if (target) {
-        target.progress = progress;
-        target.successful = successful;
-        target.result = result;
+        target.progress = task.progress;
+        target.complete = task.complete;
+        target.successful = task.successful;
+        target.result = task.result;
       }
     },
     //完成轮询任务

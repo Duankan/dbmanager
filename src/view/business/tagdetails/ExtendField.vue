@@ -10,6 +10,12 @@ export default {
   },
   data() {
     return {
+      //新增按钮显示
+      addBtn: true,
+      //单条扩展字段数据
+      extendFieldData: {},
+      //修改前扩展字段数据
+      oldExtendField: {},
       //扩展字段列表数据
       tableData: [],
       //扩展字段列表标题
@@ -58,7 +64,12 @@ export default {
                   },
                   on: {
                     click: () => {
-                      this.show(params.index);
+                      //显示修改字段按钮
+                      this.addBtn = false;
+                      //修改前扩展字段数据
+                      this.oldExtendField = JSON.parse(JSON.stringify(params.row));
+                      //修改扩展字段初始值
+                      this.extendFieldData = JSON.parse(JSON.stringify(this.oldExtendField));
                     },
                   },
                 },
@@ -68,8 +79,6 @@ export default {
           },
         },
       ],
-      //新增扩展字段
-      addExtendField: {},
       //内部字段关联下拉框
       extendFieldSelect: {
         type: [
@@ -120,34 +129,49 @@ export default {
           },
         ],
       },
-      addField: false,
     };
   },
   mounted() {
     //表格数据处理
     if (this.rowData.extendmeta) {
       this.tableData = JSON.parse(this.rowData.extendmeta);
-      console.log(this.tableData);
     }
   },
   methods: {
     //新增字段
     async addFieldData() {
-      const response = await api.db
+      await api.db
         .addExtendedFields({
           id: this.rowData.id,
-          dto: this.addExtendField,
+          dto: this.extendFieldData,
         })
         .then(p => {
-          this.tableData.push(this.addExtendField);
+          this.tableData.push(this.extendFieldData);
+          this.extendFieldData = {};
         });
-      console.log(this.addExtendField);
     },
-    ok() {
-      this.$Message.info('Clicked ok');
+    //修改字段
+    async modFieldData() {
+      await api.db
+        .updateExtendedFields({
+          id: this.rowData.id,
+          oldname: this.oldExtendField.name,
+          dto: this.extendFieldData,
+        })
+        .then(p => {
+          //替换字段更新到表格
+          this.tableData.splice(this.extendFieldData._index, 1, this.extendFieldData);
+          //显示新增按钮
+          this.addBtn = true;
+          //清空表格数据
+          this.extendFieldData = {};
+        });
     },
-    cancel() {
-      this.$Message.info('Clicked cancel');
+    //取消内部修改按钮
+    cancelInnerMod() {
+      //内部创建关联按钮显示
+      this.addBtn = true;
+      this.extendFieldData = {};
     },
   },
 };
@@ -183,13 +207,13 @@ export default {
       </div>
       <Form
         :label-width="100"
-        :model="addExtendField"
+        :model="extendFieldData"
         label-position="left">
         <Row>
           <Col span="24">
           <FormItem label="扩展字段名称：">
             <Input
-              v-model="addExtendField.name"
+              v-model="extendFieldData.name"
               placeholder="扩展字段名称" />
           </FormItem>
             </Col>
@@ -197,7 +221,7 @@ export default {
         <Row>
           <Col span="24">
           <FormItem label="字段类型：">
-            <Select v-model="addExtendField.type">
+            <Select v-model="extendFieldData.type">
               <Option
                 v-for="item of extendFieldSelect.type"
                 :key="item.value"
@@ -210,7 +234,7 @@ export default {
         <Row>
           <Col span="24">
           <FormItem label="字段分类：">
-            <Select v-model="addExtendField.classfiy">
+            <Select v-model="extendFieldData.classfiy">
               <Option
                 v-for="item of extendFieldSelect.classfiy"
                 :key="item.value"
@@ -225,7 +249,7 @@ export default {
           <FormItem label="处理规则：">
             <Input
               :rows="4"
-              v-model="addExtendField.extendmethod"
+              v-model="extendFieldData.extendmethod"
               type="textarea"
               placeholder="请选择多个标签管理里面的标签" />
           </FormItem>
@@ -234,7 +258,7 @@ export default {
         <Row>
           <Col span="24">
           <FormItem label="是否允许为空：">
-            <Checkbox v-model="addExtendField.allownull">是</Checkbox>
+            <Checkbox v-model="extendFieldData.allownull">是</Checkbox>
           </FormItem>
           </Col>
         </Row>
@@ -251,14 +275,31 @@ export default {
         </Row>
       </Form>
     </div>
-    </Col>
     <Col span="24">
-    <Button
-      v-show="!rowData.readonly"
-      class="btn-right"
-      type="primary"
-      @click="addFieldData">新增字段
-    </Button>
+    <div class="flex-end">
+      <Button
+        v-if ="addBtn"
+        v-show="!rowData.readonly"
+        class="btn-right"
+        type="primary"
+        @click="addFieldData">新增字段
+      </Button>
+      <Button
+        v-else
+        v-show="!rowData.readonly"
+        class="btn-right"
+        type="primary"
+        @click="modFieldData">修改字段
+      </Button>
+      <Button
+        v-if="!addBtn"
+        v-show="!rowData.readonly"
+        class= "btn-right"
+        @click="cancelInnerMod"
+      >取消修改
+      </Button>
+    </div>
+    </Col>
     </Col>
   </row>
 </template>

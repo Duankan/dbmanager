@@ -5,32 +5,32 @@ import LineStyle from './common/LineStyle';
 import FillStyle from './common/FillStyle';
 import MarkStyle from './common/MarkStyle';
 import AttributeFilter from './common/AttributeFilter';
+import RuleGroup from './common/RuleGroup';
 import * as helps from '@/utils/helps';
+
 export default {
   name: 'StyleEdit',
-  components: { StyleTable, Public, LineStyle, FillStyle, MarkStyle, AttributeFilter },
+  components: { StyleTable, Public, LineStyle, FillStyle, MarkStyle, AttributeFilter, RuleGroup },
   props: {
     layerNode: {
       type: Object,
       default: null,
     },
-    // styleType: {
-    //   type: String,
-    //   default: 'SingleSytle', //单一样式
-    // },
   },
   data() {
     return {
-      testStr: '',
       tableHeight: 0,
       styleType: 'SingleSytle', //是否是单一样式
       isOpenStyleTable: false,
+      isGroupRule: false,
       layerType: '',
       layerTypeText: '',
       styleName: '',
       styleAliasName: '',
       fieldNumS: [],
       fieldNoNumS: [],
+      ruleList: [],
+      selectRule: '',
     };
   },
   computed: {
@@ -52,6 +52,17 @@ export default {
       }
       return lineStr;
     },
+    getRules: function() {
+      return this.$refs.ruleGroup.tableData;
+    },
+    // styleType: function() {
+    //   if()
+    //   if (this.getRules.length == 0) {
+    //     return 'SingleSytle';
+    //   } else {
+    //     return 'MultipleSytle';
+    //   }
+    // },
   },
   watch: {
     layerNode: {
@@ -81,10 +92,21 @@ export default {
     this.tableHeight = document.getElementsByClassName('main')[0].offsetHeight - 220;
     window.onresize = temp => {
       this.tableHeight = document.getElementsByClassName('main')[0].offsetHeight - 220;
+      if (document.getElementsByClassName('styleMainCollapse')[0]) {
+        document.getElementsByClassName('styleMainCollapse')[0].style.height =
+          this.tableHeight + 'px';
+      }
+      if (document.getElementsByClassName('groupRuleDiv')[0]) {
+        document.getElementsByClassName('groupRuleDiv')[0].style.height = this.tableHeight + 'px';
+      }
+    };
+    if (document.getElementsByClassName('styleMainCollapse')[0]) {
       document.getElementsByClassName('styleMainCollapse')[0].style.height =
         this.tableHeight + 'px';
-    };
-    document.getElementsByClassName('styleMainCollapse')[0].style.height = this.tableHeight + 'px';
+    }
+    if (document.getElementsByClassName('groupRuleDiv')[0]) {
+      document.getElementsByClassName('groupRuleDiv')[0].style.height = this.tableHeight + 'px';
+    }
   },
   methods: {
     //样式设置返回
@@ -104,7 +126,9 @@ export default {
       }
     },
     //打开样式高级设置
-    openRuleByGroup() {},
+    openRuleByGroup() {
+      this.isGroupRule = true;
+    },
     //获取样式名称
     getLayerStyleName() {
       this.styleName = new URL(this.layerNode.serviceUrl).searchParams.get('styles');
@@ -134,11 +158,57 @@ export default {
         }
       }
     },
-    // //打开样式列表
-    // openSytleTable() {
-    //   debugger;
-    //   this.isOpenStyleTable = true;
-    // },
+    groupRuleBack() {
+      this.isGroupRule = false;
+      if (this.getRules.length == 0) {
+        this.styleType = 'SingleSytle';
+      } else {
+        this.styleType = 'MultipleSytle';
+        this.ruleList = [];
+        this.getRules.forEach((item, index) => {
+          item.title = 'rule' + (index + 1);
+          item.index = index;
+          this.ruleList.push(item);
+        });
+        this.selectRule = this.ruleList[0].title;
+      }
+    },
+    tagRemove(item) {
+      const index = this.ruleList.indexOf(item);
+      this.ruleList.splice(index, 1);
+      if (this.ruleList.length > 0) {
+        this.selectRule = this.ruleList[0].title;
+      } else {
+        this.styleType = 'SingleSytle';
+      }
+    },
+    layerStyleUser() {
+      if (this.getRules.length == 0) {
+      }
+      var styleModel = {
+        nameLayers: [
+          {
+            name: '',
+            style: [
+              {
+                name: this.styleAliasName,
+                featureTypeStyle: [
+                  {
+                    rule: this.getRules,
+                    semanticTypeIdentifier: [
+                      'generic:geometry',
+                      'colorbrewer:unique:color1:' + this.$refs.ruleGroup.field,
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        userLayers: null,
+      };
+      debugger;
+    },
   },
 };
 </script>
@@ -161,7 +231,7 @@ export default {
         <span class="title">{{ layerTypeText+'样式' }}</span>
       </p>
       <Tooltip 
-        slot="extra" 
+        slot="extra"
         :content="!isOpenStyleTable?'所有'+layerTypeText+'样式列表':'返回'" 
         placement="right">
         <a 
@@ -178,12 +248,31 @@ export default {
         </div>
         <Row>
           <Col span="9">当前样式别名：</Col>
-          <Col span="15"> <Input 
+          <Col span="13"> <Input 
             v-model="styleAliasName" 
             size="small"
             placeholder="样式别名"></Input></Col>
+          <Col span="2">
+          <Tooltip 
+            style="margin-left:4px;" 
+            content="样式另存并应用图层" 
+            placement="right">
+            <a 
+              href="javascript:void(0);" 
+              @click="layerStyleUser">
+              <SvgIcon 
+                :size="24"
+                color="#2D8CF0"
+                icon-class="layer-style-user">
+              </SvgIcon>
+            </a>
+          </Tooltip>
+          </Col>
         </Row>
-        <div style="margin-top:8px;vertical-align:middle;height:20px;">
+        <div 
+          v-show="!isGroupRule" 
+          style="margin-top:8px;vertical-align:middle;height:20px;"
+        >
           <RadioGroup 
             v-model="styleType" 
             style="line-height:19px;"
@@ -196,8 +285,8 @@ export default {
             href="javascript:void(0);"
             @click="openRuleByGroup">高级设置</a>
         </div>
-        <Card 
-          v-if="styleType=='MultipleSytle'" 
+        <Card  
+          v-show="styleType=='MultipleSytle'&&!isGroupRule" 
           class="group-card">
           <div class="group-card-context-div">
             <div class="ruleTitle">
@@ -208,54 +297,27 @@ export default {
                 size="small"
                 class="addRule">创建规则</Button>
             </div>
-            <Tag 
-              style="widht:120px;"
-              type="border" 
-              closable 
-              color="blue">规则一</Tag>
-            <Tag 
-              type="border" 
-              closable 
-              color="blue">规则一</Tag>
-            <Tag 
-              type="border" 
-              closable 
-              color="blue">规则一</Tag>
-            <Tag 
-              type="border" 
-              closable 
-              color="blue">规则一</Tag>
-            <Tag 
-              type="border" 
-              closable 
-              color="blue">规则一</Tag>
-            <Tag 
-              type="border" 
-              closable 
-              color="blue">规则一</Tag>
-            <Tag 
-              type="border" 
-              closable 
-              color="blue">规则一</Tag>
-            <Tag 
-              type="border" 
-              closable 
-              color="blue">规则一</Tag>
-            <Tag 
-              type="border" 
-              closable 
-              color="blue">规则一</Tag>
-            <Tag 
-              type="border" 
-              closable 
-              color="blue">规则一</Tag>
-            <Tag 
-              type="border" 
-              closable 
-              color="blue">规则一</Tag>
+            <RadioGroup v-model="selectRule">
+              <div 
+                v-for="item in ruleList"
+                :key="item.title"  
+                class="tag-border">
+                <Radio 
+                  :label="item.title">
+                </Radio>
+                <Icon 
+                  :size="24"
+                  type="ios-close-empty" 
+                  style="vertical-align: middle;line-height: 35px;" 
+                  @click.native="tagRemove(item)">
+                </Icon>
+              </div>
+            </RadioGroup>
           </div>
         </Card>
-        <div class="styleMainCollapse">
+        <div 
+          v-show="!isGroupRule" 
+          class="styleMainCollapse">
           <Collapse 
             value="1" 
             simple>
@@ -300,14 +362,46 @@ export default {
                 :layer-type="layerType" 
                 :field-num-s="fieldNumS"
                 :field-no-num-s="fieldNoNumS"
-                :style-type="styleType"/>           </Panel>
+                :style-type="styleType"/>           
+            </Panel>
           </Collapse>
+        </div>
+        <div 
+          v-show="isGroupRule" 
+          class="groupRuleDiv" >
+          <Card 
+            v-show="isGroupRule" 
+            class="group-rule-card"
+          > 
+            <p slot="title">
+              高级设置
+            </p>
+            <Tooltip 
+              slot="extra"
+              style="float: right;" 
+              content="返回" 
+              placement="right">
+              <a 
+                href="javascript:void(0);" 
+                @click="groupRuleBack"><SvgIcon 
+                  :size="18"
+                  icon-class="style-back"></SvgIcon></a>
+            </Tooltip>  
+            <RuleGroup 
+              ref="ruleGroup"
+              :layer-type="layerType" 
+              :field-num-s="fieldNumS"
+              :field-no-num-s="fieldNoNumS"
+              :layer-node="layerNode"
+              :style-type="styleType"/>
+          </Card>
         </div>
       </div>
       <div 
         v-else ><StyleTable 
           :layer-type="layerType" 
-          :layer-node="layerNode"/></div>
+          :layer-node="layerNode"/>
+      </div>
     </Card>
   </div>
 </template>
@@ -387,6 +481,32 @@ export default {
 
   /deep/.k-collapse-header {
     padding-left: 16px;
+  }
+
+  .grouprulediv {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    margin: 8px, 4px, 8px, 4px;
+    overflow-y: auto;
+  }
+  .group-rule-card {
+    margin-top: 8px;
+    height: calc(~'100vh - 250px');
+  }
+  .tag-border {
+    height: 35px;
+    line-height: 35px;
+    margin: 4px;
+    border: 1px solid #e9eaec;
+    color: #2d8cf0;
+    text-align: center;
+    vertical-align: middle;
+    font-weight: bold;
+    /* float: right; */
+    width: 100px;
+    display: inline-block;
+    border-radius: 6px;
   }
 }
 </style>
