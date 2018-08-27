@@ -63,6 +63,7 @@ const notification = {
         this.commit(types.UPDATE_POLL_TASK, {
           taskId: pollTask.taskId,
           progress: progress,
+          complete: data.successful,
           successful: data.successful,
           result: data.result,
         });
@@ -73,12 +74,13 @@ const notification = {
       pollHandler();
     },
     //更新轮询任务
-    [types.UPDATE_POLL_TASK](state, { taskId, progress, successful, result } = task) {
-      let target = state.tasks.find(p => p.taskId == taskId);
+    [types.UPDATE_POLL_TASK](state, task) {
+      let target = state.tasks.find(p => p.taskId == task.taskId);
       if (target) {
-        target.progress = progress;
-        target.successful = successful;
-        target.result = result;
+        target.progress = task.progress;
+        target.complete = task.complete;
+        target.successful = task.successful;
+        target.result = task.result;
       }
     },
     //完成轮询任务
