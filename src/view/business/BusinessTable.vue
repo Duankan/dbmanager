@@ -250,7 +250,6 @@ export default {
       // 新增是否提交基本信息标记
       this.selectData.pointer = true;
     },
-
     //时间格式化
     formatDate(datas) {
       if (datas) {

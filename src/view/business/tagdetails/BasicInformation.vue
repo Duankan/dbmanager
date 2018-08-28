@@ -13,7 +13,12 @@ export default {
     return {
       formItem: {},
       copyRowData: this.rowData,
-      //标签页可点击
+      //修改标签模态框显示
+      tagDialog: false,
+      //全部标签名
+      tags: [],
+      // 已选标签名
+      selectedTags: [],
     };
   },
   mounted() {
@@ -23,10 +28,20 @@ export default {
     if (this.copyRowData.begdate) {
       this.copyRowData.begdate = date.format(new Date(this.copyRowData.enddate), 'YYYY-M-D');
     }
+    this.queryTagData();
+    //字符串类型标签转数组
+    if (this.copyRowData.keyword) {
+      this.copyRowData.keyword = this.copyRowData.keyword.split(',');
+      console.log(this.copyRowData.keyword);
+    }
   },
   methods: {
     /**修改基本信息 */
     async modBasicInformation() {
+      // 标签转字符串
+      if (this.copyRowData.keyword.constructor === Array) {
+        this.copyRowData.keyword = this.copyRowData.keyword.join(',');
+      }
       if (this.copyRowData.add == true) {
         //新增基本信息
         await api.db.addbasicinfoBusiness(this.copyRowData).then(p => {
@@ -34,8 +49,50 @@ export default {
         });
       } else {
         //修改基本信息
-        await api.db.updatebasicinfoBusiness(this.copyRowData);
+        await api.db.updatebasicinfoBusiness(this.copyRowData).then(p => {
+          this.copyRowData.keyword = this.copyRowData.keyword.split(',');
+          console.log(this.copyRowData);
+        });
       }
+    },
+    // 获取标签数据
+    async queryTagData() {
+      await api.db.findallBusiness().then(p => {
+        if (typeof p.data == 'string') {
+          this.tags = p.data;
+          this.tags = this.tags.split(',');
+        } else {
+          this.tags = p.data;
+        }
+      });
+    },
+    //打开添加标签模态框
+    addTagDialog() {
+      this.tagDialog = true;
+      //已选标签数据同步
+      this.selectedTags = this.copyRowData.keyword;
+    },
+    //确认修改标签按钮
+    modTag() {
+      //已选标签与页面同步
+      this.copyRowData.keyword = this.selectedTags.concat();
+      //更新新增标签
+      this.copyRowData.keyword = [...this.copyRowData.keyword, ...this.selectedTags];
+      //类数组对象转数组
+      this.copyRowData.keyword = Array.from(new Set(this.copyRowData.keyword));
+    },
+    //标签模态框取消
+    cancel() {
+      this.$Message.info('Clicked cancel');
+    },
+    //点击复选框触发事件
+    checked(event) {
+      console.log(this.selectedTags);
+    },
+    //关闭标签触发事件
+    tagsClose(event, name) {
+      const index = this.copyRowData.keyword.indexOf(name);
+      this.copyRowData.keyword.splice(index, 1);
     },
   },
 };
@@ -109,11 +166,46 @@ export default {
     <Row>
       <Col span="18">
       <FormItem label="标签关键字：">
-        <Input
+        <Button
+          icon="ios-add"
+          type="dashed"
+          size="small"
+          @click="addTagDialog">
+          修改标签
+        </Button>
+        <div>
+          <Tag
+            v-for="item of copyRowData.keyword"
+            :key = "item"
+            :name="item"
+            type="dot"
+            closable
+            color="primary"
+            @on-close="tagsClose">
+            {{ item }}</Tag>
+        </div>
+        <modal
+          v-model="tagDialog"
+          width = "500"
+          title="修改标签"
+          @on-ok="modTag"
+          @on-cancel="cancel">
+          <CheckboxGroup
+            v-model="selectedTags"
+            @on-change="checked">
+            <Checkbox
+              v-for="item of tags"
+              :key ="item.name"
+              :label="item.name"
+            >
+            </Checkbox>
+          </CheckboxGroup>
+        </modal>
+        <!--<Input
           :rows="4"
           v-model="copyRowData.keyword"
           type="textarea"
-          placeholder="请选择多个标签管理里面的标签" />
+          placeholder="请选择多个标签管理里面的标签" />-->
       </FormItem>
       </Col>
     </Row>
