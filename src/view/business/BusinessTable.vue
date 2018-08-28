@@ -11,6 +11,10 @@ export default {
       type: Object,
       default: () => {},
     },
+    treeData: {
+      type: Array,
+      default: () => [],
+    },
   },
   data() {
     return {
@@ -295,6 +299,7 @@ export default {
       v-else>
       <DataDetails
         :business-data="selectData"
+        :tree-data="treeData"
         @backEvent="queryData"></DataDetails>
     </div>
   </div>

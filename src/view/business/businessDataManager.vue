@@ -22,6 +22,7 @@ export default {
       tableDatas: {},
       mainDate: '',
       labelsData: [],
+      treeData: [],
     };
   },
   methods: {
@@ -35,6 +36,10 @@ export default {
     },
     TagDataChange(data) {
       this.labelsData = data;
+    },
+    //联级树
+    queryTreeData(data) {
+      this.treeData = data;
     },
   },
 };
@@ -52,6 +57,7 @@ export default {
             :tree-datas="treeDatas"
             :labels-data="labelsData"
             @on-dataChangeEvnet="tableDataChange"
+            @TreeData="queryTreeData"
           ></DataDisplay>
           <!--左侧树-->
           <BusinessSort @on-dataTreeChangeEvnet="treeDataChange"></BusinessSort>
@@ -68,6 +74,7 @@ export default {
     <div id="right-context">
       <!--右侧表格 -->
       <BusinessTable
+        :tree-data="treeData"
         :table-datas="tableDatas"
       ></BusinessTable>
       <!--元数据详情-->

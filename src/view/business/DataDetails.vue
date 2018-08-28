@@ -19,6 +19,10 @@ export default {
       type: Object,
       default: null,
     },
+    treeData: {
+      type: Array,
+      default: null,
+    },
   },
   data() {
     return {
@@ -93,6 +97,7 @@ export default {
           <div class="data-details">
             <BasicInformation
               :row-data="copyBusinessData"
+              :tree-data="treeData"
               @on-tagEvent="pointer"
             >
             </BasicInformation>
@@ -104,12 +109,12 @@ export default {
           name="name2">
           <Field :row-data="copyBusinessData"></Field>
         </TabPane>
-        <TabPane
+        <!--<TabPane
           :disabled="setTabClasses"
           label="关联关系"
           name="name3">
           <IncidenceRelation :row-data="copyBusinessData"></IncidenceRelation>
-        </TabPane>
+        </TabPane>-->
         <TabPane
           :disabled="setTabClasses"
           label="扩展字段"
