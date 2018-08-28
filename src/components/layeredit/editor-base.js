@@ -47,7 +47,7 @@ class EditorBase {
   refreshLayer() {
     //this.layerInfo.layer.redraw();
     const bounds = this.map.getCenter();
-    this.map.panTo({ lat: bounds.lat, lng: bounds.lng + 0.003 });
+    this.map.panTo({ lat: bounds.lat, lng: bounds.lng + 0.01 });
   }
 
   /**
