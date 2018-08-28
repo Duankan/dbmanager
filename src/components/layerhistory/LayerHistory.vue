@@ -206,7 +206,7 @@ export default {
 
 </template>
 
-<style lang="less" scoped>
+<style lang="less">
 .layer-history-wrapper {
   position: relative;
   height: 100%;
@@ -263,6 +263,14 @@ export default {
     cursor: pointer;
     &:hover {
       opacity: 0.8;
+    }
+  }
+  .k-timeline-item-content {
+    margin-left: 20px;
+    padding-left: 5px;
+    border-radius: 1px;
+    &:hover {
+      background-color: #eeeeee;
     }
   }
 }

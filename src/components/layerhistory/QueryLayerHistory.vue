@@ -73,8 +73,8 @@ export default {
       this.pageIndex = pageIdx;
       this.queryLayer();
     },
-    highLight(item, index) {
-      const row = JSON.parse(JSON.stringify(this.features[index]));
+    highlight(item, index) {
+      const row = this.features[index];
       this.$store.commit('SET_MAP_GEOJSON', { geojson: row, type: 'once' });
     },
     clear() {
@@ -132,7 +132,7 @@ export default {
             v-for="(row,rowIdx) in listData"
             :key="rowIdx"
             class="his-list-item"
-            @click="highLight(row,rowIdx)">
+            @click="highlight(row,rowIdx)">
             <i :class="titleClass(row.optype)">{{ rowIdx +1 }}</i>
             <ul
               class="his-item-detail">
@@ -239,17 +239,16 @@ export default {
     margin: 10px;
   }
   .list-original {
-    background: #0000ff !important;
+    background: #459aee !important;
   }
   .list-add {
-    background: #00ff00 !important;
+    background: #19be6b !important;
   }
   .list-delete {
-    background: #ff0000 !important;
+    background: #ff9900 !important;
   }
   .list-edit {
-    background: #ffff00 !important;
-    color: #000000 !important;
+    background: #ed3f14 !important;
   }
   .k-page {
     position: fixed;
