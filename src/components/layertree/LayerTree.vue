@@ -169,6 +169,8 @@ export default {
     },
     // 移除全部图层
     removeLayer(root, node, data) {
+      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
+      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
       const deleteLayers = data.children.map(layer => layer.name);
       this.$store.commit('SET_MAP_GOCLAYER_DELETE', deleteLayers);
     },
