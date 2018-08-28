@@ -30,6 +30,7 @@ export default {
                   h('Icon', {
                     props: {
                       type: 'ios-folder',
+                      expand: true,
                     },
                     style: {
                       marginRight: '8px',
@@ -104,11 +105,8 @@ export default {
   },
   methods: {
     async searchTrees() {
-      debugger;
       const response = await api.db.findallwithmatadata([]);
-      debugger;
       this.dataTrees = response.data;
-      debugger;
     },
     renderContents(h, { root, node, data }) {
       return h(
@@ -348,7 +346,6 @@ export default {
   border: 1px solid #e8eaec;
   padding: 0px 22px 5px 25px;
   border-top: 0px;
-  padding-top: 10px;
 }
 .top {
   width: 100%;

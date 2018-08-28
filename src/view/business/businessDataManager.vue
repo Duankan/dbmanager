@@ -41,14 +41,9 @@ export default {
     TagDataChange(data) {
       this.labelsData = data;
     },
-
+    //标签切换
     toggle() {
-      debugger;
-      this.display = flase;
-    },
-    toggleData() {
-      debugger;
-      this.display = flase;
+      this.display = !this.display;
     },
   },
 };
@@ -57,11 +52,12 @@ export default {
 <template>
   <div style="width:100%;height:100%;">
     <div id="left-menu">
-      <Tabs value="name1">
+      <Tabs
+        value="name1"
+        @on-click="toggle()">
         <Tab-pane
           label="元数据管理"
-          name="name1"
-          @click="toggle">
+          name="name1">
           <!--左侧查询 -->
           <DataDisplay
             :tree-datas="treeDatas"
@@ -75,8 +71,7 @@ export default {
         </Tab-pane>
         <Tab-pane
           label="业务数据展示"
-          name="name2"
-          @click="toggleData">
+          name="name2">
           <Classify :labels-data="labelsData"></Classify>
           <TagData
             :labels-data="labelsData"
