@@ -187,6 +187,7 @@ form {
   padding: 0px 22px 5px 25px;
   border-top: 0px;
   height: 234px;
+  overflow-y: auto;
 }
 .k-form-item {
   margin-bottom: 3px !important;
