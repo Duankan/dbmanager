@@ -32,14 +32,17 @@ export default {
         {
           title: '描述',
           key: 'describe',
-          width: 300,
+          width: 200,
         },
         {
           title: '标签',
           key: 'keyword',
           render: (h, params) => {
             const row = params.row;
+            // return <Ellipsis> {row.keyword} </Ellipsis>;
             return h('Tag', params.row.keyword);
+            //  h('Tag', params.row.keyword);
+            //
           },
         },
         {
@@ -50,25 +53,29 @@ export default {
           // },
         },
 
-        {
-          title: '状态',
-          key: 'status',
-          render: (h, params) => {
-            const row = params.row;
-            const color = row.status === 1 ? 'green' : 'red';
-            const text = row.status === 1 ? '可用' : '不可用';
-            return h(
-              'Tag',
-              {
-                props: {
-                  type: 'dot',
-                  color: color,
-                },
-              },
-              text
-            );
-          },
-        },
+        // {
+        //   title: '状态',
+        //   key: 'status',
+        //   render: (h, params) => {
+        //     const row = params.row;
+        //     const begdate = date.format(new Date(params.row.begdate), 'YYYY-M-D');
+        //     const enddate = date.format(new Date(params.row.enddate), 'YYYY-M-D');
+
+        //     debugger;
+        //     const color = row.status === 1 ? 'green' : 'red';
+        //     const text = row.status === 1 ? '可用' : '不可用';
+        //     return h(
+        //       'Tag',
+        //       {
+        //         props: {
+        //           type: 'dot',
+        //           color: color,
+        //         },
+        //       },
+        //       text
+        //     );
+        //   },
+        // },
         {
           title: '创建时间',
           key: 'createdate',
@@ -219,7 +226,7 @@ export default {
         onOk: async () => {
           const response = await api.db.deleteBusiness({ id: id });
           this.tableData.splice(params.index, 1);
-          this.$Message.info('已删除');
+          this.$Message.success('已删除');
           this.mocktableData();
         },
         onCancel: () => {
@@ -305,32 +312,32 @@ export default {
   width: 92%;
   margin: 0 auto;
   height: 100%;
-}
-.table-content-title {
-  height: 60px;
-  line-height: 60px;
-}
-.table-content-title-icon {
-  width: 3px;
-  height: 5px;
-  border: 1px solid #2d8cf0;
-}
-.table-content-title-content {
-  font-size: 14px;
-  padding-left: 8px;
-}
-.table-content-btn {
-  width: 100%;
-  height: 45px;
-  button {
-    float: right;
+  .table-content-title {
+    height: 60px;
+    line-height: 60px;
+    .table-content-title-icon {
+      width: 3px;
+      height: 5px;
+      border: 1px solid #2d8cf0;
+    }
+    .table-content-title-content {
+      font-size: 14px;
+      padding-left: 8px;
+    }
   }
-}
-.page {
-  margin: 10px;
-  overflow: hidden;
-  .page-item {
-    float: right;
+  .table-content-btn {
+    width: 100%;
+    height: 45px;
+    button {
+      float: right;
+    }
+  }
+  .page {
+    margin: 10px;
+    overflow: hidden;
+    .page-item {
+      float: right;
+    }
   }
 }
 </style>
