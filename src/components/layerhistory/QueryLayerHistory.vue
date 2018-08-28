@@ -244,12 +244,13 @@ export default {
   .list-add {
     background: #19be6b !important;
   }
-  .list-delete {
+  .list-edit {
     background: #ff9900 !important;
   }
-  .list-edit {
+  .list-delete {
     background: #ed3f14 !important;
   }
+
   .k-page {
     position: fixed;
     bottom: 0;
