@@ -191,6 +191,7 @@ export default {
     },
     //查询按钮提交事件
     handleSubmit(name) {
+      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
       if (this.formDynamic.wfsUrl == '') {
         this.$Message.info('请选择图层');
         return;

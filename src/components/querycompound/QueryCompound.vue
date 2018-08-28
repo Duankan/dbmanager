@@ -39,7 +39,7 @@ const numberCompare = [
   },
 ];
 export default {
-  name: 'QuerySpace',
+  name: 'QueryCompound',
   components: { DrawTools, AreaSelect },
   mixins: [QueryBase],
   props: {},
@@ -258,12 +258,44 @@ export default {
         queryOptions,
       };
     },
+    // 计算提取方式
+    setRelationship() {
+      let queryOptions;
+      if (this.queryItem.relationship === 'Clip') {
+        if (this.queryItem.place === '' && this.queryItem.geometry) {
+          queryOptions = {
+            clipGeometry: this.queryItem.geometry,
+            clip: true,
+          };
+        } else {
+          queryOptions = {
+            clipGeometry: this.queryItem.place,
+            clip: true,
+          };
+        }
+      } else {
+        if (this.queryItem.place === '' && this.queryItem.geometry) {
+          queryOptions = {
+            geometry: this.queryItem.geometry,
+            clip: false,
+          };
+        } else {
+          queryOptions = {
+            geometry: this.queryItem.place,
+            clip: false,
+          };
+        }
+      }
+      return { ...queryOptions };
+    },
     // 合并cql_filter
     setCQLFilter(isGetCqlFilter) {
       let queryCQLFilter;
       const items = this.$refs['formDynamic'].model.items;
+      // 这里拿到了属性查询的条件
       let CQLFilter = this.getCondition(items);
       if (CQLFilter.substr(0, 3) == 'AND') CQLFilter = CQLFilter.slice(3);
+      // queryCQLFilter = this.setRelationship();
       if (this.queryItem.place === '') {
         if (this.queryItem.geometry) {
           let geometrys = this.queryItem.geometry.toGeoJSON();
