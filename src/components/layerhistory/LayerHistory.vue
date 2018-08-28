@@ -23,6 +23,7 @@ export default {
       queryLayerData: {},
       //当前浏览的历史图层
       currentLayer: null,
+      historyLayerList: [],
     };
   },
   methods: {
@@ -71,7 +72,7 @@ export default {
             item.layer.latLonBox.maxy,
           crs: item.layer.srs,
           layers: item.layer.name,
-          styles: styleName,
+          //styles: styleName,
         },
       };
       this.$store.commit('SET_MAP_TEMPORARYLAYERS', temporaryData);
@@ -99,6 +100,22 @@ export default {
     },
     moreMap() {
       let container = document.body;
+      this.historyLayerList = [];
+      debugger;
+      var originalLayerUrl = this.$store.state.map.serviceList[this.originalLayerName][0]
+        .servicesurl;
+      this.historyLayerList.push({
+        url: originalLayerUrl,
+        title: this.originalLayerName,
+        time: '当前图层',
+      });
+      this.layerData.forEach(item => {
+        this.historyLayerList.push({
+          url: originalLayerUrl.replace(this.originalLayerName, item.layer.title),
+          title: item.layer.title,
+          time: item.createTime,
+        });
+      });
       this.historyHandler = this.$FloatPanel.create({
         title: '图层历史版本  ' + this.originalLayerName,
         width: container.clientWidth,
@@ -110,7 +127,11 @@ export default {
         //parent: container,
         disableDrag: true,
         render: h => {
-          return h(MoreMap, {});
+          return h(MoreMap, {
+            props: {
+              historyLayerList: this.historyLayerList,
+            },
+          });
         },
         onClose() {
           //self.historyHandler.getContent().reset();
