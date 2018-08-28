@@ -8,8 +8,8 @@ export default {
   },
   props: {
     tableDatas: {
-      type: Array,
-      default: () => [],
+      type: Object,
+      default: () => {},
     },
   },
   data() {
@@ -17,7 +17,7 @@ export default {
       display: true,
       tableData: [], //表格数据
       tableHeight: 200, //表格的高度
-      totalCount: '', //表格总页数
+      totalCount: 1, //表格总页数
       pageIndex: 1, //表格当前页
       selectData: null,
       tableColumns1: [
@@ -32,14 +32,18 @@ export default {
         {
           title: '描述',
           key: 'describe',
-          width: 300,
+          width: 200,
         },
         {
           title: '标签',
           key: 'keyword',
-          // render: (h, params) => {
-          //   return h('div');
-          // },
+          render: (h, params) => {
+            const row = params.row;
+            // return <Ellipsis> {row.keyword} </Ellipsis>;
+            return h('Tag', params.row.keyword);
+            //  h('Tag', params.row.keyword);
+            //
+          },
         },
         {
           title: '分类',
@@ -49,25 +53,29 @@ export default {
           // },
         },
 
-        {
-          title: '状态',
-          key: 'status',
-          render: (h, params) => {
-            const row = params.row;
-            const color = row.status === 1 ? 'green' : 'red';
-            const text = row.status === 1 ? '可用' : '不可用';
-            return h(
-              'Tag',
-              {
-                props: {
-                  type: 'dot',
-                  color: color,
-                },
-              },
-              text
-            );
-          },
-        },
+        // {
+        //   title: '状态',
+        //   key: 'status',
+        //   render: (h, params) => {
+        //     const row = params.row;
+        //     const begdate = date.format(new Date(params.row.begdate), 'YYYY-M-D');
+        //     const enddate = date.format(new Date(params.row.enddate), 'YYYY-M-D');
+
+        //     debugger;
+        //     const color = row.status === 1 ? 'green' : 'red';
+        //     const text = row.status === 1 ? '可用' : '不可用';
+        //     return h(
+        //       'Tag',
+        //       {
+        //         props: {
+        //           type: 'dot',
+        //           color: color,
+        //         },
+        //       },
+        //       text
+        //     );
+        //   },
+        // },
         {
           title: '创建时间',
           key: 'createdate',
@@ -161,7 +169,7 @@ export default {
     tableDatas: {
       handler(newVals) {
         this.tableData = newVals.dataSource;
-        // this.totalCount = newVals.pageInfo.pageCount;
+        // this.tableData = newVals.dataSource;
         //向父组抛传事件
         // this.$emit('dataChangeEvnet', newVals);
       },
@@ -189,6 +197,7 @@ export default {
           pageIndex: this.pageIndex, //当前页
           pageSize: 10, //每页总数
           totalCount: this.totalCount,
+          pageCount: this.pageCount,
           orderby: '', //排序字段
         },
       });
@@ -197,6 +206,7 @@ export default {
       this.tableData = response.data.dataSource;
       //获取表格总页数
       this.totalCount = response.data.pageInfo.totalCount;
+      this.pageCount = response.data.pageInfo.pageCount;
       //获取当前页
       this.pageIndex = response.data.pageInfo.pageIndex;
     },
@@ -216,7 +226,7 @@ export default {
         onOk: async () => {
           const response = await api.db.deleteBusiness({ id: id });
           this.tableData.splice(params.index, 1);
-          this.$Message.info('已删除');
+          this.$Message.success('已删除');
           this.mocktableData();
         },
         onCancel: () => {
@@ -240,7 +250,6 @@ export default {
       // 新增是否提交基本信息标记
       this.selectData.pointer = true;
     },
-
     //时间格式化
     formatDate(datas) {
       if (datas) {
@@ -282,6 +291,7 @@ export default {
           <Page
             :total="totalCount"
             :current="pageIndex"
+            show-elevator
             @on-change="changePage"
           ></Page>
         </div>
@@ -301,32 +311,32 @@ export default {
   width: 92%;
   margin: 0 auto;
   height: 100%;
-}
-.table-content-title {
-  height: 60px;
-  line-height: 60px;
-}
-.table-content-title-icon {
-  width: 3px;
-  height: 5px;
-  border: 1px solid #2d8cf0;
-}
-.table-content-title-content {
-  font-size: 14px;
-  padding-left: 8px;
-}
-.table-content-btn {
-  width: 100%;
-  height: 45px;
-  button {
-    float: right;
+  .table-content-title {
+    height: 60px;
+    line-height: 60px;
+    .table-content-title-icon {
+      width: 3px;
+      height: 5px;
+      border: 1px solid #2d8cf0;
+    }
+    .table-content-title-content {
+      font-size: 14px;
+      padding-left: 8px;
+    }
   }
-}
-.page {
-  margin: 10px;
-  overflow: hidden;
-  .page-item {
-    float: right;
+  .table-content-btn {
+    width: 100%;
+    height: 45px;
+    button {
+      float: right;
+    }
+  }
+  .page {
+    margin: 10px;
+    overflow: hidden;
+    .page-item {
+      float: right;
+    }
   }
 }
 </style>

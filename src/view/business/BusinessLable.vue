@@ -1,31 +1,40 @@
 <script>
-import * as types from '@/store/types';
 export default {
   name: 'BusinessLable',
   data() {
     return {
-      value: '',
-      newAddText: '',
+      newAddText: '', //节点修改后的数据
       readonly: true,
+      datas: [], //标签数据
     };
   },
-  computed: {
-    tagData() {
-      return this.$store.state.metadata.tagData;
-    },
-  },
-
-  created() {
+  // 监听数据列表
+  // watch: {
+  //   datas: {
+  //     handler(newVals) {
+  //       // this.labelData = [];
+  //       //给对象添加isEdit属性并赋值
+  //       newVals.forEach(element => {
+  //         this.$set(element, 'isEdit', false);
+  //       });
+  //     },
+  //     immediate: true,
+  //   },
+  // },
+  mounted() {
     this.lableDatas();
   },
   methods: {
     //查询所有标签
-    lableDatas() {
-      this.$store.dispatch(types.SEARCH_LABLE_DATA);
+    async lableDatas() {
+      const response = await api.db.findallBusiness({});
+      this.datas = response.data;
+      this.$emit('on-dataTagChangeEvnet', response.data);
     },
     //添加列表
     async addNewList() {
       this.$Modal.confirm({
+        title: '标签',
         render: h => {
           return h('Input', {
             props: {
@@ -41,7 +50,9 @@ export default {
           });
         },
         onOk: async val => {
-          if (this.newAddText) {
+          if (!this.newAddText) {
+            this.$Message.error('输入不能为空');
+          } else {
             const response = await api.db.addTaqsBusiness({
               name: this.newAddText, //标签名
               remark: '', //描述
@@ -50,8 +61,6 @@ export default {
             this.lableDatas();
             this.$Message.success('添加成功');
             this.newAddText = '';
-          } else {
-            this.$Message.error('输入不能为空');
           }
         },
         onCancel: () => {
@@ -66,13 +75,13 @@ export default {
         content: '<p>确定删除该标签？</p>',
         onOk: async () => {
           const response = await api.db.deleteTaqsBusiness({ id: id });
-          this.tagData.splice(
-            this.tagData.findIndex(item => {
+          this.datas.splice(
+            this.datas.findIndex(item => {
               return id === item.id;
             }),
             1
           );
-          this.$Message.info('已删除');
+          this.$Message.success('已删除');
         },
         onCancel: () => {
           this.$Message.info('取消');
@@ -89,8 +98,9 @@ export default {
     //编辑列表
     async updateList(item) {
       if (!item.name) {
-        this.$Message.error('标签不能为空');
-        item.isEdit = true;
+        this.$Message.error('输入不能为空');
+        this.editList();
+        this.readonly = false;
       } else {
         const response = await api.db.updateTaqsBusiness({
           id: item.id, //id
@@ -103,10 +113,6 @@ export default {
         this.readonly = true;
       }
     },
-    //对表格数据进行筛选
-    // searchTableTag(id) {
-    //   this.$store.dispatch(types.SEARCH_TABLE_TAG, id);
-    // },
   },
 };
 </script>
@@ -128,23 +134,19 @@ export default {
     </div>
     <div class="lable">
       <div
-        v-for="(item, index) in tagData"
-
+        v-for="(item, index) in datas"
         :key="index"
-        class="lable-list"
-        checkbox>
+        class="lable-list">
         <input
-          ref="item.name"
           v-model="item.name"
           :readonly="readonly"
-          class="lable-input-list"
           type="text"
+          class="lable-input-list"
 
         />
-        <!--@click="searchTableTag(item.id)"-->
         <Icon
           class="lable-list-content-icons"
-          type="ios-minus-outline"
+          type="ios-close-outline"
           size="16"
           @click.native="removeList(item.id)"></Icon>
         <Icon
@@ -161,7 +163,7 @@ export default {
           class="lable-list-content-icon-update"
           @click.native="updateList(item)"></Icon>
       </input>
-      </div>
+      </icon></div>
     </div>
 
   </div>
@@ -172,7 +174,7 @@ export default {
   width: 100%;
   padding-left: 25px;
   padding-right: 22px;
-  height: 353px;
+  height: calc(~'100vh - 476px');
   padding: 0px 22px 5px 25px;
   border-top: 0px;
   padding-top: 10px;
@@ -191,7 +193,7 @@ export default {
 }
 .lable {
   width: 100%;
-  height: calc(100% - 40px);
+  height: calc(100%-40px);
   overflow-y: auto;
   margin-top: 3px;
   .lable-list {
@@ -225,7 +227,6 @@ export default {
       height: 25px;
       border: 0;
       background: none;
-      cursor: default;
     }
   }
 }

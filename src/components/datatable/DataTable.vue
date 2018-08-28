@@ -1,5 +1,6 @@
 <script>
-import { createTableHeader } from './utils';
+import { createTableHeader } from './utils.js';
+import { setTableColumns } from '../../utils/assist.js';
 import config from 'config';
 const MAP_WFS_QUERY = 'MAP_WFS_QUERY';
 const MAP_WPS_OVERLAP = 'MAP_WPS_OVERLAP';
@@ -148,16 +149,7 @@ export default {
         if (response.features.length == 0) {
           return [];
         }
-        let cols = Object.keys(response.features[0].properties).map(p => {
-          return {
-            title: p,
-            key: p,
-            align: 'center',
-            width: 100,
-            maxWidth: 300,
-            ellipsis: true,
-          };
-        });
+        const cols = setTableColumns(response.features[0].properties);
         this.$store.commit(types.SET_BUS_FIELD, cols);
       }
     },
@@ -177,13 +169,14 @@ export default {
       const response = JSON.parse(data);
       if (response.length !== 0) {
         this.total = response.length;
-        const columns = Object.keys(response[0]).map(p => {
-          return {
-            title: p,
-            key: p,
-            align: 'center',
-          };
-        });
+        // const columns = Object.keys(response[0]).map(p => {
+        //   return {
+        //     title: p,
+        //     key: p,
+        //     align: 'center',
+        //   };
+        // });
+        const columns = setTableColumns(response[0]);
         this.$store.commit(types.SET_BUS_FIELD, columns);
         this.tableData = response.map(p => {
           return {
