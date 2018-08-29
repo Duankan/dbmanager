@@ -54,25 +54,25 @@ export default {
           // },
         },
 
-        {
-          title: '状态',
-          key: 'status',
-          render: (h, params) => {
-            const row = params.row;
-            const color = row.status === 1 ? 'green' : 'red';
-            const text = row.status === 1 ? '可用' : '不可用';
-            return h(
-              'Tag',
-              {
-                props: {
-                  type: 'dot',
-                  color: color,
-                },
-              },
-              text
-            );
-          },
-        },
+        // {
+        //   title: '状态',
+        //   key: 'status',
+        //   render: (h, params) => {
+        //     const row = params.row;
+        //     const color = row.status === 1 ? 'green' : 'red';
+        //     const text = row.status === 1 ? '可用' : '不可用';
+        //     return h(
+        //       'Tag',
+        //       {
+        //         props: {
+        //           type: 'dot',
+        //           color: color,
+        //         },
+        //       },
+        //       text
+        //     );
+        //   },
+        // },
         {
           title: '创建时间',
           key: 'createdate',
@@ -347,9 +347,5 @@ export default {
 }
 /deep/.k-table-body {
   background: #f1f3f7;
-}
-/deep/.table .k-table-wrapper {
-  border-left: none;
-  border-right: none;
 }
 </style>
