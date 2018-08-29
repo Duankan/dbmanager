@@ -97,7 +97,7 @@ export default {
       );
     },
     showAppendData() {
-      return this.selectNodes[0] && canAppend(this.selectNodes[0]) && this.selectNodes[0].pubState;
+      return false;
     },
     showAddPackage() {
       return this.selectNodes[0] && isVector(this.selectNodes[0]) && this.selectNodes[0].pubState;
@@ -389,6 +389,7 @@ export default {
 
 <style lang="less" scoped>
 .operation-dynamic {
+  margin-left: 8px;
   .k-btn-group {
     margin-left: 8px;
   }
