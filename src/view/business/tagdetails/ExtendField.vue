@@ -229,7 +229,7 @@ export default {
         <Row>
           <Col span="24">
           <FormItem
-            prop="name"
+            prop="type"
             label="字段类型：">
             <Select
               v-model="extendFieldData.type"
@@ -246,7 +246,7 @@ export default {
         <Row>
           <Col span="24">
           <FormItem
-            prop="name"
+            prop="classfiy"
             label="字段分类：">
             <Select
               v-model="extendFieldData.classfiy"
@@ -263,7 +263,7 @@ export default {
         <Row>
           <Col span="24">
           <FormItem
-            prop="name"
+            prop="extendmethod"
             label="处理规则：">
             <Input
               :rows="4"
@@ -276,7 +276,6 @@ export default {
         <Row>
           <Col span="24">
           <FormItem
-            prop="name"
             label="是否允许为空：">
             <Checkbox v-model="extendFieldData.allownull">是</Checkbox>
           </FormItem>
