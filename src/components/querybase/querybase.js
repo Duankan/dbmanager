@@ -5,7 +5,6 @@
  * @Last Modified time: 2018-06-08 10:26:32
  */
 import * as types from '@/store/types';
-import { setTableColumns } from '../../utils/assist';
 
 const commonParams = [
   'the_geom',
@@ -74,26 +73,16 @@ export default {
   methods: {
     // 得到去公共字段的展示列表字段
     getColums(totalParams) {
-      let fieldList = [],
-        isSetWidth;
-      totalParams.length > 9 ? (isSetWidth = true) : (isSetWidth = false);
+      let fieldList = [];
       totalParams.forEach(item => {
         if (commonParams.filter(key => key === item.name).length === 0) {
-          if (isSetWidth) {
-            fieldList.push({
-              title: item.name,
-              key: item.name,
-              align: 'center',
-              width: 100,
-              maxWidth: 200,
-            });
-          } else {
-            fieldList.push({
-              title: item.name,
-              key: item.name,
-              align: 'center',
-            });
-          }
+          fieldList.push({
+            title: item.name,
+            key: item.name,
+            align: 'center',
+            width: 100,
+            maxWidth: 200,
+          });
         }
       });
       return fieldList;
@@ -101,7 +90,15 @@ export default {
     //获取表格列
     getTableColumns(data) {
       if (data instanceof Array) {
-        const cols = setTableColumns(data[0]);
+        let cols = Object.keys(data[0]).map(p => {
+          return {
+            title: p,
+            key: p,
+            align: 'center',
+            width: 100,
+            maxWidth: 200,
+          };
+        });
         return cols;
       }
     },

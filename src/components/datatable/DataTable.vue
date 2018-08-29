@@ -1,6 +1,5 @@
 <script>
-import { createTableHeader } from './utils.js';
-import { setTableColumns } from '../../utils/assist.js';
+import { createTableHeader } from './utils';
 import config from 'config';
 const MAP_WFS_QUERY = 'MAP_WFS_QUERY';
 const MAP_WPS_OVERLAP = 'MAP_WPS_OVERLAP';
@@ -131,32 +130,6 @@ export default {
         }
       });
     },
-    // 分页查询
-    changePageQuery(options) {
-      const option = options[0];
-      this.title = option.title;
-      this.pageIndex = option.pageIndex;
-      this.attributeType = option.attributeType;
-      this.tableLoading = true;
-      const status = {
-        wfsQuery() {
-          this[option.attributeType](option);
-        },
-        statisticsQuery() {
-          this[option.attributeType](option);
-        },
-        overlayQuery() {
-          const wfsParams = {
-            url: `${this.overLapLayerData.baseUrl}?typeName=${this.overLapLayerData.layers}`,
-            pageIndex: this.pageIndex,
-            pageSize: 10,
-          };
-          this.wfsQuery(wfsParams, true);
-        },
-      };
-      if (status[this.attributeType]) status[this.attributeType].call(this);
-    },
-    // wfs属性，空间查询
     async wfsQuery(option, isShowColumns) {
       if (this.optNum != 2) {
         this.opt = option; //等于先查询的条件
@@ -175,11 +148,19 @@ export default {
         if (response.features.length == 0) {
           return [];
         }
-        const cols = setTableColumns(response.features[0].properties);
+        let cols = Object.keys(response.features[0].properties).map(p => {
+          return {
+            title: p,
+            key: p,
+            align: 'center',
+            width: 100,
+            maxWidth: 300,
+            ellipsis: true,
+          };
+        });
         this.$store.commit(types.SET_BUS_FIELD, cols);
       }
     },
-    // 统计分析查询
     async statisticsQuery(option) {
       const { attributeType, options, ...rest } = option;
       L.ajax({
@@ -196,7 +177,13 @@ export default {
       const response = JSON.parse(data);
       if (response.length !== 0) {
         this.total = response.length;
-        const columns = setTableColumns(response[0]);
+        const columns = Object.keys(response[0]).map(p => {
+          return {
+            title: p,
+            key: p,
+            align: 'center',
+          };
+        });
         this.$store.commit(types.SET_BUS_FIELD, columns);
         this.tableData = response.map(p => {
           return {
@@ -209,7 +196,6 @@ export default {
     errback() {
       this.$Message.error('分析失败！');
     },
-    // 叠加分析查询
     async overlayQuery(option) {
       const baseUrl = option.baseUrl;
       delete option.attributeType;
@@ -287,7 +273,7 @@ export default {
       let options = [...this.queryOptions];
       options[0].pageIndex = pageIdx;
       options[0].attributeType = this.attributeType;
-      this.changePageQuery(options);
+      this.doQuery(options);
     },
     changePageSize(pageSize) {
       let options = [...this.queryOptions];
