@@ -75,7 +75,7 @@ export default {
           <Classify :labels-data="labelsData"></Classify>
           <TagData
             :labels-data="labelsData"
-            @on-dataTagChangeEvnet="TagDataChange"></TagData>
+          ></TagData>
         </Tab-pane>
       </Tabs>
     </div>

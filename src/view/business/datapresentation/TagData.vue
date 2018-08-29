@@ -12,6 +12,8 @@ export default {
       newAddText: '', //节点修改后的数据
       readonly: true,
       datas: [], //标签数据
+      tagId: [], //标签Id的集合
+      // checked: false,
     };
   },
   // 监听数据列表
@@ -30,7 +32,21 @@ export default {
   // mounted() {
   //   this.lableDatas();
   // },
-  // methods: {
+  methods: {
+    async searchTableTag(id) {
+      // this.checked = true;
+      this.tagId = id;
+      // this.tagId.splice(',');
+      const response = await api.db.findallwithmatadata([this.tagId]);
+      this.dataTrees = response.data;
+      // this.$emit('on-dataChangeEvnet', response.data);
+    },
+
+    // async classifyData() {
+    //   const response = await api.db.findallwithmatadata({});
+    //   this.dataTrees = response.data;
+    // },
+  },
   //   // //查询所有标签
   //   // async lableDatas() {
   //   //   const response = await api.db.findallBusiness({});
@@ -141,12 +157,15 @@ export default {
       <div
         v-for="(item, index) in labelsData"
         :key="index"
+        checkbox
         class="lable-list">
         <input
           v-model="item.name"
           :readonly="readonly"
           type="text"
+
           class="lable-input-list"
+          @click="searchTableTag(item.id)"
         />
         <!--<Icon
           class="lable-list-content-icons"

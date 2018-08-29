@@ -227,6 +227,7 @@ export default {
       height: 25px;
       border: 0;
       background: none;
+      cursor: default;
     }
   }
 }
