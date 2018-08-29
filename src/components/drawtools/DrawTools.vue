@@ -35,10 +35,6 @@ const iconConfig = [
 export default {
   name: 'DrawTools',
   props: {
-    layerUrl: {
-      type: String,
-      default: '',
-    },
     layerCrs: {
       type: String,
       default: '',
@@ -88,7 +84,6 @@ export default {
         itemClass: 'draw-upload',
       },
       uploadAction: '#',
-      relRadius: this.relRadius,
     };
   },
   watch: {
@@ -98,9 +93,6 @@ export default {
           config.project.basicUrl
         }/service/gisserver/getwktsbyshpzip?crs=${newVal}&count=1`;
       }
-    },
-    radius(newVal) {
-      this.relRadius = newVal;
     },
   },
   events: {
@@ -124,23 +116,21 @@ export default {
       let wktStr = L.Wkt.Wkt.prototype.fromJson(layers.toGeoJSON(), true);
       wktStr = wktStr.write();
       wktStr = wktStr.replace(/undefined/g, ' ');
-      this.$emit('on-get-drawlayer', layers, wktStr, this.geoType);
+      this.$emit('on-get-drawlayer', layers, wktStr);
     },
     // 清除操作
     clearLayers() {
       if (this.drawType) {
         this.drawType.forEach(item => {
-          this.$drawRefs[item].destory();
           this.$drawRefs[item].clearDrawLayer();
         });
       }
     },
     setParams() {
-      if (this.relRadius) {
+      if (this.radius) {
         return {
           bufferOptions: {
-            url: this.layerUrl,
-            radius: this.relRadius,
+            radius: this.radius,
             options: {
               units: this.units,
             },
@@ -152,21 +142,16 @@ export default {
     },
     drawGeometry(name) {
       this.clearToolLayer();
-      this.geoType = name.split('-')[1];
-      let params;
-      if (this.geoType === 'circle') {
-        this.relRadius = 0.0001;
-      }
-      params = this.setParams();
-
-      if (this.drawType.includes(this.geoType)) {
-        this.$drawRefs[this.geoType].drawGeometry(params);
+      const drawType = name.split('-')[1];
+      let params = this.setParams();
+      if (this.drawType.includes(drawType)) {
+        this.$drawRefs[drawType].drawGeometry(params);
       } else {
         const state = {
           defineline() {
             this.$drawRefs['polyline'].drawGeometry({
               customDraw: true,
-              bufferOptions: params.bufferOptions ? params.bufferOptions : null,
+              params,
             });
           },
           file() {},
@@ -174,17 +159,18 @@ export default {
             this.$emit('on-get-drawlayer', null);
           },
         };
-        state[this.geoType].call(this);
+        state[drawType].call(this);
       }
     },
     uploadSuccess(data) {
       this.clearToolLayer();
       if (data.data) {
-        const wktFormat = new L.Format.WKT();
-        this.geometry = wktFormat.readToLayer(data.data[0], false);
+        const wkt = new L.Wkt.Wkt();
+        wkt.read(data.data[0]);
+        this.geometry = wkt.toObject(false);
         this.geometry.addTo(this.$drawRefs.geojson.$queryLayers);
-        if (this.relRadius) {
-          const bufferedGeoJson = buffer(this.geometry.toGeoJSON(), this.relRadius, {
+        if (this.radius) {
+          const bufferedGeoJson = buffer(this.geometry.toGeoJSON(), this.radius, {
             units: this.units,
           });
           this.bufferLayers = L.GeoJSON.geometryToLayer(bufferedGeoJson);

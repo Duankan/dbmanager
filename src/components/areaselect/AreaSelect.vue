@@ -73,22 +73,23 @@ export default {
             field: 'DMDZDM',
             simpleFeatureFlag: true,
             tolerance: '0',
-            wfsUrl: this.wfsUrl,
+            // wfsUrl: this.wfsUrl,
+            wfsUrl: 'http://192.168.1.147:8085/master/ktw/ows?service=wfs&typeName=ktw:xzqcunx',
           });
           this.$nextTick(() => {
             this.$store.commit('SET_MAP_GEOJSON', { geojson: response.data, type: 'always' });
           });
-          const wktStr = response.data.features[0];
+          const wktStr = this.changeWkt(response.data.features[0], this.isChangeLatLng);
           const devWktStr = this.changeWkt(response.data.features[0], true);
           this.$emit('on-get-arealayer', wktStr, devWktStr);
         }
       }
     },
-    // 服务返回数据为geojson，这里直接用了geojson返回值，下面这段代码是做wkt转化的，
     changeWkt(data, isChange) {
-      const wktFormat = new L.Format.WKT();
-      const reswkt = wktFormat.readToWKT(data, isChange);
-      return reswkt;
+      let wktStr = L.Wkt.Wkt.prototype.fromJson(data, isChange);
+      wktStr = wktStr.write();
+      wktStr = wktStr.replace(/undefined/g, ' ');
+      return wktStr;
     },
     resetCascader() {
       this.cascader = [];
