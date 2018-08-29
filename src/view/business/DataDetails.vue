@@ -71,21 +71,19 @@ export default {
       class="main">
       <div
         v-if="copyBusinessData.readonly"
-        class="data-content">
+        class="data-content"
+        @click="goBack()">
         <Icon type="arrow-left-a"></Icon>
-        <span
-          class="data-content-title"
-          @click="goBack()">
+        <span class="data-content-title">
           <b>元数据详情</b>
         </span>
       </div>
       <div
         v-else
-        class="data-content">
+        class="data-content"
+        @click="verifyGoBack()">
         <Icon type="arrow-left-a"></Icon>
-        <span
-          class="data-content-title"
-          @click="verifyGoBack()">
+        <span class="data-content-title">
           <b>元数据详情</b>
         </span>
       </div>
@@ -137,6 +135,7 @@ export default {
 }
 .data-content {
   cursor: pointer;
+  width: 95px;
   height: 60px;
   line-height: 60px;
 }
