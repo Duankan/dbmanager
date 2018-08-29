@@ -1,5 +1,6 @@
 <script>
 import { date } from '@ktw/ktools';
+import RuleValidate from './rule-validate.js';
 // 基本信息详情页
 export default {
   name: 'BasicInformation',
@@ -8,9 +9,14 @@ export default {
       type: Object,
       default: null,
     },
+    treeData: {
+      type: Array,
+      default: null,
+    },
   },
   data() {
     return {
+      validates: RuleValidate,
       formItem: {},
       copyRowData: this.rowData,
       //修改标签模态框显示
@@ -30,19 +36,30 @@ export default {
     }
     this.queryTagData();
     //字符串类型标签转数组
-    if (this.copyRowData.keyword) {
+    if (typeof this.copyRowData.keyword === 'string') {
       this.copyRowData.keyword = this.copyRowData.keyword.split(',');
       console.log(this.copyRowData.keyword);
     }
   },
   methods: {
-    /**修改基本信息 */
+    // 表单校验
+    submitValidate(name) {
+      this.$refs[name].validate(valid => {
+        if (valid) {
+          this.modBasicInformation();
+          this.$Message.success('操作成功');
+        } else {
+          this.$Message.error('请完善表单');
+        }
+      });
+    },
+    //新增/修改基本信息
     async modBasicInformation() {
       // 标签转字符串
       if (this.copyRowData.keyword.constructor === Array) {
         this.copyRowData.keyword = this.copyRowData.keyword.join(',');
       }
-      if (this.copyRowData.add == true) {
+      if (this.copyRowData.add === true) {
         //新增基本信息
         await api.db.addbasicinfoBusiness(this.copyRowData).then(p => {
           this.$emit('on-tagEvent', p.data);
@@ -51,7 +68,6 @@ export default {
         //修改基本信息
         await api.db.updatebasicinfoBusiness(this.copyRowData).then(p => {
           this.copyRowData.keyword = this.copyRowData.keyword.split(',');
-          console.log(this.copyRowData);
         });
       }
     },
@@ -100,35 +116,46 @@ export default {
 
 <template>
   <Form
-    :label-width="100"
+    ref="copyRowData"
+    :rules="validates"
+    :label-width="110"
     :class="{shade:copyRowData.readonly}"
     :model="copyRowData">
     <Row>
       <Col span="9">
-      <FormItem label="业务资源标题：">
+      <FormItem
+        prop="restitle"
+        label="业务资源标题：">
         <Input
           v-model="copyRowData.restitle"
           placeholder="给目标起个名字"/>
       </FormItem>
       </Col>
       <Col span="9">
-      <FormItem label="资源分类：">
-        <Input
+      <FormItem
+        prop="restype"
+        label="资源分类：">
+        <Cascader
+          :data="treeData"
           v-model="copyRowData.restype"
-          placeholder="单选" />
+          filterable
+          transfer
+        ></Cascader>
       </FormItem>
       </Col>
     </Row>
     <Row>
       <Col span="9">
-      <FormItem label="负责单位：">
+      <FormItem
+        label="负责单位：">
         <Input
           v-model="copyRowData.rporgname"
           placeholder="负责单位" />
       </FormItem>
       </Col>
       <Col span="9">
-      <FormItem label="负责单位地址：">
+      <FormItem
+        label="负责单位地址：">
         <Input
           v-model="copyRowData.cndadd"
           placeholder="负责单位地址" />
@@ -137,7 +164,9 @@ export default {
     </Row>
     <Row>
       <Col span="18">
-      <FormItem label="表名：">
+      <FormItem
+        prop="name"
+        label="表名：">
         <Input
           v-model="copyRowData.name"
           placeholder="请选择" />
@@ -145,7 +174,8 @@ export default {
       </Col>
     </Row>
     <Row>
-      <FormItem label="数据使用时间：">
+      <FormItem
+        label="数据使用时间：">
         <Col span="9">
         <DatePicker
           v-model="copyRowData.begdate"
@@ -165,7 +195,9 @@ export default {
     </Row>
     <Row>
       <Col span="18">
-      <FormItem label="标签关键字：">
+      <FormItem
+        prop="keyword"
+        label="标签关键字：">
         <Button
           icon="ios-add"
           type="dashed"
@@ -173,14 +205,15 @@ export default {
           @click="addTagDialog">
           修改标签
         </Button>
-        <div>
+        <div v-cloak>
           <Tag
-            v-for="item of copyRowData.keyword"
-            :key = "item"
+            v-for="(item,index) of copyRowData.keyword"
+            v-cloak
+            :key = "index"
             :name="item"
             type="dot"
             closable
-            color="primary"
+            color="success"
             @on-close="tagsClose">
             {{ item }}</Tag>
         </div>
@@ -194,24 +227,21 @@ export default {
             v-model="selectedTags"
             @on-change="checked">
             <Checkbox
-              v-for="item of tags"
-              :key ="item.name"
+              v-for="(item,index) of tags"
+              :key ="index"
               :label="item.name"
             >
             </Checkbox>
           </CheckboxGroup>
         </modal>
-        <!--<Input
-          :rows="4"
-          v-model="copyRowData.keyword"
-          type="textarea"
-          placeholder="请选择多个标签管理里面的标签" />-->
       </FormItem>
       </Col>
     </Row>
     <Row>
       <Col span="18">
-      <FormItem label="摘要：">
+      <FormItem
+        prop="abstract_"
+        label="摘要：">
         <Input
           :rows="4"
           v-model="copyRowData.abstract_"
@@ -226,7 +256,7 @@ export default {
         v-show="!copyRowData.readonly"
         class="details-button-right"
         type="primary"
-        @click="modBasicInformation">
+        @click="submitValidate('copyRowData')">
         保存</Button>
       </Col>
     </Row>

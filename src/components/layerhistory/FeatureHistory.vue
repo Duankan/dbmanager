@@ -1,5 +1,6 @@
 <script>
 import { date } from '@ktw/ktools';
+import MapRefs from '@/components/maptools/map-refs';
 
 //操作类型
 const OP_TYPES = ['原始数据', '新增要素', '编辑要素', '删除要素'];

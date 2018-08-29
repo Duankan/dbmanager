@@ -30,8 +30,6 @@ export default {
       layerCrs: null,
       schema: 'the_geom',
       queryAreaUrl: '',
-      drawType: 'normal',
-      queryUrl: '',
     };
   },
   computed: {
@@ -45,9 +43,7 @@ export default {
     },
   },
   methods: {
-    //拿到绘制的图形
-    getDrawLayer(layers, adverse, geoType) {
-      this.drawType = geoType;
+    getDrawLayer(layers, adverse) {
       this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
       this.queryItem.place = '';
       this.queryItem.geometry = layers;
@@ -85,11 +81,10 @@ export default {
         this.$Message.error('请选择一个图层');
         return;
       }
-      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
       const params = this.getParams();
       this.showTable(this.fieldList, params, 'wfsQuery');
     },
-    // 处理参数，这边要计算radius
+    // 处理参数
     getParams() {
       let queryOptions;
       const options = {
@@ -98,60 +93,29 @@ export default {
         pageSize: 10,
         url: this.serviseUrl,
       };
-      // 计算radius的值
-      const radius = this.setRadius();
       const defaultOptions = {
-        radius,
+        radius:
+          this.queryItem.bufferUnit === '米'
+            ? this.queryItem.buffer / 111194.872221777
+            : this.queryItem.buffer / 111194.872221777,
         spatialRelationship: this.queryItem.relationship,
         type: 'POST',
       };
-      queryOptions = this.setRelationship();
-      queryOptions = {
-        ...defaultOptions,
-        ...queryOptions,
-      };
+      if (this.queryItem.place === '') {
+        queryOptions = {
+          ...defaultOptions,
+          geometry: this.queryItem.geometry,
+        };
+      } else {
+        queryOptions = {
+          ...defaultOptions,
+          cql_filter: `${this.queryItem.relationship}(the_geom,${this.queryItem.place}) `,
+        };
+      }
       return {
         options,
         queryOptions,
       };
-    },
-    // 计算半径
-    setRadius() {
-      let radius;
-      if (this.queryItem.bufferUnit === '米') {
-        radius = this.queryItem.buffer / 111194.872221777;
-      }
-      return radius;
-    },
-    // 计算提取方式
-    setRelationship() {
-      let queryOptions;
-      if (this.queryItem.relationship === 'Clip') {
-        if (this.queryItem.place === '') {
-          queryOptions = {
-            clipGeometry: this.queryItem.geometry,
-            clip: true,
-          };
-        } else {
-          queryOptions = {
-            clipGeometry: this.queryItem.place,
-            clip: true,
-          };
-        }
-      } else {
-        if (this.queryItem.place === '') {
-          queryOptions = {
-            geometry: this.queryItem.geometry,
-            clip: false,
-          };
-        } else {
-          queryOptions = {
-            geometry: this.queryItem.place,
-            clip: false,
-          };
-        }
-      }
-      return { ...queryOptions };
     },
     // 数据提取
     async loadQueryData() {
@@ -185,11 +149,8 @@ export default {
       delete taskData.pageIndex;
       delete taskData.pageSize;
       taskData.version = '1.0.0';
-      if (this.advWKT && this.queryItem.relationship != 'Clip') {
-        taskData.cql_filter = `${this.queryItem.relationship}(the_geom,${this.advWKT})`;
-      } else {
-        taskData.geometry = this.advWKT;
-      }
+      if (this.advWKT)
+        taskData.cql_filter = `${this.queryItem.relationship}(the_geom,${this.advWKT}) `;
       loadParams = {
         params: taskData,
         fileName: `${name[1]}.zip`,
@@ -259,7 +220,6 @@ export default {
       label="绘制方式：">
       <DrawTools
         ref="drawTools"
-        :layer-url="queryUrl"
         :layer-crs="layerCrs"
         :radius="queryItem.buffer"
         :units="setUnits"
