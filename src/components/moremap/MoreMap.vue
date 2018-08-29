@@ -71,10 +71,10 @@ export default {
     window.dispatchEvent(new Event('resize'));
     debugger;
     this.rowHeight =
-      (document.getElementsByClassName('main-gridLayout-div')[0].offsetHeight - 150) / 12;
+      (document.getElementsByClassName('main-gridLayout-div')[0].offsetHeight - 180) / 12;
     window.onresize = temp => {
       this.rowHeight =
-        (document.getElementsByClassName('main-gridLayout-div')[0].offsetHeight - 150) / 12;
+        (document.getElementsByClassName('main-gridLayout-div')[0].offsetHeight - 180) / 12;
     };
   },
   methods: {
