@@ -1,4 +1,5 @@
 <script>
+import RuleValidate from './rule-validate.js';
 export default {
   name: 'IncidenceRelation',
   props: {
@@ -9,6 +10,8 @@ export default {
   },
   data() {
     return {
+      //表单验证
+      validates: RuleValidate,
       //取消按钮显示
       cancelBtnDisplay: false,
       //修改前内部关联
@@ -260,6 +263,17 @@ export default {
           this.innerData = {};
         });
     },
+    validate(name, func) {
+      this.$refs[name].validate(valid => {
+        if (valid) {
+          // this.addExternalRelate();
+          this.func();
+          this.$Message.success('操作成功');
+        } else {
+          this.$Message.error('请完善表单');
+        }
+      });
+    },
     //创建外部关联
     async addExternalRelate() {
       await api.db
@@ -320,19 +334,25 @@ export default {
       </div>
       <div class="left-content">
         <Form
+          ref="externalData"
+          :rules="validates"
           :label-width="70"
           :model="externalData"
           label-position="left">
           <Row>
             <Col span="12">
-            <FormItem label="源表名：">
+            <FormItem
+              prop="name"
+              label="源表名：">
               <Input
                 v-model="externalData.databasename"
               />
             </FormItem>
             </Col>
             <Col span="12">
-            <FormItem label="源字段：">
+            <FormItem
+              prop="name"
+              label="源字段：">
               <Select v-model="externalData.columnsrc">
                 <Option
                   v-for="item of sourceField"
@@ -344,7 +364,9 @@ export default {
           </Row>
           <Row>
             <Col span="12">
-            <FormItem label="关联表名：">
+            <FormItem
+              prop="name"
+              label="关联表名：">
               <Select
                 v-model="externalData.tablename"
                 filterable
@@ -359,7 +381,9 @@ export default {
             </FormItem>
               </Col>
             <Col span="12">
-            <FormItem label="关联字段：">
+            <FormItem
+              prop="name"
+              label="关联字段：">
               <Select v-model="externalData.columndes">
                 <Option
                   v-for="item of selectField"
@@ -373,7 +397,9 @@ export default {
             :class="{shade:rowData.readonly}"
             class="relevance-header">
             <Col span="12">
-            <FormItem label="关联关系：">
+            <FormItem
+              prop="relatedtype"
+              label="关联关系：">
               <RadioGroup v-model="externalData.relatedtype">
                 <Radio label="0">强关联</Radio>
                 <Radio label="1">弱关联</Radio>
@@ -386,7 +412,7 @@ export default {
                 v-if="externalBtnDisplay"
                 v-show="!rowData.readonly"
                 type="primary"
-                @click="addExternalRelate"
+                @click="validate('externalData','addExternalRelate')"
               >创建关联
               </Button>
               <Button
@@ -429,12 +455,16 @@ export default {
       </div>
       <div class="right-content">
         <Form
+          ref="innerData"
+          :rules="validates"
           :label-width="70"
           :model="innerData"
           label-position="left">
           <Row>
             <Col span="24">
-            <FormItem label="源字段：">
+            <FormItem
+              prop="name"
+              label="源字段：">
               <Select v-model="innerData.columnsrc">
                 <Option
                   v-for="item of sourceField"
@@ -446,7 +476,9 @@ export default {
           </Row>
           <Row>
             <Col span="24">
-            <FormItem label="关联字段：">
+            <FormItem
+              prop="name"
+              label="关联字段：">
               <Select v-model=" innerData.columndes">
                 <Option
                   v-for="item of sourceField"
@@ -458,7 +490,9 @@ export default {
           </Row>
           <Row class="relevance-header">
             <Col span="18">
-            <FormItem label="关联关系：">
+            <FormItem
+              prop="relatedtype"
+              label="关联关系：">
               <RadioGroup v-model="innerData.relatedtype">
                 <Radio label="0">强关联</Radio>
                 <Radio label="1">弱关联</Radio>
@@ -471,7 +505,7 @@ export default {
                 v-if="innerBtnDisplay"
                 v-show="!rowData.readonly"
                 type="primary"
-                @click="addInnerRelate"
+                @click="validate('innerData','addInnerRelate')"
               >创建关联
               </Button>
               <Button
