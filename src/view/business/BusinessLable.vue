@@ -81,7 +81,7 @@ export default {
             }),
             1
           );
-          this.$Message.success('已删除');
+          this.$Message.info('已删除');
         },
         onCancel: () => {
           this.$Message.info('取消');
@@ -109,7 +109,7 @@ export default {
           type: 1, //类型（0-空间数据，1-业务数据）
         });
         item.isEdit = false;
-        this.$Message.success('修改成功');
+        this.$Message.info('修改成功');
         this.readonly = true;
       }
     },

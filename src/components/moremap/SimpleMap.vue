@@ -13,6 +13,7 @@ export default {
   data() {
     return {
       selectLayer: '',
+      showLayerTitle: '',
       mapId: this.uniqueId(6),
     };
   },
@@ -23,24 +24,21 @@ export default {
   },
   watch: {
     historyLayerList: {
-      handler(val) {
-        debugger;
-      },
+      handler(val) {},
     },
   },
   mounted() {
-    debugger;
     this.selectLayer = this.historyLayerList[this.layerIndex].title;
-    var serviceList = {
-      [this.historyLayerList[this.layerIndex].title]: [
-        {
-          servicestype: 12,
-          servicesurl: this.historyLayerList[this.layerIndex].url,
-          title: this.historyLayerList[this.layerIndex].title,
-        },
-      ],
-    };
-    this.$store.commit(`${this.mapId}/SET_MAP_SERVICELIST`, serviceList);
+    // var serviceList = {
+    //   [this.historyLayerList[this.layerIndex].title]: [
+    //     {
+    //       servicestype: 12,
+    //       servicesurl: this.historyLayerList[this.layerIndex].url,
+    //       title: this.historyLayerList[this.layerIndex].title,
+    //     },
+    //   ],
+    // };
+    // this.$store.commit(`${this.mapId}/SET_MAP_SERVICELIST`, serviceList);
     window.dispatchEvent(new Event('resize'));
   },
   methods: {
@@ -53,6 +51,27 @@ export default {
         id += chars.charAt(Math.floor(Math.random() * maxPos));
       }
       return id;
+    },
+    selectChange(value) {
+      this.$store.commit(`${this.mapId}/SET_MAP_GOCLAYER_DELETE`, [this.showLayerTitle]);
+      this.$nextTick(() => {
+        var item = this.historyLayerList.find(function(elem) {
+          return elem.title == value;
+        });
+        debugger;
+        var serviceList = {
+          [item.title]: [
+            {
+              servicestype: 12,
+              servicesurl: item.url,
+              title: item.title,
+            },
+          ],
+        };
+        this.$store.commit(`${this.mapId}/SET_MAP_SERVICELIST`, serviceList);
+        this.showLayerTitle = item.title;
+        window.dispatchEvent(new Event('resize'));
+      });
     },
   },
 };
@@ -68,7 +87,8 @@ export default {
     </BaseMap>
     <Select 
       v-model="selectLayer" 
-      class="select-layer">
+      class="select-layer" 
+      @on-change="selectChange">
       <Option 
         v-for="item in historyLayerList" 
         :value="item.title" 

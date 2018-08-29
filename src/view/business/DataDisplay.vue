@@ -30,6 +30,7 @@ export default {
       pageIndex: 1, //表格当前页
       typeTreeData: [],
       value: '',
+      copyTreeDatas: [],
     };
   },
   // computed: {
@@ -52,11 +53,11 @@ export default {
             }
           });
         }
+        this.$emit('TreeData', this.treeDatas);
       },
       immediate: true,
     },
   },
-
   methods: {
     // 查询按钮
     searchData(formItem) {
@@ -187,7 +188,6 @@ form {
   padding: 0px 22px 5px 25px;
   border-top: 0px;
   height: 234px;
-  overflow-y: auto;
 }
 .k-form-item {
   margin-bottom: 3px !important;

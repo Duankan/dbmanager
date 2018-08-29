@@ -63,7 +63,7 @@ const notification = {
         this.commit(types.UPDATE_POLL_TASK, {
           taskId: pollTask.taskId,
           progress: progress,
-          complete: data.complete,
+          complete: data.successful,
           successful: data.successful,
           result: data.result,
         });

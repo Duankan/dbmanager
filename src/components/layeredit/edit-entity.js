@@ -256,7 +256,7 @@ class EditEntity {
       add(xmldoc) {
         let insertCount = xmldoc.getElementsByTagName('wfs:totalInserted')[0].textContent;
         if (insertCount == 0) {
-          converts.error();
+          this.error();
         } else {
           let insertRecords = Array.from(
             xmldoc.getElementsByTagName('wfs:InsertResults')[0].children
@@ -269,7 +269,7 @@ class EditEntity {
       update(xmldoc) {
         let updateCount = xmldoc.getElementsByTagName('wfs:totalUpdated')[0].textContent;
         if (updateCount == 0) {
-          converts.error();
+          this.error();
         } else {
           result.data = { count: updateCount };
         }
@@ -277,7 +277,7 @@ class EditEntity {
       delete(xmldoc) {
         let deleteCount = xmldoc.getElementsByTagName('wfs:totalDeleted')[0].textContent;
         if (deleteCount == 0) {
-          converts.error();
+          this.error();
         } else {
           result.data = { count: deleteCount };
         }

@@ -4,9 +4,7 @@ import BusinessSort from './BusinessSort';
 import BusinessLable from './BusinessLable';
 import BusinessTable from './BusinessTable';
 import DataDetails from './DataDetails';
-import Classify from './datapresentation/Classify';
-import TagData from './datapresentation/TagData';
-import TableData from './datapresentation/TableData';
+// import BasiclnRight from './BasiclnRight';
 export default {
   name: 'BusinessDataManager',
   components: {
@@ -15,35 +13,33 @@ export default {
     BusinessLable,
     BusinessTable,
     DataDetails,
-    Classify,
-    TagData,
-    TableData,
+    // BasiclnRight,
     // <DataDetails></DataDetails>
   },
   data() {
     return {
       treeDatas: [],
       tableDatas: {},
+      mainDate: '',
       labelsData: [],
-      display: true,
+      treeData: [],
     };
   },
   methods: {
-    //表格数据
+    //表格数据传过来
     tableDataChange(data) {
       this.tableDatas = data;
     },
-    //分类数据
+    //分类数据传过来
     treeDataChange(data) {
       this.treeDatas = data;
     },
-    //标签数据
     TagDataChange(data) {
       this.labelsData = data;
     },
-    //标签切换
-    toggle() {
-      this.display = !this.display;
+    //联级树
+    queryTreeData(data) {
+      this.treeData = data;
     },
   },
 };
@@ -52,17 +48,16 @@ export default {
 <template>
   <div style="width:100%;height:100%;">
     <div id="left-menu">
-      <Tabs
-        value="name1"
-        @on-click="toggle()">
+      <Tabs value="mainDate">
         <Tab-pane
           label="元数据管理"
-          name="name1">
+          name="mainDate">
           <!--左侧查询 -->
           <DataDisplay
             :tree-datas="treeDatas"
             :labels-data="labelsData"
             @on-dataChangeEvnet="tableDataChange"
+            @TreeData="queryTreeData"
           ></DataDisplay>
           <!--左侧树-->
           <BusinessSort @on-dataTreeChangeEvnet="treeDataChange"></BusinessSort>
@@ -71,27 +66,19 @@ export default {
         </Tab-pane>
         <Tab-pane
           label="业务数据展示"
-          name="name2">
-          <Classify :labels-data="labelsData"></Classify>
-          <TagData
-            :labels-data="labelsData"
-            @on-dataTagChangeEvnet="TagDataChange"></TagData>
+          name="mainDate">
+          <!--<BasiclnRight></BasiclnRight>-->
         </Tab-pane>
       </Tabs>
     </div>
-    <div
-      v-if="display"
-      id="right-context">
-      <!--元数据管理 -->
+    <div id="right-context">
+      <!--右侧表格 -->
       <BusinessTable
+        :tree-data="treeData"
         :table-datas="tableDatas"
       ></BusinessTable>
-    </div>
-    <div
-      v-else
-      id="right-contexts">
-      <!--业务数据展示-->
-      <TableData></TableData>
+      <!--元数据详情-->
+      <!--<DataDetails></DataDetails>-->
     </div>
   </div>
 </template>
@@ -103,11 +90,6 @@ export default {
   box-shadow: 0px 0px 25px #ced0d3;
 }
 #right-context {
-  margin-left: 350px;
-  height: 100%;
-  background: #f1f3f7;
-}
-#right-contexts {
   margin-left: 350px;
   height: 100%;
   background: #f1f3f7;
