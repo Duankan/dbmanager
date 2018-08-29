@@ -107,7 +107,6 @@ export default {
     moreMap() {
       let container = document.body;
       this.historyLayerList = [];
-      debugger;
       var originalLayerUrl = this.$store.state.map.serviceList[this.originalLayerName][0]
         .servicesurl;
       this.historyLayerList.push({

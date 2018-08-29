@@ -156,7 +156,6 @@ export default {
     },
     //获取查询条件
     getCondition(items) {
-      debugger;
       let cql = '';
       for (let i = 0; i < items.length; i++) {
         if (items[i].field === '' || items[i].compare === '' || items[i].value === '') continue;
