@@ -127,8 +127,14 @@ export default {
       return this.selectNodes.every(node => isGisResource(node));
     },
     forbidDelete() {
-      const directoryNode = this.selectNodes.filter(node => isDirectory(node));
-      return directoryNode.some(node => node.isChild === 'open');
+      //判断注册状态
+      let disabled = this.selectNodes.some(node => node.regState === 1);
+      //判断是否有子目录
+      if (!disabled) {
+        const directoryNode = this.selectNodes.filter(node => isDirectory(node));
+        disabled = directoryNode.some(node => node.isChild === 'open');
+      }
+      return disabled;
     },
   },
   events: {
