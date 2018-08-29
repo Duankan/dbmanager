@@ -1,4 +1,6 @@
 <script>
+import RuleValidate from './rule-validate.js';
+import DataDictionary from './data-dictionary.js';
 export default {
   name: 'ExtendField',
   props: {
@@ -9,6 +11,8 @@ export default {
   },
   data() {
     return {
+      //表单验证
+      validates: RuleValidate,
       //字段操作标题
       fieldOperat: '',
       //表格数据
@@ -63,21 +67,6 @@ export default {
                   },
                   on: {
                     click: () => {
-                      this.remove(params.index);
-                    },
-                  },
-                },
-                '删除'
-              ),
-              h(
-                'a',
-                {
-                  props: {},
-                  style: {
-                    marginRight: '5px',
-                  },
-                  on: {
-                    click: () => {
                       //替换标题
                       this.fieldOperat = '修改字段';
                       //打开修改模板
@@ -100,6 +89,8 @@ export default {
       fieldData: {},
       //修改前对话框数据
       oldFieldData: {},
+      // 字段类型下拉框
+      fieldTypeSelect: DataDictionary.type,
     };
   },
   mounted() {
@@ -116,14 +107,29 @@ export default {
       this.fieldData = {};
     },
     //字段修改模态框
-    ok() {
-      //按钮判断
-      if (this.fieldOperat === '新增字段') {
-        //调用新增字段
-        this.addFieldData();
-      } else if (this.fieldOperat === '修改字段') {
-        this.modFieldData();
-      }
+    ok(name) {
+      this.$refs[name].validate(valid => {
+        if (valid) {
+          //按钮判断
+          if (this.fieldOperat === '新增字段') {
+            //调用新增字段
+            this.addFieldData();
+          } else if (this.fieldOperat === '修改字段') {
+            this.modFieldData();
+          }
+          this.$Message.success('操作成功');
+        } else {
+          this.$Message.error('请完善表单');
+        }
+      });
+
+      // //按钮判断
+      // if (this.fieldOperat === '新增字段') {
+      //   //调用新增字段
+      //   this.addFieldData();
+      // } else if (this.fieldOperat === '修改字段') {
+      //   this.modFieldData();
+      // }
     },
     // 新增字段
     async addFieldData() {
@@ -175,27 +181,43 @@ export default {
         v-model="fieldDialog"
         :title = "fieldOperat"
         @on-cancel="cancel"
-        @on-ok="ok">
+        @on-ok="ok('fieldData')">
         <Form
+          ref="fieldData"
+          :rules="validates"
           :label-width="100"
           :model="fieldData">
           <Row>
             <Col span="22">
-            <FormItem label="字段名称：">
+            <FormItem
+              prop="name"
+              label="字段名称：">
               <Input v-model="fieldData.name"/>
             </FormItem>
             </Col>
           </Row>
           <Row>
             <Col span="22">
-            <FormItem label="字段类型：">
-              <Input v-model="fieldData.type"/>
+            <FormItem
+              prop="type"
+              label="字段类型：">
+              <Select
+                v-model="fieldData.type"
+                filterable>
+                <Option
+                  v-for="item of fieldTypeSelect"
+                  :key="item"
+                  :value="item">{{ item }}
+                </Option>
+              </Select>
             </FormItem>
             </Col>
           </Row>
           <Row>
             <Col span="22">
-            <FormItem label="字段长度：">
+            <FormItem
+              prop="length"
+              label="字段长度：">
               <Input v-model="fieldData.length"/>
             </FormItem>
             </Col>

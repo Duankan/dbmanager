@@ -1,4 +1,32 @@
 <script>
+import RuleValidate from './rule-validate.js';
+import DataDictionary from './data-dictionary.js';
+const INNERFIELDFORM = {
+  //规则参数标题
+  innerFieldTableTitle: [
+    {
+      title: '参数名称',
+      key: 'paramName',
+      align: 'center',
+    },
+    {
+      title: '参数值',
+      key: 'paramValue',
+      align: 'center',
+    },
+  ],
+  //规则参数数据
+  innerFieldTableData: [
+    {
+      paramName: 'c1',
+      paramValue: '',
+    },
+    {
+      paramName: 'c1',
+      paramValue: '',
+    },
+  ],
+};
 // 扩展字段标签名
 export default {
   name: 'Field',
@@ -10,6 +38,8 @@ export default {
   },
   data() {
     return {
+      //表单验证
+      validates: RuleValidate,
       //新增按钮显示
       addBtn: true,
       //单条扩展字段数据
@@ -32,7 +62,7 @@ export default {
         },
         {
           title: '处理规则',
-          key: 'extendMethod',
+          key: 'extendmethod',
           align: 'center',
         },
         {
@@ -79,56 +109,12 @@ export default {
           },
         },
       ],
-      //内部字段关联下拉框
-      extendFieldSelect: {
-        type: [
-          {
-            value: 'int',
-            key: 'int',
-          },
-          {
-            value: 'char',
-            key: 'char',
-          },
-        ],
-        classfiy: [
-          {
-            value: '字段分类1',
-            key: '字段分类1',
-          },
-          {
-            value: '字段分类2',
-            key: '字段分类2',
-          },
-        ],
-      },
+      // 字段类型下拉框
+      fieldTypeSelect: DataDictionary.type,
+      //字段分类下拉框
+      fieldClassfiySelect: DataDictionary.classfiy,
       //规则参数
-      innerFieldForm: {
-        //规则参数标题
-        innerFieldTableTitle: [
-          {
-            title: '参数名称',
-            key: 'paramName',
-            align: 'center',
-          },
-          {
-            title: '参数值',
-            key: 'paramValue',
-            align: 'center',
-          },
-        ],
-        //规则参数数据
-        innerFieldTableData: [
-          {
-            paramName: 'c1',
-            paramValue: '',
-          },
-          {
-            paramName: 'c1',
-            paramValue: '',
-          },
-        ],
-      },
+      innerFieldForm: INNERFIELDFORM,
     };
   },
   mounted() {
@@ -173,6 +159,24 @@ export default {
       this.addBtn = true;
       this.extendFieldData = {};
     },
+    //表单验证
+    validate(name, funcName) {
+      this.$refs[name].validate(valid => {
+        if (valid) {
+          switch (funcName) {
+            case 'addFieldData':
+              this.addFieldData();
+              break;
+            case 'modFieldData':
+              this.modFieldData();
+              break;
+          }
+          this.$Message.success('操作成功');
+        } else {
+          this.$Message.error('请完善表单');
+        }
+      });
+    },
   },
 };
 </script>
@@ -206,12 +210,16 @@ export default {
         <span class="table-content-title-content"><b>内部字段关联</b></span>
       </div>
       <Form
-        :label-width="100"
+        ref="extendFieldData"
+        :rules="validates"
+        :label-width="110"
         :model="extendFieldData"
         label-position="left">
         <Row>
           <Col span="24">
-          <FormItem label="扩展字段名称：">
+          <FormItem
+            prop="name"
+            label="扩展字段名称：">
             <Input
               v-model="extendFieldData.name"
               placeholder="扩展字段名称" />
@@ -220,10 +228,31 @@ export default {
         </Row>
         <Row>
           <Col span="24">
-          <FormItem label="字段类型：">
-            <Select v-model="extendFieldData.type">
+          <FormItem
+            prop="type"
+            label="字段类型：">
+            <Select
+              v-model="extendFieldData.type"
+              filterable>
               <Option
-                v-for="item of extendFieldSelect.type"
+                v-for="item of fieldTypeSelect"
+                :key="item"
+                :value="item">{{ item }}
+              </Option>
+            </Select>
+          </FormItem>
+          </Col>
+        </Row>
+        <Row>
+          <Col span="24">
+          <FormItem
+            prop="classfiy"
+            label="字段分类：">
+            <Select
+              v-model="extendFieldData.classfiy"
+              filterable>
+              <Option
+                v-for="item of fieldClassfiySelect"
                 :key="item.value"
                 :value="item.value">{{ item.key }}
               </Option>
@@ -233,20 +262,9 @@ export default {
         </Row>
         <Row>
           <Col span="24">
-          <FormItem label="字段分类：">
-            <Select v-model="extendFieldData.classfiy">
-              <Option
-                v-for="item of extendFieldSelect.classfiy"
-                :key="item.value"
-                :value="item.value">{{ item.key }}
-              </Option>
-            </Select>
-          </FormItem>
-          </Col>
-        </Row>
-        <Row>
-          <Col span="24">
-          <FormItem label="处理规则：">
+          <FormItem
+            prop="extendmethod"
+            label="处理规则：">
             <Input
               :rows="4"
               v-model="extendFieldData.extendmethod"
@@ -257,7 +275,8 @@ export default {
         </Row>
         <Row>
           <Col span="24">
-          <FormItem label="是否允许为空：">
+          <FormItem
+            label="是否允许为空：">
             <Checkbox v-model="extendFieldData.allownull">是</Checkbox>
           </FormItem>
           </Col>
@@ -282,14 +301,16 @@ export default {
         v-show="!rowData.readonly"
         class="btn-right"
         type="primary"
-        @click="addFieldData">新增字段
+        @click="validate('extendFieldData','addFieldData')">
+        新增字段
       </Button>
       <Button
         v-else
         v-show="!rowData.readonly"
         class="btn-right"
         type="primary"
-        @click="modFieldData">修改字段
+        @click="validate('extendFieldData','modFieldData')">
+        修改字段
       </Button>
       <Button
         v-if="!addBtn"

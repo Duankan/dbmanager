@@ -19,7 +19,10 @@ export default {
   data() {
     return {
       treeDatas: [],
-      tableDatas: [],
+      tableDatas: {},
+      mainDate: '',
+      labelsData: [],
+      treeData: [],
     };
   },
   methods: {
@@ -31,6 +34,13 @@ export default {
     treeDataChange(data) {
       this.treeDatas = data;
     },
+    TagDataChange(data) {
+      this.labelsData = data;
+    },
+    //联级树
+    queryTreeData(data) {
+      this.treeData = data;
+    },
   },
 };
 </script>
@@ -38,23 +48,25 @@ export default {
 <template>
   <div style="width:100%;height:100%;">
     <div id="left-menu">
-      <Tabs value="name1">
+      <Tabs value="mainDate">
         <Tab-pane
           label="元数据管理"
-          name="name1">
+          name="mainDate">
           <!--左侧查询 -->
           <DataDisplay
             :tree-datas="treeDatas"
+            :labels-data="labelsData"
             @on-dataChangeEvnet="tableDataChange"
+            @TreeData="queryTreeData"
           ></DataDisplay>
           <!--左侧树-->
           <BusinessSort @on-dataTreeChangeEvnet="treeDataChange"></BusinessSort>
           <!--左侧标签 -->
-          <BusinessLable ></BusinessLable>
+          <BusinessLable @on-dataTagChangeEvnet="TagDataChange"></BusinessLable>
         </Tab-pane>
         <Tab-pane
           label="业务数据展示"
-          name="name2">
+          name="mainDate">
           <!--<BasiclnRight></BasiclnRight>-->
         </Tab-pane>
       </Tabs>
@@ -62,6 +74,7 @@ export default {
     <div id="right-context">
       <!--右侧表格 -->
       <BusinessTable
+        :tree-data="treeData"
         :table-datas="tableDatas"
       ></BusinessTable>
       <!--元数据详情-->

@@ -1,18 +1,21 @@
 <script>
-import * as types from '@/store/types';
+// import * as types from '@/store/types';
 export default {
   name: 'DataDisplay',
-
   props: {
     //表格数据
     tableDatas: {
-      type: Array,
-      default: () => [],
+      type: Object,
+      default: () => {},
     },
     //分类数据
     treeDatas: {
       type: [Array, String, Object],
       default: () => {},
+    },
+    labelsData: {
+      type: Array,
+      default: () => [],
     },
   },
   data() {
@@ -22,24 +25,26 @@ export default {
         multiple: '', //分类id
         input: '', //关键字
       },
-      totalCount: '', //表格总页数
-      pageIndex: '', //表格当前页
+      ruleFormdate: {},
+      totalCount: 1, //表格总页数
+      pageIndex: 1, //表格当前页
       typeTreeData: [],
+      value: '',
+      copyTreeDatas: [],
     };
   },
-  computed: {
-    //标签数据
-    tagData() {
-      return this.$store.state.metadata.tagData;
-    },
-  },
+  // computed: {
+  //   //标签数据
+  //   tagData() {
+  //     return this.$store.state.metadata.tagData;
+  //   },
+  // },
   watch: {
     treeDatas: {
       handler(newVals) {
         if (newVals) {
           //复制treeDatas的数据给typeTreeData,用来存放treeDatas里面的数据
           this.typeTreeData = [];
-          // this.typeTreeData = newVals;
           newVals.forEach(element => {
             //在addLableText里添加两个属性
             if (element.data) {
@@ -48,15 +53,24 @@ export default {
             }
           });
         }
+        this.$emit('TreeData', this.treeDatas);
       },
       immediate: true,
     },
   },
-
   methods: {
     // 查询按钮
-    async searchData(formItem) {
-      //获取分类的id
+    searchData(formItem) {
+      //判断选项是否全为空
+      if (formItem.select.length == 0 && formItem.input == '' && formItem.multiple == '') {
+        this.$Message.error('选项不能全为空');
+      } else {
+        this.findAllData();
+      }
+    },
+    //查询所有表格数据
+    async findAllData() {
+      // 获取分类的id;
       const restype = this.formItem.multiple[this.formItem.multiple.length - 1];
       //将标签数组转为字符串
       const select = this.formItem.select.join(',');
@@ -68,25 +82,22 @@ export default {
         sort: '', //排序方式
         pageinfo: {
           pageIndex: this.pageIndex, //当前页
+          pageCount: this.pageCount, //总数据
           totalCount: this.totalCount, //总数据
           pageSize: 10, //每页总数
           orderby: '', //排序字段
         },
       });
       this.totalCount = response.data.pageInfo.totalCount;
+      this.pageCount = response.data.pageInfo.pageCount;
       this.pageIndex = response.data.pageInfo.pageIndex;
       this.$emit('on-dataChangeEvnet', response.data);
-      // }
     },
-
     //清空按钮
-    empty(name) {
+    async empty(name) {
       this.formItem.multiple = '';
       this.$refs[name].resetFields();
-      // this.formItem.input = '';
-      // this.tagData = '';
-      // this.formItem.select = '';
-      this.searchData();
+      this.findAllData();
     },
     addLableText(item) {
       if (item) {
@@ -131,20 +142,20 @@ export default {
       </Select>
     </FormItem>-->
     <FormItem
-      label="标签："
+      label="标  签："
       prop="select">
       <Select
         v-model="formItem.select"
         multiple >
         <Option
-          v-for="item in tagData"
+          v-for="item in labelsData"
           :value="item.name"
           :key="item.name"
         >{{ item.name }}</Option>
       </Select>
     </FormItem>
     <FormItem
-      label="分类："
+      label="分  类："
       prop="multiple">
       <Cascader
         :data="treeDatas"
@@ -154,8 +165,7 @@ export default {
     </FormItem>
     <FormItem
       label="关键字："
-      prop="input"
-    >
+      prop="input">
       <Input
         v-model="formItem.input"
         placeholder="请输入关键字">
@@ -198,4 +208,10 @@ form {
 .k-btn {
   padding: 3px 15px;
 }
+// /deep/.k-form-item-label {
+//   width: 71px;
+// }
+// /deep/.k-form-item-content {
+//   width: 71px;
+// }
 </style>
