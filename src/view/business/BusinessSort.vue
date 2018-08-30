@@ -23,7 +23,6 @@ export default {
                   h('Icon', {
                     props: {
                       type: 'ios-folder',
-                      expand: true,
                     },
                     style: {
                       marginRight: '8px',
@@ -125,11 +124,10 @@ export default {
             [
               h('Icon', {
                 props: {
-                  type: 'ios-folder',
+                  type: 'ios-folder-outline',
                 },
                 style: {
                   marginRight: '5px',
-                  color: '#ff9900',
                 },
               }),
               h(
@@ -285,6 +283,7 @@ export default {
           const response = await api.db.deletetypeBusiness({ id: treeId });
           //获取父节点
           const parentKey = root.find(el => el === node).parent;
+          debugger;
           //获取当前节点
           const parent = root.find(el => el.nodeKey === parentKey).node;
           //获取当前节点的值
@@ -351,13 +350,11 @@ export default {
   width: 100%;
   padding-left: 25px;
   padding-right: 22px;
-  height: 32%;
-  // height: calc(100% - 500px);
+  height: 244px;
   border: 1px solid #e8eaec;
   padding: 0px 22px 5px 25px;
   border-top: 0px;
   padding-top: 10px;
-  overflow-y: auto;
 }
 .top {
   width: 100%;

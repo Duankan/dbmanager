@@ -57,7 +57,6 @@ export default {
         @on-click="toggle()">
         <Tab-pane
           label="元数据管理"
-          class="tabpane"
           name="name1">
           <!--左侧查询 -->
           <DataDisplay
@@ -97,9 +96,6 @@ export default {
   </div>
 </template>
 <style lang="less" scoped>
-.k-tabs {
-  height: 100%;
-}
 #left-menu {
   float: left;
   width: 300px;
@@ -115,11 +111,5 @@ export default {
   margin-left: 350px;
   height: 100%;
   background: #f1f3f7;
-}
-/deep/.k-tabs-content.k-tabs-content-animated {
-  height: 100%;
-}
-/deep/.k-tabs .k-tabs-tabpane {
-  height: 100%;
 }
 </style>
