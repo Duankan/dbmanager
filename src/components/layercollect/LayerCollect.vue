@@ -89,7 +89,9 @@ export default {
             </span>
           ) : (
             <span class="layer-collect-wrap">
-              <span class="layer-collect-name">{data.name}</span>
+              <span class="layer-collect-name" title={data.name}>
+                {data.name}
+              </span>
               <icon type="edit" nativeOnClick={() => this.$set(data, 'editState', true)} />
             </span>
           )}
@@ -182,7 +184,11 @@ export default {
 
     /deep/ .layer-collect-wrap {
       margin-left: 8px;
-
+      max-width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: inline-block;
       .k-icon {
         margin-left: 8px;
       }
