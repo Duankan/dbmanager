@@ -87,13 +87,13 @@ export default {
       class="map">
       <TileWMSLayer></TileWMSLayer>
     </BaseMap>
-    <Select 
-      v-model="selectLayer" 
-      class="select-layer" 
+    <Select
+      v-model="selectLayer"
+      class="select-layer"
       @on-change="selectChange">
-      <Option 
-        v-for="item in historyLayerList" 
-        :value="item.title" 
+      <Option
+        v-for="item in historyLayerList"
+        :value="item.title"
         :key="item.title">{{ item.time }}</Option>
     </Select>
   </div>
