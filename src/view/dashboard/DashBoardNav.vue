@@ -9,8 +9,14 @@ export default {
   components: { DashBoardMenu },
   methods: {
     click() {
-      this.$store.dispatch(USER_LOGOUT).then(() => {
-        this.$router.replace('/login');
+      this.$Modal.comfirm({
+        title: '退出',
+        content: '<p>确定退出系统吗?</P>',
+        onOK: () => {
+          this.$store.dispatch(USER_LOGOUT).then(() => {
+            this.$router.replace('/login');
+          });
+        },
       });
     },
   },
