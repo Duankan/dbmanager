@@ -72,6 +72,7 @@ export default {
                     size="14"
                     nativeOnClick={e => {
                       e.stopPropagation();
+                      params.row.alias = params.row._alias;
                       this.$store.commit(
                         types.UPDATE_APP_NODES,
                         Object.assign(params.row, { _rename: false })

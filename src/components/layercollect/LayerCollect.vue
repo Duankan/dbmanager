@@ -178,7 +178,7 @@ export default {
 
     /deep/ .k-card-body {
       padding: 5px;
-      overflow: hidden;
+      overflow: auto;
       max-height: 400px;
     }
 

@@ -214,7 +214,6 @@ export default {
         params.nameField = this.publishForm.nameField;
         params.typeField = this.publishForm.typeField;
       }
-      return;
       if (this.publishForm.isVectorTile) {
         this.publicCacheService(params);
       } else {
@@ -318,7 +317,7 @@ export default {
       formData.append(
         'data',
         JSON.stringify({
-          name: file.name,
+          name: alias,
           alias,
           description: '',
           classify: '',

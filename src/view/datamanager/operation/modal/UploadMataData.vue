@@ -1,6 +1,7 @@
 <script>
 import * as types from '@/store/types';
 import api from 'api';
+import { validateSpecChar } from '@/utils/validate';
 
 /**
  * 上传元数据模块
@@ -27,6 +28,10 @@ export default {
       cloudFile: null,
       //数据文件
       fileName: '',
+      //表单验证规则
+      rules: {
+        name: [{ validator: validateSpecChar, trigger: 'blur' }],
+      },
     };
   },
   computed: {
@@ -152,9 +157,11 @@ export default {
     @on-visible-change="visibleChange">
     <Form
       :model="resource"
-      :label-width="90">
+      :label-width="90"
+      :rules="rules">
       <FormItem
-        label="数据名称：">
+        label="数据名称："
+        prop="name">
         <Input
           v-model="resource.name"
           placeholder="请输入数据名称" />
