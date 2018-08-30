@@ -351,7 +351,7 @@ export default {
   width: 100%;
   padding-left: 25px;
   padding-right: 22px;
-  height: 244px;
+  height: 30%;
   border: 1px solid #e8eaec;
   padding: 0px 22px 5px 25px;
   border-top: 0px;
