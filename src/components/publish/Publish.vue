@@ -214,6 +214,7 @@ export default {
         params.nameField = this.publishForm.nameField;
         params.typeField = this.publishForm.typeField;
       }
+      return;
       if (this.publishForm.isVectorTile) {
         this.publicCacheService(params);
       } else {
@@ -303,9 +304,14 @@ export default {
         this.crsLoading = false;
       });
     },
+    //文件上传
+    getUploadFile(file) {
+      this.styleUpload(file);
+      this.$refs.upload.clearFiles();
+      return false;
+    },
     // 样式文件临时上传
-    async styleUpload(e) {
-      const file = e.target.files[0];
+    async styleUpload(file) {
       const alias = file.name.match(/(.*)\.sld$/)[1];
       const formData = new FormData();
       formData.append('file', file);
@@ -326,6 +332,10 @@ export default {
         })
       );
       const response = await api.db.addStyle({}, formData);
+      if (response.data.message) {
+        this.$Message.error(`上传样式失败，${response.data.message}`);
+        return;
+      }
       this.$Message.success('样式上传成功！');
       await this.getStyle(this.node);
       const style = this.styleOptions.find(item => item.id === response.data);
@@ -392,19 +402,18 @@ export default {
             <span class="style-info">{{ new Date(option.updateTime).toLocaleDateString() }}</span>
           </Option>
         </Select>
-        <label for="style">
+        <Upload
+          ref="upload"
+          :before-upload="getUploadFile"
+          :show-upload-list="false"
+          accept=".sld"
+          action="#">
           <SvgIcon
             icon-class="upload"
             size="18"
             color="#318CF0">
           </SvgIcon>
-        </label>
-        <input
-          id="style"
-          hidden
-          type="file"
-          name="file"
-          @input="styleUpload">
+        </Upload>
       </FormItem>
       <FormItem
         v-show="publishType==3"
