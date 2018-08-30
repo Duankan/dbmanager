@@ -101,6 +101,7 @@ export default {
     async searchTree() {
       const response = await api.db.findalltypeBusiness({});
       this.dataTree = response.data;
+      this.dataTree[0].expand = true;
       this.$emit('on-dataTreeChangeEvnet', response.data);
     },
     renderContent(h, { root, node, data }) {

@@ -29,7 +29,6 @@ export default {
       totalCount: 1, //表格总页数
       pageIndex: 1, //表格当前页
       typeTreeData: [],
-      value: '',
       copyTreeDatas: [],
     };
   },
