@@ -251,11 +251,11 @@ export default {
     //时间格式化
     formatDate(datas) {
       if (datas) {
-        datas = new Date(new Date(datas).getTime());
-        const y = datas.getFullYear();
-        let m = datas.getMonth() + 1;
+        var data = new Date();
+        var y = data.getFullYear();
+        var m = data.getMonth() + 1;
+        var d = data.getDate();
         m = m < 10 ? '0' + m : m;
-        let d = datas.getDate();
         d = d < 10 ? '0' + d : d;
         return y + '-' + m + '-' + d;
       }
