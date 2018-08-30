@@ -142,6 +142,7 @@ export default {
           :readonly="readonly"
           type="text"
           class="lable-input-list"
+
         />
         <Icon
           class="lable-list-content-icons"
@@ -173,13 +174,10 @@ export default {
   width: 100%;
   padding-left: 25px;
   padding-right: 22px;
-  // height: calc(~'100vh - 476px');
+  height: calc(~'100vh - 476px');
   padding: 0px 22px 5px 25px;
   border-top: 0px;
   padding-top: 10px;
-  height: 30%;
-  // height: calc(100% - 474px);
-  // overflow-y: auto;
 }
 .labletop {
   width: 100%;
@@ -195,7 +193,7 @@ export default {
 }
 .lable {
   width: 100%;
-  height: calc(100% - 14px);
+  height: calc(100%-40px);
   overflow-y: auto;
   margin-top: 3px;
   .lable-list {
@@ -229,7 +227,6 @@ export default {
       height: 25px;
       border: 0;
       background: none;
-      cursor: default;
     }
   }
 }
