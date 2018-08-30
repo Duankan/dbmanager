@@ -42,6 +42,11 @@ export default {
           key: 'keyword',
           align: 'center',
         },
+        {
+          title: '字段描述',
+          key: 'describe',
+          align: 'center',
+        },
         // {
         //   title: '是否允许为空',
         //   key: 'allowNull',
@@ -86,8 +91,8 @@ export default {
                       this.oldFieldData = JSON.parse(JSON.stringify(params.row));
                       //标签字符串转数组
                       if (typeof this.fieldData.keyword === 'string') {
-                        // this.fieldData.keywordArray = this.fieldData.keyword;
-                        // this.fieldData.keywordArray = this.fieldData.keywordArray.split(',');
+                        this.keywordSelect = this.fieldData.keyword;
+                        this.keywordSelect = this.keywordSelect.split(',');
                       }
                     },
                   },
@@ -145,7 +150,7 @@ export default {
     // 新增字段
     async addFieldData() {
       //标签数据处理
-      this.fieldData.keyword = this.fieldData.keywordArray.concat();
+      this.fieldData.keyword = this.keywordSelect.concat();
       this.fieldData.keyword = this.fieldData.keyword.join(',');
       await api.db
         .addFields({
@@ -161,7 +166,7 @@ export default {
     //修改字段
     async modFieldData() {
       //标签数据处理
-      this.fieldData.keyword = this.fieldData.keywordArray.concat();
+      this.fieldData.keyword = this.keywordSelect.concat();
       this.fieldData.keyword = this.fieldData.keyword.join(',');
       await api.db
         .updateFields({
@@ -191,11 +196,11 @@ export default {
       console.log('点击复选框EVENT数据为');
       console.log(event);
       // let copyKeyword = event.concat();
-      this.fieldData.keywordArray = event.concat();
-      // this.fieldData.keywordArray = [...copyKeyword];
-      // this.fieldData.keywordArray = Array.from(new Set(this.fieldData.keywordArray));
+      this.keywordSelect = event.concat();
+      // this.keywordSelect = [...copyKeyword];
+      // this.keywordSelect = Array.from(new Set(this.keywordSelect));
       console.log('点击复选框更新表单数据为');
-      console.log(this.fieldData.keywordArray);
+      console.log(this.keywordSelect);
     },
   },
 };
@@ -265,7 +270,7 @@ export default {
             <FormItem
               label="标签：">
               <CheckboxGroup
-                v-model="fieldData.keywordArray"
+                v-model="keywordSelect"
                 @on-change="checked">
                 <Checkbox
                   v-for="(item,index) of tags"
