@@ -55,7 +55,7 @@ export default {
               },
               [
                 <Tag>
-                  <Ellipsis length="14">{row.keyword}</Ellipsis>
+                  <Ellipsis length="10">{row.keyword}</Ellipsis>
                 </Tag>,
               ]
             );
