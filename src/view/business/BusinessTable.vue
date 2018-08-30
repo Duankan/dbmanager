@@ -1,5 +1,6 @@
 <script>
 import { date } from '@ktw/ktools';
+import { Ellipsis } from '@ktw/kcore';
 import DataDetails from './DataDetails';
 export default {
   name: 'BusinessTable',
@@ -27,7 +28,6 @@ export default {
       tableColumns1: [
         {
           type: 'selection',
-          width: 60,
         },
         {
           title: '元素名称',
@@ -36,14 +36,15 @@ export default {
         {
           title: '描述',
           key: 'describe',
-          width: 300,
         },
         {
           title: '标签',
           key: 'keyword',
+          ellipsis: true,
           render: (h, params) => {
             const row = params.row;
             return h('Tag', params.row.keyword);
+            // return <Ellipsis length="14">{row.keyword}</Ellipsis>;
           },
         },
         {
