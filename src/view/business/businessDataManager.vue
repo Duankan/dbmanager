@@ -24,6 +24,7 @@ export default {
     return {
       treeDatas: [],
       tableDatas: {},
+      treeData: [],
       labelsData: [],
       display: true,
     };
@@ -45,6 +46,10 @@ export default {
     toggle() {
       this.display = !this.display;
     },
+    //联级树
+    queryTreeData(data) {
+      this.treeData = data;
+    },
   },
 };
 </script>
@@ -64,6 +69,7 @@ export default {
             :tree-datas="treeDatas"
             :labels-data="labelsData"
             @on-dataChangeEvnet="tableDataChange"
+            @TreeData="queryTreeData"
           ></DataDisplay>
           <!--左侧树-->
           <BusinessSort @on-dataTreeChangeEvnet="treeDataChange"></BusinessSort>
@@ -86,6 +92,7 @@ export default {
       <!--元数据管理 -->
       <BusinessTable
         :table-datas="tableDatas"
+        :tree-data = "treeData"
       ></BusinessTable>
     </div>
     <div

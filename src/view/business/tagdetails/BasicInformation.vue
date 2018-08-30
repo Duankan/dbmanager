@@ -19,6 +19,8 @@ export default {
       validates: RuleValidate,
       formItem: {},
       copyRowData: this.rowData,
+      //标签按钮名称
+      tagName: '',
       //修改标签模态框显示
       tagDialog: false,
       //全部标签名
@@ -34,11 +36,16 @@ export default {
     if (this.copyRowData.begdate) {
       this.copyRowData.begdate = date.format(new Date(this.copyRowData.enddate), 'YYYY-M-D');
     }
+    //资源分类格式转换
+    if (typeof this.copyRowData.restype === 'string') {
+      this.copyRowData.restype = this.copyRowData.restype.split(',');
+    }
+    // 标签按钮名称
+    this.copyRowData.add ? (this.tagName = '新增标签') : (this.tagName = '修改标签');
     this.queryTagData();
     //字符串类型标签转数组
     if (typeof this.copyRowData.keyword === 'string') {
       this.copyRowData.keyword = this.copyRowData.keyword.split(',');
-      console.log(this.copyRowData.keyword);
     }
   },
   methods: {
@@ -55,20 +62,50 @@ export default {
     },
     //新增/修改基本信息
     async modBasicInformation() {
-      // 标签转字符串
-      if (this.copyRowData.keyword.constructor === Array) {
-        this.copyRowData.keyword = this.copyRowData.keyword.join(',');
-      }
+      //标签数据处理
+      let copyKeyword = this.copyRowData.keyword.concat();
+      copyKeyword = copyKeyword.join(',');
+      //资源分类数据处理
+      let copyRestype = this.copyRowData.restype[this.copyRowData.restype.length - 1];
+      //判断新增或修改请求
       if (this.copyRowData.add === true) {
         //新增基本信息
-        await api.db.addbasicinfoBusiness(this.copyRowData).then(p => {
-          this.$emit('on-tagEvent', p.data);
-        });
+        await api.db
+          .addbasicinfoBusiness({
+            abstract_: this.copyRowData.abstract_,
+            begdate: this.copyRowData.begdate,
+            enddate: this.copyRowData.enddate,
+            cndadd: this.copyRowData.cndadd,
+            id: this.copyRowData.id,
+            keyword: copyKeyword,
+            name: this.copyRowData.name,
+            restitle: this.copyRowData.restitle,
+            restype: copyRestype,
+            rporgname: this.copyRowData.rporgname,
+          })
+          .then(p => {
+            this.$emit('on-tagEvent', p.data);
+          });
       } else {
         //修改基本信息
-        await api.db.updatebasicinfoBusiness(this.copyRowData).then(p => {
-          this.copyRowData.keyword = this.copyRowData.keyword.split(',');
-        });
+        await api.db
+          .updatebasicinfoBusiness({
+            abstract_: this.copyRowData.abstract_,
+            begdate: this.copyRowData.begdate,
+            enddate: this.copyRowData.enddate,
+            cndadd: this.copyRowData.cndadd,
+            id: this.copyRowData.id,
+            keyword: copyKeyword,
+            name: this.copyRowData.name,
+            restitle: this.copyRowData.restitle,
+            restype: copyRestype,
+            rporgname: this.copyRowData.rporgname,
+          })
+          .then(p => {
+            if (typeof this.copyRowData.keyword === 'string') {
+              this.copyRowData.keyword = this.copyRowData.keyword.split(',');
+            }
+          });
       }
     },
     // 获取标签数据
@@ -133,7 +170,6 @@ export default {
       </Col>
       <Col span="9">
       <FormItem
-        prop="restype"
         label="资源分类：">
         <Cascader
           :data="treeData"
@@ -203,7 +239,7 @@ export default {
           type="dashed"
           size="small"
           @click="addTagDialog">
-          修改标签
+          {{ tagName }}
         </Button>
         <div v-cloak>
           <Tag
@@ -219,8 +255,8 @@ export default {
         </div>
         <modal
           v-model="tagDialog"
+          :title= "tagName"
           width = "500"
-          title="修改标签"
           @on-ok="modTag"
           @on-cancel="cancel">
           <CheckboxGroup
@@ -229,8 +265,7 @@ export default {
             <Checkbox
               v-for="(item,index) of tags"
               :key ="index"
-              :label="item.name"
-            >
+              :label="item.name">
             </Checkbox>
           </CheckboxGroup>
         </modal>

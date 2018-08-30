@@ -11,6 +11,8 @@ export default {
   },
   data() {
     return {
+      //全部标签名
+      tags: [],
       //表单验证
       validates: RuleValidate,
       //字段操作标题
@@ -34,25 +36,30 @@ export default {
           align: 'center',
         },
         {
-          title: '是否允许为空',
-          key: 'allowNull',
+          title: '标签',
+          key: 'keyword',
           align: 'center',
-          render: (h, params) => {
-            const row = params.row;
-            const color = row.allowNull === 1 ? 'green' : 'red';
-            const text = row.allowNull === 1 ? '可用' : '不可用';
-            return h(
-              'Tag',
-              {
-                props: {
-                  type: 'dot',
-                  color: color,
-                },
-              },
-              text
-            );
-          },
         },
+        // {
+        //   title: '是否允许为空',
+        //   key: 'allowNull',
+        //   align: 'center',
+        //   render: (h, params) => {
+        //     const row = params.row;
+        //     const color = row.allowNull === 1 ? 'green' : 'red';
+        //     const text = row.allowNull === 1 ? '可用' : '不可用';
+        //     return h(
+        //       'Tag',
+        //       {
+        //         props: {
+        //           type: 'dot',
+        //           color: color,
+        //         },
+        //       },
+        //       text
+        //     );
+        //   },
+        // },
         {
           title: '操作',
           key: 'operation',
@@ -71,9 +78,14 @@ export default {
                       this.fieldOperat = '修改字段';
                       //打开修改模板
                       this.fieldDialog = true;
-                      //给修改模板赋初始值
+                      console.log(params.row);
+                      //修改模板赋值
                       this.fieldData = JSON.parse(JSON.stringify(params.row));
                       this.oldFieldData = JSON.parse(JSON.stringify(params.row));
+                      //标签字符串转数组
+                      if (typeof this.fieldData.keyword === 'string') {
+                        this.fieldData.keywordArray = this.fieldData.keyword.split(',');
+                      }
                     },
                   },
                 },
@@ -91,6 +103,8 @@ export default {
       oldFieldData: {},
       // 字段类型下拉框
       fieldTypeSelect: DataDictionary.type,
+      // 已选标签名
+      selectedTags: [],
     };
   },
   mounted() {
@@ -98,6 +112,8 @@ export default {
     if (this.rowData.rescolumn) {
       this.tableData = JSON.parse(this.rowData.rescolumn);
     }
+    //获取标签名
+    this.queryTagData();
   },
   methods: {
     //打开新增字段模板
@@ -114,25 +130,22 @@ export default {
           if (this.fieldOperat === '新增字段') {
             //调用新增字段
             this.addFieldData();
+            this.$Message.success('操作成功');
           } else if (this.fieldOperat === '修改字段') {
             this.modFieldData();
+            this.$Message.success('操作成功');
           }
-          this.$Message.success('操作成功');
         } else {
           this.$Message.error('请完善表单');
         }
       });
-
-      // //按钮判断
-      // if (this.fieldOperat === '新增字段') {
-      //   //调用新增字段
-      //   this.addFieldData();
-      // } else if (this.fieldOperat === '修改字段') {
-      //   this.modFieldData();
-      // }
     },
+    cancel() {},
     // 新增字段
     async addFieldData() {
+      //标签数据处理
+      // this.fieldData.keyword = this.fieldData.keywordArray.concat();
+      // this.fieldData.keyword = this.fieldData.keyword.join(',');
       await api.db
         .addFields({
           id: this.rowData.id,
@@ -146,6 +159,9 @@ export default {
     },
     //修改字段
     async modFieldData() {
+      //标签数据处理
+      // this.fieldData.keyword = this.fieldData.keywordArray.concat();
+      // this.fieldData.keyword = this.fieldData.keyword.join(',');
       await api.db
         .updateFields({
           id: this.rowData.id,
@@ -154,11 +170,26 @@ export default {
         })
         .then(p => {
           //替换表格数据
-          console.log(this.tableData);
           this.tableData.splice(this.fieldData._index, 1, this.fieldData);
         });
     },
-    cancel() {},
+    // 获取标签数据
+    async queryTagData() {
+      await api.db.findallBusiness().then(p => {
+        if (typeof p.data == 'string') {
+          this.tags = p.data;
+          this.tags = this.tags.split(',');
+        } else {
+          this.tags = p.data;
+        }
+      });
+    },
+    //点击复选框触发事件
+    checked(event) {
+      //已选标签名
+      this.selectedTags = event;
+      this.fieldData.keywordArray = event.concat();
+    },
   },
 };
 </script>
@@ -180,6 +211,7 @@ export default {
       <Modal
         v-model="fieldDialog"
         :title = "fieldOperat"
+        width="500"
         @on-cancel="cancel"
         @on-ok="ok('fieldData')">
         <Form
@@ -216,19 +248,34 @@ export default {
           <Row>
             <Col span="22">
             <FormItem
-              prop="length"
-              label="字段长度：">
-              <Input v-model="fieldData.length"/>
+              label="字段描述：">
+              <Input v-model="fieldData.describe"/>
             </FormItem>
             </Col>
           </Row>
           <Row>
             <Col span="22">
+            <FormItem
+              label="标签：">
+              <CheckboxGroup
+                v-model="fieldData.keywordArray"
+                @on-change="checked">
+                <Checkbox
+                  v-for="(item,index) of tags"
+                  :key ="index"
+                  :label="item.name">
+                </Checkbox>
+              </CheckboxGroup>
+            </FormItem>
+            </Col>
+          </Row>
+          <!--<Row>
+            <Col span="22">
             <FormItem label="是否允许为空：">
               <Checkbox v-model="fieldData.allownull">是</Checkbox>
             </FormItem>
             </Col>
-          </Row>
+          </Row>-->
         </Form>
       </Modal>
     </div>
