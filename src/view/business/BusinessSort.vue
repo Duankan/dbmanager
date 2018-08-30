@@ -124,10 +124,11 @@ export default {
             [
               h('Icon', {
                 props: {
-                  type: 'ios-folder-outline',
+                  type: 'ios-folder',
                 },
                 style: {
                   marginRight: '5px',
+                  color: '#ff9900',
                 },
               }),
               h(
