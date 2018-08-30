@@ -1,7 +1,7 @@
 const RuleValidate = {
   name: [{ required: true, message: '该项不能为空', trigger: 'blur' }],
   restitle: [{ required: true, message: '业务资源标题不能为空', trigger: 'blur' }],
-  restype: [{ required: true, message: '资源分类不能为空', trigger: 'change' }],
+  restype: [{ required: true, type: 'array', message: '资源分类不能为空', trigger: 'blur' }],
   keyword: [
     {
       required: true,

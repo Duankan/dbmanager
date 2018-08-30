@@ -24,6 +24,7 @@ export default {
     return {
       treeDatas: [],
       tableDatas: {},
+      treeData: [],
       labelsData: [],
       display: true,
     };
@@ -45,6 +46,10 @@ export default {
     toggle() {
       this.display = !this.display;
     },
+    //联级树
+    queryTreeData(data) {
+      this.treeData = data;
+    },
   },
 };
 </script>
@@ -54,16 +59,17 @@ export default {
     <div id="left-menu">
       <Tabs
         value="name1"
+        class="tabs"
         @on-click="toggle()">
         <Tab-pane
           label="元数据管理"
-          class="tabpane"
           name="name1">
           <!--左侧查询 -->
           <DataDisplay
             :tree-datas="treeDatas"
             :labels-data="labelsData"
             @on-dataChangeEvnet="tableDataChange"
+            @TreeData="queryTreeData"
           ></DataDisplay>
           <!--左侧树-->
           <BusinessSort @on-dataTreeChangeEvnet="treeDataChange"></BusinessSort>
@@ -86,6 +92,7 @@ export default {
       <!--元数据管理 -->
       <BusinessTable
         :table-datas="tableDatas"
+        :tree-data = "treeData"
       ></BusinessTable>
     </div>
     <div
@@ -97,7 +104,7 @@ export default {
   </div>
 </template>
 <style lang="less" scoped>
-.k-tabs {
+.tabs {
   height: 100%;
 }
 #left-menu {
@@ -119,7 +126,7 @@ export default {
 /deep/.k-tabs-content.k-tabs-content-animated {
   height: 100%;
 }
-/deep/.k-tabs .k-tabs-tabpane {
+/deep/.k-tabs-tabpane {
   height: 100%;
 }
 </style>

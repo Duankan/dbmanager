@@ -3,7 +3,7 @@ import * as helps from '@/utils/helps';
 import AttributeFilter from './AttributeFilter';
 
 //提取必须字段
-const REQUIRED_FIELDS = ['Shape_Leng', 'Shape_Area'];
+const REQUIRED_FIELDS = ['gid', 'x1', 'y1', 'x2', 'y2', 'Shape_Leng', 'Shape_Area', 'bbox'];
 
 /*
  * 过滤提取资源模块
@@ -42,10 +42,10 @@ export default {
       indeterminate: false,
       //是否已全选
       checkAll: false,
-      //字段列表
-      schemas: [],
       //字段选择列表
       selectSchemas: [],
+      //保留字段列表
+      reservedSchemas: [],
     };
   },
   created() {
@@ -57,8 +57,9 @@ export default {
       let layer = this.selectLayers[index];
       //查询资源schema信息
       const response = await api.db.findResourceInfo({ id: layer.resid });
-      this.schemas = response.data.schema.map(p => p.name);
-      this.currentSchemas = helps.filterSchema(this.schemas);
+      let fields = response.data.schema.map(p => p.name);
+      this.reservedSchemas = fields.filter(p => REQUIRED_FIELDS.indexOf(p) > 0);
+      this.currentSchemas = helps.filterSchema(fields);
       this.currentFilter = {
         schemas: this.currentSchemas.join(','),
         name: layer.resname,
@@ -111,17 +112,11 @@ export default {
     //应用当前更改
     applyCurrentChange() {
       let curLayer = this.selectLayers.find(p => p.resid == this.currentId);
-      curLayer.schema = this.getSelectSchemas().join(',');
+      curLayer.schema = [...this.selectSchemas, ...this.reservedSchemas].join(',');
       let filter = this.$refs.filterEditor.getFilter();
       if (filter) {
         curLayer.filter = filter;
       }
-    },
-    //获取选择的shemas
-    getSelectSchemas() {
-      let fields = [...this.selectSchemas, ...REQUIRED_FIELDS];
-      fields = this.schemas.filter(p => fields.indexOf(p) >= 0);
-      return fields;
     },
     //字段全选
     handleCheckAll() {
