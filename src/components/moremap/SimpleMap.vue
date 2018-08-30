@@ -29,16 +29,6 @@ export default {
   },
   mounted() {
     this.selectLayer = this.historyLayerList[this.layerIndex].title;
-    // var serviceList = {
-    //   [this.historyLayerList[this.layerIndex].title]: [
-    //     {
-    //       servicestype: 12,
-    //       servicesurl: this.historyLayerList[this.layerIndex].url,
-    //       title: this.historyLayerList[this.layerIndex].title,
-    //     },
-    //   ],
-    // };
-    // this.$store.commit(`${this.mapId}/SET_MAP_SERVICELIST`, serviceList);
     window.dispatchEvent(new Event('resize'));
   },
   methods: {
@@ -58,13 +48,25 @@ export default {
         var item = this.historyLayerList.find(function(elem) {
           return elem.title == value;
         });
-        debugger;
+        var styleName = 'ktw_fffffffd97ef3980';
+        if (item.type == 'point') {
+          styleName = 'ktw_136703855';
+        } else if (item.type == 'polygon') {
+          styleName = 'ktw_fffffffb5bda492f';
+        }
+        // var layerStyle = 'EditPointStyle'; //ktw_136703855 点; ktw_fffffffd97ef3980 线 ktw_fffffffb5bda492f
+        if (item.time == '当前图层') {
+          styleName = '';
+        }
         var serviceList = {
           [item.title]: [
             {
               servicestype: 12,
               servicesurl: item.url,
               title: item.title,
+              options: {
+                styles: styleName,
+              },
             },
           ],
         };

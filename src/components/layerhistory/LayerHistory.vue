@@ -52,12 +52,13 @@ export default {
     },
     //添加图层预览
     addLayerView(item) {
+      //ktw_136703855 点; ktw_fffffffd97ef3980 线 ktw_fffffffb5bda492f
       const layerInfo = this.setLayerInfo(item.layer.name);
-      var styleName = 'EditPointStyle';
+      var styleName = 'ktw_fffffffd97ef3980';
       if (item.layer.style.name == 'point') {
-        styleName = 'EditPointStyle';
+        styleName = 'ktw_136703855';
       } else if (item.layer.style.name == 'polygon') {
-        styleName = 'ktw_fffffffe46997ca7';
+        styleName = 'ktw_fffffffb5bda492f';
       }
       const temporaryData = {
         [item.layer.name]: {
@@ -72,7 +73,7 @@ export default {
             item.layer.latLonBox.maxy,
           crs: item.layer.srs,
           layers: item.layer.name,
-          //styles: styleName,
+          styles: styleName,
         },
       };
       this.$store.commit('SET_MAP_TEMPORARYLAYERS', temporaryData);
@@ -107,19 +108,21 @@ export default {
     moreMap() {
       let container = document.body;
       this.historyLayerList = [];
-      debugger;
       var originalLayerUrl = this.$store.state.map.serviceList[this.originalLayerName][0]
         .servicesurl;
+      debugger;
       this.historyLayerList.push({
         url: originalLayerUrl,
         title: this.originalLayerName,
         time: '当前图层',
+        type: this.layerData[0].layer.style.name,
       });
       this.layerData.forEach(item => {
         this.historyLayerList.push({
           url: originalLayerUrl.replace(this.originalLayerName, item.layer.title),
           title: item.layer.title,
           time: item.createTime,
+          type: item.layer.style.name,
         });
       });
       this.historyHandler = this.$FloatPanel.create({
