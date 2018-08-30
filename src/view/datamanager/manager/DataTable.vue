@@ -27,6 +27,7 @@ export default {
           render: (h, params) => {
             let child = params.row._alias;
             if (params.row._rename) {
+              debugger;
               child = (
                 <div class="rename">
                   <Input
