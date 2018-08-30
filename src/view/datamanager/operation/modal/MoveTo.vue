@@ -52,6 +52,7 @@ export default {
     width="400"
     title="移动到"
     scrollable
+    class-name="move-modal"
     @on-ok="moveNode"
     @on-visible-change="visibleChange">
     <DataTree
@@ -63,10 +64,13 @@ export default {
   </Modal>
 </template>
 
-<style lang="less" scoped>
-.k-modal {
-  /deep/ &-body {
-    max-height: 300px;
+<style lang="less">
+.move-modal {
+  .k-modal {
+    top: 160px;
+  }
+  .k-modal-body {
+    height: 300px;
     overflow: auto;
   }
 }
