@@ -42,28 +42,7 @@ export default {
 <template>
   <div class="data-manager">
     <Navigator/>
-    <ContextMenu ref="contextmenu">
-      <ContextMenuSubmenu title="查看方式">
-        <ContextMenuItem @click="() => component = 'DataTable'">列表</ContextMenuItem>
-        <ContextMenuItem @click="() => component = 'DataGrid'">缩略图</ContextMenuItem>
-      </ContextMenuSubmenu>
-      <ContextMenuSubmenu title="排序方式">
-        <ContextMenuItem @click="sort('name')">文件名</ContextMenuItem>
-        <ContextMenuItem @click="sort('size')">文件大小</ContextMenuItem>
-        <ContextMenuItem @click="sort('updateTime')">修改时间</ContextMenuItem>
-      </ContextMenuSubmenu>
-      <ContextMenuItem divided>新建文件夹</ContextMenuItem>
-      <ContextMenuSubmenu title="上传">
-        <ContextMenuItem @click="upload('file')">文件</ContextMenuItem>
-        <ContextMenuItem @click="upload('dictionary')">文件夹</ContextMenuItem>
-      </ContextMenuSubmenu>
-      <ContextMenuItem
-        divided
-        @click="refresh">刷新</ContextMenuItem>
-      <ContextMenuItem @click="overload">重新加载页面</ContextMenuItem>
-    </ContextMenu>
-    </p><div
-      v-contextmenu:contextmenu
+    <div
       class="manager-container">
       <Operation :component.sync="component"/>
       <DataBreadcrumb></DataBreadcrumb>

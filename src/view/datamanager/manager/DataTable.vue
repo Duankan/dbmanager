@@ -27,7 +27,6 @@ export default {
           render: (h, params) => {
             let child = params.row._alias;
             if (params.row._rename) {
-              debugger;
               child = (
                 <div class="rename">
                   <Input
@@ -73,6 +72,7 @@ export default {
                     size="14"
                     nativeOnClick={e => {
                       e.stopPropagation();
+                      params.row.alias = params.row._alias;
                       this.$store.commit(
                         types.UPDATE_APP_NODES,
                         Object.assign(params.row, { _rename: false })

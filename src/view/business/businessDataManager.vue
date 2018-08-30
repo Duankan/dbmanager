@@ -59,6 +59,7 @@ export default {
     <div id="left-menu">
       <Tabs
         value="name1"
+        class="tabs"
         @on-click="toggle()">
         <Tab-pane
           label="元数据管理"
@@ -103,6 +104,9 @@ export default {
   </div>
 </template>
 <style lang="less" scoped>
+.tabs {
+  height: 100%;
+}
 #left-menu {
   float: left;
   width: 300px;
@@ -118,5 +122,11 @@ export default {
   margin-left: 350px;
   height: 100%;
   background: #f1f3f7;
+}
+/deep/.k-tabs-content.k-tabs-content-animated {
+  height: 100%;
+}
+/deep/.k-tabs-tabpane {
+  height: 100%;
 }
 </style>
