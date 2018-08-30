@@ -281,8 +281,7 @@ export default {
 
 <template>
   <div class="table-content">
-    <div
-      v-if="display">
+    <div v-if="display">
       <div class="table-content-title">
         <span class="table-content-title-icon"></span>
         <span class="table-content-title-content"><b>元数据管理</b></span>
@@ -298,21 +297,20 @@ export default {
         :data="tableData"
         :height="tableHeight"
         :columns="tableColumns1"
-        class="table"
-      ></Table>
+        class="table">
+      </Table>
       <div class="page">
         <div class="page-item">
           <Page
             :total="totalCount"
             :current="pageIndex"
             show-elevator
-            @on-change="changePage"
-          ></Page>
+            @on-change="changePage">
+          </Page>
         </div>
       </div>
     </div>
-    <div
-      v-else>
+    <div v-else>
       <DataDetails
         :business-data="selectData"
         :tree-data="treeData"
@@ -327,19 +325,23 @@ export default {
   margin: 0 auto;
   height: 100%;
 }
+
 .table-content-title {
   height: 60px;
   line-height: 60px;
 }
+
 .table-content-title-icon {
   width: 3px;
   height: 5px;
   border: 1px solid #2d8cf0;
 }
+
 .table-content-title-content {
   font-size: 14px;
   padding-left: 8px;
 }
+
 .table-content-btn {
   width: 100%;
   height: 45px;
@@ -347,6 +349,7 @@ export default {
     float: right;
   }
 }
+
 .page {
   margin: 10px;
   overflow: hidden;
@@ -354,12 +357,15 @@ export default {
     float: right;
   }
 }
+
 /deep/.table td {
   background: #f1f3f7;
 }
+
 /deep/.table th {
   background: #dcdee2;
 }
+
 /deep/.k-table-body {
   background: #f1f3f7;
 }

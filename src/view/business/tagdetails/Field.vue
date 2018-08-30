@@ -11,6 +11,8 @@ export default {
   },
   data() {
     return {
+      //已选标签
+      keywordSelect: [],
       //全部标签名
       tags: [],
       //表单验证
@@ -84,7 +86,8 @@ export default {
                       this.oldFieldData = JSON.parse(JSON.stringify(params.row));
                       //标签字符串转数组
                       if (typeof this.fieldData.keyword === 'string') {
-                        this.fieldData.keywordArray = this.fieldData.keyword.split(',');
+                        // this.fieldData.keywordArray = this.fieldData.keyword;
+                        // this.fieldData.keywordArray = this.fieldData.keywordArray.split(',');
                       }
                     },
                   },
@@ -103,8 +106,6 @@ export default {
       oldFieldData: {},
       // 字段类型下拉框
       fieldTypeSelect: DataDictionary.type,
-      // 已选标签名
-      selectedTags: [],
     };
   },
   mounted() {
@@ -144,8 +145,8 @@ export default {
     // 新增字段
     async addFieldData() {
       //标签数据处理
-      // this.fieldData.keyword = this.fieldData.keywordArray.concat();
-      // this.fieldData.keyword = this.fieldData.keyword.join(',');
+      this.fieldData.keyword = this.fieldData.keywordArray.concat();
+      this.fieldData.keyword = this.fieldData.keyword.join(',');
       await api.db
         .addFields({
           id: this.rowData.id,
@@ -160,8 +161,8 @@ export default {
     //修改字段
     async modFieldData() {
       //标签数据处理
-      // this.fieldData.keyword = this.fieldData.keywordArray.concat();
-      // this.fieldData.keyword = this.fieldData.keyword.join(',');
+      this.fieldData.keyword = this.fieldData.keywordArray.concat();
+      this.fieldData.keyword = this.fieldData.keyword.join(',');
       await api.db
         .updateFields({
           id: this.rowData.id,
@@ -187,8 +188,14 @@ export default {
     //点击复选框触发事件
     checked(event) {
       //已选标签名
-      this.selectedTags = event;
+      console.log('点击复选框EVENT数据为');
+      console.log(event);
+      // let copyKeyword = event.concat();
       this.fieldData.keywordArray = event.concat();
+      // this.fieldData.keywordArray = [...copyKeyword];
+      // this.fieldData.keywordArray = Array.from(new Set(this.fieldData.keywordArray));
+      console.log('点击复选框更新表单数据为');
+      console.log(this.fieldData.keywordArray);
     },
   },
 };

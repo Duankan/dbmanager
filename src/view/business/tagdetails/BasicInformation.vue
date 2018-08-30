@@ -43,7 +43,7 @@ export default {
     // 标签按钮名称
     this.copyRowData.add ? (this.tagName = '新增标签') : (this.tagName = '修改标签');
     this.queryTagData();
-    //字符串类型标签转数组
+    //标签字符串类型标签转数组
     if (typeof this.copyRowData.keyword === 'string') {
       this.copyRowData.keyword = this.copyRowData.keyword.split(',');
     }
@@ -66,7 +66,9 @@ export default {
       let copyKeyword = this.copyRowData.keyword.concat();
       copyKeyword = copyKeyword.join(',');
       //资源分类数据处理
-      let copyRestype = this.copyRowData.restype[this.copyRowData.restype.length - 1];
+      // let copyRestype = this.copyRowData.restype[this.copyRowData.restype.length - 1];
+      let copyRestype = this.copyRowData.restype.concat();
+      copyRestype = copyRestype.join(',');
       //判断新增或修改请求
       if (this.copyRowData.add === true) {
         //新增基本信息
@@ -175,8 +177,8 @@ export default {
           :data="treeData"
           v-model="copyRowData.restype"
           filterable
-          transfer
-        ></Cascader>
+          transfer>
+        </Cascader>
       </FormItem>
       </Col>
     </Row>
@@ -225,7 +227,8 @@ export default {
           v-model="copyRowData.enddate"
           type="date"
           format="yyyy-MM-dd"
-          placeholder="选择结束时间"></DatePicker>
+          placeholder="选择结束时间">
+        </DatePicker>
         </Col>
       </FormItem>
     </Row>
