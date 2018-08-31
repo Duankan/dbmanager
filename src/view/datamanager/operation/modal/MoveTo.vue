@@ -38,7 +38,9 @@ export default {
             toSort: 1, //  目标节点排列顺序（缺省值为最后）
           })
         )
-      );
+      ).catch(p => {
+        this.$store.dispatch(types.APP_NODES_FETCH, this.current);
+      });
       this.$store.dispatch(types.APP_NODES_FETCH, this.current);
     },
   },
