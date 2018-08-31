@@ -88,7 +88,7 @@ export default {
         itemClass: 'draw-upload',
       },
       uploadAction: '#',
-      relRadius: this.relRadius,
+      relRadius: this.radius,
     };
   },
   watch: {
@@ -135,7 +135,6 @@ export default {
     clearLayers() {
       if (this.drawType) {
         this.drawType.forEach(item => {
-          // this.$drawRefs[item].destory();
           this.$drawRefs[item].clearDrawLayer();
         });
       }
@@ -187,7 +186,8 @@ export default {
         const wktFormat = new L.Format.WKT();
         this.geometry = wktFormat.readToLayer(data.data[0], false);
         const invokeGetWktStr = this.changeWkt(this.geometry, false);
-        if (this.relRadius) {
+        this.geometry.addTo(this.$drawRefs.geojson.$queryLayers);
+        if (this.relRadius !== 0) {
           const bufferedGeoJson = buffer(this.geometry.toGeoJSON(), this.relRadius, {
             units: this.units,
           });

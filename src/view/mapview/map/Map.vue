@@ -1,5 +1,7 @@
 <script>
-import Kmap from '@ktw/kmap';
+import * as kmap from '@ktw/kmap';
+import MapRefs from '@/components/maptools/map-refs';
+
 const REFS = ['polygon', 'rectangle', 'marker', 'polyline', 'circle'];
 
 export default {
@@ -64,19 +66,25 @@ export default {
     };
   },
   mounted() {
+    MapRefs.inst(this);
     this.$events.emit('on-getdraw-refs', { drawRefs: this.$refs, REFS }, true);
   },
+  destroyed() {
+    MapRefs.destroy();
+  },
+
   methods: {
-    setBbox({ bbox, index, type }) {
-      if (bbox) {
-        const status = {
-          wms() {},
-          wmts() {},
-        };
-        this.$refs.map.setBounds(bbox);
-      } else {
-        this.$store.getters.ogcLayers[index - 1].fitBounds();
-      }
+    setBbox({ index, type }) {
+      const layer = this.$store.getters.ogcLayers[index - 1];
+      const status = {
+        wms() {
+          kmap.default.kmapAPI.commonFunction.defineWMSCRS(this.$refs.map.$mapObject, layer);
+        },
+        wmts() {
+          kmap.default.kmapAPI.commonFunction.defineWMTSCRS(this.$refs.map.$mapObject, layer);
+        },
+      };
+      status[type].call(this);
     },
     handleClick() {},
     drawGeometry(layers) {
@@ -88,28 +96,7 @@ export default {
 
 <template>
   <div class="map">
-    <ContextMenu ref="contextmenu">
-      <ContextMenuItem>长度测量</ContextMenuItem>
-      <ContextMenuItem>面积测量</ContextMenuItem>
-      <ContextMenuGroup max-width="240px">
-        <ContextMenuItem @click="handleClick">
-          <Icon type="flag"></Icon>点选查询
-        </ContextMenuItem>
-        <ContextMenuItem @click="handleClick">
-          <Icon type="star"></Icon>拉框查询
-        </ContextMenuItem>
-        <ContextMenuItem @click="handleClick">
-          <Icon type="heart"></Icon>多边形查询
-        </ContextMenuItem>
-        <ContextMenuItem @click="handleClick">
-          <Icon type="heart-broken"></Icon>地图拾取
-        </ContextMenuItem>
-      </ContextMenuGroup>
-    </ContextMenu>
-    <BaseMap
-      v-contextmenu:contextmenu
-      ref="map"
-    >
+    <BaseMap ref="map">
       <slot/>
       <NavControl/>
       <MapTool :plugins="plugin" />

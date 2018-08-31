@@ -40,7 +40,7 @@ const numberCompare = [
   },
 ];
 export default {
-  name: 'QuerySpace',
+  name: 'QueryCompound',
   components: { DrawTools, AreaSelect },
   mixins: [QueryBase],
   props: {},
@@ -83,6 +83,7 @@ export default {
       layerCrs: null,
       schema: 'the_geom',
       queryAreaUrl: '',
+      queryUrl: '',
     };
   },
   computed: {
@@ -225,6 +226,14 @@ export default {
       const params = this.getParams();
       this.showTable(this.fieldList, params, 'wfsQuery');
     },
+    // 计算半径
+    setRadius() {
+      let radius;
+      if (this.queryItem.bufferUnit === '米') {
+        radius = this.queryItem.buffer / 111194.872221777;
+      }
+      return radius;
+    },
     // 处理参数
     getParams() {
       let queryOptions;
@@ -234,11 +243,9 @@ export default {
         pageSize: 10,
         url: this.serviseUrl,
       };
+      const radius = this.setRadius();
       const defaultOptions = {
-        radius:
-          this.queryItem.bufferUnit === '米'
-            ? this.queryItem.buffer / 111194.872221777
-            : this.queryItem.buffer / 111194.872221777,
+        radius,
         spatialRelationship: this.queryItem.relationship,
         type: 'POST',
       };
@@ -287,10 +294,12 @@ export default {
     setCQLFilter(isGetCqlFilter) {
       let queryCQLFilter;
       const formDynamic = this.formDynamic.items;
+
       // 这里拿到了属性查询的条件
       let CQLFilter = this.getCondition(deepCopy(formDynamic));
       if (CQLFilter.substr(0, 3) == 'AND') CQLFilter = CQLFilter.slice(3);
 
+      // queryCQLFilter = this.setRelationship();
       // 判断是选择行政区的范围还是绘制的范围
       if (this.queryItem.place === '') {
         if (this.queryItem.geometry) {
@@ -525,6 +534,7 @@ export default {
     <FormItem label="绘制方式：">
       <DrawTools
         ref="drawTools"
+        :layer-url="queryUrl"
         :layer-crs="layerCrs"
         :radius="queryItem.buffer"
         :units="setUnits"

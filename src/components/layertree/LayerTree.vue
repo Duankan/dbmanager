@@ -169,12 +169,14 @@ export default {
     },
     // 移除全部图层
     removeLayer(root, node, data) {
+      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
+      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
       const deleteLayers = data.children.map(layer => layer.name);
       this.$store.commit('SET_MAP_GOCLAYER_DELETE', deleteLayers);
     },
     // 图层定位
     positionLayer(root, node, data) {
-      this.$events.emit('on-set-bbox', { bbox: data.bbox, index: node.nodeKey, type: data.type });
+      this.$events.emit('on-set-bbox', { index: node.nodeKey, type: data.type });
     },
     //编辑图层要素
     editLayer(root, node, data) {
