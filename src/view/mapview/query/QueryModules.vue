@@ -1,4 +1,5 @@
 <script>
+import * as types from '@/store/types';
 export default {
   name: 'QueryModules',
   props: {
@@ -36,6 +37,15 @@ export default {
   },
   data() {
     return {};
+  },
+  watch: {
+    isVisible(newVal) {
+      if (!newVal) {
+        this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
+        this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
+        this.$store.commit(types.CLOSE_BOTTOM_PANE);
+      }
+    },
   },
   methods: {
     //窗口关闭事件
