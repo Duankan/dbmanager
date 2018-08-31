@@ -1,6 +1,6 @@
 <script>
 import { createTableHeader } from './utils.js';
-import { setTableColumns } from '../../utils/assist.js';
+import { setTableColumns, getArrayPagedData } from '../../utils/assist.js';
 import config from 'config';
 const MAP_WFS_QUERY = 'MAP_WFS_QUERY';
 const MAP_WPS_OVERLAP = 'MAP_WPS_OVERLAP';
@@ -25,7 +25,8 @@ export default {
       total: 0,
       pageIndex: 0,
       attributeType: 'wfsQuery',
-      features: [],
+      features: [], // 存储wfs查询结果
+      statisticsData: [], //存储统计分析结果
       title: '',
       tableLoading: false,
       opt: '', //存储其他查询的初始值。
@@ -143,7 +144,8 @@ export default {
           this[option.attributeType](option);
         },
         statisticsQuery() {
-          this[option.attributeType](option);
+          this.tableData = getArrayPagedData(this.statisticsData, this.pageIndex, 10);
+          this.tableLoading = false;
         },
         overlayQuery() {
           const wfsParams = {
@@ -198,12 +200,14 @@ export default {
         this.total = response.length;
         const columns = setTableColumns(response[0]);
         this.$store.commit(types.SET_BUS_FIELD, columns);
-        this.tableData = response.map(p => {
+
+        this.statisticsData = response.map(p => {
           return {
             ...p,
             attributeType: 'statisticsQuery',
           };
         });
+        this.tableData = getArrayPagedData(this.statisticsData, 1, 10);
       }
     },
     errback() {

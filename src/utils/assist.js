@@ -328,6 +328,12 @@ export function setMatchMedia() {
   }
 }
 
+/**
+ * @description 获取表格列字段
+ * @export
+ * @param {any} tableData
+ * @returns
+ */
 export function setTableColumns(tableData) {
   let cols;
   if (Object.keys(tableData).length > 9) {
@@ -352,4 +358,22 @@ export function setTableColumns(tableData) {
     });
   }
   return cols;
+}
+
+/**
+ * 获取数组对象分页
+ * @param {Array} data 数组对象
+ * @param {Number} pageIndex 分页索引
+ * @param {Number} pageSize 分页大小
+ */
+export function getArrayPagedData(data, pageIndex, pageSize) {
+  let startIdx = (pageIndex - 1) * pageSize;
+  let endIdx = startIdx + pageSize;
+  let pagedData = [];
+  if (endIdx >= data.length) {
+    pagedData = data.slice(startIdx, data.length);
+  } else {
+    pagedData = data.slice(startIdx, endIdx);
+  }
+  return pagedData;
 }
