@@ -8,18 +8,7 @@ class FormEditor {
   /**
    * Schema保留字段
    */
-  static ReservedFileds = [
-    'the_geom',
-    'geom',
-    'gid',
-    'x1',
-    'y1',
-    'x2',
-    'y2',
-    'shape_leng',
-    'shape_area',
-    'bbox',
-  ];
+  static ReservedFileds = ['the_geom', 'geom', 'gid', 'x1', 'y1', 'x2', 'y2', 'bbox'];
 
   /**
    * 获取新增数据表单

@@ -135,7 +135,7 @@ export default {
     clearLayers() {
       if (this.drawType) {
         this.drawType.forEach(item => {
-          this.$drawRefs[item].destory();
+          // this.$drawRefs[item].destory();
           this.$drawRefs[item].clearDrawLayer();
         });
       }
@@ -151,8 +151,6 @@ export default {
             },
           },
         };
-      } else {
-        return {};
       }
     },
     drawGeometry(name) {
@@ -172,6 +170,7 @@ export default {
             this.$drawRefs['polyline'].drawGeometry({
               customDraw: true,
               bufferOptions: params.bufferOptions ? params.bufferOptions : null,
+              params,
             });
           },
           file() {},
@@ -187,7 +186,6 @@ export default {
       if (data.data) {
         const wktFormat = new L.Format.WKT();
         this.geometry = wktFormat.readToLayer(data.data[0], false);
-        this.geometry.addTo(this.$drawRefs.geojson.$queryLayers);
         const invokeGetWktStr = this.changeWkt(this.geometry, false);
         if (this.relRadius) {
           const bufferedGeoJson = buffer(this.geometry.toGeoJSON(), this.relRadius, {

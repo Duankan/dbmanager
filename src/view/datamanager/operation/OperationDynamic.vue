@@ -48,6 +48,9 @@ export default {
     current() {
       return this.$store.state.app.currentDirectory;
     },
+    nodes() {
+      return this.$store.state.app.nodes;
+    },
     selectNodes() {
       return this.$store.state.app.selectNodes;
     },
@@ -58,16 +61,12 @@ export default {
       return this.selectNodes.length === 1 && this.selectNodes[0]._index !== 0;
     },
     isDirectoryEnd() {
-      if (this.selectNodes.length === 1) {
-        if (isDirectory(this.selectNodes[0])) {
-          if (this.selectNodes[0]._index < this.$store.state.app.nodes.length) {
-            return isDirectory(this.$store.state.app.nodes[this.selectNodes[0]._index + 1]);
-          } else {
-            return true;
-          }
-        }
+      if (this.selectNodes.length != 1 || !isDirectory(this.selectNodes[0])) return true;
+      let nextIndex = this.selectNodes[0]._index + 1;
+      if (nextIndex < this.nodes.length) {
+        return !isDirectory(this.nodes[nextIndex]);
       }
-      return false;
+      return true;
     },
     showPublish() {
       return (
@@ -97,7 +96,7 @@ export default {
       );
     },
     showAppendData() {
-      return this.selectNodes[0] && canAppend(this.selectNodes[0]) && this.selectNodes[0].pubState;
+      return false;
     },
     showAddPackage() {
       return this.selectNodes[0] && isVector(this.selectNodes[0]) && this.selectNodes[0].pubState;
@@ -127,8 +126,14 @@ export default {
       return this.selectNodes.every(node => isGisResource(node));
     },
     forbidDelete() {
-      const directoryNode = this.selectNodes.filter(node => isDirectory(node));
-      return directoryNode.some(node => node.isChild === 'open');
+      //判断注册状态
+      let disabled = this.selectNodes.some(node => node.regState === 1);
+      //判断是否有子目录
+      if (!disabled) {
+        const directoryNode = this.selectNodes.filter(node => isDirectory(node));
+        disabled = directoryNode.some(node => node.isChild === 'open');
+      }
+      return disabled;
     },
   },
   events: {
@@ -331,12 +336,12 @@ export default {
         @click="sortCatalog(0)">上移</Button>
       <Button
         v-if="showMoveTo"
-        :disabled="!isDirectoryEnd"
+        :disabled="isDirectoryEnd"
         type="ghost"
         @click="sortCatalog(1)">下移</Button>
       <Button
         v-if="showMoveTo"
-        :disabled="!isDirectoryEnd"
+        :disabled="isDirectoryEnd"
         type="ghost"
         @click="sortCatalog(3)">置底</Button>
       <Button
@@ -389,6 +394,7 @@ export default {
 
 <style lang="less" scoped>
 .operation-dynamic {
+  margin-left: 8px;
   .k-btn-group {
     margin-left: 8px;
   }

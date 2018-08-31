@@ -40,7 +40,7 @@ const numberCompare = [
   },
 ];
 export default {
-  name: 'QueryCompound',
+  name: 'QuerySpace',
   components: { DrawTools, AreaSelect },
   mixins: [QueryBase],
   props: {},
@@ -83,7 +83,6 @@ export default {
       layerCrs: null,
       schema: 'the_geom',
       queryAreaUrl: '',
-      queryUrl: '',
     };
   },
   computed: {
@@ -226,14 +225,6 @@ export default {
       const params = this.getParams();
       this.showTable(this.fieldList, params, 'wfsQuery');
     },
-    // 计算半径
-    setRadius() {
-      let radius;
-      if (this.queryItem.bufferUnit === '米') {
-        radius = this.queryItem.buffer / 111194.872221777;
-      }
-      return radius;
-    },
     // 处理参数
     getParams() {
       let queryOptions;
@@ -243,9 +234,11 @@ export default {
         pageSize: 10,
         url: this.serviseUrl,
       };
-      const radius = this.setRadius();
       const defaultOptions = {
-        radius,
+        radius:
+          this.queryItem.bufferUnit === '米'
+            ? this.queryItem.buffer / 111194.872221777
+            : this.queryItem.buffer / 111194.872221777,
         spatialRelationship: this.queryItem.relationship,
         type: 'POST',
       };
@@ -532,7 +525,6 @@ export default {
     <FormItem label="绘制方式：">
       <DrawTools
         ref="drawTools"
-        :layer-url="queryUrl"
         :layer-crs="layerCrs"
         :radius="queryItem.buffer"
         :units="setUnits"

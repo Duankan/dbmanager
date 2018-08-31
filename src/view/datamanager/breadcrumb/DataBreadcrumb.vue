@@ -30,7 +30,7 @@ export default {
     async current(newVal, oldVal) {
       const response = await api.db.findCatalogPath({ id: newVal.id });
       let catalogArray;
-      catalogArray = response.data.reverse();
+      catalogArray = response.data.filter(p => p.ownerId == newVal.ownerId).reverse();
       catalogArray[0].name = this.rootNodeText;
       this.breadcrumb = catalogArray;
     },
@@ -55,8 +55,8 @@ export default {
   <div class="data-breadcrumb">
     <Breadcrumb>
       <BreadcrumbItem>全部</BreadcrumbItem>
-      <BreadcrumbItem 
-        v-for="(item, index) in breadcrumb"   
+      <BreadcrumbItem
+        v-for="(item, index) in breadcrumb"
         :key="item.id"
         @click.native="select(item, index)">{{ item.name }}</BreadcrumbItem>
     </Breadcrumb>

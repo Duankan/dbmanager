@@ -1,5 +1,6 @@
 <script>
 import { date } from '@ktw/ktools';
+import { Ellipsis, Tag } from '@ktw/kcore';
 import DataDetails from './DataDetails';
 export default {
   name: 'BusinessTable',
@@ -10,6 +11,10 @@ export default {
     tableDatas: {
       type: Object,
       default: () => {},
+    },
+    treeData: {
+      type: Array,
+      default: () => [],
     },
   },
   data() {
@@ -26,23 +31,34 @@ export default {
           width: 60,
         },
         {
-          title: '元素名称',
+          title: '元数据名称',
           key: 'name',
         },
         {
           title: '描述',
           key: 'describe',
-          width: 200,
+          width: 300,
         },
         {
           title: '标签',
           key: 'keyword',
           render: (h, params) => {
             const row = params.row;
-            // return <Ellipsis> {row.keyword} </Ellipsis>;
-            return h('Tag', params.row.keyword);
-            //  h('Tag', params.row.keyword);
-            //
+            return h(
+              'Poptip',
+              {
+                props: {
+                  trigger: 'hover',
+                  content: row.keyword,
+                  placement: 'bottom',
+                },
+              },
+              [
+                <Tag>
+                  <Ellipsis length="10">{row.keyword}</Ellipsis>
+                </Tag>,
+              ]
+            );
           },
         },
         {
@@ -58,10 +74,6 @@ export default {
         //   key: 'status',
         //   render: (h, params) => {
         //     const row = params.row;
-        //     const begdate = date.format(new Date(params.row.begdate), 'YYYY-M-D');
-        //     const enddate = date.format(new Date(params.row.enddate), 'YYYY-M-D');
-
-        //     debugger;
         //     const color = row.status === 1 ? 'green' : 'red';
         //     const text = row.status === 1 ? '可用' : '不可用';
         //     return h(
@@ -226,7 +238,7 @@ export default {
         onOk: async () => {
           const response = await api.db.deleteBusiness({ id: id });
           this.tableData.splice(params.index, 1);
-          this.$Message.success('已删除');
+          this.$Message.info('已删除');
           this.mocktableData();
         },
         onCancel: () => {
@@ -250,14 +262,15 @@ export default {
       // 新增是否提交基本信息标记
       this.selectData.pointer = true;
     },
+
     //时间格式化
     formatDate(datas) {
       if (datas) {
-        datas = new Date(new Date(datas).getTime());
-        const y = datas.getFullYear();
-        let m = datas.getMonth() + 1;
+        var data = new Date();
+        var y = data.getFullYear();
+        var m = data.getMonth() + 1;
+        var d = data.getDate();
         m = m < 10 ? '0' + m : m;
-        let d = datas.getDate();
         d = d < 10 ? '0' + d : d;
         return y + '-' + m + '-' + d;
       }
@@ -268,8 +281,7 @@ export default {
 
 <template>
   <div class="table-content">
-    <div
-      v-if="display">
+    <div v-if="display">
       <div class="table-content-title">
         <span class="table-content-title-icon"></span>
         <span class="table-content-title-content"><b>元数据管理</b></span>
@@ -285,22 +297,23 @@ export default {
         :data="tableData"
         :height="tableHeight"
         :columns="tableColumns1"
-      ></Table>
+        class="table">
+      </Table>
       <div class="page">
         <div class="page-item">
           <Page
             :total="totalCount"
             :current="pageIndex"
             show-elevator
-            @on-change="changePage"
-          ></Page>
+            @on-change="changePage">
+          </Page>
         </div>
       </div>
     </div>
-    <div
-      v-else>
+    <div v-else>
       <DataDetails
         :business-data="selectData"
+        :tree-data="treeData"
         @backEvent="queryData"></DataDetails>
     </div>
   </div>
@@ -311,32 +324,49 @@ export default {
   width: 92%;
   margin: 0 auto;
   height: 100%;
-  .table-content-title {
-    height: 60px;
-    line-height: 60px;
-    .table-content-title-icon {
-      width: 3px;
-      height: 5px;
-      border: 1px solid #2d8cf0;
-    }
-    .table-content-title-content {
-      font-size: 14px;
-      padding-left: 8px;
-    }
+}
+
+.table-content-title {
+  height: 60px;
+  line-height: 60px;
+}
+
+.table-content-title-icon {
+  width: 3px;
+  height: 5px;
+  border: 1px solid #2d8cf0;
+}
+
+.table-content-title-content {
+  font-size: 14px;
+  padding-left: 8px;
+}
+
+.table-content-btn {
+  width: 100%;
+  height: 45px;
+  button {
+    float: right;
   }
-  .table-content-btn {
-    width: 100%;
-    height: 45px;
-    button {
-      float: right;
-    }
+}
+
+.page {
+  margin: 10px;
+  overflow: hidden;
+  .page-item {
+    float: right;
   }
-  .page {
-    margin: 10px;
-    overflow: hidden;
-    .page-item {
-      float: right;
-    }
-  }
+}
+
+/deep/.table td {
+  background: #f1f3f7;
+}
+
+/deep/.table th {
+  background: #dcdee2;
+}
+
+/deep/.k-table-body {
+  background: #f1f3f7;
 }
 </style>

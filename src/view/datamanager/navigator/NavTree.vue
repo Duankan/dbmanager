@@ -6,11 +6,7 @@ export default {
       searchTreeKey: '',
     };
   },
-  events: {
-    'on-nav-tree-update': 'updateNavTree',
-  },
   methods: {
-    updateNavTree() {},
     select(node) {
       this.$emit('on-current-select', node);
     },
@@ -19,14 +15,13 @@ export default {
 </script>
 
 <template>
-  <div>
+  <div class="nav-tree-wrapper">
     <Input
       v-model="searchTreeKey"
       clearable
-      style="margin-top:8px;margin-bottom:8px;width:100%"
       icon="ios-search"
-      placeholder="请输入资源目录关键字..."
-    >
+      class="search-input"
+      placeholder="请输入资源目录关键字...">
     </Input>
     <DataTree
       :click-node-expand="false"
@@ -38,10 +33,11 @@ export default {
   </div>
 </template>
 
-<style lang="less" scoped>
-.k-tree {
-  /deep/ &-title-selected {
-    background: transparent;
+<style lang="less">
+.nav-tree-wrapper {
+  .search-input {
+    margin: 0 5px 5px 15px;
+    width: 195px;
   }
 }
 </style>

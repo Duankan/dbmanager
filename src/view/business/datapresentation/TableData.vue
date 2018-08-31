@@ -291,6 +291,7 @@ export default {
         :data="tableData"
         :height="tableHeight"
         :columns="tableColumns1"
+        class="table"
       ></Table>
       <div class="page">
         <div class="page-item">
@@ -348,6 +349,15 @@ export default {
     .page-item {
       float: right;
     }
+  }
+  /deep/.table td {
+    background: #f1f3f7;
+  }
+  /deep/.table th {
+    background: #dcdee2;
+  }
+  /deep/.k-table-body {
+    background: #f1f3f7;
   }
 }
 </style>

@@ -120,6 +120,7 @@ export default {
       this.model.splacetype = planData.spatialRange.splacetype;
       this.model.splaceremark = planData.spatialRange.splacemark;
       this.model.rangeInfo = JSON.parse(planData.spatialRange.rangeInfo);
+      this.model.outputformat = planData.outputFormat;
       this.model = { ...this.model };
     },
     //递归获取资源

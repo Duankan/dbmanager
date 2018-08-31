@@ -207,7 +207,6 @@ export default {
         ],
         userLayers: null,
       };
-      debugger;
     },
   },
 };
@@ -216,8 +215,8 @@ export default {
 <template>
   <div class="main">
     <div class="tilte-div">
-      <Button 
-        type="dashed" 
+      <Button
+        type="dashed"
         icon="arrow-left-a"
         @click="back">返回</Button>
       <span class="title">编辑图层:</span>
@@ -230,37 +229,37 @@ export default {
           :icon-class="'style-'+layerType"></SvgIcon>
         <span class="title">{{ layerTypeText+'样式' }}</span>
       </p>
-      <Tooltip 
+      <Tooltip
         slot="extra"
-        :content="!isOpenStyleTable?'所有'+layerTypeText+'样式列表':'返回'" 
+        :content="!isOpenStyleTable?'所有'+layerTypeText+'样式列表':'返回'"
         placement="right">
-        <a 
-          href="javascript:void(0);" 
-          @click="isOpenStyleTable=!isOpenStyleTable"><SvgIcon 
+        <a
+          href="javascript:void(0);"
+          @click="isOpenStyleTable=!isOpenStyleTable"><SvgIcon
             :size="18"
             :icon-class="isOpenStyleTable?'style-back':'style-table'"></SvgIcon></a>
       </Tooltip>
       <div v-if="!isOpenStyleTable">
         <div style="margin-bottom:8px;">
           <span>当前样式名称：</span>
-          <span 
+          <span
             class="style-name">{{ styleName }}</span>
         </div>
         <Row>
           <Col span="9">当前样式别名：</Col>
-          <Col span="13"> <Input 
-            v-model="styleAliasName" 
+          <Col span="13"> <Input
+            v-model="styleAliasName"
             size="small"
             placeholder="样式别名"></Input></Col>
           <Col span="2">
-          <Tooltip 
-            style="margin-left:4px;" 
-            content="样式另存并应用图层" 
+          <Tooltip
+            style="margin-left:4px;"
+            content="样式另存并应用图层"
             placement="right">
-            <a 
-              href="javascript:void(0);" 
+            <a
+              href="javascript:void(0);"
               @click="layerStyleUser">
-              <SvgIcon 
+              <SvgIcon
                 :size="24"
                 color="#2D8CF0"
                 icon-class="layer-style-user">
@@ -269,79 +268,79 @@ export default {
           </Tooltip>
           </Col>
         </Row>
-        <div 
-          v-show="!isGroupRule" 
+        <div
+          v-show="!isGroupRule"
           style="margin-top:8px;vertical-align:middle;height:20px;"
         >
-          <RadioGroup 
-            v-model="styleType" 
+          <RadioGroup
+            v-model="styleType"
             style="line-height:19px;"
             @on-change="styleGroupChange">
             <Radio label="SingleSytle">单一样式</Radio>
             <Radio label="MultipleSytle">组合样式</Radio>
           </RadioGroup>
-          <a 
+          <a
             class="open-rule-group"
             href="javascript:void(0);"
             @click="openRuleByGroup">高级设置</a>
         </div>
-        <Card  
-          v-show="styleType=='MultipleSytle'&&!isGroupRule" 
+        <Card
+          v-show="styleType=='MultipleSytle'&&!isGroupRule"
           class="group-card">
           <div class="group-card-context-div">
             <div class="ruleTitle">
               <span class="title">所有规则</span>
-              <Button 
+              <Button
                 icon="plus"
-                type="primary" 
+                type="primary"
                 size="small"
                 class="addRule">创建规则</Button>
             </div>
             <RadioGroup v-model="selectRule">
-              <div 
+              <div
                 v-for="item in ruleList"
-                :key="item.title"  
+                :key="item.title"
                 class="tag-border">
-                <Radio 
+                <Radio
                   :label="item.title">
                 </Radio>
-                <Icon 
+                <Icon
                   :size="24"
-                  type="ios-close-empty" 
-                  style="vertical-align: middle;line-height: 35px;" 
+                  type="ios-close-empty"
+                  style="vertical-align: middle;line-height: 35px;"
                   @click.native="tagRemove(item)">
                 </Icon>
               </div>
             </RadioGroup>
           </div>
         </Card>
-        <div 
-          v-show="!isGroupRule" 
+        <div
+          v-show="!isGroupRule"
           class="styleMainCollapse">
-          <Collapse 
-            value="1" 
+          <Collapse
+            value="1"
             simple>
-            <Panel name="1"> 通用<Public 
-              slot="content" 
-              :layer-type="layerType" 
+            <Panel name="1"> 通用<Public
+              slot="content"
+              :layer-type="layerType"
               :field-num-s="fieldNumS"
               :style-type="styleType"/></Panel>
             <Panel name="2">
               {{ getLineStr+'样式' }}
-              <LineStyle 
-                slot="content" 
-                :layer-type="layerType" 
+              <LineStyle
+                slot="content"
+                :layer-type="layerType"
                 :field-num-s="fieldNumS"
                 :field-no-num-s="fieldNoNumS"
                 :style-type="styleType"/>
             </Panel>
-            <Panel 
-              v-show="layerType == 'point'||layerType == 'polygon'" 
+            <Panel
+              v-show="layerType == 'point'||layerType == 'polygon'"
               name="3">
               {{ getFileStr+'填充' }}
-              <FillStyle 
-                slot="content" 
-                :layer-type="layerType" 
+              <FillStyle
+                slot="content"
+                :layer-type="layerType"
                 :field-num-s="fieldNumS"
                 :field-no-num-s="fieldNoNumS"
                 :style-type="styleType"/>
@@ -349,47 +348,47 @@ export default {
             <Panel name="4">
               标注
               <MarkStyle
-                slot="content" 
-                :layer-type="layerType" 
+                slot="content"
+                :layer-type="layerType"
                 :field-num-s="fieldNumS"
                 :field-no-num-s="fieldNoNumS"
                 :style-type="styleType"/>
             </Panel>
             <Panel name="5">
               筛选条件过滤
-              <AttributeFilter 
-                slot="content" 
-                :layer-type="layerType" 
+              <AttributeFilter
+                slot="content"
+                :layer-type="layerType"
                 :field-num-s="fieldNumS"
                 :field-no-num-s="fieldNoNumS"
-                :style-type="styleType"/>           
+                :style-type="styleType"/>
             </Panel>
           </Collapse>
         </div>
-        <div 
-          v-show="isGroupRule" 
+        <div
+          v-show="isGroupRule"
           class="groupRuleDiv" >
-          <Card 
-            v-show="isGroupRule" 
+          <Card
+            v-show="isGroupRule"
             class="group-rule-card"
-          > 
+          >
             <p slot="title">
               高级设置
             </p>
-            <Tooltip 
+            <Tooltip
               slot="extra"
-              style="float: right;" 
-              content="返回" 
+              style="float: right;"
+              content="返回"
               placement="right">
-              <a 
-                href="javascript:void(0);" 
-                @click="groupRuleBack"><SvgIcon 
+              <a
+                href="javascript:void(0);"
+                @click="groupRuleBack"><SvgIcon
                   :size="18"
                   icon-class="style-back"></SvgIcon></a>
-            </Tooltip>  
-            <RuleGroup 
+            </Tooltip>
+            <RuleGroup
               ref="ruleGroup"
-              :layer-type="layerType" 
+              :layer-type="layerType"
               :field-num-s="fieldNumS"
               :field-no-num-s="fieldNoNumS"
               :layer-node="layerNode"
@@ -397,9 +396,9 @@ export default {
           </Card>
         </div>
       </div>
-      <div 
-        v-else ><StyleTable 
-          :layer-type="layerType" 
+      <div
+        v-else ><StyleTable
+          :layer-type="layerType"
           :layer-node="layerNode"/>
       </div>
     </Card>

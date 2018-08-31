@@ -41,8 +41,8 @@ export default {
           this.layoutList = [
             { i: 'a', x: 0, y: 0, w: 6, h: 6 },
             { i: 'b', x: 6, y: 0, w: 6, h: 6 },
-            { i: 'a', x: 0, y: 4, w: 6, h: 6 },
-            { i: 'b', x: 6, y: 0, w: 6, h: 6 },
+            { i: 'c', x: 0, y: 4, w: 6, h: 6 },
+            { i: 'd', x: 6, y: 0, w: 6, h: 6 },
           ];
         } else if (newVal.length == 5) {
           this.layoutList = [
@@ -71,10 +71,10 @@ export default {
     window.dispatchEvent(new Event('resize'));
     debugger;
     this.rowHeight =
-      (document.getElementsByClassName('main-gridLayout-div')[0].offsetHeight - 150) / 12;
+      (document.getElementsByClassName('main-gridLayout-div')[0].offsetHeight - 180) / 12;
     window.onresize = temp => {
       this.rowHeight =
-        (document.getElementsByClassName('main-gridLayout-div')[0].offsetHeight - 150) / 12;
+        (document.getElementsByClassName('main-gridLayout-div')[0].offsetHeight - 180) / 12;
     };
   },
   methods: {

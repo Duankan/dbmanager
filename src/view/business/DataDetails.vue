@@ -19,6 +19,10 @@ export default {
       type: Object,
       default: null,
     },
+    treeData: {
+      type: Array,
+      default: null,
+    },
   },
   data() {
     return {
@@ -26,6 +30,8 @@ export default {
       display: true,
       //行数据
       copyBusinessData: this.businessData,
+      //标签数据
+      tags: [],
       //tabValue
       // tabValue: 'name1',
     };
@@ -67,21 +73,19 @@ export default {
       class="main">
       <div
         v-if="copyBusinessData.readonly"
-        class="data-content">
+        class="data-content"
+        @click="goBack()">
         <Icon type="arrow-left-a"></Icon>
-        <span
-          class="data-content-title"
-          @click="goBack()">
+        <span class="data-content-title">
           <b>元数据详情</b>
         </span>
       </div>
       <div
         v-else
-        class="data-content">
+        class="data-content"
+        @click="verifyGoBack()">
         <Icon type="arrow-left-a"></Icon>
-        <span
-          class="data-content-title"
-          @click="verifyGoBack()">
+        <span class="data-content-title">
           <b>元数据详情</b>
         </span>
       </div>
@@ -93,6 +97,7 @@ export default {
           <div class="data-details">
             <BasicInformation
               :row-data="copyBusinessData"
+              :tree-data="treeData"
               @on-tagEvent="pointer"
             >
             </BasicInformation>
@@ -104,12 +109,12 @@ export default {
           name="name2">
           <Field :row-data="copyBusinessData"></Field>
         </TabPane>
-        <TabPane
+        <!--<TabPane
           :disabled="setTabClasses"
           label="关联关系"
           name="name3">
           <IncidenceRelation :row-data="copyBusinessData"></IncidenceRelation>
-        </TabPane>
+        </TabPane>-->
         <TabPane
           :disabled="setTabClasses"
           label="扩展字段"
@@ -132,6 +137,7 @@ export default {
 }
 .data-content {
   cursor: pointer;
+  width: 95px;
   height: 60px;
   line-height: 60px;
 }

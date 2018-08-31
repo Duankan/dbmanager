@@ -24,6 +24,7 @@ export default {
     return {
       treeDatas: [],
       tableDatas: {},
+      treeData: [],
       labelsData: [],
       display: true,
     };
@@ -41,14 +42,13 @@ export default {
     TagDataChange(data) {
       this.labelsData = data;
     },
-
+    //标签切换
     toggle() {
-      debugger;
-      this.display = flase;
+      this.display = !this.display;
     },
-    toggleData() {
-      debugger;
-      this.display = flase;
+    //联级树
+    queryTreeData(data) {
+      this.treeData = data;
     },
   },
 };
@@ -57,16 +57,19 @@ export default {
 <template>
   <div style="width:100%;height:100%;">
     <div id="left-menu">
-      <Tabs value="name1">
+      <Tabs
+        value="name1"
+        class="tabs"
+        @on-click="toggle()">
         <Tab-pane
           label="元数据管理"
-          name="name1"
-          @click="toggle">
+          name="name1">
           <!--左侧查询 -->
           <DataDisplay
             :tree-datas="treeDatas"
             :labels-data="labelsData"
             @on-dataChangeEvnet="tableDataChange"
+            @TreeData="queryTreeData"
           ></DataDisplay>
           <!--左侧树-->
           <BusinessSort @on-dataTreeChangeEvnet="treeDataChange"></BusinessSort>
@@ -75,12 +78,11 @@ export default {
         </Tab-pane>
         <Tab-pane
           label="业务数据展示"
-          name="name2"
-          @click="toggleData">
+          name="name2">
           <Classify :labels-data="labelsData"></Classify>
           <TagData
             :labels-data="labelsData"
-            @on-dataTagChangeEvnet="TagDataChange"></TagData>
+          ></TagData>
         </Tab-pane>
       </Tabs>
     </div>
@@ -90,6 +92,7 @@ export default {
       <!--元数据管理 -->
       <BusinessTable
         :table-datas="tableDatas"
+        :tree-data = "treeData"
       ></BusinessTable>
     </div>
     <div
@@ -101,6 +104,9 @@ export default {
   </div>
 </template>
 <style lang="less" scoped>
+.tabs {
+  height: 100%;
+}
 #left-menu {
   float: left;
   width: 300px;
@@ -116,5 +122,11 @@ export default {
   margin-left: 350px;
   height: 100%;
   background: #f1f3f7;
+}
+/deep/.k-tabs-content.k-tabs-content-animated {
+  height: 100%;
+}
+/deep/.k-tabs-tabpane {
+  height: 100%;
 }
 </style>

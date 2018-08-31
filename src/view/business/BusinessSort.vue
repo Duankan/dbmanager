@@ -100,6 +100,7 @@ export default {
     async searchTree() {
       const response = await api.db.findalltypeBusiness({});
       this.dataTree = response.data;
+      this.dataTree[0].expand = true;
       this.$emit('on-dataTreeChangeEvnet', response.data);
     },
     renderContent(h, { root, node, data }) {
@@ -123,10 +124,11 @@ export default {
             [
               h('Icon', {
                 props: {
-                  type: 'ios-folder-outline',
+                  type: 'ios-folder',
                 },
                 style: {
                   marginRight: '5px',
+                  color: '#ff9900',
                 },
               }),
               h(
@@ -282,7 +284,6 @@ export default {
           const response = await api.db.deletetypeBusiness({ id: treeId });
           //获取父节点
           const parentKey = root.find(el => el === node).parent;
-          debugger;
           //获取当前节点
           const parent = root.find(el => el.nodeKey === parentKey).node;
           //获取当前节点的值
@@ -349,7 +350,7 @@ export default {
   width: 100%;
   padding-left: 25px;
   padding-right: 22px;
-  height: 244px;
+  height: 30%;
   border: 1px solid #e8eaec;
   padding: 0px 22px 5px 25px;
   border-top: 0px;

@@ -104,11 +104,9 @@ export default {
   },
   methods: {
     async searchTrees() {
-      debugger;
       const response = await api.db.findallwithmatadata([]);
-      debugger;
       this.dataTrees = response.data;
-      debugger;
+      this.dataTrees[0].expand = true;
     },
     renderContents(h, { root, node, data }) {
       return h(
