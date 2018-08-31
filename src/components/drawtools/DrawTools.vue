@@ -121,10 +121,15 @@ export default {
       this.drawType = draw.REFS;
     },
     invokeGetDrawLayers(layers) {
-      let wktStr = L.Wkt.Wkt.prototype.fromJson(layers.toGeoJSON(), true);
+      const wktStr = this.changeWkt(layers, true);
+      const invokeGetWktStr = this.changeWkt(layers, false);
+      this.$emit('on-get-drawlayer', layers, wktStr, invokeGetWktStr, this.geoType);
+    },
+    changeWkt(layers, isChange) {
+      let wktStr = L.Wkt.Wkt.prototype.fromJson(layers.toGeoJSON(), isChange);
       wktStr = wktStr.write();
       wktStr = wktStr.replace(/undefined/g, ' ');
-      this.$emit('on-get-drawlayer', layers, wktStr, this.geoType);
+      return wktStr;
     },
     // 清除操作
     clearLayers() {
@@ -183,15 +188,16 @@ export default {
         const wktFormat = new L.Format.WKT();
         this.geometry = wktFormat.readToLayer(data.data[0], false);
         this.geometry.addTo(this.$drawRefs.geojson.$queryLayers);
+        const invokeGetWktStr = this.changeWkt(this.geometry, false);
         if (this.relRadius) {
           const bufferedGeoJson = buffer(this.geometry.toGeoJSON(), this.relRadius, {
             units: this.units,
           });
           this.bufferLayers = L.GeoJSON.geometryToLayer(bufferedGeoJson);
           this.bufferLayers.addTo(this.$drawRefs.geojson.$queryLayers);
-          this.$emit('on-get-drawlayer', this.bufferLayers, data.data[0]);
+          this.$emit('on-get-drawlayer', this.bufferLayers, data.data[0], invokeGetWktStr);
         } else {
-          this.$emit('on-get-drawlayer', this.geometry, data.data[0]);
+          this.$emit('on-get-drawlayer', this.geometry, data.data[0], invokeGetWktStr);
         }
       }
     },

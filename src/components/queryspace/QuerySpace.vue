@@ -30,7 +30,6 @@ export default {
       layerCrs: null,
       schema: 'the_geom',
       queryAreaUrl: '',
-      drawType: 'normal',
       queryUrl: '',
     };
   },
@@ -46,12 +45,12 @@ export default {
   },
   methods: {
     //拿到绘制的图形
-    getDrawLayer(layers, adverse, geoType) {
-      this.drawType = geoType;
+    getDrawLayer(layers, adverse, oppoAdverse) {
       this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
       this.queryItem.place = '';
       this.queryItem.geometry = layers;
       this.advWKT = adverse;
+      this.oppoAdvWKT = oppoAdverse;
       this.$refs.areaSelect.resetCascader();
     },
     getAreaLayer(wkt, adverse) {
