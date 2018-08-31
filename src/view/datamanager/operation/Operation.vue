@@ -28,7 +28,6 @@ export default {
     toggle() {
       this.$emit('update:component', this.component === 'DataTable' ? 'DataGrid' : 'DataTable');
     },
-
     inputSearchData() {
       if (this.search != '') {
         this.$store.dispatch(types.APP_NODES_TABLE, this.search);
@@ -72,7 +71,7 @@ export default {
   &-search {
     float: right;
     .k-input-wrapper {
-      width: 260px;
+      width: 210px;
     }
     .k-icon {
       cursor: pointer;
