@@ -5,6 +5,7 @@ import AreaSelect from '../areaselect/AreaSelect';
 import config from 'config';
 import * as filterConfig from '../statistics/utils.js';
 import * as types from '@/store/types';
+import { deepCopy } from '../../utils/assist.js';
 
 const stringCompare = [
   {
@@ -39,7 +40,7 @@ const numberCompare = [
   },
 ];
 export default {
-  name: 'QuerySpace',
+  name: 'QueryCompound',
   components: { DrawTools, AreaSelect },
   mixins: [QueryBase],
   props: {},
@@ -82,6 +83,7 @@ export default {
       layerCrs: null,
       schema: 'the_geom',
       queryAreaUrl: '',
+      queryUrl: '',
     };
   },
   computed: {
@@ -175,11 +177,12 @@ export default {
     },
 
     //下面是空间查询的方法
-    getDrawLayer(layers, adverse) {
+    getDrawLayer(layers, adverse, oppoAdverse) {
       this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
       this.queryItem.place = '';
       this.queryItem.geometry = layers;
       this.advWKT = adverse;
+      this.oppoAdvWKT = oppoAdverse;
       this.$refs.areaSelect.resetCascader();
     },
     // 获取行政区
@@ -223,6 +226,14 @@ export default {
       const params = this.getParams();
       this.showTable(this.fieldList, params, 'wfsQuery');
     },
+    // 计算半径
+    setRadius() {
+      let radius;
+      if (this.queryItem.bufferUnit === '米') {
+        radius = this.queryItem.buffer / 111194.872221777;
+      }
+      return radius;
+    },
     // 处理参数
     getParams() {
       let queryOptions;
@@ -232,11 +243,9 @@ export default {
         pageSize: 10,
         url: this.serviseUrl,
       };
+      const radius = this.setRadius();
       const defaultOptions = {
-        radius:
-          this.queryItem.bufferUnit === '米'
-            ? this.queryItem.buffer / 111194.872221777
-            : this.queryItem.buffer / 111194.872221777,
+        radius,
         spatialRelationship: this.queryItem.relationship,
         type: 'POST',
       };
@@ -251,36 +260,73 @@ export default {
         queryOptions,
       };
     },
+    // 计算提取方式,这个方法还没有用到，判断裁剪用的
+    // setRelationship() {
+    //   let queryOptions;
+    //   if (this.queryItem.relationship === 'Clip') {
+    //     if (this.queryItem.place === '' && this.queryItem.geometry) {
+    //       queryOptions = {
+    //         clipGeometry: this.queryItem.geometry,
+    //         clip: true,
+    //       };
+    //     } else {
+    //       queryOptions = {
+    //         clipGeometry: this.queryItem.place,
+    //         clip: true,
+    //       };
+    //     }
+    //   } else {
+    //     if (this.queryItem.place === '' && this.queryItem.geometry) {
+    //       queryOptions = {
+    //         geometry: this.queryItem.geometry,
+    //         clip: false,
+    //       };
+    //     } else {
+    //       queryOptions = {
+    //         geometry: this.queryItem.place,
+    //         clip: false,
+    //       };
+    //     }
+    //   }
+    //   return { ...queryOptions };
+    // },
     // 合并cql_filter
     setCQLFilter(isGetCqlFilter) {
       let queryCQLFilter;
-      const items = this.$refs['formDynamic'].model.items;
-      let CQLFilter = this.getCondition(items);
+      const formDynamic = this.formDynamic.items;
+
+      // 这里拿到了属性查询的条件
+      let CQLFilter = this.getCondition(deepCopy(formDynamic));
       if (CQLFilter.substr(0, 3) == 'AND') CQLFilter = CQLFilter.slice(3);
+
+      // queryCQLFilter = this.setRelationship();
+      // 判断是选择行政区的范围还是绘制的范围
       if (this.queryItem.place === '') {
         if (this.queryItem.geometry) {
-          let geometrys = this.queryItem.geometry.toGeoJSON();
-          let wktStr = L.Wkt.Wkt.prototype.fromObject(geometrys.geometry, false);
-          wktStr = wktStr.write();
-          wktStr = wktStr.replace(/undefined/g, ' ');
-          queryCQLFilter = CQLFilter
-            ? CQLFilter + 'and' + ' ' + this.queryItem.relationship + '(the_geom, ' + wktStr + ')'
-            : '' + ' ' + this.queryItem.relationship + '(the_geom, ' + wktStr + ')';
+          queryCQLFilter = this.mergeAttrAndSpace(CQLFilter, this.oppoAdvWKT);
         } else {
-          if (CQLFilter) {
-            queryCQLFilter = CQLFilter;
-          }
+          if (CQLFilter) queryCQLFilter = CQLFilter;
         }
       } else {
-        queryCQLFilter = CQLFilter
-          ? CQLFilter + 'and' + ` ${this.queryItem.relationship}(the_geom,${this.queryItem.place})`
-          : '' + ` ${this.queryItem.relationship}(the_geom,${this.queryItem.place})`;
+        queryCQLFilter = this.mergeAttrAndSpace(CQLFilter, this.advWKT);
       }
+
       if (!isGetCqlFilter) {
         return CQLFilter;
       } else {
         return queryCQLFilter;
       }
+    },
+    // 拼接属性查询和空间查询cql_filter
+    mergeAttrAndSpace(CQLFilter, wktStr) {
+      let queryCQLFilter;
+      const logic = this.formDynamic.items[this.formDynamic.items.length - 1].logic;
+      if (CQLFilter) {
+        queryCQLFilter = `${CQLFilter} AND ${this.queryItem.relationship}(the_geom,${wktStr})`;
+      } else {
+        queryCQLFilter = ` ${this.queryItem.relationship}(the_geom,${wktStr})`;
+      }
+      return queryCQLFilter;
     },
     reset() {
       this.serviseUrl = '';
@@ -316,15 +362,12 @@ export default {
         this.$Message.error('请选择一个图层！');
         return;
       }
-      // if (!this.queryItem.geometry) {
-      //   this.$Message.error('请绘制一个范围！');
-      //   return;
-      // }
       const loadParams = this.setLoadPrams();
-      const response = await api.db.batchwebrequest([loadParams]);
-      window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
+      // const response = await api.db.batchwebrequest([loadParams]);
+      // window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
+      window.open(encodeURI(loadParams));
     },
-    // 参数处理
+    // 提交参数处理
     setLoadPrams() {
       let loadParams;
       const params = this.getParams();
@@ -336,29 +379,30 @@ export default {
         typeName: this.queryName,
         outputFormat: 'shape-zip',
         srsName: this.layerCrs,
+        maxFeatures: 2147483647,
       });
       const queryTack = new L.QueryTask(queryPram);
       let taskData = queryTack._queryParameter.options.data;
       delete taskData.pageIndex;
       delete taskData.pageSize;
+      delete taskData.title;
       taskData.version = '1.0.0';
       const cqlfilter = this.setCQLFilter(false);
       if (this.advWKT) {
-        taskData.cql_filter = cqlfilter
-          ? cqlfilter +
-            'and' +
-            ' ' +
-            this.queryItem.relationship +
-            '(the_geom, ' +
-            this.advWKT +
-            ')'
-          : '' + ' ' + this.queryItem.relationship + '(the_geom, ' + this.advWKT + ')';
+        taskData.cql_filter = this.mergeAttrAndSpace(cqlfilter, this.advWKT);
       }
-      loadParams = {
-        params: taskData,
-        fileName: `${name[1]}.zip`,
-        url: this.queryUrl,
-      };
+      // 调151服务
+      // loadParams = {
+      //   params: taskData,
+      //   fileName: `${name[1]}.zip`,
+      //   url: this.queryUrl,
+      // };
+
+      // 直接调gisserver，连接url
+      loadParams = `${this.queryUrl}?service=wfs`;
+      for (let key in taskData) {
+        if (key !== 'service') loadParams += `&${key}=${taskData[key]}`;
+      }
       return loadParams;
     },
   },
@@ -490,6 +534,7 @@ export default {
     <FormItem label="绘制方式：">
       <DrawTools
         ref="drawTools"
+        :layer-url="queryUrl"
         :layer-crs="layerCrs"
         :radius="queryItem.buffer"
         :units="setUnits"

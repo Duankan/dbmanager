@@ -31,7 +31,7 @@ export default {
   .map-container {
     display: flex;
     flex-direction: column;
-    width: calc(~'100% - 260px');
+    width: calc(~'100% - 300px');
   }
 }
 </style>

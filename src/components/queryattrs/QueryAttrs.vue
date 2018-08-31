@@ -173,7 +173,6 @@ export default {
               : "'"
         }`;
       }
-      debugger;
       return cql.trim();
     },
     //构建table里面的columns
@@ -192,13 +191,14 @@ export default {
     },
     //查询按钮提交事件
     handleSubmit(name) {
+      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
       if (this.formDynamic.wfsUrl == '') {
         this.$Message.info('请选择图层');
         return;
       }
       const items = this.$refs[name].model.items;
       const CQLFilter = this.getCondition(items);
-      console.log(CQLFilter);
+
       const options = { version: '1.0.0' };
       if (CQLFilter) options.cql_filter = CQLFilter;
       this.$store.commit(types.REMOVE_BUS_FIELD);
@@ -257,10 +257,11 @@ export default {
         return;
       }
       const loadParams = this.setLoadPrams();
-      const response = await api.db.batchwebrequest([loadParams]);
-      window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
+      // const response = await api.db.batchwebrequest([loadParams]);
+      // window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
+      window.open(encodeURI(loadParams));
     },
-    // 参数处理
+    // 提取参数处理
     setLoadPrams() {
       let loadParams;
       this.fieldList.forEach(item => {
@@ -269,7 +270,7 @@ export default {
       const name = this.queryName.split(':');
       const items = this.$refs['formDynamic'].model.items;
       const CQLFilter = this.getCondition(items);
-      const options = { version: '1.0.0' };
+      const options = { version: '1.0.0', maxFeatures: 2147483647 };
       if (CQLFilter) options.cql_filter = CQLFilter;
       const queryPram = new L.QueryParameter.WfsQueryParameter({
         propertyName: this.schema,
@@ -279,20 +280,13 @@ export default {
         ...options,
       });
       const queryTack = new L.QueryTask(queryPram);
-
-      for (let item in queryTack._queryParameter.options) {
-        if (!queryTack._queryParameter.options[item]) {
-          delete queryTack._queryParameter.options[item];
-        } else if (item === 'spatialRelationship') {
-          delete queryTack._queryParameter.options[item];
-        }
-      }
       let taskData = queryTack._queryParameter.options;
-      loadParams = {
-        params: taskData,
-        fileName: `${name[1]}.zip`,
-        url: this.queryUrl,
-      };
+
+      // 直接调gisserver，连接url
+      loadParams = `${this.queryUrl}?service=wfs`;
+      for (let key in taskData) {
+        if (key !== 'service' && taskData[key]) loadParams += `&${key}=${taskData[key]}`;
+      }
       return loadParams;
     },
   },

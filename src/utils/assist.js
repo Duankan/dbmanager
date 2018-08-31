@@ -327,3 +327,29 @@ export function setMatchMedia() {
     window.matchMedia = window.matchMedia || matchMediaPolyfill;
   }
 }
+
+export function setTableColumns(tableData) {
+  let cols;
+  if (Object.keys(tableData).length > 9) {
+    cols = Object.keys(tableData).map(p => {
+      return {
+        title: p,
+        key: p,
+        align: 'center',
+        width: 100,
+        maxWidth: 300,
+        ellipsis: true,
+      };
+    });
+  } else {
+    cols = Object.keys(tableData).map(p => {
+      return {
+        title: p,
+        key: p,
+        align: 'center',
+        ellipsis: true,
+      };
+    });
+  }
+  return cols;
+}
