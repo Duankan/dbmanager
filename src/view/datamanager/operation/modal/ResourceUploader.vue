@@ -242,7 +242,6 @@ export default {
         label="数据类型：">
         <Select
           v-model="resource.typeId"
-          filterable
           @on-change="setFileFilter">
           <Option
             v-for="item in currentResTypes"

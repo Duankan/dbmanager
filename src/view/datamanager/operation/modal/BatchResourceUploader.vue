@@ -166,7 +166,7 @@ export default {
     //文件上传完成
     uploadSuccess(file, fileInfo) {
       let segment = this.processFiles.find(p => p.name == fileInfo.name);
-      if (!file.data) {
+      if (file.data.size == 0) {
         segment.state = 0;
         segment.message = '上传文件失败!';
         this.showOutput();

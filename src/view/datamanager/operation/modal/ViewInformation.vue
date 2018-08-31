@@ -81,11 +81,6 @@ export default {
     visibleChange(visible) {
       this.$emit('input', visible);
     },
-    copy(e) {
-      this.$clipboard(e.target.textContent).then(e => {
-        this.$Message.success('复制成功');
-      });
-    },
     async toggle(name) {
       if (name === 'spatial') {
         const response = await api.db.findSrsById({
@@ -127,19 +122,19 @@ export default {
         <table class="information-table">
           <tr>
             <th>编号 :</th>
-            <td @click="copy">{{ `${spatial.authName}:${spatial.authSrId}` }}</td>
+            <td>{{ `${spatial.authName}:${spatial.authSrId}` }}</td>
           </tr>
           <tr>
             <th>名称 :</th>
-            <td @click="copy">{{ spatial.srName }}</td>
+            <td>{{ spatial.srName }}</td>
           </tr>
           <tr>
             <th>范围 :</th>
-            <td @click="copy">{{ node.bbox }}</td>
+            <td>{{ node.bbox }}</td>
           </tr>
           <tr>
             <th>WKT :</th>
-            <td @click="copy">{{ spatial.srText }}</td>
+            <td>{{ spatial.srText }}</td>
           </tr>
         </table>
       </TabPane>
