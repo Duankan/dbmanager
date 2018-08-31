@@ -30,10 +30,7 @@ export default {
       layerCrs: null,
       schema: 'the_geom',
       queryAreaUrl: '',
-<<<<<<< HEAD
       queryUrl: '',
-=======
->>>>>>> 44937e03dcfad71853eb7ed1949c380e28b1c6e8
     };
   },
   computed: {
@@ -47,12 +44,8 @@ export default {
     },
   },
   methods: {
-<<<<<<< HEAD
     //拿到绘制的图形
     getDrawLayer(layers, adverse, oppoAdverse) {
-=======
-    getDrawLayer(layers, adverse) {
->>>>>>> 44937e03dcfad71853eb7ed1949c380e28b1c6e8
       this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
       this.queryItem.place = '';
       this.queryItem.geometry = layers;
