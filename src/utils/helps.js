@@ -37,6 +37,7 @@ export function nodeType(node) {
     case '10008': //xls
     case '10009': //zip
     case '10010': //pdf
+    case '10099': //其它
       return 'file';
     case '20099': //第三方服务
       return 'service';
