@@ -22,8 +22,7 @@ export default {
           title: '文件名',
           key: '_alias',
           width: 660,
-          sortable: true,
-          sortMethod(a, b, type) {},
+          sortable: false,
           render: (h, params) => {
             let child = params.row._alias;
             if (params.row._rename) {
@@ -140,31 +139,30 @@ export default {
           align: 'center',
           filters: [
             {
-              label: '< 1Gb',
-              value: `0, ${filesize.parse('1Gb')}`,
+              label: '< 1GB',
+              value: `0, ${filesize.parse('1GB')}`,
             },
             {
-              label: '1Gb ~ 10Gb',
-              value: `${filesize.parse('1Gb')}, ${filesize.parse('10Gb')}`,
+              label: '1GB ~ 10GB',
+              value: `${filesize.parse('1GB')}, ${filesize.parse('10GB')}`,
             },
             {
-              label: '10Gb ~ 100Gb',
-              value: `${filesize.parse('10Gb')}, ${filesize.parse('100Gb')}`,
+              label: '10GB ~ 100GB',
+              value: `${filesize.parse('10GB')}, ${filesize.parse('100GB')}`,
             },
             {
-              label: '> 100Gb',
-              value: `${filesize.parse('100Gb')}, Infinity`,
+              label: '> 100GB',
+              value: `${filesize.parse('100GB')}, Infinity`,
             },
           ],
           filterMethod(value, row) {
+            let a = filesize;
             if (row._size === '-') return false;
             const sizeArr = value.split(',').map(item => Number(item));
             return (
               sizeArr[0] <= filesize.parse(row._size) && filesize.parse(row._size) <= sizeArr[1]
             );
           },
-          sortable: true,
-          sortMethod(a, b, type) {},
         },
         {
           title: '类型',
@@ -225,7 +223,6 @@ export default {
             return updateTimeStamp >= utils.getTimeStamp(value);
           },
           sortable: true,
-          sortMethod(a, b, type) {},
         },
       ],
       selection: [],
