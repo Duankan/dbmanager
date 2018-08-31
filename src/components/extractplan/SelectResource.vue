@@ -127,6 +127,10 @@ export default {
         this.$Message.error('请输入提取方案名称！');
         return false;
       }
+      if (planName.trim().length > 64) {
+        this.$Message.error('提取方案名称不能超过64个字符长度！');
+        return false;
+      }
       if (!/^[\u4e00-\u9fa5a-zA-Z0-9_]*$/.test(planName)) {
         this.$Message.error('方案名称不能包含特殊字符！');
         return false;

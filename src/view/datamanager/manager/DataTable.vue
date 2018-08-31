@@ -21,7 +21,7 @@ export default {
         {
           title: '文件名',
           key: '_alias',
-          width: 580,
+          width: 660,
           sortable: true,
           sortMethod(a, b, type) {},
           render: (h, params) => {
@@ -72,6 +72,7 @@ export default {
                     size="14"
                     nativeOnClick={e => {
                       e.stopPropagation();
+                      params.row.alias = params.row._alias;
                       this.$store.commit(
                         types.UPDATE_APP_NODES,
                         Object.assign(params.row, { _rename: false })
@@ -127,34 +128,6 @@ export default {
           render: (h, params) => {
             if (params.row._pubState == '-') return <span>-</span>;
             return params.row._pubState ? (
-              <span class={['pubstate', 'registed']} />
-            ) : (
-              <span class={['pubstate', 'unregisted']} />
-            );
-          },
-        },
-        {
-          title: '注册',
-          key: '_regState',
-          width: 80,
-          align: 'center',
-          filters: [
-            {
-              label: '已注册',
-              value: 1,
-            },
-            {
-              label: '未注册',
-              value: 0,
-            },
-          ],
-          filterMultiple: false,
-          filterMethod(value, row) {
-            return value === row._regState;
-          },
-          render: (h, params) => {
-            if (params.row._regState == '-') return <span>-</span>;
-            return params.row._regState ? (
               <span class={['pubstate', 'published']} />
             ) : (
               <span class={['pubstate', 'unpublish']} />
@@ -315,7 +288,6 @@ export default {
         item._userName = item.userName ? item.userName : item.createusername || '-';
         item._size = item.size != undefined ? filesize(item.size) : '-';
         item._pubState = item.resourceTypeId == '2' ? item.pubState : '-';
-        item._regState = item.resourceTypeId == '2' ? item.regState : '-';
         item._updateTime = item.updateTime
           ? date.format(new Date(item.updateTime), 'YYYY-M-D HH:mm')
           : '';
@@ -443,12 +415,6 @@ export default {
       background-color: #19be6b;
     }
     &.unpublish {
-      background-color: #ff9900;
-    }
-    &.registed {
-      background-color: #19be6b;
-    }
-    &.unregisted {
       background-color: #ff9900;
     }
   }

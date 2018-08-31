@@ -19,7 +19,6 @@ export default {
     <Input
       v-model="searchTreeKey"
       clearable
-      size="small"
       icon="ios-search"
       class="search-input"
       placeholder="请输入资源目录关键字...">

@@ -288,6 +288,8 @@ export default {
             },
           });
           this.$Message.success('保存地图文档成功！');
+          this.form.name = '';
+          this.form.description = '';
           this.showTree = true;
         }
       });

@@ -30,6 +30,8 @@ export default {
       display: true,
       //行数据
       copyBusinessData: this.businessData,
+      //标签数据
+      tags: [],
       //tabValue
       // tabValue: 'name1',
     };

@@ -1,3 +1,4 @@
+// 字段类型字段分类配置
 const DataDictionary = {
   type: [
     'Double',

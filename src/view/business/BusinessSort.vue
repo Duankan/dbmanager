@@ -23,7 +23,6 @@ export default {
                   h('Icon', {
                     props: {
                       type: 'ios-folder',
-                      expand: true,
                     },
                     style: {
                       marginRight: '8px',
@@ -101,6 +100,7 @@ export default {
     async searchTree() {
       const response = await api.db.findalltypeBusiness({});
       this.dataTree = response.data;
+      this.dataTree[0].expand = true;
       this.$emit('on-dataTreeChangeEvnet', response.data);
     },
     renderContent(h, { root, node, data }) {
@@ -350,13 +350,11 @@ export default {
   width: 100%;
   padding-left: 25px;
   padding-right: 22px;
-  height: 32%;
-  // height: calc(100% - 500px);
+  height: 30%;
   border: 1px solid #e8eaec;
   padding: 0px 22px 5px 25px;
   border-top: 0px;
   padding-top: 10px;
-  overflow-y: auto;
 }
 .top {
   width: 100%;
