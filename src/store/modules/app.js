@@ -70,7 +70,6 @@ const app = {
     // 接受目录类型节点
     async [types.APP_NODES_FETCH]({ commit, state, rootState }, node) {
       commit(types.CHANGE_APP_CLEAR_SELECTHKEY, node);
-      debugger;
       const response = await api.db.findCatalog({
         owner: 1,
         ownerId: rootState.user.info.orgid,
