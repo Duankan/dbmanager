@@ -70,12 +70,21 @@ export default {
     //上传资源到云盘
     async uploadCloudResource() {
       //表单数据校验
-      if (!this.resource.name) {
-        this.$Message.warning('请输入数据名称！');
+      let resourceName = this.resource.name.trim();
+      if (!resourceName) {
+        this.$Message.error('请输入数据名称！');
+        return;
+      }
+      if (!resourceName.length > 64) {
+        this.$Message.error('数据名称不能超过64个字符长度！');
+        return;
+      }
+      if (!/^[\u4e00-\u9fa5a-zA-Z0-9_]*$/.test(resourceName)) {
+        this.$Message.error('数据名称不能包含特殊字符！');
         return;
       }
       if (this.cloudFile == null) {
-        this.$Message.warning('请选择上传文件！');
+        this.$Message.error('请选择上传文件！');
         return;
       }
       this.loading = true;
@@ -125,10 +134,11 @@ export default {
     },
     //新增元数据资源
     async addMataResource(fileInfo) {
+      let resourceName = this.resource.name.trim();
       let params = {
         resid: this.node.id,
-        name: this.resource.name,
-        alias: this.resource.name,
+        name: resourceName,
+        alias: resourceName,
         typeId: this.resource.typeId,
         classify: '',
         description: '',

@@ -138,7 +138,7 @@ export default {
     //校验表单
     validateData() {
       if (!this.publishForm.title.trim()) {
-        this.$Message.info('请输入服务标题');
+        this.$Message.error('请输入服务标题');
         return false;
       }
       if (this.publishForm.title.trim().length > 64) {
@@ -146,11 +146,11 @@ export default {
         return false;
       }
       if (!this.publishForm.crs.trim()) {
-        this.$Message.info('请选择空间参考');
+        this.$Message.error('请选择空间参考');
         return false;
       }
       if (!this.publishForm.name.trim()) {
-        this.$Message.info('请选择服务名称');
+        this.$Message.error('请选择服务名称');
         return false;
       }
       if (this.publishForm.name.trim().length > 64) {
