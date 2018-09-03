@@ -105,7 +105,7 @@ export default {
       return this.selectNodes[0] && isVector(this.selectNodes[0]) && this.selectNodes[0].pubState;
     },
     showRename() {
-      return this.selectNodes[0] && !isFile(this.selectNodes[0]);
+      return this.selectNodes[0];
     },
     showMoveTo() {
       return this.selectNodes[0] && isDirectory(this.selectNodes[0]);
