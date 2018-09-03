@@ -53,7 +53,7 @@ export default {
             }
           });
         }
-        this.$emit('TreeData',this.treeDatas);
+        this.$emit('TreeData', this.treeDatas);
       },
       immediate: true,
     },
