@@ -196,8 +196,10 @@ export default {
     selectLayer(layerData) {
       if (this.layerData.length !== 0) {
         const totalParams = this.layerData.filter(item => item.title === layerData.label);
-        this.allschema = totalParams[0].schema;
-        this.filterCommonField();
+        if (totalParams.length !== 0) {
+          this.allschema = totalParams[0].schema;
+          this.filterCommonField();
+        }
       }
 
       if (layerData.value !== '' && layerData.label !== '') {

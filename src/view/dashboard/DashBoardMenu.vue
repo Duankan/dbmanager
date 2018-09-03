@@ -86,7 +86,7 @@ export default {
           this.$store.commit(types.SET_BUTTOM_PANE_TITLE, this.title);
           this.openWindow();
           this.width = 440;
-          this.height = 435;
+          this.height = 460;
           break;
         case 'Overlay':
           this.title = '叠加分析';

@@ -26,6 +26,8 @@ raven: https://${key}@${sentryUrl}/${project}
 
 projectConfig:
   dictionaryId: 77e403e7fee343498dd5881d5ba5dd1b
+  xzqName: 衡阳市
+  xzqCode: 430400
 
 # 系统路由配置
 

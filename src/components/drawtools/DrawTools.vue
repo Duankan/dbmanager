@@ -1,6 +1,8 @@
 <script>
 import config from 'config';
 import buffer from '@turf/buffer';
+import MapRefs from '@/components/maptools/map-refs';
+const REFS = ['polygon', 'rectangle', 'marker', 'polyline', 'circle'];
 
 const iconConfig = [
   {
@@ -104,22 +106,19 @@ export default {
     },
   },
   events: {
-    'on-getdraw-refs': 'invokeGetDrawRefs',
     'on-get-drawlayer': 'invokeGetDrawLayers',
   },
   mounted() {
     this.uploadAction = `${
       config.project.basicUrl
     }/service/gisserver/getwktsbyshpzip?crs=EPSG:4490&count=1`;
+    this.drawType = REFS;
+    this.$mapObj = MapRefs.inst().getMap();
   },
   beforeDestroy() {
     this.clearToolLayer();
   },
   methods: {
-    invokeGetDrawRefs(draw) {
-      this.$drawRefs = draw.drawRefs;
-      this.drawType = draw.REFS;
-    },
     invokeGetDrawLayers(layers) {
       const wktStr = this.changeWkt(layers, true);
       const invokeGetWktStr = this.changeWkt(layers, false);
@@ -133,14 +132,14 @@ export default {
     },
     // 清除操作
     clearLayers() {
-      if (this.drawType) {
-        this.drawType.forEach(item => {
-          this.$drawRefs[item].clearDrawLayer();
-        });
-      }
+      this.$mapObj.$children.forEach(item => {
+        if (item['destory']) {
+          item.destory();
+        }
+      });
     },
     setParams() {
-      if (this.relRadius) {
+      if (this.relRadius !== 0) {
         return {
           bufferOptions: {
             url: this.layerUrl,
@@ -150,6 +149,8 @@ export default {
             },
           },
         };
+      } else {
+        return {};
       }
     },
     drawGeometry(name) {
@@ -158,15 +159,19 @@ export default {
       let params;
       if (this.geoType === 'circle') {
         this.relRadius = 0.0001;
+      } else {
+        this.relRadius = 0;
       }
       params = this.setParams();
 
+      this.$drawRefs = MapRefs.inst().getDrawer(this.geoType);
       if (this.drawType.includes(this.geoType)) {
-        this.$drawRefs[this.geoType].drawGeometry(params);
+        this.$drawRefs.drawGeometry(params);
       } else {
         const state = {
           defineline() {
-            this.$drawRefs['polyline'].drawGeometry({
+            this.$drawRefs = MapRefs.inst().getDrawer('polyline');
+            this.$drawRefs.drawGeometry({
               customDraw: true,
               bufferOptions: params.bufferOptions ? params.bufferOptions : null,
               params,
@@ -186,13 +191,13 @@ export default {
         const wktFormat = new L.Format.WKT();
         this.geometry = wktFormat.readToLayer(data.data[0], false);
         const invokeGetWktStr = this.changeWkt(this.geometry, false);
-        this.geometry.addTo(this.$drawRefs.geojson.$queryLayers);
+        this.geometry.addTo(this.$mapObj.$queryLayers);
         if (this.relRadius !== 0) {
           const bufferedGeoJson = buffer(this.geometry.toGeoJSON(), this.relRadius, {
             units: this.units,
           });
           this.bufferLayers = L.GeoJSON.geometryToLayer(bufferedGeoJson);
-          this.bufferLayers.addTo(this.$drawRefs.geojson.$queryLayers);
+          this.bufferLayers.addTo(this.$mapObj.$queryLayers);
           this.$emit('on-get-drawlayer', this.bufferLayers, data.data[0], invokeGetWktStr);
         } else {
           this.$emit('on-get-drawlayer', this.geometry, data.data[0], invokeGetWktStr);
@@ -202,10 +207,10 @@ export default {
     clearToolLayer() {
       this.clearLayers();
       if (this.geometry) {
-        this.$drawRefs.geojson.$queryLayers.removeLayer(this.geometry);
+        this.$mapObj.$queryLayers.removeLayer(this.geometry);
       }
       if (this.bufferLayers) {
-        this.$drawRefs.geojson.$queryLayers.removeLayer(this.bufferLayers);
+        this.$mapObj.$queryLayers.removeLayer(this.bufferLayers);
       }
     },
   },
@@ -239,6 +244,7 @@ export default {
         ref="uploadCtrl"
         :on-success="uploadSuccess"
         :action="uploadAction"
+        accept="application/zip"
         name="shapefile">
         <SvgIcon
           :icon-class="fileConfig.itemClass"

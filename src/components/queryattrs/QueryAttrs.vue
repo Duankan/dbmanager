@@ -103,6 +103,9 @@ export default {
       immediate: true, //组件挂载的时候会执行一次
     },
   },
+  events: {
+    'on-reset-query': 'reset',
+  },
   methods: {
     //图层选择点击事件
     layerClick() {
@@ -110,42 +113,46 @@ export default {
     },
     //图层选择事件
     layerChange(layer) {
-      this.formDynamic.layerTitle = layer.label;
-      const layers = this.$store.getters.wfsLayerData[layer.value];
-      this.formDynamic.wfsUrl = layers.wfsurl;
-      const url = new URL(this.formDynamic.wfsUrl);
-      this.queryUrl = url.origin + '/hgis/ows';
-      this.fieldList = [];
-      for (let i = 0; i < layers.schema.length; i++) {
-        if (array.indexOf(layers.schema[i].name) != -1) continue;
-        this.fieldList.push({
-          label: layers.schema[i].name,
-          value: layers.schema[i].name,
-        });
+      if (layer.label !== '' && layer.value !== '') {
+        this.formDynamic.layerTitle = layer.label;
+        const layers = this.$store.getters.wfsLayerData[layer.value];
+        this.formDynamic.wfsUrl = layers.wfsurl;
+        const url = new URL(this.formDynamic.wfsUrl);
+        this.queryUrl = url.origin + '/hgis/ows';
+        this.fieldList = [];
+        for (let i = 0; i < layers.schema.length; i++) {
+          if (array.indexOf(layers.schema[i].name) != -1) continue;
+          this.fieldList.push({
+            label: layers.schema[i].name,
+            value: layers.schema[i].name,
+          });
+        }
+        this.layerCrs = layers.csys;
+        this.queryName = layer.value;
       }
-      this.layerCrs = layers.csys;
-      this.queryName = layer.value;
     },
     //字段选择事件
     fieldChange(item) {
-      const layers = this.$store.getters.wfsLayerData[this.formDynamic.layer];
-      for (let i = 0; i < layers.schema.length; i++) {
-        if (layers.schema[i].name == item.field) {
-          item.fieldType = layers.schema[i].type;
-          break;
+      if (this.formDynamic.layer !== '') {
+        const layers = this.$store.getters.wfsLayerData[this.formDynamic.layer];
+        for (let i = 0; i < layers.schema.length; i++) {
+          if (layers.schema[i].name == item.field) {
+            item.fieldType = layers.schema[i].type;
+            break;
+          }
         }
-      }
-      switch (item.fieldType.toLowerCase()) {
-        case 'timestamp':
-        case 'datetime':
-        case 'numeric':
-        case 'double':
-        case 'long':
-          item.compareList = numberCompare;
-          break;
-        default:
-          item.compareList = stringCompare;
-          break;
+        switch (item.fieldType.toLowerCase()) {
+          case 'timestamp':
+          case 'datetime':
+          case 'numeric':
+          case 'double':
+          case 'long':
+            item.compareList = numberCompare;
+            break;
+          default:
+            item.compareList = stringCompare;
+            break;
+        }
       }
     },
     compareChange(compare) {},
@@ -215,8 +222,8 @@ export default {
       });
     },
     //重置查询页面
-    handleReset(name) {
-      this.$refs[name].resetFields();
+    reset() {
+      this.$refs['formDynamic'].resetFields();
       this.formDynamic.layer = '';
       this.formDynamic.items = [
         {
@@ -401,7 +408,7 @@ export default {
       <Button
         type="ghost"
         style="margin-left: 8px"
-        @click="handleReset('formDynamic')">重置</Button>
+        @click="reset">重置</Button>
     </FormItem>
   </formitem></Form>
 </template>

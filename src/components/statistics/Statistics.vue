@@ -188,9 +188,6 @@ export default {
         if (valid) {
           // 验证成功
           const params = this.setParams();
-          // let fd = new FormData();
-          // fd.append('statistics', JSON.stringify(params));
-          // const response = await api.db.aggregate({}, fd);
           this.showTable([], { options: params }, 'statisticsQuery');
         } else {
           this.$Message.error('请按要求填写表单！');
@@ -260,6 +257,7 @@ export default {
         :disabled="disabledCrs"
         :placeholder="crsplaceholder"
         label-in-value
+        clearable
       >
         <Option
           v-for="(item,index) in crsData"
