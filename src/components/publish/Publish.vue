@@ -137,16 +137,24 @@ export default {
     },
     //校验表单
     validateData() {
-      if (!this.publishForm.title) {
-        this.$Message.info('请输入服务标题');
+      if (!this.publishForm.title.trim()) {
+        this.$Message.error('请输入服务标题');
         return false;
       }
-      if (!this.publishForm.crs) {
-        this.$Message.info('请选择空间参考');
+      if (this.publishForm.title.trim().length > 64) {
+        this.$Message.error('服务标题不能超过64个字符长度！');
         return false;
       }
-      if (!this.publishForm.name) {
-        this.$Message.info('请选择服务名称');
+      if (!this.publishForm.crs.trim()) {
+        this.$Message.error('请选择空间参考');
+        return false;
+      }
+      if (!this.publishForm.name.trim()) {
+        this.$Message.error('请选择服务名称');
+        return false;
+      }
+      if (this.publishForm.name.trim().length > 64) {
+        this.$Message.error('服务名称不能超过64个字符长度！');
         return false;
       }
       //切片服务
@@ -190,8 +198,8 @@ export default {
         limits: 1,
         crs: this.publishForm.crs,
         serviceType: this.publishForm.serviceType.join(','),
-        name: this.publishForm.name,
-        title: this.publishForm.title,
+        name: this.publishForm.name.trim(),
+        title: this.publishForm.title.trim(),
         styles: this.publishForm.styles,
       };
       //切片服务

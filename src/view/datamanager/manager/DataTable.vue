@@ -53,12 +53,10 @@ export default {
                         this.$events.emit('on-common-tree-update');
                         this.$events.emit('on-refresh-nav-tree');
                       }
-                      if (utils.isGisResource(params.row)) {
-                        await api.db.updateResourceInfo({
-                          id: params.row.id, // 资源id
-                          alias: params.row.alias, // 资源别名
-                        });
-                      }
+                      await api.db.updateResourceInfo({
+                        id: params.row.id, // 资源id
+                        alias: params.row.alias, // 资源别名
+                      });
                       this.$Message.success('重命名操作成功！');
                       //刷新当前节点
                       const currentNode = this.$store.state.app.currentDirectory;
