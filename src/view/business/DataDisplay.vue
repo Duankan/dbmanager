@@ -22,13 +22,14 @@ export default {
     return {
       formItem: {
         select: [], //标签名
-        multiple: [], //分类id
+        multiple: '', //分类id
         input: '', //关键字
       },
       ruleFormdate: {},
       totalCount: 1, //表格总页数
       pageIndex: 1, //表格当前页
       typeTreeData: [],
+      value: '',
       copyTreeDatas: [],
     };
   },
@@ -52,7 +53,7 @@ export default {
             }
           });
         }
-        this.$emit('TreeData', this.treeDatas);
+        this.$emit('TreeData',this.treeDatas);
       },
       immediate: true,
     },
@@ -186,8 +187,8 @@ form {
   border: 1px solid #e8eaec;
   padding: 0px 22px 5px 25px;
   border-top: 0px;
-  // height: 234px;
   height: 30%;
+  // height: calc(100% - 496px);
   overflow-y: auto;
 }
 .k-form-item {
