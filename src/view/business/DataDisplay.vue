@@ -22,7 +22,7 @@ export default {
     return {
       formItem: {
         select: [], //标签名
-        multiple: '', //分类id
+        multiple: [], //分类id
         input: '', //关键字
       },
       ruleFormdate: {},
