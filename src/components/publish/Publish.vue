@@ -141,12 +141,20 @@ export default {
         this.$Message.info('请输入服务标题');
         return false;
       }
+      if (this.publishForm.title.trim().length > 64) {
+        this.$Message.error('服务标题不能超过64个字符长度！');
+        return false;
+      }
       if (!this.publishForm.crs.trim()) {
         this.$Message.info('请选择空间参考');
         return false;
       }
       if (!this.publishForm.name.trim()) {
         this.$Message.info('请选择服务名称');
+        return false;
+      }
+      if (this.publishForm.name.trim().length > 64) {
+        this.$Message.error('服务名称不能超过64个字符长度！');
         return false;
       }
       //切片服务
