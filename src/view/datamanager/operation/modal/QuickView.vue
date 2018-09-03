@@ -140,8 +140,11 @@ export default {
       if (data.features.length == 0) {
         return [];
       }
-      let filterMethod = this.isMeta ? helps.filterMeta : helps.filterSchema;
-      let cols = filterMethod(Object.keys(data.features[0].properties)).map(p => {
+      let cols = Object.keys(data.features[0].properties);
+      if (this.isMeta) {
+        cols = helps.filterMeta(cols);
+      }
+      cols = cols.map(p => {
         return {
           title: p,
           key: p,
