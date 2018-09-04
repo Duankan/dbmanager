@@ -54,11 +54,11 @@ export default {
     addLayerView(item) {
       //ktw_136703855 点; ktw_fffffffd97ef3980 线 ktw_fffffffb5bda492f
       const layerInfo = this.setLayerInfo(item.layer.name);
-      var styleName = 'ktw_fffffffd97ef3980';
+      var styleName = 'EditPolylineStyle';
       if (item.layer.style.name == 'point') {
-        styleName = 'ktw_136703855';
+        styleName = 'EditPointStyle';
       } else if (item.layer.style.name == 'polygon') {
-        styleName = 'ktw_fffffffb5bda492f';
+        styleName = 'EditPolygonStyle';
       }
       const temporaryData = {
         [item.layer.name]: {
