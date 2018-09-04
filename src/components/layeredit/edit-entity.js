@@ -4,25 +4,25 @@ import axios from 'axios';
 import GeometryUtil from './geometry-utils';
 import { Message, Notice } from '@ktw/kcore';
 
-//图层标记
+// 图层标记
 const LAYER_FLAG = '{LAYER_FLAG}';
 
-//图形标记
+// 图形标记
 const GEOMETRY_FLAG = '{GEOMETRY_FLAG}';
 
-//属性标记
+// 属性标记
 const PROPERTY_FLAG = '{PROPERTY_FLAG}';
 
-//坐标标记
+// 坐标标记
 const COORD_FLAG = '{COORD_FLAG}';
 
-//ID标记
+// ID标记
 const ID_FLAG = '{ID_FLAG}';
 
-//空间参考标记
+// 空间参考标记
 const SPATIAL_FLAG = '{SPATIAL_FLAG}';
 
-//新增要素模板
+// 新增要素模板
 const ADD_TEMPLATE = `
 <Transaction xmlns="http://www.opengis.net/wfs" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" service="WFS" version="2017.06.21" xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.1.0/wfs.xsd">
   <Insert>
@@ -35,7 +35,7 @@ const ADD_TEMPLATE = `
   </Insert>
 </Transaction>`;
 
-//编辑要素模板
+// 编辑要素模板
 const UPDATE_TEMPLATE = `
 <Transaction xmlns="http://www.opengis.net/wfs" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" service="WFS" version="2017.06.21" xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.1.0/wfs.xsd">
   <Update typeName="${LAYER_FLAG}">
@@ -50,7 +50,7 @@ const UPDATE_TEMPLATE = `
   </Update>
 </Transaction>`;
 
-//删除要素模板
+// 删除要素模板
 const DELETE_TEMPLATE = `
 <Transaction xmlns="http://www.opengis.net/wfs" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" service="WFS" version="2017.06.21" xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.1.0/wfs.xsd">
   <Delete xmlns="http://www.opengeospatial.net/ktw" typeName="${LAYER_FLAG}">
@@ -60,13 +60,13 @@ const DELETE_TEMPLATE = `
   </Delete>
 </Transaction>`;
 
-//点图形模板
+// 点图形模板
 const POINT_TEMPLATE = `
 <Point xmlns="http://www.opengis.net/gml" srsName="${SPATIAL_FLAG}">
   <pos>${COORD_FLAG}</pos>
 </Point>`;
 
-//线图形模板
+// 线图形模板
 const POLYLINE_TEMPLATE = `
 <MultiLineString xmlns="http://www.opengis.net/gml" srsName="${SPATIAL_FLAG}">
   <lineStringMember>
@@ -76,7 +76,7 @@ const POLYLINE_TEMPLATE = `
   </lineStringMember>
 </MultiLineString>`;
 
-//面图形模板
+// 面图形模板
 const POLYGON_TEMPLATE = `
 <MultiPolygon xmlns="http://www.opengis.net/gml" srsName="${SPATIAL_FLAG}">
   <polygonMember>
@@ -90,21 +90,21 @@ const POLYGON_TEMPLATE = `
   </polygonMember>
 </MultiPolygon>`;
 
-//要素模板
+// 要素模板
 const FEATURE_TEMPLATE = {
   add: ADD_TEMPLATE,
   update: UPDATE_TEMPLATE,
   delete: DELETE_TEMPLATE,
 };
 
-//图形模板
+// 图形模板
 const GEOMETRY_TEMPLATE = {
   point: POINT_TEMPLATE,
   polyline: POLYLINE_TEMPLATE,
   polygon: POLYGON_TEMPLATE,
 };
 
-//操作类型
+// 操作类型
 const OPERATORS = {
   add: '新增',
   update: '编辑',
@@ -120,13 +120,13 @@ class EditEntity {
    * @param {any} layerInfo 图形信息
    */
   constructor(layerInfo) {
-    //图层信息
+    // 图层信息
     this.layerInfo = layerInfo;
-    //服务地址
+    // 服务地址
     this.serviceUrl = `${config.project.hgisServer}/wfs?isupdateindex=0`;
-    //编辑属性
+    // 编辑属性
     this.property = null;
-    //编辑图形
+    // 编辑图形
     this.geometry = null;
   }
 

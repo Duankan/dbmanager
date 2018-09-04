@@ -2,6 +2,7 @@
 import { date } from '@ktw/ktools';
 import QueryLayerHistory from './QueryLayerHistory';
 import MoreMap from '../moremap/MoreMap';
+import config from 'config';
 
 export default {
   name: 'LayerHistory',
@@ -54,11 +55,11 @@ export default {
     addLayerView(item) {
       //ktw_136703855 点; ktw_fffffffd97ef3980 线 ktw_fffffffb5bda492f
       const layerInfo = this.setLayerInfo(item.layer.name);
-      var styleName = 'ktw_fffffffd97ef3980';
+      var styleName = config.editStyle.polyline;
       if (item.layer.style.name == 'point') {
-        styleName = 'ktw_136703855';
+        styleName = config.editStyle.point;
       } else if (item.layer.style.name == 'polygon') {
-        styleName = 'ktw_fffffffb5bda492f';
+        styleName = config.editStyle.polygon;
       }
       const temporaryData = {
         [item.layer.name]: {

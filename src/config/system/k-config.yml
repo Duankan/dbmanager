@@ -2,7 +2,7 @@
 project:
   basicUrl: http://192.168.1.93:8080
   baseUrl: http://192.168.1.93:8080
-  YunServicesUrl: http://192.168.1.147:15000
+  YunServicesUrl: http://192.168.1.231:15000
   highgisUrl: http://192.168.1.90:8086
   businessUrl: http://192.168.1.114:8081
   hgisServer: http://192.168.1.90:8085/master
@@ -10,7 +10,7 @@ project:
 # 业务组件库 @ktw/api 环境变量配置
 kbus:
   basicUrl: http://192.168.1.93:8080
-  YunServicesUrl: http://192.168.1.147:15000
+  YunServicesUrl: http://192.168.1.231:15000
 
 # websocket服务地址
 
@@ -23,6 +23,12 @@ socket: http://192.168.1.93:8020
 #  例子： https://${key}@${sentryUrl}/${project}
 
 raven: https://${key}@${sentryUrl}/${project}
+
+#编辑样式配置
+editStyle:
+  point: EditPointStyle
+  polyline: EditPolylineStyle
+  polygon: EditPolygonStyle
 
 projectConfig:
   dictionaryId: 77e403e7fee343498dd5881d5ba5dd1b
