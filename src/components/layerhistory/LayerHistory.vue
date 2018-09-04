@@ -113,6 +113,7 @@ export default {
       });
       //获取当前图层的url
       let originalLayerUrl = layerObject.servicesurl;
+      this.historyLayerList = [];
       this.historyLayerList.push({
         url: originalLayerUrl,
         title: this.originalLayerName,
