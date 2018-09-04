@@ -1,6 +1,6 @@
 <script>
 import { date } from '@ktw/ktools';
-import { Ellipsis, Tag } from '@ktw/kcore';
+import { Ellipsis, Tag, Poptip, div } from '@ktw/kcore';
 import DataDetails from './DataDetails';
 export default {
   name: 'BusinessTable',
@@ -33,10 +33,39 @@ export default {
         {
           title: '元数据名称',
           key: 'name',
+          render: (h, params) => {
+            const row = params.row;
+            return h(
+              'a',
+              {
+                props: {},
+                style: {},
+                on: {
+                  click: () => {
+                    // 隐藏元数据管理页面
+                    this.display = false;
+                    this.selectData = params.row;
+                    //预览flag
+                    this.selectData.readonly = true;
+                    // 日期格式化
+                    this.selectData.enddate = date.format(
+                      new Date(this.selectData.enddate),
+                      'YYYY-M-D'
+                    );
+                    this.selectData.begdate = date.format(
+                      new Date(this.selectData.enddate),
+                      'YYYY-M-D'
+                    );
+                  },
+                },
+              },
+              row.name
+            );
+          },
         },
         {
           title: '描述',
-          key: 'describe',
+          key: 'description',
           width: 300,
         },
         {
@@ -44,29 +73,60 @@ export default {
           key: 'keyword',
           render: (h, params) => {
             const row = params.row;
-            return h(
-              'Poptip',
-              {
-                props: {
-                  trigger: 'hover',
-                  content: row.keyword,
-                  placement: 'bottom',
-                },
-              },
-              [
-                <Tag>
-                  <Ellipsis length="10">{row.keyword}</Ellipsis>
-                </Tag>,
-              ]
+            const keyword = row.keyword;
+            return (
+              <Poptip trigger="hover" placement="bottom" content={row.keyword}>
+                <Tag
+                  nativeOnClick={e => {
+                    this.tagData(keyword);
+                  }}
+                >
+                  <Ellipsis length="5">{row.keyword}</Ellipsis>
+                </Tag>
+              </Poptip>
             );
           },
         },
+        // render: (h, params) => {
+        //   const row = params.row;
+        //   return h(
+        //     'Poptip',
+        //     {
+        //       props: {
+        //         trigger: 'hover',
+        //         content: row.keyword,
+        //         placement: 'bottom',
+        //       },
+        //     },
+        //     [
+        //       <Tag nativeOnClick={this.tagData}>
+        //         <Ellipsis length="10">{row.keyword}</Ellipsis>
+        //       </Tag>,
+        //     ]
+        //   );
+        // },
+        // },
         {
           title: '分类',
-          key: 'restype',
-          // render: (h, params) => {
-          //   return h('div');
-          // },
+          key: 'classificationname',
+          render: (h, params) => {
+            const row = params.row;
+            const classificationname = row.classificationname;
+            const restype = row.restype;
+            return h(
+              'a',
+              {
+                props: {},
+                style: {},
+                on: {
+                  click: () => {
+                    this.classifyDatas(restype);
+                  },
+                },
+              },
+              classificationname
+            );
+          },
         },
 
         // {
@@ -143,34 +203,34 @@ export default {
                 },
                 '编辑'
               ),
-              h(
-                'a',
-                {
-                  props: {},
-                  style: {
-                    marginRight: '5px',
-                  },
-                  on: {
-                    click: () => {
-                      // 隐藏元数据管理页面
-                      this.display = false;
-                      this.selectData = params.row;
-                      //预览flag
-                      this.selectData.readonly = true;
-                      // 日期格式化
-                      this.selectData.enddate = date.format(
-                        new Date(this.selectData.enddate),
-                        'YYYY-M-D'
-                      );
-                      this.selectData.begdate = date.format(
-                        new Date(this.selectData.enddate),
-                        'YYYY-M-D'
-                      );
-                    },
-                  },
-                },
-                '预览'
-              ),
+              // h(
+              //   'a',
+              //   {
+              //     props: {},
+              //     style: {
+              //       marginRight: '5px',
+              //     },
+              //     on: {
+              //       click: () => {
+              //         // 隐藏元数据管理页面
+              //         this.display = false;
+              //         this.selectData = params.row;
+              //         //预览flag
+              //         this.selectData.readonly = true;
+              //         // 日期格式化
+              //         this.selectData.enddate = date.format(
+              //           new Date(this.selectData.enddate),
+              //           'YYYY-M-D'
+              //         );
+              //         this.selectData.begdate = date.format(
+              //           new Date(this.selectData.enddate),
+              //           'YYYY-M-D'
+              //         );
+              //       },
+              //     },
+              //   },
+              //   '预览'
+              // ),
             ]);
           },
         },
@@ -213,7 +273,6 @@ export default {
           orderby: '', //排序字段
         },
       });
-
       //获取表格数据
       this.tableData = response.data.dataSource;
       //获取表格总页数
@@ -221,6 +280,21 @@ export default {
       this.pageCount = response.data.pageInfo.pageCount;
       //获取当前页
       this.pageIndex = response.data.pageInfo.pageIndex;
+    },
+    //表格分类
+    async classifyDatas(restype) {
+      const response = await api.db.findpagelistbusiness({
+        restype: restype,
+        pageinfo: {
+          pageIndex: this.pageIndex, //当前页
+          pageSize: 10, //每页总数
+          totalCount: this.totalCount,
+          pageCount: this.pageCount,
+          orderby: '', //排序字段
+        },
+      });
+      this.tableData = response.data.dataSource;
+      debugger;
     },
     //页码
     changePage(currPage) {
@@ -266,7 +340,7 @@ export default {
     //时间格式化
     formatDate(datas) {
       if (datas) {
-        var data = new Date();
+        var data = new Date(new Date(datas));
         var y = data.getFullYear();
         var m = data.getMonth() + 1;
         var d = data.getDate();
@@ -274,6 +348,20 @@ export default {
         d = d < 10 ? '0' + d : d;
         return y + '-' + m + '-' + d;
       }
+    },
+    async tagData(keyword) {
+      const response = await api.db.findpagelistbusiness({
+        keyword: keyword,
+        pageinfo: {
+          pageIndex: this.pageIndex, //当前页
+          pageSize: 10, //每页总数
+          totalCount: this.totalCount,
+          pageCount: this.pageCount,
+          orderby: '', //排序字段
+        },
+      });
+      this.tableData = response.data.dataSource;
+      debugger;
     },
   },
 };

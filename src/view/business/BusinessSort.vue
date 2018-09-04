@@ -1,4 +1,5 @@
 <script>
+import { Ellipsis, Tag } from '@ktw/kcore';
 export default {
   name: 'BusinessSort',
   data() {
