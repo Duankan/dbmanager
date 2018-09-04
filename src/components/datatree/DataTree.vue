@@ -136,7 +136,7 @@ export default {
     },
     //异步加载子目录和数据
     async loadData(item, callback) {
-      var temp = {
+      let temp = {
         owner: 1,
         ownerId: this.$appUser.orgid,
         access: 1,
@@ -147,7 +147,7 @@ export default {
         resourceTypeId: '1,2',
         parentId: item.childId,
       };
-      if (this.searchTreeKey != '' && item.name == '组织目录') {
+      if (this.searchTreeKey != '' && item.title == '数据目录') {
         temp.name = this.searchTreeKey;
         temp.hasChild = true;
       }

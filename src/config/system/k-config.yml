@@ -24,6 +24,12 @@ socket: http://192.168.1.93:8020
 
 raven: https://${key}@${sentryUrl}/${project}
 
+#编辑样式配置
+editStyle:
+  point: EditPointStyle
+  polyline: EditPolylineStyle
+  polygon: EditPolygonStyle
+
 projectConfig:
   dictionaryId: 77e403e7fee343498dd5881d5ba5dd1b
   xzqName: 衡阳市

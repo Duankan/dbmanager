@@ -60,13 +60,24 @@ export default {
     },
     //上传坐标文件成功
     uploadSuccess(response) {
-      this.range.coordinate = response.data[0];
+      if (!response.data) {
+        this.$Message.error(response.message);
+        this.shapeFileName = '';
+      } else {
+        this.range.coordinate = response.data[0];
+      }
       this.loading = false;
     },
     //上传坐标文件失败
     uploadError() {
       this.$Message.error('上传坐标文件失败!');
       this.loading = false;
+      this.shapeFileName = '';
+    },
+    //数据格式错误
+    formatError() {
+      this.$Message.error('数据格式错误!');
+      this.shapeFileName = '';
     },
     //校验提取范围
     validateRange() {
@@ -102,11 +113,12 @@ export default {
         placeholder="导入Shape坐标文件"></Input>
       <Upload
         :show-upload-list="false"
-        :format="['zip']"
         :action="uploadUrl"
         :before-upload="beforeUpload"
         :on-success="uploadSuccess"
         :on-error="uploadError"
+        :on-format-error="formatError"
+        accept="application/zip"
         name="shapefile"
         class="inline-upload">
         <Button
