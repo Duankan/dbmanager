@@ -342,12 +342,14 @@ export default {
         </Select>
       </FormItem>
       <FormItem
-        label="描述：">
+        label="描述："
+        prop="desc">
         <Input
           v-model="styleCondition.description"
           :autosize="{ minRows: 2, maxRows: 5 }"
           type="textarea"
-          placeholder="请输入描述"></Input>
+          placeholder="请输入描述"
+          maxlength="256"></Input>
       </FormItem>
     </Form>
     <div
