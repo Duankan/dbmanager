@@ -28,10 +28,6 @@ export default {
       cloudFile: null,
       //数据文件
       fileName: '',
-      //表单验证规则
-      rules: {
-        name: [{ validator: validateSpecChar, trigger: 'blur' }],
-      },
     };
   },
   computed: {
@@ -80,7 +76,7 @@ export default {
         return;
       }
       if (!/^[\u4e00-\u9fa5a-zA-Z0-9_]*$/.test(resourceName)) {
-        this.$Message.error('数据名称不能包含特殊字符！');
+        this.$Message.error('数据名称不能是特殊字符！');
         return;
       }
       if (this.cloudFile == null) {
@@ -167,8 +163,7 @@ export default {
     @on-visible-change="visibleChange">
     <Form
       :model="resource"
-      :label-width="90"
-      :rules="rules">
+      :label-width="90">
       <FormItem
         label="数据名称："
         prop="name">

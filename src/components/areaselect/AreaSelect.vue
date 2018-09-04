@@ -67,7 +67,7 @@ export default {
     async closeSelect(isClose) {
       this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
       if (!isClose) {
-        if (this.selectCode.length !== 0) {
+        if (this.selectCode.length !== 0 && +this.selectCode[0] === config.projectConfig.xzqCode) {
           const response = await api.db.queryAdministrativeCode({
             code: [this.selectCode[this.selectCode.length - 1]],
             field: 'DMDZDM',
@@ -81,6 +81,10 @@ export default {
           const wktStr = response.data.features[0];
           const devWktStr = this.changeWkt(response.data.features[0], true);
           this.$emit('on-get-arealayer', wktStr, devWktStr);
+        } else {
+          this.$Message.warning(
+            `目前只有行政区为“${config.projectConfig.xzqName}”内的数据可被选择！`
+          );
         }
       }
     },

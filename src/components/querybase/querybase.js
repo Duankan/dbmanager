@@ -70,6 +70,9 @@ export default {
       immediate: true,
     },
   },
+  events: {
+    'on-reset-query': 'onResetQuery',
+  },
   beforeDestroy() {},
   methods: {
     // 得到去公共字段的展示列表字段
@@ -123,6 +126,10 @@ export default {
       // this.$store.commit(types.REMOVE_BUS_ATTRIBUTE);
       this.$store.commit(types.SET_BUS_FIELD, fieldList);
       this.$store.commit(types.SET_BUS_ATTRIBUTE, { ...params, attributeType });
+    },
+    // 重置查询
+    onResetQuery() {
+      if (this['reset']) this.reset();
     },
   },
 };

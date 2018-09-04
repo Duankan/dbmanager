@@ -67,7 +67,6 @@ export default {
   },
   mounted() {
     MapRefs.inst(this);
-    this.$events.emit('on-getdraw-refs', { drawRefs: this.$refs, REFS }, true);
   },
   destroyed() {
     MapRefs.destroy();

@@ -41,11 +41,13 @@ export default {
   methods: {
     selectLayer(layers) {
       // 字段查询
-      let layerData;
-      layerData = this.layerData1.filter(item => item.title === layers.label);
-      const url = new URL(layerData[0].servicesurl);
-      this.baseUrl = layerData[0].servicesurl;
-      this.queryUrl = url.origin + '/hgis/ows';
+      if (layers.label !== '' && layers.value !== '') {
+        let layerData;
+        layerData = this.layerData1.filter(item => item.title === layers.label);
+        const url = new URL(layerData[0].servicesurl);
+        this.baseUrl = layerData[0].servicesurl;
+        this.queryUrl = url.origin + '/hgis/ows';
+      }
     },
     setParams() {
       const options = {

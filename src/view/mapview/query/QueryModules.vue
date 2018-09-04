@@ -1,5 +1,7 @@
 <script>
 import * as types from '@/store/types';
+import * as queryModules from '../../../components';
+
 export default {
   name: 'QueryModules',
   props: {
@@ -41,9 +43,10 @@ export default {
   watch: {
     isVisible(newVal) {
       if (!newVal) {
+        this.$store.commit(types.CLOSE_BOTTOM_PANE);
+        this.$events.emit('on-reset-query', true);
         this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
         this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
-        this.$store.commit(types.CLOSE_BOTTOM_PANE);
       }
     },
   },
