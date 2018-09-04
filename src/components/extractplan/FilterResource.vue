@@ -3,7 +3,7 @@ import * as helps from '@/utils/helps';
 import AttributeFilter from './AttributeFilter';
 
 //提取必须字段
-const REQUIRED_FIELDS = ['Shape_Leng', 'Shape_Area', 'bbox'];
+const REQUIRED_FIELDS = ['Shape_Leng', 'Shape_Area'];
 
 /*
  * 过滤提取资源模块
