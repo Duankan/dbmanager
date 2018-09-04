@@ -47,26 +47,6 @@ export default {
           key: 'describe',
           align: 'center',
         },
-        // {
-        //   title: '是否允许为空',
-        //   key: 'allowNull',
-        //   align: 'center',
-        //   render: (h, params) => {
-        //     const row = params.row;
-        //     const color = row.allowNull === 1 ? 'green' : 'red';
-        //     const text = row.allowNull === 1 ? '可用' : '不可用';
-        //     return h(
-        //       'Tag',
-        //       {
-        //         props: {
-        //           type: 'dot',
-        //           color: color,
-        //         },
-        //       },
-        //       text
-        //     );
-        //   },
-        // },
         {
           title: '操作',
           key: 'operation',
@@ -83,6 +63,8 @@ export default {
                     click: () => {
                       //替换标题
                       this.fieldOperat = '修改字段';
+                      //更新标签
+                      this.queryTagData();
                       //打开修改模板
                       this.fieldDialog = true;
                       console.log(params.row);
@@ -126,7 +108,13 @@ export default {
     openFieldDialog() {
       this.fieldDialog = true;
       this.fieldOperat = '新增字段';
+      //更新标签
+      this.keywordSelect = [];
+      this.queryTagData();
+      //清空表单
       this.fieldData = {};
+      //重置表单验证
+      this.$refs.fieldData.resetFields();
     },
     //字段修改模态框
     ok(name) {
@@ -194,10 +182,7 @@ export default {
       //已选标签名
       console.log('点击复选框EVENT数据为');
       console.log(event);
-      // let copyKeyword = event.concat();
       this.keywordSelect = event.concat();
-      // this.keywordSelect = [...copyKeyword];
-      // this.keywordSelect = Array.from(new Set(this.keywordSelect));
       console.log('点击复选框更新表单数据为');
       console.log(this.keywordSelect);
     },
