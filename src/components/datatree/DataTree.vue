@@ -147,7 +147,7 @@ export default {
         resourceTypeId: '1,2',
         parentId: item.childId,
       };
-      if (this.searchTreeKey != '' && item.title == '组织目录') {
+      if (this.searchTreeKey != '' && item.title == '数据目录') {
         temp.name = this.searchTreeKey;
         temp.hasChild = true;
       }
