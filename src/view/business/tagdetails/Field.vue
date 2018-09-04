@@ -150,8 +150,7 @@ export default {
     // 新增字段
     async addFieldData() {
       //标签数据处理
-      this.fieldData.keyword = this.keywordSelect.concat();
-      this.fieldData.keyword = this.fieldData.keyword.join(',');
+      this.fieldData.keyword = this.keywordSelect.concat().join(',');
       await api.db
         .addFields({
           id: this.rowData.id,
