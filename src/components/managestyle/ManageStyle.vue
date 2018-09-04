@@ -218,24 +218,29 @@ export default {
         this.deleteError = [];
         await Promise.all(
           this.deleteStyleData.map(styleData => api.db.deleteStyle({ id: styleData.id }))
-        ).then(response => {
-          this.spinShow = false;
-          for (let i = 0; i < response.length; i++) {
-            if (response[i].data.statusCode !== 200) {
-              this.deleteStyleData[i]['errorCallback'] = response[i].data;
-              this.deleteError.push(this.deleteStyleData[i]);
+        )
+          .then(response => {
+            this.spinShow = false;
+            for (let i = 0; i < response.length; i++) {
+              if (response[i].data.statusCode !== 200) {
+                this.deleteStyleData[i]['errorCallback'] = response[i].data;
+                this.deleteError.push(this.deleteStyleData[i]);
+              }
             }
-          }
-          if (this.deleteError.length !== 0) {
-            this.isComputedStyle = true;
-            this.modalTitle = '批量删除失败';
-            this.modalName = 'DeleteStyle';
-          } else {
-            this.$Message.success('删除成功！');
+            if (this.deleteError.length !== 0) {
+              this.isComputedStyle = true;
+              this.modalTitle = '批量删除失败';
+              this.modalName = 'DeleteStyle';
+            } else {
+              this.$Message.success('删除成功！');
+              this.getStyleData(1);
+            }
+            this.deleteStyleData = [];
+          })
+          .catch(p => {
+            this.spinShow = false;
             this.getStyleData(1);
-          }
-          this.deleteStyleData = [];
-        });
+          });
       } else {
         this.$Message.info({
           top: 250,
