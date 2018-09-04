@@ -198,7 +198,7 @@ export default {
     <div class="details-menu">
       <div>
         <span class="table-content-title-icon"></span>
-        <span class="table-content-title-content"><b>元数据管理</b></span>
+        <span class="table-content-title-content"><b>字段管理</b></span>
       </div>
       <Button
         v-show="!rowData.readonly"

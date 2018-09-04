@@ -149,6 +149,10 @@ export default {
       const index = this.copyRowData.keyword.indexOf(name);
       this.copyRowData.keyword.splice(index, 1);
     },
+    //资源分类显示自定义
+    format(labels) {
+      return labels[labels.length - 1];
+    },
   },
 };
 </script>
@@ -175,6 +179,7 @@ export default {
         label="资源分类：">
         <Cascader
           :data="treeData"
+          :render-format="format"
           v-model="copyRowData.restype"
           filterable
           transfer>
