@@ -52,6 +52,7 @@ export default {
       const response = await api.db.findSrs(this.dataCondition);
       this.datas = response.data.dataSource;
       this.pageCount = response.data.pageInfo.totalCount;
+      this.desc = '';
     },
     // 改变分页
     changePage(evt) {
@@ -90,8 +91,8 @@ export default {
       </Table>
       <Page
         :total="pageCount"
-        :page-size="10"
-        :page-size-opts="[10, 20, 30, 40]"
+        :page-size="5"
+        :page-size-opts="[5,10, 20, 30, 40]"
         size="small"
         show-total
         show-elevator
@@ -104,6 +105,7 @@ export default {
         v-model="desc"
         :autosize="{minRows: 2,maxRows: 5}"
         type="textarea"
+        readonly
         placeholder="空间参考系统WKT."></Input>
     </FormItem>
   </Form>
