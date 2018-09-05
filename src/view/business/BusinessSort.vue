@@ -141,6 +141,10 @@ export default {
                   },
                   style: {
                     width: '76px',
+                    // overflow: 'clip',
+                  },
+                  attrs: {
+                    title: data.title,
                   },
                   on: {
                     'on-change': e => {
