@@ -27,8 +27,8 @@ export default {
       showTable: true,
       //图层名
       layerName: '',
-      //图层范围
-      bbox: null,
+      //服务类型,0：WMS服务，1:WMTS服务
+      serviceType: 0,
       //服务信息
       serviceList: [],
       //表格列
@@ -67,8 +67,10 @@ export default {
       if (val) {
         const response = await this.getNodeInfo(this.node);
         this.serviceList = response.data;
-        this.loadMap();
-        this.loadTable();
+        setTimeout(() => {
+          this.loadMap();
+          this.loadTable();
+        }, 500);
       }
     },
   },
@@ -91,17 +93,26 @@ export default {
     //预览地图
     loadMap() {
       let service = this.serviceList.find(service => service.servicestype === 12);
+      if (service) {
+        //WMS服务
+        this.serviceType = 0;
+        this.showTable = true;
+      } else {
+        //WMTS服务
+        service = this.serviceList.find(service => service.servicestype === 5);
+        this.serviceType = 1;
+        this.showTable = false;
+      }
       let { search } = url.parse(service.servicesurl);
       this.layerName = search.layers ? search.layers : search.typeName;
       this.$store.commit(SET_MAP_SERVICELIST, {
         [this.layerName]: this.serviceList,
       });
       window.dispatchEvent(new Event('resize'));
-      let bbox = search.bbox.split(',');
-      this.bbox = [[+bbox[1], +bbox[0]], [+bbox[3], +bbox[2]]];
     },
     //加载表格
     loadTable() {
+      if (this.serviceType != 0) return;
       this.pageInited = false;
       this.queryFeatures(1);
       this.$store.commit(SET_MAP_GEOJSON, { geojson: {}, type: 'once' });
@@ -175,17 +186,21 @@ export default {
       }
       this.$emit('input', visible);
     },
-    resize() {
-      this.$refs.map.setBounds(this.bbox);
-    },
     toggle(val) {
-      window.dispatchEvent(new Event('resize'));
+      setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+      }, 100);
     },
     //重设控件
     resetControls() {
       this.showTable = true;
       this.pageInited = false;
       this.loading = false;
+      this.columns = [];
+      this.data = [];
+      this.total = 0;
+      this.pagedData = [];
+      this.$refs.page.changePage(1);
       this.$store.commit(SET_MAP_GOCLAYER_DELETE, [this.layerName]);
     },
   },
@@ -204,6 +219,7 @@ export default {
       :class="{expand:!showTable}"
       class="map">
       <Switch
+        v-if="serviceType===0"
         v-model="showTable"
         size="large"
         @on-change="toggle">
@@ -211,9 +227,10 @@ export default {
         <span slot="close">数据</span>
       </Switch>
       <BaseMap
-        ref="map"
-        @k-resize="resize">
+        ref="map">
         <TileWMSLayer/>
+        <TileWMTSLayer/>
+        <GeoJson />
       </BaseMap>
     </div>
     <div
@@ -228,6 +245,7 @@ export default {
         highlight-row
         @on-current-change="zoomToFeature"></Table>
       <Page
+        ref="page"
         :total="total"
         size="small"
         show-total
