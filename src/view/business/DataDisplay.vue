@@ -62,11 +62,11 @@ export default {
     // 查询按钮
     searchData(formItem) {
       //判断选项是否全为空
-      if (formItem.select.length == 0 && formItem.input == '' && formItem.multiple == '') {
-        this.$Message.error('选项不能全为空');
-      } else {
-        this.findAllData();
-      }
+      // if (formItem.select.length == 0 && formItem.input == '' && formItem.multiple == '') {
+      //   this.$Message.error('选项不能全为空');
+      // } else {
+      this.findAllData();
+      // }
     },
     //查询所有表格数据
     async findAllData() {
@@ -115,6 +115,11 @@ export default {
         }
       }
     },
+    format(labels, selectedData) {
+      const index = labels.length - 1;
+      const data = selectedData[index] || false;
+      return labels[index];
+    },
   },
 };
 </script>
@@ -160,6 +165,7 @@ export default {
       <Cascader
         :data="treeDatas"
         v-model="formItem.multiple"
+        :render-format="format"
         transfer
       ></Cascader>
     </FormItem>

@@ -74,7 +74,7 @@ export default {
         //新增基本信息
         await api.db
           .addbasicinfoBusiness({
-            abstract_: this.copyRowData.abstract_,
+            description: this.copyRowData.description,
             begdate: this.copyRowData.begdate,
             enddate: this.copyRowData.enddate,
             cndadd: this.copyRowData.cndadd,
@@ -92,7 +92,7 @@ export default {
         //修改基本信息
         await api.db
           .updatebasicinfoBusiness({
-            abstract_: this.copyRowData.abstract_,
+            description: this.copyRowData.description,
             begdate: this.copyRowData.begdate,
             enddate: this.copyRowData.enddate,
             cndadd: this.copyRowData.cndadd,
@@ -283,11 +283,11 @@ export default {
     <Row>
       <Col span="18">
       <FormItem
-        prop="abstract_"
+        prop="description"
         label="摘要：">
         <Input
           :rows="4"
-          v-model="copyRowData.abstract_"
+          v-model="copyRowData.description"
           type="textarea"
           placeholder="请输入你的阶段性工作目标" />
       </FormItem>
