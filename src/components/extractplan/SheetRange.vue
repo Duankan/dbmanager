@@ -178,6 +178,7 @@ export default {
     //添加自动完成选择图幅
     addAutoSheet() {
       this.addToSheets(this.selectAutoSheet);
+      this.selectAutoSheet = '';
     },
     //上传文件前
     beforeUpload(file) {
