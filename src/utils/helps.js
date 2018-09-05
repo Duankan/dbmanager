@@ -309,7 +309,7 @@ export function getFileAccept(dataTypeId) {
     case '10007': //csv
       return '.csv';
     case '10008': //excel
-      return 'application/vnd.ms-excel';
+      return 'application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
     case '10009': //zip
       return 'application/zip';
     case '10010': //pdf
