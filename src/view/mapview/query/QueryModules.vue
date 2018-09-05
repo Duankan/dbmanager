@@ -65,6 +65,7 @@ export default {
     :title="modulesTitle"
     :width="width"
     :height="height"
+    :maximizable="false"
     footer-hide
     transfer
     @on-hidden="hidden">
