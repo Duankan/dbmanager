@@ -159,16 +159,23 @@ export default {
       this.deleteModal = true;
       this.deleteNodes = [node];
     },
-    favor() {
-      this.selectNodes.forEach(async node => {
-        await api.db.addCommonCatalog({
-          favoriteId: node.id, //目录id
-          name: node.name, //目录名称（可自定）
-          type: '1001', // 1001:目录 1002:服务 1003:数据
-          userId: this.$appUser.id, //用户id
+    async favor() {
+      Promise.all(
+        this.selectNodes.map(node => {
+          return api.db.addCommonCatalog({
+            favoriteId: node.id, //目录id
+            name: node.name, //目录名称（可自定）
+            type: '1001', // 1001:目录 1002:服务 1003:数据
+            userId: this.$appUser.id, //用户id
+          });
+        })
+      )
+        .then(m => {
+          this.$events.emit('on-common-tree-update');
+        })
+        .catch(n => {
+          this.$events.emit('on-common-tree-update');
         });
-      });
-      this.$events.emit('on-common-tree-update');
     },
     // 业务文件下载
     download() {

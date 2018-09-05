@@ -23,13 +23,19 @@ export default {
       this.common = Array.isArray(response.data) ? response.data : [];
     },
     async removeFavor(data) {
-      await api.db.deleteCommonCatalog({
-        ids: [data.id], // ids为[]，清除所有
-        type: '1001', // 1001:目录 1002:服务 1003:数据
-        userId: this.$appUser.id, // 用户id
+      this.$Modal.confirm({
+        title: '删除确认',
+        content: '<p>您确定要删除收藏吗？</p>',
+        onOk: async () => {
+          await api.db.deleteCommonCatalog({
+            ids: [data.id],
+            type: '1001',
+            userId: this.$appUser.id,
+          });
+          const deleteIndex = this.common.findIndex(item => item.id === data.id);
+          this.common.splice(deleteIndex, 1);
+        },
       });
-      const deleteIndex = this.common.findIndex(item => item.id === data.id);
-      this.common.splice(deleteIndex, 1);
     },
     renderContent(h, { root, node, data }) {
       return (
