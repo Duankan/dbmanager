@@ -40,7 +40,7 @@ export default {
       //选择的区县
       selectCoutries: [],
       //图幅号自动完成数据源
-      autoSheets: [''],
+      autoSheets: [],
       //自动完成选择图幅号
       selectAutoSheet: '',
       //已选择图幅号
@@ -55,6 +55,8 @@ export default {
       shapeFileName: '',
       //是否正在加载
       loading: false,
+      //是否正在查找图幅
+      sheetLoading: false,
     };
   },
   async created() {
@@ -91,11 +93,19 @@ export default {
     //查询图幅号(模糊匹配)
     async autoSearchSheet(keyword) {
       if (!keyword) return;
-      const unitRes = await api.db.findMapUnit({
-        unit: keyword,
-        scale: this.selectScale,
-      });
-      this.autoSheets = unitRes.data.map(p => p.tfName);
+      this.sheetLoading = true;
+      api.db
+        .findMapUnit({
+          unit: keyword,
+          scale: this.selectScale,
+        })
+        .then(p => {
+          this.autoSheets = unitRes.data.map(p => p.tfName);
+          this.sheetLoading = false;
+        })
+        .catch(p => {
+          this.sheetLoading = false;
+        });
     },
     //切换城市列表
     async changeCity(cityIds) {
@@ -250,16 +260,18 @@ export default {
       </div>
       <div class="form-row">
         <label class="form-label">输入图幅号：</label>
-        <AutoComplete
+        <Select
           v-model="selectAutoSheet"
-          placeholder="输入图幅号..."
-          style="width:250px"
-          @on-search="autoSearchSheet">
+          :remote-method="autoSearchSheet"
+          :loading="sheetLoading"
+          filterable
+          remote
+          style="width:250px">
           <Option
             v-for="sheet in autoSheets"
             :value="sheet"
             :key="sheet">{{ sheet }}</Option>
-        </AutoComplete>
+        </Select>
         <Button
           type="primary"
           @click="addAutoSheet">添加</Button>
