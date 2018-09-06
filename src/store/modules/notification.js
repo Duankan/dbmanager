@@ -58,7 +58,7 @@ const notification = {
         if (data.complete && !data.successful) {
           progress = 100;
         } else {
-          progress = Number(data.progress) * 100;
+          progress = parseInt(Math.round(data.progress * 100));
         }
         this.commit(types.UPDATE_POLL_TASK, {
           taskId: pollTask.taskId,
