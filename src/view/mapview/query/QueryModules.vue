@@ -46,7 +46,9 @@ export default {
         this.$store.commit(types.CLOSE_BOTTOM_PANE);
         this.$events.emit('on-reset-query', true);
         this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
-        this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
+        this.$nextTick(() => {
+          this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
+        });
       }
     },
   },

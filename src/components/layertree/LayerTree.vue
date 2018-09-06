@@ -111,6 +111,7 @@ export default {
             <span class={'k-tree-more'}>
               <svg-icon
                 size={16}
+                color={'#1296DB'}
                 icon-class={'position'}
                 title="图层定位"
                 nativeOnClick={() => this.positionLayer(root, node, data)}

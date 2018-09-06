@@ -158,9 +158,9 @@ export default {
       this.geoType = name.split('-')[1];
       let params;
       if (this.geoType === 'circle') {
-        this.relRadius = 0.0001;
+        if (this.relRadius === 0) this.relRadius = 0.0001;
       } else {
-        this.relRadius = 0;
+        if (this.relRadius === 0.0001) this.relRadius = 0;
       }
       params = this.setParams();
 

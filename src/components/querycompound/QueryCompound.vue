@@ -5,7 +5,7 @@ import AreaSelect from '../areaselect/AreaSelect';
 import config from 'config';
 import * as filterConfig from '../statistics/utils.js';
 import * as types from '@/store/types';
-import { deepCopy } from '../../utils/assist.js';
+import { deepCopy, setSpaceRelation, validaForm } from '../../utils/assist.js';
 
 const stringCompare = [
   {
@@ -112,8 +112,6 @@ export default {
         this.formDynamic.items.compareList = numberCompare;
       }
     },
-    compareChange(compare) {},
-    logicChange(logic) {},
     //增加一组查询条件
     handleAdd(item) {
       if (this.formDynamic.items.length > 5) {
@@ -175,7 +173,6 @@ export default {
       }
       return cql.trim();
     },
-
     //下面是空间查询的方法
     getDrawLayer(layers, adverse, oppoAdverse) {
       this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
@@ -225,8 +222,17 @@ export default {
         this.$Message.error('请选择一个图层');
         return;
       }
-      const params = this.getParams();
-      this.showTable(this.fieldList, params, 'wfsQuery');
+      const formDynamic = this.formDynamic.items;
+      // 效验表单
+      const isValidate = validaForm(formDynamic);
+      if (isValidate.length == 0) {
+        const params = this.getParams();
+        this.showTable(this.fieldList, params, 'wfsQuery');
+      } else {
+        let message = '';
+        isValidate.forEach(key => (message += ` ${String(key + 1)} `));
+        this.$Message.error(`查询条件中第${message}条包含特殊字符，请修改后再做查询！`);
+      }
     },
     // 计算半径
     setRadius() {
@@ -248,14 +254,14 @@ export default {
       const radius = this.setRadius();
       const defaultOptions = {
         radius,
-        spatialRelationship: this.queryItem.relationship,
         type: 'POST',
+        version: '2.0.0',
       };
 
-      const cql_filter = this.setCQLFilter(true);
+      const filterOptions = this.setCQLFilter();
       queryOptions = {
         ...defaultOptions,
-        cql_filter,
+        ...filterOptions,
       };
       return {
         options,
@@ -263,71 +269,31 @@ export default {
       };
     },
     // 计算提取方式,这个方法还没有用到，判断裁剪用的
-    // setRelationship() {
-    //   let queryOptions;
-    //   if (this.queryItem.relationship === 'Clip') {
-    //     if (this.queryItem.place === '' && this.queryItem.geometry) {
-    //       queryOptions = {
-    //         clipGeometry: this.queryItem.geometry,
-    //         clip: true,
-    //       };
-    //     } else {
-    //       queryOptions = {
-    //         clipGeometry: this.queryItem.place,
-    //         clip: true,
-    //       };
-    //     }
-    //   } else {
-    //     if (this.queryItem.place === '' && this.queryItem.geometry) {
-    //       queryOptions = {
-    //         geometry: this.queryItem.geometry,
-    //         clip: false,
-    //       };
-    //     } else {
-    //       queryOptions = {
-    //         geometry: this.queryItem.place,
-    //         clip: false,
-    //       };
-    //     }
-    //   }
-    //   return { ...queryOptions };
-    // },
+    setRelationship() {
+      let queryOptions;
+      if (this.queryItem.place === '' && this.queryItem.geometry) {
+        queryOptions = setSpaceRelation(this.queryItem.relationship, this.queryItem.geometry);
+      } else {
+        queryOptions = setSpaceRelation(this.queryItem.relationship, this.queryItem.place);
+      }
+      return { ...queryOptions };
+    },
     // 合并cql_filter
-    setCQLFilter(isGetCqlFilter) {
-      let queryCQLFilter;
+    setCQLFilter() {
+      let queryCQLFilter = {};
       const formDynamic = this.formDynamic.items;
 
-      // 这里拿到了属性查询的条件
+      // 这里拿到了属性条件
       let CQLFilter = this.getCondition(deepCopy(formDynamic));
       if (CQLFilter.substr(0, 3) == 'AND') CQLFilter = CQLFilter.slice(3);
+      if (CQLFilter) queryCQLFilter.cql_filter = CQLFilter;
 
-      // queryCQLFilter = this.setRelationship();
-      // 判断是选择行政区的范围还是绘制的范围
-      if (this.queryItem.place === '') {
-        if (this.queryItem.geometry) {
-          queryCQLFilter = this.mergeAttrAndSpace(CQLFilter, this.oppoAdvWKT);
-        } else {
-          if (CQLFilter) queryCQLFilter = CQLFilter;
-        }
-      } else {
-        queryCQLFilter = this.mergeAttrAndSpace(CQLFilter, this.advWKT);
-      }
+      // 这里拿到空间条件
+      const spaceOptions = this.setRelationship();
 
-      if (!isGetCqlFilter) {
-        return CQLFilter;
-      } else {
-        return queryCQLFilter;
-      }
-    },
-    // 拼接属性查询和空间查询cql_filter
-    mergeAttrAndSpace(CQLFilter, wktStr) {
-      let queryCQLFilter;
-      const logic = this.formDynamic.items[this.formDynamic.items.length - 1].logic;
-      if (CQLFilter) {
-        queryCQLFilter = `${CQLFilter} AND ${this.queryItem.relationship}(the_geom,${wktStr})`;
-      } else {
-        queryCQLFilter = ` ${this.queryItem.relationship}(the_geom,${wktStr})`;
-      }
+      // 合并属性空间条件
+      queryCQLFilter = { ...queryCQLFilter, ...spaceOptions };
+
       return queryCQLFilter;
     },
     reset() {
@@ -351,12 +317,14 @@ export default {
         },
       ];
       // 重置绘制操作
-      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
-      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
       this.queryItem.place = '';
       this.$refs.drawTools.clearToolLayer();
       this.queryItem.geometry = null;
       this.$refs.areaSelect.resetCascader();
+      this.$nextTick(() => {
+        this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
+      });
+      this.$store.commit(types.CLOSE_BOTTOM_PANE);
     },
     // 数据提取
     async loadQueryData() {
@@ -365,9 +333,8 @@ export default {
         return;
       }
       const loadParams = this.setLoadPrams();
-      // const response = await api.db.batchwebrequest([loadParams]);
-      // window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
-      window.open(encodeURI(loadParams));
+      const response = await api.db.batchwebrequest([loadParams]);
+      window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
     },
     // 提交参数处理
     setLoadPrams() {
@@ -388,23 +355,16 @@ export default {
       delete taskData.pageIndex;
       delete taskData.pageSize;
       delete taskData.title;
-      taskData.version = '1.0.0';
-      const cqlfilter = this.setCQLFilter(false);
-      if (this.advWKT) {
-        taskData.cql_filter = this.mergeAttrAndSpace(cqlfilter, this.advWKT);
-      }
-      // 调151服务
-      // loadParams = {
-      //   params: taskData,
-      //   fileName: `${name[1]}.zip`,
-      //   url: this.queryUrl,
-      // };
 
-      // 直接调gisserver，连接url
-      loadParams = `${this.queryUrl}?service=wfs`;
-      for (let key in taskData) {
-        if (key !== 'service') loadParams += `&${key}=${taskData[key]}`;
+      if (this.queryItem.place !== '') {
+        taskData.geometry = this.advWKT;
       }
+
+      loadParams = {
+        params: taskData,
+        fileName: `${name[1]}.zip`,
+        url: this.queryUrl,
+      };
       return loadParams;
     },
   },
@@ -501,7 +461,7 @@ export default {
                 size="small"
                 style="width: 80px"
                 placeholder="逻辑符"
-                @on-change="logicChange">
+              >
                 <Option
                   v-for="item in logicList"
                   :value="item.value"

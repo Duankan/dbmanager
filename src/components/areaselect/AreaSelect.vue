@@ -95,6 +95,7 @@ export default {
       return reswkt;
     },
     resetCascader() {
+      this.closeSelect(true);
       this.cascader = [];
     },
   },
