@@ -26,19 +26,13 @@ export default {
         input: '', //关键字
       },
       ruleFormdate: {},
-      totalCount: 1, //表格总页数
+      totalCount: 1, //表格总数据
       pageIndex: 1, //表格当前页
       typeTreeData: [],
       value: '',
       copyTreeDatas: [],
     };
   },
-  // computed: {
-  //   //标签数据
-  //   tagData() {
-  //     return this.$store.state.metadata.tagData;
-  //   },
-  // },
   watch: {
     treeDatas: {
       handler(newVals) {
@@ -60,13 +54,8 @@ export default {
   },
   methods: {
     // 查询按钮
-    searchData(formItem) {
-      //判断选项是否全为空
-      // if (formItem.select.length == 0 && formItem.input == '' && formItem.multiple == '') {
-      //   this.$Message.error('选项不能全为空');
-      // } else {
+    searchData() {
       this.findAllData();
-      // }
     },
     //查询所有表格数据
     async findAllData() {
@@ -82,14 +71,11 @@ export default {
         sort: '', //排序方式
         pageinfo: {
           pageIndex: this.pageIndex, //当前页
-          pageCount: this.pageCount, //总数据
-          totalCount: this.totalCount, //总数据
           pageSize: 10, //每页总数
           orderby: '', //排序字段
         },
       });
       this.totalCount = response.data.pageInfo.totalCount;
-      this.pageCount = response.data.pageInfo.pageCount;
       this.pageIndex = response.data.pageInfo.pageIndex;
       this.$emit('on-dataChangeEvnet', response.data);
     },
