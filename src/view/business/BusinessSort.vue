@@ -1,4 +1,5 @@
 <script>
+import { Ellipsis, Tag } from '@ktw/kcore';
 export default {
   name: 'BusinessSort',
   data() {
@@ -140,6 +141,10 @@ export default {
                   },
                   style: {
                     width: '76px',
+                    // overflow: 'clip',
+                  },
+                  attrs: {
+                    title: data.title,
                   },
                   on: {
                     'on-change': e => {
@@ -311,15 +316,15 @@ export default {
         data.isEdits = true;
       } else {
         // this.edit();
-        const id = index.data.id;
-        const remark = index.data.remark;
-        const name = index.value;
-        const oldname = index.title;
+        // const id = index.data.id;
+        // const remark = index.data.remark;
+        // const name = index.value;
+        // const oldname = index.title;
         const response = await api.db.updateBusiness({
-          id: id, //分类id
-          name: name, //新分类名
-          remark: remark, //描述
-          oldname: oldname, //旧分类名
+          id: index.data.id, //分类id
+          name: index.value, //新分类名
+          remark: index.data.remark, //描述
+          oldname: index.title, //旧分类名
         });
         this.$Message.success('修改成功');
         this.searchTree();

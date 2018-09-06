@@ -99,7 +99,7 @@ export default {
       <slot/>
       <NavControl/>
       <MapTool :plugins="plugin" />
-      <!--<MapSearch/>-->
+      <MapSearch/>
       <LayerTree/>
       <LayerCollect/>
       <TileWMSLayer/>

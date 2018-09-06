@@ -1,4 +1,5 @@
 <script>
+import config from 'config';
 export default {
   props: {
     historyLayerList: {
@@ -48,11 +49,11 @@ export default {
         var item = this.historyLayerList.find(function(elem) {
           return elem.title == value;
         });
-        var styleName = 'ktw_fffffffd97ef3980';
+        var styleName = config.editStyle.polyline;
         if (item.type == 'point') {
-          styleName = 'ktw_136703855';
+          styleName = config.editStyle.point;
         } else if (item.type == 'polygon') {
-          styleName = 'ktw_fffffffb5bda492f';
+          styleName = config.editStyle.polygon;
         }
         // var layerStyle = 'EditPointStyle'; //ktw_136703855 点; ktw_fffffffd97ef3980 线 ktw_fffffffb5bda492f
         if (item.time == '当前图层') {
@@ -87,13 +88,13 @@ export default {
       class="map">
       <TileWMSLayer></TileWMSLayer>
     </BaseMap>
-    <Select 
-      v-model="selectLayer" 
-      class="select-layer" 
+    <Select
+      v-model="selectLayer"
+      class="select-layer"
       @on-change="selectChange">
-      <Option 
-        v-for="item in historyLayerList" 
-        :value="item.title" 
+      <Option
+        v-for="item in historyLayerList"
+        :value="item.title"
         :key="item.title">{{ item.time }}</Option>
     </Select>
   </div>

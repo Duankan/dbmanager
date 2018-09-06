@@ -30,8 +30,8 @@ export default {
 <style lang="less" scoped>
 .map-search {
   position: absolute;
-  top: 28px;
-  left: 10%;
+  top: 24px;
+  left: 500px;
   z-index: 801;
 
   .city-select {

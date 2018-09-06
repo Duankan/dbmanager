@@ -158,6 +158,8 @@ export default {
       //内部创建关联按钮显示
       this.addBtn = true;
       this.extendFieldData = {};
+      //重置表单验证
+      this.$refs.extendFieldData.resetFields();
     },
     //表单验证
     validate(name, funcName) {

@@ -76,14 +76,14 @@ export default {
           <!--左侧标签 -->
           <BusinessLable @on-dataTagChangeEvnet="TagDataChange"></BusinessLable>
         </Tab-pane>
-        <Tab-pane
+        <!-- <Tab-pane
           label="业务数据展示"
           name="name2">
           <Classify :labels-data="labelsData"></Classify>
           <TagData
             :labels-data="labelsData"
           ></TagData>
-        </Tab-pane>
+        </Tab-pane>-->
       </Tabs>
     </div>
     <div

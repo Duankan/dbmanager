@@ -1,6 +1,6 @@
 <script>
 import { date } from '@ktw/ktools';
-import { Ellipsis, Tag } from '@ktw/kcore';
+import { Ellipsis, Tag, Poptip, div } from '@ktw/kcore';
 import DataDetails from './DataDetails';
 export default {
   name: 'BusinessTable',
@@ -20,8 +20,8 @@ export default {
   data() {
     return {
       display: true,
-      tableData: [], //表格数据
-      tableHeight: 200, //表格的高度
+      tableData: {}, //表格数据
+      tableHeight: 530, //表格的高度
       totalCount: 1, //表格总页数
       pageIndex: 1, //表格当前页
       selectData: null,
@@ -33,40 +33,111 @@ export default {
         {
           title: '元数据名称',
           key: 'name',
+          render: (h, params) => {
+            const row = params.row;
+            return h(
+              'a',
+              {
+                props: {},
+                style: {},
+                on: {
+                  click: () => {
+                    // 隐藏元数据管理页面
+                    this.display = false;
+                    this.selectData = params.row;
+                    //预览flag
+                    this.selectData.readonly = true;
+                    // 日期格式化
+                    this.selectData.enddate = date.format(
+                      new Date(this.selectData.enddate),
+                      'YYYY-M-D'
+                    );
+                    this.selectData.begdate = date.format(
+                      new Date(this.selectData.enddate),
+                      'YYYY-M-D'
+                    );
+                  },
+                },
+              },
+              row.name
+            );
+          },
         },
         {
           title: '描述',
-          key: 'describe',
+          key: 'description',
           width: 300,
+          render: (h, params) => {
+            const row = params.row;
+            const description = row.description;
+            return (
+              <Poptip trigger="hover" placement="bottom" content={description}>
+                <Ellipsis length="24">{description}</Ellipsis>
+              </Poptip>
+            );
+          },
         },
         {
           title: '标签',
           key: 'keyword',
           render: (h, params) => {
             const row = params.row;
-            return h(
-              'Poptip',
-              {
-                props: {
-                  trigger: 'hover',
-                  content: row.keyword,
-                  placement: 'bottom',
-                },
-              },
-              [
-                <Tag>
-                  <Ellipsis length="10">{row.keyword}</Ellipsis>
-                </Tag>,
-              ]
+            const keyword = row.keyword;
+            return (
+              <Poptip trigger="hover" placement="bottom" content={row.keyword}>
+                <Tag
+                  nativeOnClick={e => {
+                    this.tagData(keyword);
+                  }}
+                >
+                  <Ellipsis length="5" style={{ color: '#2D8cF0' }}>
+                    {row.keyword}
+                  </Ellipsis>
+                </Tag>
+              </Poptip>
             );
           },
         },
+        // render: (h, params) => {
+        //   const row = params.row;
+        //   return h(
+        //     'Poptip',
+        //     {
+        //       props: {
+        //         trigger: 'hover',
+        //         content: row.keyword,
+        //         placement: 'bottom',
+        //       },
+        //     },
+        //     [
+        //       <Tag nativeOnClick={this.tagData}>
+        //         <Ellipsis length="10">{row.keyword}</Ellipsis>
+        //       </Tag>,
+        //     ]
+        //   );
+        // },
+        // },
         {
           title: '分类',
-          key: 'restype',
-          // render: (h, params) => {
-          //   return h('div');
-          // },
+          key: 'classificationname',
+          render: (h, params) => {
+            const row = params.row;
+            const classificationname = row.classificationname;
+            const restype = row.restype;
+            return h(
+              'a',
+              {
+                props: {},
+                style: {},
+                on: {
+                  click: () => {
+                    this.classifyDatas(restype);
+                  },
+                },
+              },
+              classificationname
+            );
+          },
         },
 
         // {
@@ -143,34 +214,34 @@ export default {
                 },
                 '编辑'
               ),
-              h(
-                'a',
-                {
-                  props: {},
-                  style: {
-                    marginRight: '5px',
-                  },
-                  on: {
-                    click: () => {
-                      // 隐藏元数据管理页面
-                      this.display = false;
-                      this.selectData = params.row;
-                      //预览flag
-                      this.selectData.readonly = true;
-                      // 日期格式化
-                      this.selectData.enddate = date.format(
-                        new Date(this.selectData.enddate),
-                        'YYYY-M-D'
-                      );
-                      this.selectData.begdate = date.format(
-                        new Date(this.selectData.enddate),
-                        'YYYY-M-D'
-                      );
-                    },
-                  },
-                },
-                '预览'
-              ),
+              // h(
+              //   'a',
+              //   {
+              //     props: {},
+              //     style: {
+              //       marginRight: '5px',
+              //     },
+              //     on: {
+              //       click: () => {
+              //         // 隐藏元数据管理页面
+              //         this.display = false;
+              //         this.selectData = params.row;
+              //         //预览flag
+              //         this.selectData.readonly = true;
+              //         // 日期格式化
+              //         this.selectData.enddate = date.format(
+              //           new Date(this.selectData.enddate),
+              //           'YYYY-M-D'
+              //         );
+              //         this.selectData.begdate = date.format(
+              //           new Date(this.selectData.enddate),
+              //           'YYYY-M-D'
+              //         );
+              //       },
+              //     },
+              //   },
+              //   '预览'
+              // ),
             ]);
           },
         },
@@ -180,10 +251,8 @@ export default {
   watch: {
     tableDatas: {
       handler(newVals) {
-        this.tableData = newVals.dataSource;
-        // this.tableData = newVals.dataSource;
-        //向父组抛传事件
-        // this.$emit('dataChangeEvnet', newVals);
+        // this.tableDataMonitor = {};
+        this.tableData = newVals;
       },
       immediate: true,
     },
@@ -192,9 +261,9 @@ export default {
     //调用获取表格数据的方法
     this.mocktableData();
     //自适应高度
-    this.tableHeight = document.getElementsByClassName('table-content')[0].offsetHeight - 200;
+    this.tableHeight = document.getElementsByClassName('table-content')[0].offsetHeight - 530;
     window.onresize = temp => {
-      this.tableHeight = document.getElementsByClassName('table-content')[0].offsetHeight - 200;
+      this.tableHeight = document.getElementsByClassName('table-content')[0].offsetHeight - 530;
     };
   },
   methods: {
@@ -209,18 +278,27 @@ export default {
           pageIndex: this.pageIndex, //当前页
           pageSize: 10, //每页总数
           totalCount: this.totalCount,
-          pageCount: this.pageCount,
+          // pageCount: this.pageCount,
           orderby: '', //排序字段
         },
       });
-
-      //获取表格数据
-      this.tableData = response.data.dataSource;
-      //获取表格总页数
+      this.tableData = response.data;
       this.totalCount = response.data.pageInfo.totalCount;
-      this.pageCount = response.data.pageInfo.pageCount;
-      //获取当前页
       this.pageIndex = response.data.pageInfo.pageIndex;
+    },
+    //表格的分类
+    async classifyDatas(restype) {
+      const response = await api.db.findpagelistbusiness({
+        restype: restype,
+        pageinfo: {
+          pageIndex: 1, //当前页
+          pageSize: 10, //每页总数
+          orderby: '', //排序字段
+        },
+      });
+      this.tableData = response.data;
+      //获取表格总页数
+      this.totalCount = this.tableData.dataSource.length;
     },
     //页码
     changePage(currPage) {
@@ -266,7 +344,7 @@ export default {
     //时间格式化
     formatDate(datas) {
       if (datas) {
-        var data = new Date();
+        var data = new Date(new Date(datas));
         var y = data.getFullYear();
         var m = data.getMonth() + 1;
         var d = data.getDate();
@@ -274,6 +352,24 @@ export default {
         d = d < 10 ? '0' + d : d;
         return y + '-' + m + '-' + d;
       }
+    },
+
+    //表格标签
+    async tagData(keyword) {
+      const response = await api.db.findpagelistbusiness({
+        keyword: keyword,
+        pageinfo: {
+          pageIndex: 1, //当前页
+          pageSize: 10, //每页总数
+          orderby: '', //排序字段
+        },
+      });
+      this.tableData = response.data;
+      //获取表格总页数
+      this.totalCount = this.tableData.dataSource.length;
+    },
+    refresh() {
+      this.mocktableData();
     },
   },
 };
@@ -287,6 +383,7 @@ export default {
         <span class="table-content-title-content"><b>元数据管理</b></span>
       </div>
       <div class="table-content-btn">
+
         <Button
           type="primary"
           @click="addData">
@@ -294,7 +391,7 @@ export default {
         </Button>
       </div>
       <Table
-        :data="tableData"
+        :data="tableData.dataSource"
         :height="tableHeight"
         :columns="tableColumns1"
         class="table">
@@ -302,7 +399,7 @@ export default {
       <div class="page">
         <div class="page-item">
           <Page
-            :total="totalCount"
+            :total="tableData.pageInfo.totalCount"
             :current="pageIndex"
             show-elevator
             @on-change="changePage">
@@ -368,5 +465,12 @@ export default {
 
 /deep/.k-table-body {
   background: #f1f3f7;
+  height: 100% !important;
+}
+/deep/.k-table-body .k-table-overflowY {
+  height: 100%;
+}
+/deep/table .k-table-wrapper {
+  height: 100% !important;
 }
 </style>

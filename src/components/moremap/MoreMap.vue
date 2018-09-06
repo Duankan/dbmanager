@@ -69,7 +69,7 @@ export default {
   mounted() {
     this.getAllMap();
     window.dispatchEvent(new Event('resize'));
-    debugger;
+    // debugger;
     this.rowHeight =
       (document.getElementsByClassName('main-gridLayout-div')[0].offsetHeight - 180) / 12;
     window.onresize = temp => {
@@ -140,7 +140,7 @@ export default {
       :margin="[8, 8]"
       :auto-size="true"
       draggable-handle=".item-head">
-      <div 
+      <div
         v-for="(item,index) in layoutList"
         :key="item.i"
         class="layout-item">
@@ -148,8 +148,8 @@ export default {
           class="item-head">
           <span></span>
         </div>
-        <SimpleMap 
-          :layer-index="index" 
+        <SimpleMap
+          :layer-index="index"
           :history-layer-list="historyLayerList"/>
       </div>
     </GridLayout>
