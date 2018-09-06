@@ -287,6 +287,11 @@ export default {
     </Button>
     <ButtonGroup >
       <Button
+        v-if="showRename"
+        :disabled="!single"
+        type="ghost"
+        @click="rename">重命名</Button>
+      <Button
         v-if="showQuickView"
         :disabled="!single"
         type="ghost"
@@ -321,11 +326,6 @@ export default {
         :disabled="!single"
         type="ghost"
         @click="addHistoryLayer">历史图层生成</Button>
-      <Button
-        v-if="showRename"
-        :disabled="!single"
-        type="ghost"
-        @click="rename">重命名</Button>
       <Button
         v-if="showMoveTo"
         :disabled="!onlyDirectory"

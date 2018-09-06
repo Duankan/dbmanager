@@ -377,3 +377,65 @@ export function getArrayPagedData(data, pageIndex, pageSize) {
   }
   return pagedData;
 }
+
+/**
+ * @description 空间条件控制
+ * @export
+ * @param {any} type
+ * @param {any} geometry
+ * @returns
+ */
+export function setSpaceRelation(type, geometry) {
+  let options;
+  const status = {
+    Intersects() {
+      options = {
+        relation: 'Intersects',
+        clip: false,
+      };
+    },
+    Within() {
+      options = {
+        relation: 'Within',
+        clip: false,
+      };
+    },
+    Clip() {
+      options = {
+        clip: true,
+      };
+    },
+  };
+  if (status[type]) status[type].call(this);
+  options.clipGeometry = geometry;
+  return options;
+}
+
+/**
+ * @description 效验特殊字符
+ * @export
+ * @param {any} value
+ * @returns
+ */
+export function stripscript(value) {
+  if (!/^[\u4e00-\u9fa5a-zA-Z0-9_]*$/.test(value)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+/**
+ * @description 表单效验特殊字符
+ * @export
+ * @param {any} formData
+ * @returns
+ */
+export function validaForm(formData) {
+  let formKey = [];
+  for (let i = 0; i <= formData.length - 1; i++) {
+    const validate = stripscript(formData[i].value);
+    if (validate) formKey.push(i);
+  }
+  return formKey;
+}

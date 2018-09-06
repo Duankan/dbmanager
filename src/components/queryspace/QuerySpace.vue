@@ -3,6 +3,7 @@ import QueryBase from '../querybase/querybase.js';
 import DrawTools from '../drawtools/DrawTools';
 import AreaSelect from '../areaselect/AreaSelect';
 import config from 'config';
+import * as types from '@/store/types';
 
 export default {
   name: 'QuerySpace',
@@ -103,6 +104,7 @@ export default {
 
       const defaultOptions = {
         radius,
+        // relation: this.queryItem.relationship,
         spatialRelationship: this.queryItem.relationship,
         type: 'POST',
       };
@@ -111,7 +113,6 @@ export default {
         ...defaultOptions,
         ...queryOptions,
       };
-
       return {
         options,
         queryOptions,
@@ -186,11 +187,11 @@ export default {
       let taskData = queryTack._queryParameter.options.data;
       delete taskData.pageIndex;
       delete taskData.pageSize;
-      taskData.version = '1.0.0';
       if (this.advWKT && this.queryItem.relationship != 'Clip') {
-        taskData.cql_filter = `${this.queryItem.relationship}(the_geom,${this.advWKT})`;
+        // taskData.cql_filter = `${this.queryItem.relationship}(the_geom,${this.advWKT})`;
       } else {
-        taskData.geometry = this.advWKT;
+        // taskData.version = '1.0.0';
+        // taskData.geometry = this.advWKT;
       }
 
       loadParams = {
@@ -205,12 +206,14 @@ export default {
       this.$refs['dbqueryspace'].resetFields();
       this.queryItem.bufferUnit = '米';
       // 重置绘制操作
-      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
-      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
       this.queryItem.place = '';
       this.$refs.drawTools.clearToolLayer();
       this.queryItem.geometry = null;
       this.$refs.areaSelect.resetCascader();
+      this.$nextTick(() => {
+        this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
+      });
+      this.$store.commit(types.CLOSE_BOTTOM_PANE);
     },
   },
 };
