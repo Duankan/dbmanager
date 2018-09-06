@@ -81,11 +81,14 @@ export default {
       alt="缩略图">
     <div class="service-info">
       <div>
-        <Ellipsis :length="14">{{ node.title }}</Ellipsis>
+        <Ellipsis
+          :length="14">{{ node.title }}</Ellipsis>
         <Timeago :since="node.updateTime"></Timeago>
       </div>
       <span>{{ node.orgName }}</span>
-      <div class="mask">
+      <div
+        :title="node.title"
+        class="mask">
         <Icon
           v-if="editShow"
           type="gear-b"

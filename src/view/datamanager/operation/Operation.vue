@@ -35,6 +35,10 @@ export default {
         this.$store.dispatch(types.APP_NODES_FETCH, this.$store.state.app.selectNode);
       }
     },
+    validateKeyup(e) {
+      debugger;
+      e.target.value = '';
+    },
   },
 };
 </script>
@@ -46,6 +50,7 @@ export default {
     <div class="operation-search">
       <Input
         v-model="search"
+        onkeypress="validateKeyup"
         clearable
         icon="ios-search"
         placeholder="搜索您的数据"
