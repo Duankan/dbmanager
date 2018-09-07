@@ -15,7 +15,7 @@ export default {
     return {};
   },
   beforeDestroy() {
-    this.$store.dispatch(PERMISSION_PERMIT_FETCH);
+    //this.$store.dispatch(PERMISSION_PERMIT_FETCH);
     this.$store.dispatch(MESSAGE_LIST_FETCH);
     // this.$store.dispatch(MESSAGE_WS_CONNECT);
   },
