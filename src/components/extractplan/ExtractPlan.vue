@@ -96,6 +96,9 @@ export default {
   created() {
     this.getPagedPlan();
   },
+  destroyed() {
+    this.closePlanWindow();
+  },
   methods: {
     //关闭Window，并刷新列表
     refreshPlanList() {
@@ -172,6 +175,10 @@ export default {
         title: '提取范围',
         footerHide: true,
         transfer: true,
+        styles: {
+          top: '50px',
+          left: '27%',
+        },
         render: h => {
           return h(
             ExtractWizard,
@@ -216,6 +223,10 @@ export default {
         title: '提取范围',
         footerHide: true,
         transfer: true,
+        styles: {
+          top: '50px',
+          left: '27%',
+        },
         render: h => {
           return h(
             ExtractWizard,

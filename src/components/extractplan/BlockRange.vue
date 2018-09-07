@@ -125,6 +125,7 @@ export default {
     },
     //获取提取范围
     getExtractRange() {
+      debugger;
       let codes = this.selectBlocks.map(p => p.code);
       let names = this.selectBlocks.map(p => p.data).join(',');
       let level = this.selectBlocks.some(p => p.type == 'County') ? 'County' : 'City';

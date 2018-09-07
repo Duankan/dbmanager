@@ -111,6 +111,9 @@ const OPERATORS = {
   delete: '删除',
 };
 
+//默认空间参考
+const DEFAULT_CRS = 'EPSG:4490';
+
 /**
  * 编辑实体
  */
@@ -195,13 +198,41 @@ class EditEntity {
   /**
    * 转换图形为xml
    */
-  convertGeometryToXml() {
-    let coords = GeometryUtil.geo2Coords(this.geometry);
+  async convertGeometryToXml() {
+    let pGeometry = await this.projectGeometry();
+    let coords = GeometryUtil.geo2Coords(pGeometry);
     let shapeType = this.layerInfo.wmsInfo.resource.shapeType.toLowerCase();
     let xml = deepCopy(GEOMETRY_TEMPLATE[shapeType]);
     xml = this.replace(xml, COORD_FLAG, coords.join(' '));
     xml = this.replace(xml, SPATIAL_FLAG, this.layerInfo.wmsInfo.csys);
     return xml;
+  }
+
+  /**
+   * 投影转换
+   */
+  async projectGeometry() {
+    return new Promise((resolve, reject) => {
+      let targetCrs = this.layerInfo.layer.options.saveCrs;
+      if (targetCrs != DEFAULT_CRS) {
+        let url = new URL(this.layerInfo.wfsInfo.servicesurl);
+        let projectUrl = url.origin + url.pathname;
+        const project = new L.QueryParameter.ProjecteTransform({
+          url: projectUrl,
+          geometry: JSON.stringify([this.geometry.toGeoJSON().geometry]),
+          sourceproject: DEFAULT_CRS,
+          targetproject: this.layerInfo.layer.options.saveCrs,
+        });
+        const service = new L.GeometryService(project);
+        service.reProject(data => {
+          let geometry = JSON.parse(data);
+          geometry = GeometryUtil.project2Geo(geometry);
+          resolve(geometry);
+        });
+      } else {
+        resolve(this.geometry);
+      }
+    });
   }
 
   /**
@@ -217,32 +248,32 @@ class EditEntity {
   /**
    * 转换实体为XML
    */
-  convertEntityToXml(operate) {
+  async convertEntityToXml(operate) {
     let xml = deepCopy(FEATURE_TEMPLATE[operate]);
     let idx = this.layerInfo.name.lastIndexOf(':') + 1;
     let layerName = this.layerInfo.name.substr(idx);
     const converts = {
-      add() {
+      async add() {
         let strProperty = this.convertPropertiesToXml(operate);
-        let strGeometry = this.convertGeometryToXml();
+        let strGeometry = await this.convertGeometryToXml();
         xml = this.replace(xml, LAYER_FLAG, layerName);
         xml = this.replace(xml, PROPERTY_FLAG, strProperty);
         xml = this.replace(xml, GEOMETRY_FLAG, strGeometry);
       },
-      update() {
+      async update() {
         let strProperty = this.convertPropertiesToXml(operate);
-        let strGeometry = this.convertGeometryToXml();
+        let strGeometry = await this.convertGeometryToXml();
         xml = this.replace(xml, LAYER_FLAG, layerName);
         xml = this.replace(xml, PROPERTY_FLAG, strProperty);
         xml = this.replace(xml, GEOMETRY_FLAG, strGeometry);
         xml = this.replace(xml, ID_FLAG, this.property.gid.value);
       },
-      delete() {
+      async delete() {
         xml = this.replace(xml, LAYER_FLAG, layerName);
         xml = this.replace(xml, ID_FLAG, this.property.gid.value);
       },
     };
-    converts[operate].call(this);
+    await converts[operate].call(this);
     return xml;
   }
 
@@ -302,7 +333,7 @@ class EditEntity {
    * @param {String} operate 操作类型
    */
   async save(operate) {
-    let xmlData = this.convertEntityToXml(operate);
+    let xmlData = await this.convertEntityToXml(operate);
     const msg = Message.loading({
       content: '正在保存...',
       duration: 0,
