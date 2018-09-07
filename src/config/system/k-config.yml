@@ -1,20 +1,20 @@
 # 项目 api 环境变量配置
 project:
-  basicUrl: http://192.168.1.63:8080
-  baseUrl: http://192.168.1.63:8080
-  YunServicesUrl: http://192.168.1.60:15000
-  highgisUrl: http://192.168.1.63:8086
-  businessUrl: http://192.168.1.63:8080
-  hgisServer: http://192.168.1.63:8085/master
+  basicUrl: http://192.168.1.93:8080
+  baseUrl: http://192.168.1.93:8080
+  YunServicesUrl: http://192.168.1.231:15000
+  highgisUrl: http://192.168.1.90:8086
+  businessUrl: http://192.168.1.114:8081
+  hgisServer: http://192.168.1.90:8085/master
 
 # 业务组件库 @ktw/api 环境变量配置
 kbus:
-  basicUrl: http://192.168.1.63:8080
-  YunServicesUrl: http://192.168.1.60:15000
+  basicUrl: http://192.168.1.93:8080
+  YunServicesUrl: http://192.168.1.231:15000
 
 # websocket服务地址
 
-socket: http://192.168.1.68:8020
+socket: http://192.168.1.93:8020
 
 # raven服务监控地址
 #  key: raven服务生成的唯一key
@@ -24,8 +24,16 @@ socket: http://192.168.1.68:8020
 
 raven: https://${key}@${sentryUrl}/${project}
 
+#编辑样式配置
+editStyle:
+  point: EditPointStyle
+  polyline: EditPolylineStyle
+  polygon: EditPolygonStyle
+
 projectConfig:
   dictionaryId: 77e403e7fee343498dd5881d5ba5dd1b
+  xzqName: 衡阳市
+  xzqCode: 430400
 
 # 系统路由配置
 
