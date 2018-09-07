@@ -377,7 +377,7 @@ export default {
 
 <style lang="less" scoped>
 .db-manage-style {
-  position: reletive;
+  position: relative;
   /deep/.k-form-item {
     min-width: 277px;
     margin-right: 15px;

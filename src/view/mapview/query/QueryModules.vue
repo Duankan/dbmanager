@@ -68,6 +68,8 @@ export default {
     :width="width"
     :height="height"
     :maximizable="false"
+    :collapsible="false"
+    :collapsed="false"
     footer-hide
     transfer
     @on-hidden="hidden">
