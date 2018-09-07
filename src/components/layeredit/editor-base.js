@@ -19,7 +19,7 @@ class EditorBase {
     //Vuex Store
     this.store = store;
     //图层类型
-    this.shapeType = layerInfo.wmsInfo.resource.shapeType;
+    this.shapeType = layerInfo.wmsInfo.resource.shapeType.toLowerCase();
     //字段信息
     this.schemas = layerInfo.wmsInfo.schema;
     //图形编辑器对象
@@ -45,9 +45,7 @@ class EditorBase {
    * 刷新图层
    */
   refreshLayer() {
-    //this.layerInfo.layer.redraw();
-    const bounds = this.map.getCenter();
-    this.map.panTo({ lat: bounds.lat, lng: bounds.lng + 0.003 });
+    this.layerInfo.layer.refresh();
   }
 
   /**

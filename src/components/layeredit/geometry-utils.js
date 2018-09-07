@@ -141,6 +141,60 @@ class GeometryUtil {
     }
     return points;
   }
+
+  /**
+   * 投影结果转polygon
+   * @param {any} geometry 投影结果
+   */
+  static project2Polygon(geometry) {
+    let latlngs = [];
+    let coordinates = geometry.coordinates[0] || [];
+    for (let i = 0; i < coordinates.length - 1; i++) {
+      let point = coordinates[i];
+      latlngs.push([point[1], point[0]]);
+    }
+    return new L.polygon([latlngs]);
+  }
+
+  /**
+   * 投影结果转polyline
+   * @param {any} geometry 投影结果
+   */
+  static project2Polyline(geometry) {
+    let latlngs = [];
+    let coordinates = geometry.coordinates || [];
+    for (let i = 0; i < coordinates.length; i++) {
+      let point = coordinates[i];
+      latlngs.push([point[1], point[0]]);
+    }
+    return new L.polyline(latlngs);
+  }
+
+  /**
+   * 投影结果转point
+   * @param {any} geometry 投影结果
+   */
+  static project2Point(geometry) {
+    let coordinates = geometry.coordinates || [];
+    return new L.marker([coordinates[1], coordinates[0]]);
+  }
+
+  /**
+   * 投影结果转geometry
+   * @param {any} geometry 投影结果
+   */
+  static project2Geo(geometry) {
+    let result = null;
+    let geoType = geometry.type.toLowerCase();
+    if (geoType == 'polygon') {
+      result = this.project2Polygon(geometry);
+    } else if (geoType == 'linestring') {
+      result = this.project2Polyline(geometry);
+    } else if (geoType == 'point') {
+      result = this.project2Point(geometry);
+    }
+    return result;
+  }
 }
 
 export default GeometryUtil;
