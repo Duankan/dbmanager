@@ -315,9 +315,9 @@ export default {
         content: '<p>确定删除该数据？</p>',
         onOk: async () => {
           const response = await api.db.deleteBusiness({ id: id });
-          this.tableData.splice(params.index, 1);
-          this.$Message.info('已删除');
+          this.tableData.dataSource.splice(params.index, 1);
           this.mocktableData();
+          this.$Message.info('已删除');
         },
         onCancel: () => {
           this.$Message.info('取消');

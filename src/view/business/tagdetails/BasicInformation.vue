@@ -146,8 +146,12 @@ export default {
     },
     //关闭标签触发事件
     tagsClose(event, name) {
-      const index = this.copyRowData.keyword.indexOf(name);
-      this.copyRowData.keyword.splice(index, 1);
+      // 删除表单内标签
+      const keywordIndex = this.copyRowData.keyword.indexOf(name);
+      this.copyRowData.keyword.splice(keywordIndex, 1);
+      // 删除对话框内标签
+      const selectedTagsIndex = this.selectedTags.indexOf(name);
+      this.selectedTags.splice(selectedTagsIndex, 1);
     },
     //资源分类显示自定义
     format(labels) {
@@ -249,6 +253,7 @@ export default {
           @click="addTagDialog">
           {{ tagName }}
         </Button>
+        <!--表单标签-->
         <div v-cloak>
           <Tag
             v-for="(item,index) of copyRowData.keyword"
@@ -259,8 +264,10 @@ export default {
             closable
             color="success"
             @on-close="tagsClose">
-            {{ item }}</Tag>
+            {{ item }}
+          </Tag>
         </div>
+        <!--对话框标签-->
         <modal
           v-model="tagDialog"
           :title= "tagName"
