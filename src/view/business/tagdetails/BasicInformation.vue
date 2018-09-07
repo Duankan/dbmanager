@@ -135,6 +135,9 @@ export default {
       this.copyRowData.keyword = [...this.copyRowData.keyword, ...this.selectedTags];
       //类数组对象转数组
       this.copyRowData.keyword = Array.from(new Set(this.copyRowData.keyword));
+      // if (this.copyRowData.keyword.length > 0) {
+      //   this.$refs.copyRowData.resetFields();
+      // }
     },
     //标签模态框取消
     cancel() {
