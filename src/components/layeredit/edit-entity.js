@@ -197,7 +197,7 @@ class EditEntity {
    */
   convertGeometryToXml() {
     let coords = GeometryUtil.geo2Coords(this.geometry);
-    let shapeType = this.layerInfo.wmsInfo.resource.shapeType;
+    let shapeType = this.layerInfo.wmsInfo.resource.shapeType.toLowerCase();
     let xml = deepCopy(GEOMETRY_TEMPLATE[shapeType]);
     xml = this.replace(xml, COORD_FLAG, coords.join(' '));
     xml = this.replace(xml, SPATIAL_FLAG, this.layerInfo.wmsInfo.csys);
@@ -219,24 +219,26 @@ class EditEntity {
    */
   convertEntityToXml(operate) {
     let xml = deepCopy(FEATURE_TEMPLATE[operate]);
+    let idx = this.layerInfo.name.lastIndexOf(':') + 1;
+    let layerName = this.layerInfo.name.substr(idx);
     const converts = {
       add() {
         let strProperty = this.convertPropertiesToXml(operate);
         let strGeometry = this.convertGeometryToXml();
-        xml = this.replace(xml, LAYER_FLAG, this.layerInfo.wmsInfo.title);
+        xml = this.replace(xml, LAYER_FLAG, layerName);
         xml = this.replace(xml, PROPERTY_FLAG, strProperty);
         xml = this.replace(xml, GEOMETRY_FLAG, strGeometry);
       },
       update() {
         let strProperty = this.convertPropertiesToXml(operate);
         let strGeometry = this.convertGeometryToXml();
-        xml = this.replace(xml, LAYER_FLAG, this.layerInfo.name);
+        xml = this.replace(xml, LAYER_FLAG, layerName);
         xml = this.replace(xml, PROPERTY_FLAG, strProperty);
         xml = this.replace(xml, GEOMETRY_FLAG, strGeometry);
         xml = this.replace(xml, ID_FLAG, this.property.gid.value);
       },
       delete() {
-        xml = this.replace(xml, LAYER_FLAG, this.layerInfo.name);
+        xml = this.replace(xml, LAYER_FLAG, layerName);
         xml = this.replace(xml, ID_FLAG, this.property.gid.value);
       },
     };
