@@ -52,10 +52,10 @@ export default {
       this.$store.commit(SET_MAP_GOCLAYER_DELETE, layers);
       this.$nextTick(p => {
         this.$store.commit(SET_MAP_SERVICELIST, config.layers);
-        this.$nextTick(m => {
+        setTimeout(() => {
           let map = this.$store.getters.mapManager._map;
           map.setView(config.center, config.zoom);
-        });
+        }, 500);
       });
     },
     // 删除图层集
