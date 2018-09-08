@@ -99,7 +99,7 @@ export default {
       <slot/>
       <NavControl/>
       <MapTool :plugins="plugin" />
-      <XZQ class="xzq"/>
+      <XzqQuery class="xzq"/>
       <LayerTree/>
       <LayerCollect/>
       <TileWMSLayer/>

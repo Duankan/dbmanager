@@ -33,10 +33,11 @@ editStyle:
 
 #行政区划查询
 projectConfig:
+  parentId: 77e403e7fee343498dd5881d5ba5dd1b  #主节点id
   dictionaryId: 9840ad0ffa5b465eab8fc4ce11c87f67    #根节点Id
   xzqName: 衡阳市        #根节点行政区划名称
   xzqCode: 430400        #根节点行政区划代码
-  currentType: County      #最小行政区划单位  
+  currentType: County      #最小行政区划单位
   field: DMDZDM
   wfsurl: http://192.168.1.63:8086/hgis/ows?service=wfs&amp;typeName=ktw:xzqserver02
 

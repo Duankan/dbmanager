@@ -1,7 +1,7 @@
 <script>
 import config from 'config';
 export default {
-  name: 'Xzqquery',
+  name: 'XzqQuery',
   data() {
     return {
       xzqName: config.projectConfig.xzqName,
@@ -89,45 +89,45 @@ export default {
 </script>
 <template>
   <div>
-    <Input 
-      v-model="xzqKey" 
+    <Input
+      v-model="xzqKey"
       style="width:400px;">
-    <Poptip 
-      slot="prepend" 
-      placement="bottom-start" 
+    <Poptip
+      slot="prepend"
+      placement="bottom-start"
       width="350" >
-      <Button 
-        type="ghost" 
+      <Button
+        type="ghost"
         @click="isShow=!isShow">
-        <Icon 
+        <Icon
           v-if="isShow"
           type="ios-arrow-up"></Icon>
-        <Icon 
+        <Icon
           v-else
           type="ios-arrow-down"></Icon>
         {{ xzqName }}</Button>
-      <div 
-        slot="title" 
+      <div
+        slot="title"
         style="text-align: left;font-size:12px;">
         <Breadcrumb >
-          <BreadcrumbItem 
-            v-for="(item,index) in breadcrumbList" 
-            :key="item.name" 
+          <BreadcrumbItem
+            v-for="(item,index) in breadcrumbList"
+            :key="item.name"
             class="breadcrumbItem"
             @click.native="breadcrumbItemClick(item, index)">{{ item.name }}</BreadcrumbItem>
         </Breadcrumb>
       </div>
       <div slot="content" >
-        <a 
-          v-for="item in xzqList" 
-          :key="item.data" 
+        <a
+          v-for="item in xzqList"
+          :key="item.data"
           class="xzqItem"
           @click="xzqPosition(item)">{{ item.data }}</a>
       </div>
     </Poptip>
-    <Button 
+    <Button
       slot="append"
-      type="primary" 
+      type="primary"
       icon="ios-search"></Button>
   </Input>
   </div>
