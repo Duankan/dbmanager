@@ -61,7 +61,6 @@ export default {
       });
     },
     async loadData(item, callback) {
-      debugger;
       item.loading = true;
       const response = await this.findDictionary(item.value);
       response.data.forEach(city => {

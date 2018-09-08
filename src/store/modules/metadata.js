@@ -47,7 +47,6 @@ const metadata = {
     // },
     // //通过标签对表格元数据进行筛选
     // async [types.SEARCH_TABLE_TAG]({ commit, state }, formItemValue) {
-    //   debugger;
     //   const response = await api.db.findpagelistbusiness({
     //     name: '', //表名
     //     restype: '', //资源分类
@@ -60,7 +59,6 @@ const metadata = {
     //       orderby: '', //排序字段
     //     },
     //   });
-    //   debugger;
     //   // 获取表格数据
     //   const tableData = response.data.dataSource;
     //   //获取表格分页的总页数
