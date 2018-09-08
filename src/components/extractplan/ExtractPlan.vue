@@ -131,7 +131,7 @@ export default {
       if (this.endTime) {
         where.end = this.endTime;
       }
-      this.loading = false;
+      this.loading = true;
       const response = await api.db.findResourcePlan({
         pageIndex: pageIdx,
         pageSize: this.pageSize,
@@ -150,7 +150,7 @@ export default {
       if (this.pageIdx == 1) {
         this.$refs.page.changePage(1);
       }
-      this.loading = true;
+      this.loading = false;
     },
     //重置查询
     reset() {
@@ -354,6 +354,7 @@ export default {
       :columns="columns"
       :height="height"
       :data="planData"
+      :loading="loading"
       class="plan-table">
     </Table>
     <div class="foot-div">
