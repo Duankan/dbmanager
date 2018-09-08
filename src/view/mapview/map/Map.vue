@@ -99,7 +99,7 @@ export default {
       <slot/>
       <NavControl/>
       <MapTool :plugins="plugin" />
-      <MapSearch/>
+      <XZQ class="xzq"/>
       <LayerTree/>
       <LayerCollect/>
       <TileWMSLayer/>
@@ -135,6 +135,13 @@ export default {
   /deep/.leaflet-top,
   /deep/.leaflet-bottom {
     z-index: 800 !important;
+  }
+  .xzq {
+    position: absolute;
+    z-index: 900 !important;
+    top: 25px;
+    left: 500px;
+    border-radius: 2px;
   }
 }
 

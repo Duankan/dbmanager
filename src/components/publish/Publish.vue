@@ -28,10 +28,11 @@ export default {
       styleOptions: [],
       resourceInfo: {}, //资源信息
       fieldsInfo: [], //字段信息
-      levels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+      levels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], //影像发布等级
       plotTypes: ['1.0', '2.0'],
       plotPlans: ['rasterPlotWorld', 'rasterPlotRect'],
       serviceTypes: [],
+      imageColors: ['#FFFFFFFF'], //影像输出颜色
       publishForm: this.createDefaultModel('', ''),
     };
   },
@@ -85,6 +86,8 @@ export default {
         maxLevel: 17,
         rasterPlotPlan: 'rasterPlotWorld',
         rasterRplotType: '2.0',
+        inputTransparentColor: '',
+        outputTransparentColor: '',
       };
     },
     // 获取样式信息
@@ -132,8 +135,10 @@ export default {
     },
     //获取字段信息
     getFields() {
-      let fields = this.resourceInfo.schema.map(p => p.name);
-      this.fieldsInfo = filterSchema(fields);
+      if (this.resourceInfo.schema) {
+        let fields = this.resourceInfo.schema.map(p => p.name);
+        this.fieldsInfo = filterSchema(fields);
+      }
     },
     //校验表单
     validateData() {
@@ -210,8 +215,8 @@ export default {
       }
       //影像服务
       if (this.publishType == 2) {
-        params.inputTransparentColor = '';
-        params.outputTransparentColor = '';
+        params.inputTransparentColor = this.publishForm.inputTransparentColor;
+        params.outputTransparentColor = this.publishForm.outputTransparentColor;
         params.levelNum = this.publishForm.maxLevel - this.publishForm.minLevel + 1;
         params.maxLevel = this.publishForm.maxLevel;
         params.rasterPlotPlan = this.publishForm.rasterPlotPlan;
@@ -360,6 +365,7 @@ export default {
   <Modal
     :value="value"
     :mask-closable="false"
+    class="publish-modal"
     title="服务发布"
     @on-visible-change="visibleChange">
     <div slot="footer">
@@ -463,7 +469,7 @@ export default {
         <label>最小</label>
         <Select
           v-model="publishForm.minCacheLevel"
-          class="inline-select">
+          class="inline-item">
           <Option
             v-for="(item,index) in levels"
             :label="item"
@@ -475,7 +481,7 @@ export default {
         <label>最大</label>
         <Select
           v-model="publishForm.maxCacheLevel"
-          class="inline-select">
+          class="inline-item">
           <Option
             v-for="(item,index) in levels"
             :label="item"
@@ -507,7 +513,7 @@ export default {
         <label>最小</label>
         <Select
           v-model="publishForm.minLevel"
-          class="inline-select">
+          class="inline-item">
           <Option
             v-for="(item,index) in levels"
             :label="item"
@@ -519,7 +525,7 @@ export default {
         <label>最大</label>
         <Select
           v-model="publishForm.maxLevel"
-          class="inline-select">
+          class="inline-item">
           <Option
             v-for="(item,index) in levels"
             :label="item"
@@ -556,6 +562,18 @@ export default {
             {{ item }}
           </Option>
         </Select>
+      </FormItem>
+      <FormItem
+        v-show="showMore&&publishType==2"
+        label="透明色：">
+        <label>输入</label>
+        <Input
+          v-model="publishForm.inputTransparentColor"
+          class="inline-item"></Input>
+        <label>输出</label>
+        <Input
+          v-model="publishForm.outputTransparentColor"
+          class="inline-item"></Input>
       </FormItem>
       <FormItem
         v-show="showMore"
@@ -615,8 +633,14 @@ export default {
   }
 }
 
-.inline-select {
+.inline-item {
   width: 160px;
   margin: 0 10px;
+}
+
+.publish-modal {
+  /deep/ .k-modal {
+    top: 70px;
+  }
 }
 </style>
