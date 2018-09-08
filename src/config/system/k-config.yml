@@ -29,6 +29,7 @@ editStyle:
   point: EditPointStyle
   polyline: EditPolylineStyle
   polygon: EditPolygonStyle
+  overlap_polygon: default_overlap
 
 projectConfig:
   dictionaryId: 77e403e7fee343498dd5881d5ba5dd1b

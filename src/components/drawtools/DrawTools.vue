@@ -180,6 +180,10 @@ export default {
           file() {},
           delete() {
             this.$emit('on-get-drawlayer', null);
+            this.$nextTick(() => {
+              this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
+            });
+            this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
           },
         };
         state[this.geoType].call(this);
