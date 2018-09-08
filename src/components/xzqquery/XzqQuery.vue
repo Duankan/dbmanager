@@ -12,6 +12,7 @@ export default {
       wfsUrl: config.projectConfig.wfsurl,
       isShow: false,
       xzqList: [],
+      dmdzList: [],
       xzqKey: '',
       breadcrumbList: [],
     };
@@ -84,14 +85,25 @@ export default {
         this.$store.commit('SET_MAP_GEOJSON', { geojson: response.data, type: 'always' });
       });
     },
+    async handleSearch(value) {
+      const response = await api.db.xzqAndPoi({
+        name: this.xzqKey,
+        count: 5,
+      });
+      this.dmdzList = response.data;
+    },
+    handleSelect(value) {
+      var temp = this.dmdzList.find(p => p.name == value);
+      this.xzqName = temp.name;
+      this.dictionaryId = temp.id;
+      this.code = temp.pac;
+      this.queryXZQ();
+    },
   },
 };
 </script>
 <template>
   <div>
-    <Input
-      v-model="xzqKey"
-      style="width:400px;">
     <Poptip
       slot="prepend"
       placement="bottom-start"
@@ -125,11 +137,19 @@ export default {
           @click="xzqPosition(item)">{{ item.data }}</a>
       </div>
     </Poptip>
-    <Button
-      slot="append"
-      type="primary"
-      icon="ios-search"></Button>
-  </Input>
+    <AutoComplete
+      v-model="xzqKey"
+      placeholder="输入行政区划名称、地名地址"
+      style="width:300px"
+      icon="ios-search"
+      clearable
+      @on-select="handleSelect"
+      @on-search="handleSearch">
+      <Option
+        v-for="item in dmdzList"
+        :value="item.name"
+        :key="item.name">{{ item.name }}</Option>
+    </AutoComplete>
   </div>
 </template>
 <style lang="less" scoped>

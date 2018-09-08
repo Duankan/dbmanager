@@ -70,6 +70,7 @@ export default {
     :maximizable="false"
     :collapsible="false"
     :collapsed="false"
+    :style="{left:'2.5%'}"
     footer-hide
     transfer
     @on-hidden="hidden">
