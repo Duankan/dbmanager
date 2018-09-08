@@ -28,16 +28,15 @@ export default {
         widthField: '', //宽度字段
         transparent: 100, //透明度
         transparentField: '', //透明度字段
-        color: 'black', //颜色值
+        color: '#000000', //颜色值
         colorField: '', //颜色字段
         imaginary: 1, //绑定的虚线
         imaginaryExcursion: 0.0, //绑定的虚线偏移
-        lineCap: 'null', //绑定的线帽
-        lineConnect: 'null', //绑定的线连接
+        lineCap: 'butt', //绑定的线帽
+        lineConnect: 'bevel', //绑定的线连接
       },
-      fonts: [], //获取所有字体样式
-      lineCapS: [],
-      lineConnectS: [],
+      lineCapS: ['butt', 'round', 'square'],
+      lineConnectS: ['bevel', 'miter', 'round'],
     };
   },
 };
@@ -56,126 +55,128 @@ export default {
 }
 </style>
 <template>
-  <div 
+  <div
     slot="content"
     class="content-div" >
-    <div style="margin-bottom:4px;">   
-      <Switch 
-        v-model="LineStyleData.isShow" 
+    <div style="margin-bottom:4px;">
+      <Switch
+        v-model="LineStyleData.isShow"
         size="small">
       </Switch>
       <span>是否显示边</span>
     </div>
     <div v-show="LineStyleData.isShow">
-      <Card 
-        :padding="4" 
+      <Card
+        :padding="4"
         dis-hover>
         <div style="font-size:12px;">
-          <Row 
+          <Row
             style="margin-top:8px;">
             <Col span="8" >宽度：</Col>
             <Col span="16" >
-            <InputNumber 
-              :min="1" 
+            <InputNumber
+              :min="1"
               :disabled="!LineStyleData.widthField==''"
               v-model="LineStyleData.width"
               style="width:143px;"
               size="small"></InputNumber>
         </Col>
           </Row>
-          <Row 
+          <Row
             style="margin-top:8px;">
             <Col span="8" >匹配字段：</Col>
             <Col span="16" >
-            <Select 
+            <Select
               v-model="LineStyleData.widthField"
-              clearable 
+              clearable
               size="small"
               style="width:100%">
-              <Option 
-                v-for="item in fieldNumS" 
-                :value="item.name" 
+              <Option
+                v-for="item in fieldNumS"
+                :value="item.name"
                 :key="item.name">{{ item.name }}</Option>
             </Select>
         </Col>
           </Row>
         </div>
       </Card>
-      <Card 
-        :padding="4" 
+      <Card
+        :padding="4"
         dis-hover
         style="margin-top:8px;">
         <div style="font-size:12px;">
-          <Row 
+          <Row
             style="margin-top:8px;">
             <Col span="8" >透明度：</Col>
             <Col span="16" >
-            <InputNumber 
-              :min="0" 
-              :max="360"
-              :disabled="!LineStyleData.transparentField==''" 
+            <InputNumber
+              :min="0"
+              :max="100"
+              :step = "10"
+              :disabled="!LineStyleData.transparentField==''"
               v-model="LineStyleData.transparent"
               style="width:143px;"
               size="small"></InputNumber>
-          </Col>
+              </Col>
           </Row>
-          <Row 
+          <Row
+            v-if = "layerType == 'point'"
             style="margin-top:8px;">
             <Col span="8" >匹配字段：</Col>
             <Col span="16" >
-            <Select 
+            <Select
               v-model="LineStyleData.transparentField"
-              clearable 
+              clearable
               size="small"
               style="width:100%">
-              <Option 
-                v-for="item in fieldNumS" 
-                :value="item.name" 
+              <Option
+                v-for="item in fieldNumS"
+                :value="item.name"
                 :key="item.name">{{ item.name }}</Option>
             </Select>
-        </Col>
+            </Col>
           </Row>
         </div>
       </Card>
-      <Card 
-        :padding="4" 
+      <Card
+        :padding="4"
         dis-hover
         style="margin-top:8px;">
         <div style="font-size:12px;">
-          <Row 
+          <Row
             style="margin-top:8px;">
             <Col span="8" >颜色：</Col>
             <Col span="16" >
-            <ColorPicker 
-              :disabled="true" 
+            <ColorPicker
+              :disabled="true"
               v-model="LineStyleData.color"
-              style="width:100%" 
+              style="width:100%"
               size="small"/>
-            <div 
-              v-if="LineStyleData.colorField!=''" 
+            <div
+              v-if="LineStyleData.colorField!=''"
               class="color-disable-div" ></div>
         </Col>
           </Row>
           <Row
-            v-if="layerType!='point'" 
+            v-if="layerType!='point'"
             style="margin-top:8px;">
             <Col span="8" >匹配字段：</Col>
             <Col span="16" >
-            <Select 
+            <Select
               v-model="LineStyleData.colorField"
-              clearable 
+              clearable
               size="small"
               style="width:100%">
-              <Option 
-                v-for="item in fieldNoNumS" 
-                :value="item.name" 
+              <Option
+                v-for="item in fieldNoNumS"
+                :value="item.name"
                 :key="item.name">{{ item.name }}</Option>
             </Select>
         </Col>
           </Row>
         </div>
       </Card>
-      <Row 
+      <Row
         v-if="layerType!='point'"
         style="margin-top:8px;">
         <Col span="8" >虚线:</Col>
@@ -188,20 +189,20 @@ export default {
           style="width: 100%"></InputNumber>
         </Col>
       </Row>
-      <Row 
+      <Row
         v-if="layerType!='point'"
         style="margin-top:8px;">
         <Col span="8" >虚线偏移:</Col>
         <Col span="16" >
         <InputNumber
-          v-model="LineStyleData.imaginary"
+          v-model="LineStyleData.imaginaryExcursion"
           :max="1000"
           :min="-1000"
           size="small"
           style="width: 100%"></InputNumber>
         </Col>
       </Row>
-      <Row 
+      <Row
         v-if="layerType!='point'"
         style="margin-top:8px;">
         <Col span="8" >线帽:</Col>
@@ -216,7 +217,7 @@ export default {
         </Select>
         </Col>
       </Row>
-      <Row 
+      <Row
         v-if="layerType!='point'"
         style="margin-top:8px;">
         <Col span="8" >线连接:</Col>

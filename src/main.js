@@ -37,7 +37,6 @@ Object.keys(filter).forEach(key => {
 Object.keys(directive).forEach(key => {
   Vue.directive(key, directive[key]);
 });
-
 // 处理svg模块依赖
 // 详情见： https://doc.webpack-china.org/guides/dependency-management/#require-context
 const requireAll = (requireContext = {}) => requireContext.keys().map(requireContext);
