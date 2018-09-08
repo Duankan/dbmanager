@@ -288,6 +288,7 @@ export default {
       prop="classicFieldNum">
       <InputNumber
         :min="1"
+        :max="32"
         v-model="statisticsItem.classicFieldNum"></InputNumber>
     </FormItem>
     <FormItem
