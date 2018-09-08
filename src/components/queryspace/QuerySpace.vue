@@ -75,6 +75,7 @@ export default {
           this.fieldList.forEach(item => {
             this.schema = this.schema + ',' + item.title;
           });
+          debugger;
           this.queryAreaUrl = layerData.value;
           this.queryName = totalParams[0].label;
         }
