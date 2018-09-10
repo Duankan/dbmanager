@@ -19,11 +19,11 @@ export default {
           name: 'MapView',
           icon: 'map-view',
         },
-        // {
-        //   title: '业务数据',
-        //   name: 'Business',
-        //   icon: 'map-edit',
-        // },
+        {
+          title: '业务数据',
+          name: 'Business',
+          icon: 'map-edit',
+        },
       ],
     };
   },
