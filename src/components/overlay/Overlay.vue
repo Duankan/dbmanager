@@ -225,7 +225,7 @@ export default {
 
 <style lang="less" scoped>
 .k-form-item {
-  margin-bottom: 15px;
+  margin-bottom: 18px;
 
   /deep/.k-form-item-label {
     width: 100px;

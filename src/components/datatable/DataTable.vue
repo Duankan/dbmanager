@@ -165,9 +165,15 @@ export default {
     },
     // wfs属性，空间查询
     async wfsQuery(option, isShowColumns) {
+      if (!option.options) {
+        option = {
+          ...option,
+          options: {},
+        };
+      }
       if (this.optNum !== 2) {
         this.opt = option; //等于先查询的条件
-        if (option.options.cql_filter) {
+        if (option.options && option.options.cql_filter) {
           this.copyCql_filter = cloneDeep(option.options.cql_filter);
         } else {
           this.copyCql_filter = '';
@@ -282,9 +288,27 @@ export default {
     query(msg) {
       this.optNum = 2;
       if (this.copyCql_filter !== '') {
-        this.opt.options.cql_filter = this.copyCql_filter + ' and ' + msg;
+        if (!this.opt.options) {
+          this.opt = {
+            ...this.opt,
+            options: {
+              cql_filter: this.copyCql_filter + ' and ' + msg,
+            },
+          };
+        } else {
+          this.opt.options.cql_filter = this.copyCql_filter + ' and ' + msg;
+        }
       } else {
-        this.opt.options.cql_filter = msg;
+        if (!this.opt.options) {
+          this.opt = {
+            ...this.opt,
+            options: {
+              cql_filter: msg,
+            },
+          };
+        } else {
+          this.opt.options.cql_filter = msg;
+        }
       }
       this.wfsQuery(this.opt);
     },
