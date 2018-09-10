@@ -69,7 +69,6 @@ export default {
   mounted() {
     this.getAllMap();
     window.dispatchEvent(new Event('resize'));
-    // debugger;
     this.rowHeight =
       (document.getElementsByClassName('main-gridLayout-div')[0].offsetHeight - 180) / 12;
     window.onresize = temp => {

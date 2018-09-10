@@ -23,8 +23,8 @@ export default {
       },
       // 表单验证
       ruleValidate: {
-        layer1: [{ required: true, message: '请选择输入图层！', trigger: 'change' }],
-        layer2: [{ required: true, message: '请选择叠加图层！', trigger: 'change' }],
+        layer1: [{ required: true, message: '请选择一个图层！', trigger: 'change' }],
+        layer2: [{ required: true, message: '请选择一个图层！', trigger: 'change' }],
       },
       analysType: [{ value: 'differ', label: '相交' }, { value: 'clip', label: '裁剪' }],
       outputType: [{ value: 'input', label: 'Input' }],
@@ -58,7 +58,16 @@ export default {
       let layers = [];
       for (const key in this.overlayItem) {
         if (key === 'layer1' || key === 'layer2') {
-          layers.push({ typename: this.overlayItem[key] });
+          if (this.overlayItem.geometry) {
+            layers.push({
+              typename: this.overlayItem[key],
+              filter: `${this.overlayItem.spaceRelation}(the_geom,${this.overlayItem.geometry})`,
+            });
+          } else {
+            layers.push({
+              typename: this.overlayItem[key],
+            });
+          }
         }
       }
       const queryOptions = {
@@ -68,7 +77,7 @@ export default {
           tolerance: '0.000001',
           geombuffer: '0.000001',
           layers,
-          wkt: this.overlayItem.geometry,
+          // wkt: this.overlayItem.geometry,
         },
       };
       return {
@@ -80,10 +89,15 @@ export default {
       this.$refs['analysform'].validate(async valid => {
         if (valid) {
           // 验证成功
-          const params = this.setParams();
-          this.showTable([], params, 'overlayQuery');
+          const isSameType = this.isSameType();
+          if (isSameType) {
+            const params = this.setParams();
+            this.showTable([], params, 'overlayQuery');
+          } else {
+            this.$Message.error('系统暂只支持面与面的叠加分析！');
+          }
         } else {
-          this.$Message.error('请按要求填写表单！');
+          // this.$Message.error('请按要求填写表单！');
         }
       });
     },
@@ -93,12 +107,22 @@ export default {
       this.$refs.drawTools.clearToolLayer();
       this.overlayItem.geometry = null;
     },
-    getDrawLayer(geo) {
-      const geometry = geo.toGeoJSON();
-      let wktStr = L.Wkt.Wkt.prototype.fromObject(geometry.geometry, true);
-      wktStr = wktStr.write();
-      wktStr = wktStr.replace(/undefined/g, ' ');
-      this.overlayItem.geometry = wktStr;
+    getDrawLayer(layers, adverse, oppoAdverse) {
+      this.overlayItem.geometry = oppoAdverse;
+    },
+    // 判断分析的两个图层是否是一个类型
+    isSameType() {
+      const layersData1 = this.wfsLayerData[this.overlayItem.layer1];
+      const layersData2 = this.wfsLayerData[this.overlayItem.layer2];
+      // 首先判断是不是一个类型
+      if (
+        layersData1.resource.shapeType.toLowerCase() === 'polygon' &&
+        layersData2.resource.shapeType.toLowerCase() === 'polygon'
+      ) {
+        return true;
+      } else {
+        return false;
+      }
     },
   },
 };
@@ -201,7 +225,7 @@ export default {
 
 <style lang="less" scoped>
 .k-form-item {
-  margin-bottom: 15px;
+  margin-bottom: 18px;
 
   /deep/.k-form-item-label {
     width: 100px;

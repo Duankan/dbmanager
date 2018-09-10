@@ -3,10 +3,6 @@ import config from 'config';
 export default {
   name: 'AreaSelect',
   props: {
-    // wfsUrl: {
-    //   type: String,
-    //   default: '',
-    // },
     isChangeLatLng: {
       type: Boolean,
       default: false,
@@ -15,58 +11,83 @@ export default {
   data() {
     return {
       wfsUrl: config.projectConfig.wfsurl,
+      dictionaryId: config.projectConfig.dictionaryId,
       currentType: config.projectConfig.currentType,
       field: config.projectConfig.field,
       cascader: [],
-      areaData: [],
+      areaData: [
+        {
+          value: config.projectConfig.dictionaryId,
+          label: config.projectConfig.xzqName,
+          code: config.projectConfig.xzqCode,
+          children: [],
+          loading: false,
+        },
+      ],
       selectCode: [],
     };
   },
-  mounted() {
-    this.startQuery();
-  },
   methods: {
-    // 初始查询
-    async startQuery() {
-      const response = await api.db.findDictionary({
-        parentId: config.projectConfig.parentId,
-        dictionartyLevel: 2,
+    // 根据parentid查数据
+    findDictionary(parentId) {
+      const response = api.db.findDictionary({
+        parentId,
+        dictionartyLevel: 1,
         order: 'asc',
-        containParent: false,
       });
-      // 处理城市数据
-      response.data.forEach(city => {
-        if (city.type === 'City') {
-          this.areaData.push({
-            value: city.code,
-            label: city.data,
-            children: [],
-          });
-        }
-      });
-      // 处理区域数据
-      response.data.forEach(city => {
-        if (city.type === this.currentType) {
-          this.areaData.forEach(area => {
-            if (
-              area.label === `${city.data1.split('·')[0]}市` ||
-              area.label === city.data1.split('·')[0]
-            ) {
-              area.children.push({
-                value: city.code,
-                label: city.data,
-              });
-            }
-          });
-        }
+      return response;
+    },
+    // 初始查询
+    setSelectData() {
+      this.areaData.forEach(async areaData => {
+        const response = await this.findDictionary(areaData.value);
+        // 处理城市数据
+        response.data.forEach(city => {
+          if (city.type === this.currentType) {
+            this.areaData.forEach(area => {
+              if (
+                area.label === `${city.data1.split('·')[0]}市` ||
+                area.label === city.data1.split('·')[0]
+              ) {
+                area.children.push({
+                  value: city.code,
+                  label: city.data,
+                  children: [],
+                });
+              }
+            });
+          }
+        });
       });
     },
+    async loadData(item, callback) {
+      item.loading = true;
+      const response = await this.findDictionary(item.value);
+      response.data.forEach(city => {
+        if (
+          item.label === `${city.data1.split('·')[0]}市` ||
+          item.label === city.data1.split('·')[0]
+        ) {
+          item.children.push({
+            value: city.id,
+            label: city.data,
+            code: city.code,
+            children: [],
+            loading: false,
+          });
+        }
+      });
+      item.loading = false;
+      callback();
+    },
+    // 保存选择项
     finishSelect(value) {
       this.selectCode = value;
       if (value.length === 0) {
         this.$emit('on-get-arealayer', '');
       }
     },
+    // 完成选择
     async closeSelect(isClose) {
       this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
       if (!isClose) {
@@ -97,6 +118,7 @@ export default {
       const reswkt = wktFormat.readToWKT(data, isChange);
       return reswkt;
     },
+    // 重置
     resetCascader() {
       this.closeSelect(true);
       this.cascader = [];
@@ -110,6 +132,7 @@ export default {
     v-model="cascader"
     :data="areaData"
     :disabled="wfsUrl===''"
+    :load-data="loadData"
     placeholder="选择区域前，请先选择一个图层"
     change-on-select
     filterable

@@ -1,5 +1,4 @@
 <script>
-const prefixCls = 'ivu-select-group';
 export default {
   name: 'AttributeFilter',
   props: {
@@ -154,7 +153,7 @@ export default {
       this.div.addNumberNUM = 0;
       this.div.addConectNUM = 0;
     },
-    btnOk() {
+    async btnOk() {
       //点击查询按钮，把文本域中的数据穿给DataTable.vue中，在那里面获取参数，修改原先参数，然后在继续查询
       //把文本域中的值全部取出来分析判断是否符合。//把文本域中的值全部取出来分析判断是否符合。
       let arr = this.div.textarea.split('  ');
@@ -165,7 +164,12 @@ export default {
         for (let i = 0; i < arr.length; i++) {
           textareaFiltration += arr[i] + ' ';
         }
-        this.$emit('on-attr-filter', textareaFiltration);
+        const resSQL = await api.db.validateSqlFilter(textareaFiltration);
+        if (resSQL.data === true) {
+          this.$emit('on-attr-filter', textareaFiltration);
+        } else {
+          this.$Message.error('输入条件不是一个标准的sql语句！');
+        }
       }
     },
     getFilter() {
@@ -225,7 +229,6 @@ export default {
         v-model="div.textarea"
         :autosize="{minRows: 2,maxRows: 2}"
         width="510px"
-        readonly
         type="textarea"></Input>
     </div>
     <div

@@ -100,7 +100,7 @@ export default {
           scale: this.selectScale,
         })
         .then(p => {
-          this.autoSheets = unitRes.data.map(p => p.tfName);
+          this.autoSheets = p.data.map(p => p.tfName);
           this.sheetLoading = false;
         })
         .catch(p => {
@@ -187,6 +187,10 @@ export default {
     },
     //上传图幅文件成功
     async uploadSuccess(response) {
+      if (!response.data) {
+        this.$Message.error('文件格式错误!');
+        return;
+      }
       let strWkt = response.data
         .map(function(val) {
           return 'INTERSECTS(the_geom, ' + val + ')';
@@ -199,6 +203,10 @@ export default {
     //上传图幅文件失败
     uploadError() {
       this.$Message.error('上传文件失败!');
+    },
+    //上传文件格式不正确
+    formatError() {
+      this.$Message.error('上传文件格式不正确!');
     },
     //去重，增加到图幅选择列表
     addToSheets(sheetNo, repeatWarn = true) {
@@ -318,11 +326,12 @@ export default {
           placeholder="导入Shape文件提取图幅"></Input>
         <Upload
           :show-upload-list="false"
-          :format="['zip']"
           :action="uploadUrl"
           :before-upload="beforeUpload"
           :on-success="uploadSuccess"
           :on-error="uploadError"
+          :on-format-error="formatError"
+          accept="application/zip"
           name="shapefile"
           class="inline-upload">
           <Button

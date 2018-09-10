@@ -85,7 +85,9 @@ export default {
     //获取步骤数据
     getStepData() {
       let partCtrl = this.getCurPart();
-      return partCtrl.getExtractRange();
+      let rangeData = partCtrl.getExtractRange();
+      rangeData.updateType = !!this.model.planid ? 1 : 0;
+      return rangeData;
     },
   },
 };

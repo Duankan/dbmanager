@@ -202,6 +202,7 @@ class FormEditor {
     switch (schema.type.toLowerCase()) {
       case 'long':
       case 'double':
+      case 'int':
         field.inputType = 'InputNumber';
         field.value = value || 0;
         break;
