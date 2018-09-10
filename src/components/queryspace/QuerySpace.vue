@@ -83,13 +83,13 @@ export default {
     },
     // 发起请求
     startQuery() {
-      if (this.queryItem.layers === '') {
-        this.$Message.error('请选择一个图层');
-        return;
-      }
-      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
-      const params = this.getParams();
-      this.showTable(this.fieldList, params, 'wfsQuery');
+      this.$refs['dbqueryspace'].validate(valid => {
+        if (valid) {
+          this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
+          const params = this.getParams();
+          this.showTable(this.fieldList, params, 'wfsQuery');
+        }
+      });
     },
     // 处理参数
     getParams() {
@@ -136,14 +136,14 @@ export default {
       return { ...queryOptions };
     },
     // 数据提取
-    async loadQueryData() {
-      if (this.queryItem.layers === '') {
-        this.$Message.error('请选择一个图层！');
-        return;
-      }
-      const loadParams = this.setLoadPrams();
-      const response = await api.db.batchwebrequest([loadParams]);
-      window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
+    loadQueryData() {
+      this.$refs['dbqueryspace'].validate(async valid => {
+        if (valid) {
+          const loadParams = this.setLoadPrams();
+          const response = await api.db.batchwebrequest([loadParams]);
+          window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
+        }
+      });
     },
     // 参数处理
     setLoadPrams() {

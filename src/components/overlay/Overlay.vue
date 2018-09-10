@@ -97,7 +97,7 @@ export default {
             this.$Message.error('系统暂只支持面与面的叠加分析！');
           }
         } else {
-          this.$Message.error('请按要求填写表单！');
+          // this.$Message.error('请按要求填写表单！');
         }
       });
     },
