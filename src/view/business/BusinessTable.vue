@@ -20,6 +20,7 @@ export default {
   data() {
     return {
       display: true,
+      restypeData: '', //标签分类
       tableData: {}, //表格数据
       tableHeight: 530, //表格的高度
       totalCount: 1, //表格总页数
@@ -209,6 +210,9 @@ export default {
                         new Date(this.selectData.enddate),
                         'YYYY-M-D'
                       );
+                      //获取资源分类数据
+                      this.restypeData = this.selectData.restype;
+                      this.queryRestype(this.restypeData);
                     },
                   },
                 },
@@ -370,6 +374,12 @@ export default {
     },
     refresh() {
       this.mocktableData();
+    },
+    //根据id获取资源分类
+    async queryRestype(id) {
+      await api.db.findallbyid({ id }).then(p => {
+        this.selectData.restype = p.data;
+      });
     },
   },
 };
