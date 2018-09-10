@@ -6,7 +6,7 @@
 export function parseCacheTask(data, taskId) {
   let mapProgress = parseFloat(data.mapProgress || 0);
   let reduceProgress = parseFloat(data.reduceProgress || 0);
-  let progress = ((mapProgress + reduceProgress) * 0.5).toFixed(2);
+  let progress = (mapProgress + reduceProgress) * 0.5;
   return {
     id: taskId,
     progress,

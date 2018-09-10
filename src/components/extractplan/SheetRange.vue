@@ -40,7 +40,7 @@ export default {
       //选择的区县
       selectCoutries: [],
       //图幅号自动完成数据源
-      autoSheets: [''],
+      autoSheets: [],
       //自动完成选择图幅号
       selectAutoSheet: '',
       //已选择图幅号
@@ -55,6 +55,8 @@ export default {
       shapeFileName: '',
       //是否正在加载
       loading: false,
+      //是否正在查找图幅
+      sheetLoading: false,
     };
   },
   async created() {
@@ -91,11 +93,19 @@ export default {
     //查询图幅号(模糊匹配)
     async autoSearchSheet(keyword) {
       if (!keyword) return;
-      const unitRes = await api.db.findMapUnit({
-        unit: keyword,
-        scale: this.selectScale,
-      });
-      this.autoSheets = unitRes.data.map(p => p.tfName);
+      this.sheetLoading = true;
+      api.db
+        .findMapUnit({
+          unit: keyword,
+          scale: this.selectScale,
+        })
+        .then(p => {
+          this.autoSheets = unitRes.data.map(p => p.tfName);
+          this.sheetLoading = false;
+        })
+        .catch(p => {
+          this.sheetLoading = false;
+        });
     },
     //切换城市列表
     async changeCity(cityIds) {
@@ -168,6 +178,7 @@ export default {
     //添加自动完成选择图幅
     addAutoSheet() {
       this.addToSheets(this.selectAutoSheet);
+      this.selectAutoSheet = '';
     },
     //上传文件前
     beforeUpload(file) {
@@ -176,6 +187,10 @@ export default {
     },
     //上传图幅文件成功
     async uploadSuccess(response) {
+      if (!response.data) {
+        this.$Message.error('文件格式错误!');
+        return;
+      }
       let strWkt = response.data
         .map(function(val) {
           return 'INTERSECTS(the_geom, ' + val + ')';
@@ -188,6 +203,10 @@ export default {
     //上传图幅文件失败
     uploadError() {
       this.$Message.error('上传文件失败!');
+    },
+    //上传文件格式不正确
+    formatError() {
+      this.$Message.error('上传文件格式不正确!');
     },
     //去重，增加到图幅选择列表
     addToSheets(sheetNo, repeatWarn = true) {
@@ -250,16 +269,18 @@ export default {
       </div>
       <div class="form-row">
         <label class="form-label">输入图幅号：</label>
-        <AutoComplete
+        <Select
           v-model="selectAutoSheet"
-          placeholder="输入图幅号..."
-          style="width:250px"
-          @on-search="autoSearchSheet">
+          :remote-method="autoSearchSheet"
+          :loading="sheetLoading"
+          filterable
+          remote
+          style="width:250px">
           <Option
             v-for="sheet in autoSheets"
             :value="sheet"
             :key="sheet">{{ sheet }}</Option>
-        </AutoComplete>
+        </Select>
         <Button
           type="primary"
           @click="addAutoSheet">添加</Button>
@@ -305,11 +326,12 @@ export default {
           placeholder="导入Shape文件提取图幅"></Input>
         <Upload
           :show-upload-list="false"
-          :format="['zip']"
           :action="uploadUrl"
           :before-upload="beforeUpload"
           :on-success="uploadSuccess"
           :on-error="uploadError"
+          :on-format-error="formatError"
+          accept="application/zip"
           name="shapefile"
           class="inline-upload">
           <Button

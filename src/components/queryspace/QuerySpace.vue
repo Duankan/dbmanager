@@ -3,6 +3,8 @@ import QueryBase from '../querybase/querybase.js';
 import DrawTools from '../drawtools/DrawTools';
 import AreaSelect from '../areaselect/AreaSelect';
 import config from 'config';
+import * as types from '@/store/types';
+import { setSpaceRelation } from '../../utils/assist.js';
 
 export default {
   name: 'QuerySpace',
@@ -100,18 +102,16 @@ export default {
       };
       // 计算radius的值
       const radius = this.setRadius();
-
       const defaultOptions = {
         radius,
-        spatialRelationship: this.queryItem.relationship,
         type: 'POST',
+        version: '2.0.0',
       };
       queryOptions = this.setRelationship();
       queryOptions = {
         ...defaultOptions,
         ...queryOptions,
       };
-
       return {
         options,
         queryOptions,
@@ -125,33 +125,13 @@ export default {
       }
       return radius;
     },
-    // 计算提取方式
+    // 空间条件
     setRelationship() {
       let queryOptions;
-      if (this.queryItem.relationship === 'Clip') {
-        if (this.queryItem.place === '') {
-          queryOptions = {
-            clipGeometry: this.queryItem.geometry,
-            clip: true,
-          };
-        } else {
-          queryOptions = {
-            clipGeometry: this.queryItem.place,
-            clip: true,
-          };
-        }
+      if (this.queryItem.place === '' && this.queryItem.geometry) {
+        queryOptions = setSpaceRelation(this.queryItem.relationship, this.queryItem.geometry);
       } else {
-        if (this.queryItem.place === '') {
-          queryOptions = {
-            geometry: this.queryItem.geometry,
-            clip: false,
-          };
-        } else {
-          queryOptions = {
-            geometry: this.queryItem.place,
-            clip: false,
-          };
-        }
+        queryOptions = setSpaceRelation(this.queryItem.relationship, this.queryItem.place);
       }
       return { ...queryOptions };
     },
@@ -161,10 +141,6 @@ export default {
         this.$Message.error('请选择一个图层！');
         return;
       }
-      // if (!this.queryItem.geometry) {
-      //   this.$Message.error('请绘制一个范围！');
-      //   return;
-      // }
       const loadParams = this.setLoadPrams();
       const response = await api.db.batchwebrequest([loadParams]);
       window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
@@ -186,10 +162,8 @@ export default {
       let taskData = queryTack._queryParameter.options.data;
       delete taskData.pageIndex;
       delete taskData.pageSize;
-      taskData.version = '1.0.0';
-      if (this.advWKT && this.queryItem.relationship != 'Clip') {
-        taskData.cql_filter = `${this.queryItem.relationship}(the_geom,${this.advWKT})`;
-      } else {
+
+      if (this.queryItem.place !== '') {
         taskData.geometry = this.advWKT;
       }
 
@@ -205,12 +179,14 @@ export default {
       this.$refs['dbqueryspace'].resetFields();
       this.queryItem.bufferUnit = '米';
       // 重置绘制操作
-      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'always' });
-      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
       this.queryItem.place = '';
       this.$refs.drawTools.clearToolLayer();
       this.queryItem.geometry = null;
       this.$refs.areaSelect.resetCascader();
+      this.$nextTick(() => {
+        this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
+      });
+      this.$store.commit(types.CLOSE_BOTTOM_PANE);
     },
   },
 };

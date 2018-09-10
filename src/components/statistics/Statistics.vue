@@ -212,6 +212,13 @@ export default {
           field: '',
         },
       ];
+      // 重置绘制操作
+      this.statisticsItem.place = '';
+      this.$refs.areaSelect.resetCascader();
+      this.$nextTick(() => {
+        this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
+      });
+      this.$store.commit(types.CLOSE_BOTTOM_PANE);
     },
   },
 };
@@ -241,6 +248,7 @@ export default {
     </FormItem>
     <FormItem label="选择行政区：">
       <AreaSelect
+        ref="areaSelect"
         v-model="statisticsItem.place"
         :wfs-url="queryAreaUrl"
         :is-change-lat-lng="true"
@@ -258,6 +266,7 @@ export default {
         :placeholder="crsplaceholder"
         label-in-value
         clearable
+        filterable
       >
         <Option
           v-for="(item,index) in crsData"
@@ -279,6 +288,7 @@ export default {
       prop="classicFieldNum">
       <InputNumber
         :min="1"
+        :max="32"
         v-model="statisticsItem.classicFieldNum"></InputNumber>
     </FormItem>
     <FormItem
@@ -356,7 +366,7 @@ export default {
 
 <style lang="less" scoped>
 .k-form-item {
-  margin-bottom: 15px;
+  margin-bottom: 18px;
 }
 
 /deep/.k-form-item-required .k-form-item-label:before {

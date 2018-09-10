@@ -8,8 +8,9 @@ const RuleValidate = {
       type: 'array',
       min: 1,
       message: '请至少选择一个标签',
-      trigger: 'change',
+      trigger: 'blur',
     },
+    { type: 'array', max: 200, message: '最多选择200个标签', trigger: 'change' },
   ],
 
   type: [{ required: true, message: '字段类型不能为空', trigger: 'change' }],

@@ -111,6 +111,7 @@ export default {
             <span class={'k-tree-more'}>
               <svg-icon
                 size={16}
+                color={'#1296DB'}
                 icon-class={'position'}
                 title="图层定位"
                 nativeOnClick={() => this.positionLayer(root, node, data)}
@@ -365,14 +366,14 @@ export default {
           ref="form"
           :model="form"
           :rules="rule"
-          :label-width="60">
+          :label-width="80">
           <FormItem
             label="图层集"
             prop="name">
             <Input v-model="form.name"></Input>
           </FormItem>
           <FormItem
-            label="图层描述"
+            label="图层集描述"
             prop="description">
             <Input
               v-model="form.description"
@@ -387,7 +388,7 @@ export default {
           class="save-layer"
           size="small"
           long
-          @click="click">{{ showTree ? '保存' : '提交' }}
+          @click="click">{{ showTree ? '图层集保存' : '提交' }}
         </Button>
       </Card>
     </transition>

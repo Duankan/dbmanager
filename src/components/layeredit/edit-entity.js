@@ -195,9 +195,10 @@ class EditEntity {
   /**
    * 转换图形为xml
    */
-  convertGeometryToXml() {
-    let coords = GeometryUtil.geo2Coords(this.geometry);
-    let shapeType = this.layerInfo.wmsInfo.resource.shapeType;
+  async convertGeometryToXml() {
+    let pGeometry = await GeometryUtil.projectGeometry(this.layerInfo, this.geometry);
+    let coords = GeometryUtil.geo2Coords(pGeometry);
+    let shapeType = this.layerInfo.wmsInfo.resource.shapeType.toLowerCase();
     let xml = deepCopy(GEOMETRY_TEMPLATE[shapeType]);
     xml = this.replace(xml, COORD_FLAG, coords.join(' '));
     xml = this.replace(xml, SPATIAL_FLAG, this.layerInfo.wmsInfo.csys);
@@ -217,30 +218,32 @@ class EditEntity {
   /**
    * 转换实体为XML
    */
-  convertEntityToXml(operate) {
+  async convertEntityToXml(operate) {
     let xml = deepCopy(FEATURE_TEMPLATE[operate]);
+    let idx = this.layerInfo.name.lastIndexOf(':') + 1;
+    let layerName = this.layerInfo.name.substr(idx);
     const converts = {
-      add() {
+      async add() {
         let strProperty = this.convertPropertiesToXml(operate);
-        let strGeometry = this.convertGeometryToXml();
-        xml = this.replace(xml, LAYER_FLAG, this.layerInfo.wmsInfo.title);
+        let strGeometry = await this.convertGeometryToXml();
+        xml = this.replace(xml, LAYER_FLAG, layerName);
         xml = this.replace(xml, PROPERTY_FLAG, strProperty);
         xml = this.replace(xml, GEOMETRY_FLAG, strGeometry);
       },
-      update() {
+      async update() {
         let strProperty = this.convertPropertiesToXml(operate);
-        let strGeometry = this.convertGeometryToXml();
-        xml = this.replace(xml, LAYER_FLAG, this.layerInfo.name);
+        let strGeometry = await this.convertGeometryToXml();
+        xml = this.replace(xml, LAYER_FLAG, layerName);
         xml = this.replace(xml, PROPERTY_FLAG, strProperty);
         xml = this.replace(xml, GEOMETRY_FLAG, strGeometry);
         xml = this.replace(xml, ID_FLAG, this.property.gid.value);
       },
-      delete() {
-        xml = this.replace(xml, LAYER_FLAG, this.layerInfo.name);
+      async delete() {
+        xml = this.replace(xml, LAYER_FLAG, layerName);
         xml = this.replace(xml, ID_FLAG, this.property.gid.value);
       },
     };
-    converts[operate].call(this);
+    await converts[operate].call(this);
     return xml;
   }
 
@@ -300,7 +303,7 @@ class EditEntity {
    * @param {String} operate 操作类型
    */
   async save(operate) {
-    let xmlData = this.convertEntityToXml(operate);
+    let xmlData = await this.convertEntityToXml(operate);
     const msg = Message.loading({
       content: '正在保存...',
       duration: 0,

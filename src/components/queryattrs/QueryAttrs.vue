@@ -2,6 +2,8 @@
 import { debug, log } from 'util';
 import * as types from '@/store/types';
 import config from 'config';
+import { validaForm } from '../../utils/assist.js';
+
 const stringCompare = [
   {
     value: '=',
@@ -204,22 +206,29 @@ export default {
         return;
       }
       const items = this.$refs[name].model.items;
-      const CQLFilter = this.getCondition(items);
-
-      const options = { version: '1.0.0' };
-      if (CQLFilter) options.cql_filter = CQLFilter;
-      this.$store.commit(types.REMOVE_BUS_FIELD);
-      this.$store.commit(types.REMOVE_BUS_ATTRIBUTE);
-      this.$store.commit(types.SET_BUS_FIELD, this.getColums());
-      this.$store.commit(types.SET_BUS_ATTRIBUTE, {
-        options: {
-          title: this.formDynamic.layerTitle,
-          url: this.formDynamic.wfsUrl,
-          pageIndex: 1,
-          pageSize: 10,
-        },
-        queryOptions: options,
-      });
+      // 效验表单
+      const isValidate = validaForm(items);
+      if (isValidate.length == 0) {
+        const CQLFilter = this.getCondition(items);
+        const options = { version: '1.0.0' };
+        if (CQLFilter) options.cql_filter = CQLFilter;
+        this.$store.commit(types.REMOVE_BUS_FIELD);
+        this.$store.commit(types.REMOVE_BUS_ATTRIBUTE);
+        this.$store.commit(types.SET_BUS_FIELD, this.getColums());
+        this.$store.commit(types.SET_BUS_ATTRIBUTE, {
+          options: {
+            title: this.formDynamic.layerTitle,
+            url: this.formDynamic.wfsUrl,
+            pageIndex: 1,
+            pageSize: 10,
+          },
+          queryOptions: options,
+        });
+      } else {
+        let message = '';
+        isValidate.forEach(key => (message += ` ${String(key + 1)} `));
+        this.$Message.error(`查询条件中第${message}条包含特殊字符，请修改后再做查询！`);
+      }
     },
     //重置查询页面
     reset() {

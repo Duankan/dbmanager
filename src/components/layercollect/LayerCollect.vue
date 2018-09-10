@@ -52,10 +52,10 @@ export default {
       this.$store.commit(SET_MAP_GOCLAYER_DELETE, layers);
       this.$nextTick(p => {
         this.$store.commit(SET_MAP_SERVICELIST, config.layers);
-        this.$nextTick(m => {
+        setTimeout(() => {
           let map = this.$store.getters.mapManager._map;
           map.setView(config.center, config.zoom);
-        });
+        }, 500);
       });
     },
     // 删除图层集
@@ -80,7 +80,17 @@ export default {
                   data._name = e.target.value;
                 }}
               />
-              <icon type="checkmark" color="#19be6b" nativeOnClick={() => this.update(data)} />
+              <icon
+                type="checkmark"
+                color="#19be6b"
+                nativeOnClick={() => {
+                  if (!data._name) {
+                    this.$Message.error('图层集名称不能为空！');
+                  } else {
+                    this.update(data);
+                  }
+                }}
+              />
               <icon
                 type="close-round"
                 color="#000"
@@ -189,6 +199,8 @@ export default {
       text-overflow: ellipsis;
       white-space: nowrap;
       display: inline-block;
+      position: relative;
+      top: 3px;
       .k-icon {
         margin-left: 8px;
       }
