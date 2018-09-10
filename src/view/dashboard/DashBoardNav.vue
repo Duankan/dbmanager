@@ -35,7 +35,7 @@ export default {
       <DashBoardMenu/>
     </div>
     <div class="right">
-      <!--<UserInfo/>-->
+      <UserInfo/>
       <NoticeIcon/>
       <Icon
         type="log-out"

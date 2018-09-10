@@ -1,6 +1,3 @@
-//默认空间参考
-const DEFAULT_CRS = 'EPSG:4490';
-
 /**
  * 图形转换帮助类
  */
@@ -20,14 +17,13 @@ class GeometryUtil {
    * 像素长度转经纬度长度
    * @param {L.Map} map 地图对象
    * @param {Number} pixel 像素长度
-   * @param {Boolean} d2m 是否米转度
    */
-  static pixel2LngLat(map, pixel, d2m) {
+  static pixel2LngLat(map, pixel) {
     let distance = map.distance(
       map.containerPointToLatLng({ x: 0, y: 0 }),
       map.containerPointToLatLng({ x: pixel, y: 0 })
     );
-    let buffer = d2m ? distance / 111194.872221777 : distance;
+    let buffer = distance / 111194.872221777;
     return buffer;
   }
 
@@ -198,35 +194,6 @@ class GeometryUtil {
       result = this.project2Point(geometry);
     }
     return result;
-  }
-
-  /**
-   * 投影转换
-   * @param {any} layerInfo 图层信息
-   * @param {any} geo 要转换的图形
-   */
-  static async projectGeometry(layerInfo, geo) {
-    return new Promise((resolve, reject) => {
-      let targetCrs = layerInfo.layer.options.saveCrs;
-      if (targetCrs != DEFAULT_CRS) {
-        let url = new URL(layerInfo.wfsInfo.servicesurl);
-        let projectUrl = url.origin + url.pathname;
-        const project = new L.QueryParameter.ProjecteTransform({
-          url: projectUrl,
-          geometry: JSON.stringify([geo.toGeoJSON().geometry]),
-          sourceproject: DEFAULT_CRS,
-          targetproject: layerInfo.layer.options.saveCrs,
-        });
-        const service = new L.GeometryService(project);
-        service.reProject(data => {
-          let geometry = JSON.parse(data);
-          geometry = GeometryUtil.project2Geo(geometry);
-          resolve(geometry);
-        });
-      } else {
-        resolve(geo);
-      }
-    });
   }
 }
 

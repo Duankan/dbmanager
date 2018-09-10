@@ -66,7 +66,6 @@ export default {
         <DropdownItem @click.native="batchUpload">批量上传</DropdownItem>
       </DropdownMenu>
     </Dropdown>
-    <!---
     <Dropdown
       placement="bottom-start"
       trigger="click">
@@ -82,7 +81,6 @@ export default {
         <DropdownItem>空间数据库</DropdownItem>
       </DropdownMenu>
     </Dropdown>
-    -->
     <LinkThirdPartService v-model="linkServiceModal" />
     <Button
       type="primary"

@@ -89,7 +89,7 @@ const app = {
     //根据关键字过滤删选文件
     async [types.APP_NODES_TABLE]({ commit, state, rootState }, keyStr) {
       commit(types.CHANGE_APP_SELECTHKEY, keyStr);
-      const response = await api.db.searchResource({
+      const response = await api.db.findpagelist({
         objCondition: {
           orgId: rootState.user.info.orgid,
           findChildOrg: false,
@@ -98,13 +98,7 @@ const app = {
         pageIndex: 1,
         pageSize: 50,
       });
-      let nodes = response.data.dataSource.map(p => {
-        let node = p.resourceGisExViewEntity;
-        if (isGisResource(node)) {
-          node.serviceList = p.serviceInfoViewEntity;
-        }
-        return node;
-      });
+      const nodes = response.data.dataSource;
       commit(types.CHANGE_APP_NODES, nodes);
       commit(types.REMOVE_APP_SELECT_NODES);
     },

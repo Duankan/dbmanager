@@ -3,10 +3,10 @@ import config from 'config';
 export default {
   name: 'AreaSelect',
   props: {
-    // wfsUrl: {
-    //   type: String,
-    //   default: '',
-    // },
+    wfsUrl: {
+      type: String,
+      default: '',
+    },
     isChangeLatLng: {
       type: Boolean,
       default: false,
@@ -14,9 +14,6 @@ export default {
   },
   data() {
     return {
-      wfsUrl: config.projectConfig.wfsurl,
-      currentType: config.projectConfig.currentType,
-      field: config.projectConfig.field,
       cascader: [],
       areaData: [],
       selectCode: [],
@@ -29,7 +26,7 @@ export default {
     // 初始查询
     async startQuery() {
       const response = await api.db.findDictionary({
-        parentId: config.projectConfig.parentId,
+        parentId: config.projectConfig.dictionaryId,
         dictionartyLevel: 2,
         order: 'asc',
         containParent: false,
@@ -46,7 +43,7 @@ export default {
       });
       // 处理区域数据
       response.data.forEach(city => {
-        if (city.type === this.currentType) {
+        if (city.type === 'County') {
           this.areaData.forEach(area => {
             if (
               area.label === `${city.data1.split('·')[0]}市` ||
@@ -73,7 +70,7 @@ export default {
         if (this.selectCode.length !== 0 && +this.selectCode[0] === config.projectConfig.xzqCode) {
           const response = await api.db.queryAdministrativeCode({
             code: [this.selectCode[this.selectCode.length - 1]],
-            field: this.field,
+            field: 'DMDZDM',
             simpleFeatureFlag: true,
             tolerance: '0',
             wfsUrl: this.wfsUrl,

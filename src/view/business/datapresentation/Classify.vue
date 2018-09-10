@@ -222,6 +222,7 @@ export default {
           //       },
           //       on: {
           //         click: () => {
+          //           // debugger;
           //           // if (!data.isEdit) {
           //           //   data.isEdit = true;
           //           this.updatas(root, node, data);

@@ -32,7 +32,6 @@ export default {
       opt: '', //存储其他查询的初始值。
       optNum: '', //用来判断是二次过滤查询的还是点击其他组件查询的，好用来存储 其他组件查询初始值
       propWin: null,
-      showTwoFilter: true,
     };
   },
   computed: {
@@ -131,10 +130,6 @@ export default {
         } else {
           this.wfsQuery(option);
         }
-        // 统计分析隐藏二次过滤
-        option.attributeType === 'statisticsQuery'
-          ? (this.showTwoFilter = false)
-          : (this.showTwoFilter = true);
       });
     },
     // 分页查询
@@ -165,19 +160,8 @@ export default {
     },
     // wfs属性，空间查询
     async wfsQuery(option, isShowColumns) {
-      if (!option.options) {
-        option = {
-          ...option,
-          options: {},
-        };
-      }
-      if (this.optNum !== 2) {
+      if (this.optNum != 2) {
         this.opt = option; //等于先查询的条件
-        if (option.options && option.options.cql_filter) {
-          this.copyCql_filter = cloneDeep(option.options.cql_filter);
-        } else {
-          this.copyCql_filter = '';
-        }
       }
       this.optNum = 1;
       delete option.attributeType;
@@ -242,11 +226,6 @@ export default {
         };
         this.setOverlapLayer(analysData);
         this.overLapLayerData = analysData;
-      } else {
-        let parser = new DOMParser();
-        let xmldoc = parser.parseFromString(response, 'text/xml');
-        let errors = xmldoc.getElementsByTagName('ows:ExceptionText');
-        this.$Message.error(errors[0].innerHTML);
       }
     },
     setOverlapLayer(analysData) {
@@ -263,7 +242,7 @@ export default {
                 this.overLapLayerData.baseUrl
               }?service=WMS&version=1.1.1&request=GetMap&layers=${
                 this.overLapLayerData.layers
-              }&srs=${this.overLapLayerData.crs}&styles=${config.editStyle.overlap_polygon}&bbox=${
+              }&srs=${this.overLapLayerData.crs}&styles=polygon3&bbox=${
                 this.overLapLayerData.bbox
               }`,
               title: `${[this.overLapLayerData.layers]}`,
@@ -286,31 +265,27 @@ export default {
       });
     },
     query(msg) {
+      let cql_filterCopy = this.opt.options.cql_filter;
+      this.opt.options.cql_filter = '';
+      this.opt.options.geometry = null;
       this.optNum = 2;
-      if (this.copyCql_filter !== '') {
-        if (!this.opt.options) {
-          this.opt = {
-            ...this.opt,
-            options: {
-              cql_filter: this.copyCql_filter + ' and ' + msg,
-            },
-          };
+      let copyopt = cloneDeep(this.opt);
+      copyopt.options.cql_filter = cql_filterCopy;
+      if (copyopt.options.cql_filter) {
+        let cqlfs = copyopt.options.cql_filter.split('INTERSECTS');
+        if (cqlfs.length == 2) {
+          let cqlf = cqlfs[0] + ' ' + msg + ' and ' + 'INTERSECTS' + cqlfs[1];
+          copyopt.options.cql_filter = cqlf;
+          this.wfsQuery(copyopt);
         } else {
-          this.opt.options.cql_filter = this.copyCql_filter + ' and ' + msg;
+          copyopt.options.cql_filter += ' and ' + msg;
+          this.wfsQuery(copyopt);
         }
       } else {
-        if (!this.opt.options) {
-          this.opt = {
-            ...this.opt,
-            options: {
-              cql_filter: msg,
-            },
-          };
-        } else {
-          this.opt.options.cql_filter = msg;
-        }
+        copyopt.options.cql_filter = msg;
+        this.wfsQuery(copyopt);
       }
-      this.wfsQuery(this.opt);
+      this.opt.options.cql_filter = cql_filterCopy;
     },
     changePage(pageIdx) {
       let options = [...this.queryOptions];
@@ -342,7 +317,6 @@ export default {
       <span class="table-title">{{ title }}</span>
       <div class="table-buttons">
         <Button
-          v-if="showTwoFilter"
           type="warning"
           @click="popup()">二次过滤</Button>
         <Button

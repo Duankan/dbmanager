@@ -62,6 +62,7 @@ export default {
         //     const begdate = date.format(new Date(params.row.begdate), 'YYYY-M-D');
         //     const enddate = date.format(new Date(params.row.enddate), 'YYYY-M-D');
 
+        //     debugger;
         //     const color = row.status === 1 ? 'green' : 'red';
         //     const text = row.status === 1 ? '可用' : '不可用';
         //     return h(

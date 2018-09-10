@@ -268,7 +268,7 @@ export default {
         queryOptions,
       };
     },
-    // 空间条件
+    // 计算提取方式,这个方法还没有用到，判断裁剪用的
     setRelationship() {
       let queryOptions;
       if (this.queryItem.place === '' && this.queryItem.geometry) {

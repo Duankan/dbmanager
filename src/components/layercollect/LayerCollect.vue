@@ -84,10 +84,10 @@ export default {
                 type="checkmark"
                 color="#19be6b"
                 nativeOnClick={() => {
-                  if (data._name && data._name.trim() != '') {
-                    this.update(data);
-                  } else {
+                  if (!data._name) {
                     this.$Message.error('图层集名称不能为空！');
+                  } else {
+                    this.update(data);
                   }
                 }}
               />

@@ -128,7 +128,7 @@ export default {
       height: 72px;
       padding: 6px;
       .progress-text {
-        font-size: 14px;
+        font-size: 18px;
       }
     }
   }

@@ -20,14 +20,15 @@ export default {
   data() {
     return {
       display: true,
+      restypeData: '', //标签分类
       tableData: {}, //表格数据
       // tableHeight: 200, //表格的高度
       totalCount: 1, //表格总页数
       pageIndex: 1, //表格当前页
-      lengths: 24,
-      tagLength: 5,
+      descriptionLength: 24, //描述显示字数
+      tagLength: 8,
       selectData: null,
-      tableColumns1: [
+      tableColumns: [
         {
           type: 'selection',
           width: 60,
@@ -74,7 +75,7 @@ export default {
             const description = row.description;
             return (
               <Poptip trigger="hover" placement="bottom" content={description}>
-                <Ellipsis length={this.lengths}>{description}</Ellipsis>
+                <Ellipsis length={this.descriptionLength}>{description}</Ellipsis>
               </Poptip>
             );
           },
@@ -211,6 +212,9 @@ export default {
                         new Date(this.selectData.enddate),
                         'YYYY-M-D'
                       );
+                      //获取资源分类数据
+                      this.restypeData = this.selectData.restype;
+                      this.queryRestype(this.restypeData);
                     },
                   },
                 },
@@ -371,8 +375,15 @@ export default {
       //获取表格总页数
       this.totalCount = response.data.pageInfo.totalCount;
     },
+    //清空
     refresh() {
       this.mocktableData();
+    },
+    //根据id获取资源分类
+    async queryRestype(id) {
+      await api.db.findallbyid({ id }).then(p => {
+        this.selectData.restype = p.data;
+      });
     },
   },
 };
@@ -397,8 +408,7 @@ export default {
       <!--:height="tableHeight"-->
       <Table
         :data="tableData.dataSource"
-
-        :columns="tableColumns1"
+        :columns="tableColumns"
         class="table">
       </Table>
       <div class="page">

@@ -2,7 +2,6 @@ import EditorBase from './editor-base';
 import FormEditor from './form-editor';
 import GeometryUtil from './geometry-utils';
 import { Message, Modal } from '@ktw/kcore';
-import * as kmap from '@ktw/kmap';
 
 //缓冲像素距离
 const BUFFER_PIXEL = 3;
@@ -32,19 +31,10 @@ class UpdateEditor extends EditorBase {
   /**
    * 绘制完成
    */
-  async drawFinish(e) {
-    //获取地图单位
-    let crs = this.layerInfo.layer.options.saveCrs;
-    let idx = crs.lastIndexOf(':') + 1;
-    crs = crs.substr(idx);
-    let mapUnit = kmap.default.kmapAPI.commonFunction.getUnits(crs);
-    let isDegree = mapUnit.units == 'degrees';
-    //缓冲距离转换
-    let buffer = GeometryUtil.pixel2LngLat(this.map, BUFFER_PIXEL, isDegree);
-    //投影转换
-    let geometry = await GeometryUtil.projectGeometry(this.layerInfo, e);
-    //点选查询
-    let point = geometry.getLatLng();
+  drawFinish(e) {
+    //点选缓冲查询
+    let buffer = GeometryUtil.pixel2LngLat(this.map, BUFFER_PIXEL);
+    let point = e.getLatLng();
     let sqlFilter = `INTERSECTS(the_geom,buffer(POINT(${point.lat} ${point.lng}),${buffer}))`;
     this.store
       .dispatch('MAP_WFS_QUERY', {

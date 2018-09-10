@@ -32,6 +32,7 @@ export default {
     },
     // 收藏目录
     async favor() {
+      debugger;
       await api.db.addCommonCatalog({
         favoriteId: this.node.id, //目录id
         name: this.node.name, //目录名称（可自定）

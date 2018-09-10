@@ -154,6 +154,7 @@ export default {
       if (!valid) return;
       let saveResourceFun = api.db.addResourcePlan;
       if (this.isEdit) {
+        this.model.updateType = 0;
         delete this.model.rangeInfo;
         saveResourceFun = api.db.updateResourcePlan;
       }

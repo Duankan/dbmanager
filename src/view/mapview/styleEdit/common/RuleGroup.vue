@@ -176,13 +176,13 @@ export default {
 </style>
 <template>
   <div class="app">
-    <RadioGroup
-      v-model="radioView"
+    <RadioGroup 
+      v-model="radioView" 
       @on-change="radioChange">
       <Radio label="唯一值"></Radio>
       <Radio label="分段数"></Radio>
     </RadioGroup>
-    <Row
+    <Row 
       style="margin-top:8px;font-size: 12px;">
       <Col span="8" > 字段：</Col>
       <Col span="16" >
@@ -197,7 +197,7 @@ export default {
       </Select>
         </Col>
     </Row>
-    <Row
+    <Row 
       style="margin-top:8px;font-size: 12px;">
       <Col span="8" >颜色渐变:</Col>
       <Col span="16" >
@@ -208,25 +208,25 @@ export default {
         style="width:100%"></ColorRibbon>
         </Col>
     </Row>
-    <Row
+    <Row 
       v-if="radioView=='分段数'"
       style="margin-top:18px;font-size: 12px;">
       <Col span="8" >分段数:</Col>
       <Col span="16" >
-      <InputNumber
+      <InputNumber 
         :min="2"
         v-model="section"
         style="width:100%"
         size="small"></InputNumber>
         </Col>
     </Row>
-    <Button
+    <Button 
       style="margin-top:12px;"
-      type="primary"
+      type="primary" 
       icon="navicon"
       long
       @click="getColor">分类生成</Button>
-    <Table
+    <Table 
       :columns="columns"
       :data="tableData"
       :height="tableHeight"

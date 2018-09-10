@@ -111,6 +111,9 @@ const OPERATORS = {
   delete: '删除',
 };
 
+//默认空间参考
+const DEFAULT_CRS = 'EPSG:4490';
+
 /**
  * 编辑实体
  */
@@ -196,13 +199,40 @@ class EditEntity {
    * 转换图形为xml
    */
   async convertGeometryToXml() {
-    let pGeometry = await GeometryUtil.projectGeometry(this.layerInfo, this.geometry);
+    let pGeometry = await this.projectGeometry();
     let coords = GeometryUtil.geo2Coords(pGeometry);
     let shapeType = this.layerInfo.wmsInfo.resource.shapeType.toLowerCase();
     let xml = deepCopy(GEOMETRY_TEMPLATE[shapeType]);
     xml = this.replace(xml, COORD_FLAG, coords.join(' '));
     xml = this.replace(xml, SPATIAL_FLAG, this.layerInfo.wmsInfo.csys);
     return xml;
+  }
+
+  /**
+   * 投影转换
+   */
+  async projectGeometry() {
+    return new Promise((resolve, reject) => {
+      let targetCrs = this.layerInfo.layer.options.saveCrs;
+      if (targetCrs != DEFAULT_CRS) {
+        let url = new URL(this.layerInfo.wfsInfo.servicesurl);
+        let projectUrl = url.origin + url.pathname;
+        const project = new L.QueryParameter.ProjecteTransform({
+          url: projectUrl,
+          geometry: JSON.stringify([this.geometry.toGeoJSON().geometry]),
+          sourceproject: DEFAULT_CRS,
+          targetproject: this.layerInfo.layer.options.saveCrs,
+        });
+        const service = new L.GeometryService(project);
+        service.reProject(data => {
+          let geometry = JSON.parse(data);
+          geometry = GeometryUtil.project2Geo(geometry);
+          resolve(geometry);
+        });
+      } else {
+        resolve(this.geometry);
+      }
+    });
   }
 
   /**

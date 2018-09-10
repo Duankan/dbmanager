@@ -29,7 +29,7 @@ export default {
       ],
       // 表单验证
       ruleValidate: {
-        layers: [{ required: true, message: '请选择一个图层！', trigger: 'change' }],
+        layers: [{ required: true, message: '请选择一个或多个图层！', trigger: 'change' }],
         classicField: [{ required: true, message: '请选择分类字段！', trigger: 'change' }],
         classicFieldNum: [{ required: true, message: '请选择分段数！' }],
         type: [{ required: true, message: '请选择统计类型！', trigger: 'change' }],
@@ -288,7 +288,6 @@ export default {
       prop="classicFieldNum">
       <InputNumber
         :min="1"
-        :max="32"
         v-model="statisticsItem.classicFieldNum"></InputNumber>
     </FormItem>
     <FormItem
