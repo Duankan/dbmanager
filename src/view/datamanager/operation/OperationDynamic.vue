@@ -85,9 +85,7 @@ export default {
     },
     showMetaData() {
       return (
-        this.selectNodes[0] &&
-        isGisResource(this.selectNodes[0]) &&
-        !this.selectNodes[0].hasMetadata
+        this.selectNodes[0] && isVector(this.selectNodes[0]) && !this.selectNodes[0].hasMetadata
       );
     },
     showViewMeta() {
