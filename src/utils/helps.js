@@ -84,7 +84,7 @@ export function canAppend(node) {
 }
 
 export function canView(serviceList) {
-  return serviceList.length >= 2 || (serviceList.length === 1 && serviceList[0].servicestype === 5);
+  return serviceList.length > 0;
 }
 
 //获取资源图标

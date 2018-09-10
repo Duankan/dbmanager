@@ -20,12 +20,15 @@ export default {
   data() {
     return {
       display: true,
+      restypeData: '', //标签分类
       tableData: {}, //表格数据
-      tableHeight: 530, //表格的高度
+      // tableHeight: 200, //表格的高度
       totalCount: 1, //表格总页数
       pageIndex: 1, //表格当前页
+      descriptionLength: 24, //描述显示字数
+      tagLength: 8,
       selectData: null,
-      tableColumns1: [
+      tableColumns: [
         {
           type: 'selection',
           width: 60,
@@ -72,7 +75,7 @@ export default {
             const description = row.description;
             return (
               <Poptip trigger="hover" placement="bottom" content={description}>
-                <Ellipsis length="24">{description}</Ellipsis>
+                <Ellipsis length={this.descriptionLength}>{description}</Ellipsis>
               </Poptip>
             );
           },
@@ -90,7 +93,7 @@ export default {
                     this.tagData(keyword);
                   }}
                 >
-                  <Ellipsis length="5" style={{ color: '#2D8cF0' }}>
+                  <Ellipsis length={this.tagLength} style={{ color: '#2D8cF0' }}>
                     {row.keyword}
                   </Ellipsis>
                 </Tag>
@@ -209,6 +212,9 @@ export default {
                         new Date(this.selectData.enddate),
                         'YYYY-M-D'
                       );
+                      //获取资源分类数据
+                      this.restypeData = this.selectData.restype;
+                      this.queryRestype(this.restypeData);
                     },
                   },
                 },
@@ -251,7 +257,6 @@ export default {
   watch: {
     tableDatas: {
       handler(newVals) {
-        // this.tableDataMonitor = {};
         this.tableData = newVals;
       },
       immediate: true,
@@ -260,11 +265,13 @@ export default {
   mounted() {
     //调用获取表格数据的方法
     this.mocktableData();
-    //自适应高度
-    this.tableHeight = document.getElementsByClassName('table-content')[0].offsetHeight - 530;
-    window.onresize = temp => {
-      this.tableHeight = document.getElementsByClassName('table-content')[0].offsetHeight - 530;
-    };
+    // //自适应高度
+    // this.tableHeight = document.getElementsByClassName('table-main')[0].offsetHeight - 200;
+    // debugger;
+    // window.onresize = temp => {
+    //   this.tableHeight = document.getElementsByClassName('table-main')[0].offsetHeight - 200;
+    //   debugger;
+    // };
   },
   methods: {
     async mocktableData() {
@@ -298,7 +305,7 @@ export default {
       });
       this.tableData = response.data;
       //获取表格总页数
-      this.totalCount = this.tableData.dataSource.length;
+      this.totalCount = response.data.pageInfo.totalCount;
     },
     //页码
     changePage(currPage) {
@@ -366,10 +373,17 @@ export default {
       });
       this.tableData = response.data;
       //获取表格总页数
-      this.totalCount = this.tableData.dataSource.length;
+      this.totalCount = response.data.pageInfo.totalCount;
     },
+    //清空
     refresh() {
       this.mocktableData();
+    },
+    //根据id获取资源分类
+    async queryRestype(id) {
+      await api.db.findallbyid({ id }).then(p => {
+        this.selectData.restype = p.data;
+      });
     },
   },
 };
@@ -377,23 +391,24 @@ export default {
 
 <template>
   <div class="table-content">
-    <div v-if="display">
+    <div
+      v-if="display"
+      class="table-item">
       <div class="table-content-title">
         <span class="table-content-title-icon"></span>
         <span class="table-content-title-content"><b>元数据管理</b></span>
       </div>
       <div class="table-content-btn">
-
         <Button
           type="primary"
           @click="addData">
           新增
         </Button>
       </div>
+      <!--:height="tableHeight"-->
       <Table
         :data="tableData.dataSource"
-        :height="tableHeight"
-        :columns="tableColumns1"
+        :columns="tableColumns"
         class="table">
       </Table>
       <div class="page">
@@ -417,10 +432,16 @@ export default {
 </template>
 
 <style lang="less" scoped>
+table {
+  overflow-x: auto;
+}
 .table-content {
   width: 92%;
   margin: 0 auto;
   height: 100%;
+  .table-item {
+    height: 100%;
+  }
 }
 
 .table-content-title {
@@ -462,15 +483,16 @@ export default {
 /deep/.table th {
   background: #dcdee2;
 }
-
+/deep/.k-table {
+  overflow-x: auto;
+  // overflow-y: auto;
+}
 /deep/.k-table-body {
   background: #f1f3f7;
   height: 100% !important;
+  overflow-y: auto;
 }
-/deep/.k-table-body .k-table-overflowY {
-  height: 100%;
-}
-/deep/table .k-table-wrapper {
-  height: 100% !important;
+/deep/.k-table-wrapper {
+  height: 69% !important;
 }
 </style>
