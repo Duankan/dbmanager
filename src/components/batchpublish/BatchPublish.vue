@@ -265,6 +265,8 @@ export default {
       let resIds = selection.map(p => p.resourceId);
       let rows = this.$refs.publishTable.rebuildData;
       this.services = rows.filter(p => resIds.indexOf(p.resourceId) > -1);
+      //校验资源
+      if (!this.validateData(this.services)) return;
       //发布资源
       this.loading = true;
       this.progress = 0;
@@ -276,6 +278,12 @@ export default {
         this.publish(service);
       }
     },
+    //校验数据
+    validateData(data) {
+      debugger;
+    },
+    //校验行数据
+    validateRow(row) {},
     //发布
     publish(service) {
       let params = {

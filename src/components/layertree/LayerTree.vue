@@ -1,6 +1,7 @@
 <script>
 import LayerEditBar from '@/components/layeredit/LayerEditBar';
 import LayerHistory from '@/components/layerhistory/LayerHistory';
+import { deepCopy } from '../../utils/assist.js';
 const layerType = [{ key: 0, type: 'wms' }, { key: 1, type: 'wmts' }];
 export default {
   name: 'LayerTree',
@@ -299,11 +300,12 @@ export default {
     },
     //获取地图文档信息
     getDocumentInfo() {
-      let layers = this.$store.state.map.serviceList;
+      let layers = deepCopy(this.$store.state.map.serviceList);
+      let layerInfos = this.ogcLayers;
       //设置图层选项(显隐和透明度)
       for (let key in layers) {
-        let wfsLayer = layers[key].find(p => p.servicestype == 12);
-        let layerInfo = this.ogcLayers.find(p => (p.options.layers = key));
+        let wfsLayer = layers[key].find(p => p.servicestype == 12 || p.servicestype == 5);
+        let layerInfo = layerInfos.find(p => (p.options.layers || p.options.layer) == key);
         wfsLayer.options = {
           visible: layerInfo.options.visible,
           opacity: layerInfo.options.opacity,
