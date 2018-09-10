@@ -318,9 +318,24 @@ export default {
     },
     //文件上传
     getUploadFile(file) {
-      this.styleUpload(file);
-      this.$refs.upload.clearFiles();
-      return false;
+      let isValid = true;
+      let fileName = file.name.match(/(.*)\.sld$/)[1];
+      if (fileName.length > 64) {
+        this.$Message.error('样式名称不能超过64字符！');
+        isValid = false;
+      }
+      if (!/^[a-zA-Z][a-zA-Z0-9_]*$/.test(fileName)) {
+        this.$Message.error('样式名称可以是字母、数字、下划线，必须以字母开头！');
+        isValid = false;
+      }
+      if (isValid) {
+        this.styleUpload(file);
+        this.$refs.upload.clearFiles();
+        return false;
+      } else {
+        this.$refs.upload.clearFiles();
+        return true;
+      }
     },
     // 样式文件临时上传
     async styleUpload(file) {
