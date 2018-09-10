@@ -244,6 +244,7 @@ export default {
         ref="uploadCtrl"
         :on-success="uploadSuccess"
         :action="uploadAction"
+        :disabled="disabled"
         accept="application/zip"
         name="shapefile">
         <SvgIcon

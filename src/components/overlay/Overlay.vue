@@ -58,16 +58,16 @@ export default {
       let layers = [];
       for (const key in this.overlayItem) {
         if (key === 'layer1' || key === 'layer2') {
-          if (this.overlayItem.geometry) {
-            layers.push({
-              typename: this.overlayItem[key],
-              filter: `${this.overlayItem.spaceRelation}(the_geom,${this.overlayItem.geometry})`,
-            });
-          } else {
-            layers.push({
-              typename: this.overlayItem[key],
-            });
-          }
+          // if (this.overlayItem.geometry) {
+          //   layers.push({
+          //     typename: this.overlayItem[key],
+          //     filter: `${this.overlayItem.spaceRelation}(the_geom,${this.overlayItem.geometry})`,
+          //   });
+          // } else {
+          layers.push({
+            typename: this.overlayItem[key],
+          });
+          // }
         }
       }
       const queryOptions = {
@@ -77,7 +77,7 @@ export default {
           tolerance: '0.000001',
           geombuffer: '0.000001',
           layers,
-          // wkt: this.overlayItem.geometry,
+          wkt: this.overlayItem.geometry,
         },
       };
       return {
@@ -108,7 +108,7 @@ export default {
       this.overlayItem.geometry = null;
     },
     getDrawLayer(layers, adverse, oppoAdverse) {
-      this.overlayItem.geometry = oppoAdverse;
+      this.overlayItem.geometry = adverse;
     },
     // 判断分析的两个图层是否是一个类型
     isSameType() {

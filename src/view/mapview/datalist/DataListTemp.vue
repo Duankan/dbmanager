@@ -48,6 +48,10 @@ export default {
     //关闭面板
     close() {
       this.$store.commit(types.CLOSE_BOTTOM_PANE);
+      this.$nextTick(() => {
+        window.dispatchEvent(new Event('resize'));
+      });
+      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
     },
     //展开折叠面板
     toggle() {
