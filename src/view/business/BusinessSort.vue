@@ -315,11 +315,6 @@ export default {
         this.$Message.error('输入不能为空');
         data.isEdits = true;
       } else {
-        // this.edit();
-        // const id = index.data.id;
-        // const remark = index.data.remark;
-        // const name = index.value;
-        // const oldname = index.title;
         const response = await api.db.updateBusiness({
           id: index.data.id, //分类id
           name: index.value, //新分类名
