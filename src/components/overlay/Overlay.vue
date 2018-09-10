@@ -23,8 +23,8 @@ export default {
       },
       // 表单验证
       ruleValidate: {
-        layer1: [{ required: true, message: '请选择输入图层！', trigger: 'change' }],
-        layer2: [{ required: true, message: '请选择叠加图层！', trigger: 'change' }],
+        layer1: [{ required: true, message: '请选择一个图层！', trigger: 'change' }],
+        layer2: [{ required: true, message: '请选择一个图层！', trigger: 'change' }],
       },
       analysType: [{ value: 'differ', label: '相交' }, { value: 'clip', label: '裁剪' }],
       outputType: [{ value: 'input', label: 'Input' }],
