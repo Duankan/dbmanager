@@ -122,7 +122,7 @@ export default {
       });
       this.layerData.forEach(item => {
         this.historyLayerList.push({
-          url: originalLayerUrl.replace(this.originalLayerName, item.layer.title),
+          url: originalLayerUrl.replace(this.originalLayerName, item.layer.name),
           title: item.layer.title,
           time: item.createTime,
           type: item.layer.style.name,

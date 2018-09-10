@@ -4,6 +4,7 @@ import DrawTools from '../drawtools/DrawTools';
 import AreaSelect from '../areaselect/AreaSelect';
 import config from 'config';
 import * as types from '@/store/types';
+import { setSpaceRelation } from '../../utils/assist.js';
 
 export default {
   name: 'QuerySpace',
@@ -82,13 +83,13 @@ export default {
     },
     // 发起请求
     startQuery() {
-      if (this.queryItem.layers === '') {
-        this.$Message.error('请选择一个图层');
-        return;
-      }
-      this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
-      const params = this.getParams();
-      this.showTable(this.fieldList, params, 'wfsQuery');
+      this.$refs['dbqueryspace'].validate(valid => {
+        if (valid) {
+          this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
+          const params = this.getParams();
+          this.showTable(this.fieldList, params, 'wfsQuery');
+        }
+      });
     },
     // 处理参数
     getParams() {
@@ -101,12 +102,10 @@ export default {
       };
       // 计算radius的值
       const radius = this.setRadius();
-
       const defaultOptions = {
         radius,
-        // relation: this.queryItem.relationship,
-        spatialRelationship: this.queryItem.relationship,
         type: 'POST',
+        version: '2.0.0',
       };
       queryOptions = this.setRelationship();
       queryOptions = {
@@ -126,49 +125,25 @@ export default {
       }
       return radius;
     },
-    // 计算提取方式
+    // 空间条件
     setRelationship() {
       let queryOptions;
-      if (this.queryItem.relationship === 'Clip') {
-        if (this.queryItem.place === '') {
-          queryOptions = {
-            clipGeometry: this.queryItem.geometry,
-            clip: true,
-          };
-        } else {
-          queryOptions = {
-            clipGeometry: this.queryItem.place,
-            clip: true,
-          };
-        }
+      if (this.queryItem.place === '' && this.queryItem.geometry) {
+        queryOptions = setSpaceRelation(this.queryItem.relationship, this.queryItem.geometry);
       } else {
-        if (this.queryItem.place === '') {
-          queryOptions = {
-            geometry: this.queryItem.geometry,
-            clip: false,
-          };
-        } else {
-          queryOptions = {
-            geometry: this.queryItem.place,
-            clip: false,
-          };
-        }
+        queryOptions = setSpaceRelation(this.queryItem.relationship, this.queryItem.place);
       }
       return { ...queryOptions };
     },
     // 数据提取
-    async loadQueryData() {
-      if (this.queryItem.layers === '') {
-        this.$Message.error('请选择一个图层！');
-        return;
-      }
-      // if (!this.queryItem.geometry) {
-      //   this.$Message.error('请绘制一个范围！');
-      //   return;
-      // }
-      const loadParams = this.setLoadPrams();
-      const response = await api.db.batchwebrequest([loadParams]);
-      window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
+    loadQueryData() {
+      this.$refs['dbqueryspace'].validate(async valid => {
+        if (valid) {
+          const loadParams = this.setLoadPrams();
+          const response = await api.db.batchwebrequest([loadParams]);
+          window.open(`${config.project.basicUrl}/data/download/tempfile?path=${response.data}`);
+        }
+      });
     },
     // 参数处理
     setLoadPrams() {
@@ -187,11 +162,9 @@ export default {
       let taskData = queryTack._queryParameter.options.data;
       delete taskData.pageIndex;
       delete taskData.pageSize;
-      if (this.advWKT && this.queryItem.relationship != 'Clip') {
-        // taskData.cql_filter = `${this.queryItem.relationship}(the_geom,${this.advWKT})`;
-      } else {
-        // taskData.version = '1.0.0';
-        // taskData.geometry = this.advWKT;
+
+      if (this.queryItem.place !== '') {
+        taskData.geometry = this.advWKT;
       }
 
       loadParams = {

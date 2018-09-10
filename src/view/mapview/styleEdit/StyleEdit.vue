@@ -1,8 +1,10 @@
+
 <script>
 import StyleTable from './StyleTable';
 import Public from './common/Public';
 import LineStyle from './common/LineStyle';
 import FillStyle from './common/FillStyle';
+import LineSymbol from './common/LineSymbol';
 import MarkStyle from './common/MarkStyle';
 import AttributeFilter from './common/AttributeFilter';
 import RuleGroup from './common/RuleGroup';
@@ -10,7 +12,16 @@ import * as helps from '@/utils/helps';
 
 export default {
   name: 'StyleEdit',
-  components: { StyleTable, Public, LineStyle, FillStyle, MarkStyle, AttributeFilter, RuleGroup },
+  components: {
+    StyleTable,
+    Public,
+    LineStyle,
+    FillStyle,
+    LineSymbol,
+    MarkStyle,
+    AttributeFilter,
+    RuleGroup,
+  },
   props: {
     layerNode: {
       type: Object,
@@ -31,6 +42,7 @@ export default {
       fieldNoNumS: [],
       ruleList: [],
       selectRule: '',
+      defaultRule: {}, // 根据id获取默认样式
     };
   },
   computed: {
@@ -63,6 +75,30 @@ export default {
     //     return 'MultipleSytle';
     //   }
     // },
+    // 获取public里面的数据
+    getPublicData() {
+      return this.$refs.public.publicData;
+    },
+    // 获取linestyle里面的数据
+    getLineStyleData() {
+      return this.$refs.lineStyle.LineStyleData;
+    },
+    // 获取面填充里面的数据
+    getFillStyleData() {
+      return this.$refs.fillStyle.FillStyleData;
+    },
+    // 获取线符号的数据
+    getLineSymbolData() {
+      return this.$refs.lineSymbol.LineSymbolData;
+    },
+    // 获取标注的数据
+    getMarkStyleData() {
+      return this.$refs.markStyle.MarkStyleData;
+    },
+    // 获取筛选过滤条件
+    getFitterData() {
+      return this.$refs.attributeFilter.filterStr;
+    },
   },
   watch: {
     layerNode: {
@@ -129,16 +165,18 @@ export default {
     openRuleByGroup() {
       this.isGroupRule = true;
     },
-    //获取样式名称
+    // 获取样式名称
     getLayerStyleName() {
       this.styleName = new URL(this.layerNode.serviceUrl).searchParams.get('styles');
     },
-    //获取样式别名
+    // 获取样式别名
     async getSldByName() {
       const response = await api.db.getSldByName({ style: this.styleName });
-      this.styleAliasName = response.data.nameLayers[0].style[0].name;
+      // 获取默认样式
+      this.defaultRule = response.data.nameLayers[0].style[0].featureTypeStyle[0].rule[0];
+      this.styleAliasName = response.data.nameLayers[0].style[0].name.replace(/\ +/g, '');
     },
-    //获取图层所有字段信息
+    // 获取图层所有字段信息
     async getfield() {
       const response = await api.db.findService({
         resourceId: this.layerNode.resourceId, // 资源id
@@ -182,31 +220,494 @@ export default {
         this.styleType = 'SingleSytle';
       }
     },
+    // 提交另存动态添加样式
+    async submitStyleEdit(data) {
+      let styleResponse = await api.db.addbysld(data);
+      return styleResponse;
+    },
     layerStyleUser() {
-      if (this.getRules.length == 0) {
-      }
-      var styleModel = {
-        nameLayers: [
-          {
-            name: '',
-            style: [
-              {
-                name: this.styleAliasName,
-                featureTypeStyle: [
+      // 通用里面的数据
+      let publicData = this.getPublicData;
+      // linestyle里面的数据
+      let lineStyleData = this.getLineStyleData;
+      // lineStyleData里面的宽度 颜色 和 它们对应的字段是只能传递一个
+      var widthOption = lineStyleData.widthField
+        ? `"widthField":"${lineStyleData.widthField}"`
+        : `"numWidth":"${lineStyleData.width}"`;
+      var colorOption = lineStyleData.colorField
+        ? `"colorField":"${lineStyleData.colorField}"`
+        : `"strColor":"${lineStyleData.color}"`;
+      // 虚线和虚线偏移也可传可不传
+      var dashs = lineStyleData.imaginary ? `"dashs":[${lineStyleData.imaginary}]` : '';
+      var numDashOffset = lineStyleData.numDashOffset
+        ? `"numDashOffset":${lineStyleData.imaginaryExcursion}`
+        : '';
+      // fillStyle里面的数据
+      let fillStyleData = this.getFillStyleData;
+      // 填充里面的数据处理
+      var fillOpacity = fillStyleData.transparentField
+        ? `"opacityField":"${fillStyleData.transparentField}"`
+        : `"numOpacity":"${fillStyleData.transparent / 100}"`;
+      var fillStyleColor = fillStyleData.colorField
+        ? `"colorField":"${fillStyleData.colorField}"`
+        : `"strColor":"${fillStyleData.color}"`;
+      // 标注里面的数据
+      let markStyleData = this.getMarkStyleData;
+      // 处理标注里面可选参数
+      var markTextField = markStyleData.markTextField
+        ? `"labelField":"${markStyleData.markTextField}"`
+        : `"strLabel":"${markStyleData.markText}"`;
+      // 旋体样式的处理
+      var pointPlacement = markStyleData.angleField
+        ? `"rotationField":"${markStyleData.angleField}"`
+        : `"numRotation":"${markStyleData.angle}"`;
+      // 是否传递字体
+      var markFont = markStyleData.fontStyle
+        ? `"font":{
+              strSize: '12',
+              strFamily: markStyleData.fontStyle,
+            }`
+        : '';
+      // 垂直距离的处理
+      var linePlacement = markStyleData.offsetY
+        ? `"linePlacement": { "perpendicular": "${markStyleData.offsetY}" }`
+        : '';
+      // option可选参数的处理
+      var maxDisplacement = markStyleData.maxDisplacement
+        ? `"maxDisplacement":"${markStyleData.maxDisplacement}"`
+        : '';
+      var autoWrap = markStyleData.autoWrap ? `"autoWrap":"${markStyleData.autoWrap},"` : '';
+      var spaceAround = markStyleData.spaceAround
+        ? `"spaceAround":"${markStyleData.spaceAround},"`
+        : '';
+      var repeat = markStyleData.repeatD ? `"repeat":"${markStyleData.repeatD},"` : '';
+      var followLine = markStyleData.isFollowLine
+        ? `"followLine":"${markStyleData.isFollowLine},"`
+        : '';
+      var maxAngleDelta = markStyleData.maxAngle ? `"followLine":"${markStyleData.maxAngle},"` : '';
+      // 线符号里面的数据
+      if (!this.layerType == 'point') {
+        let lineSymbolData = this.getLineSymbolData;
+        // 由于面和线的stroke传参一样可以共用
+        if (!lineSymbolData.isShow && !lineStyleData.isShow) {
+          var stroke = null;
+        } else if (!lineSymbolData.isShow && lineStyleData.isShow) {
+          var stroke = `{
+                  "graphicStroke": null,
+                  ${widthOption},
+                  ${colorOption},
+                  "numOpacity": ${lineStyleData.transparent / 100},
+                  ${dashs} ,
+                  ${numDashOffset},
+                  "strLineCap": "${lineStyleData.lineCap}",
+                  "strLineJoin": "${lineStyleData.lineConnect}"
+                            }`;
+        } else if (lineSymbolData.isShow && !lineStyleData.isShow) {
+          // 在线符号传递的参数不同处理
+          if (lineSymbolData.fillType == 'mark') {
+            // 选择传递标注
+            var stroke = `{
+              "graphicStroke": {
+                  "mark": [
                   {
-                    rule: this.getRules,
-                    semanticTypeIdentifier: [
-                      'generic:geometry',
-                      'colorbrewer:unique:color1:' + this.$refs.ruleGroup.field,
-                    ],
-                  },
+                  "stroke": {
+                  "strColor": "${lineSymbolData.markColor}",
+                  "numWidth": "${lineSymbolData.markWidth}"
+                            },
+                  "strWellKnownName": "${lineSymbolData.selectedMark}"
+                                  }
+                             ],
+                  "numSize": "${lineSymbolData.markSize}"
+             }}`;
+          } else if (lineSymbolData.fillType == 'font') {
+            // 选择文字符号由于没有数据暂不处理
+          }
+        } else {
+          var stroke = `{
+            "graphicStroke": {
+              "mark": [
+                {
+                  "stroke": {
+                    "strColor": "${lineSymbolData.markColor}",
+                    "numWidth": "${lineSymbolData.markWidth}"
+                   },
+                  "strWellKnownName": "${lineSymbolData.selectedMark}"
+                }
+              ],
+              "numSize": "${lineSymbolData.markSize}"
+            },
+           ${widthOption},
+           ${colorOption},
+          "numOpacity": ${lineStyleData.transparent / 100},
+           ${dashs},
+           ${numDashOffset},
+          "strLineCap": "${lineStyleData.lineCap}",
+          "strLineJoin": "${lineStyleData.lineConnect}"
+          }`;
+        }
+      }
+      // 过滤条件数据
+      let filterData = this.getFitterData;
+      // fill填充的数据也一样,所有也可以一起处理
+      // 判断fill里面填充数据
+      if (!fillStyleData.isShow) {
+        var fill = null;
+      } else {
+        // 如果选择颜色,标注以及字体的参数处理
+        if (fillStyleData.fillType == 'color') {
+          // 选择颜色
+          var fill = `{
+             "graphicFill": null,
+             ${fillOpacity},
+             ${fillStyleColor}`;
+        } else if (fillStyleData.fillType == 'mark') {
+          // 选择标记
+          var fill = `{
+              "graphicFill": {
+                "mark": [
+                  {
+                    "stroke": {
+                      "strColor":"${fillStyleData.fillColor}",
+                      "numWidth":"${fillStyleData.fillWidth}"
+                     },
+                    "strWellKnowName": "${fillStyleData.mark}"
+                  }
                 ],
+                "numSize": "${fillStyleData.fillSize}"
               },
-            ],
-          },
-        ],
-        userLayers: null,
+              "numOpacity": "${fillStyleData.transparent / 100}"
+            }`;
+        } else if (fillStyleData.fillType == 'font') {
+          // 选择字体传递参数
+        }
+      }
+      // 如果是面处理传递参数
+      if (this.layerType == 'polygon') {
+        // 判断每个子组件里面的数据是否传递
+        // 判断markStyleData是否传递数据
+        if (!markStyleData.isShow) {
+          var textSymbolizers = null;
+        } else {
+          // 如果选择的字体就必须传递字体数
+          var textSymbolizers = `[{
+                "fill": {
+                  "numOpacity": ${markStyleData.transparent / 100},
+                  "strColor": "${markStyleData.fontColor}"
+                },
+                ${markFont}
+                ${pointPlacement},
+                "halo": {
+                  "fill": { "strColor": "${markStyleData.haloColor}" },
+                  "numRadius": "${markStyleData.haloSize}"
+                },
+                "options": {
+                  ${autoWrap}
+                  ${spaceAround}
+                  ${maxDisplacement}
+                },
+                ${markTextField}
+              }]`;
+        }
+        var mockModel = `{
+                "nameLayers": [
+                  {
+                    "name": "",
+                    "style": [
+                      {
+                        "name": "${this.styleAliasName}",
+                        "featureTypeStyle": [
+                            {
+                              "rule": [
+                                {
+                                  "polygonSymbolizers": [
+                                    {
+                                    "stroke": ${stroke},
+                                    "fill": ${fill},
+                                    "offset": {
+                                      "offsetX": "${publicData.xSkewing}",
+                                      "offsetY": "${publicData.ySkewing}"
+                                      }
+                                    }
+                                  ],
+                                  "textSymbolizers": ${textSymbolizers},
+                                  "name": "${publicData.ruleName}",
+                                  "cqlFilter": "${filterData}",
+                                  "minScaleDenominator": "${publicData.maxRatio}",
+                                  "maxScaleDenominator": "${publicData.minRatio}"
+                                }
+                              ],
+                              "semanticTypeIdentifier": ["generic:geometry"]
+                            }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "userLayers": null
+              }`;
+      } else if (this.layerType == 'polyline') {
+        // 如果是线传递参数,则需添加数据
+        if (!markStyleData.isShow) {
+          var textSymbolizers = null;
+        } else {
+          if (!markStyleData.isBackGroundShow) {
+            var textSymbolizers = `[{
+                "fill": {
+                  "numOpacity": ${markStyleData.transparent / 100},
+                  "strColor": "${markStyleData.fontColor}"
+                },
+                ${markFont},
+                ${linePlacement},
+                "halo": {
+                  "fill": { "strColor": "${markStyleData.haloColor}" },
+                  "numRadius": "${markStyleData.haloSize}"
+                },
+                "options": {
+                  ${autoWrap}
+                  ${spaceAround}
+                  ${repeat}
+                  ${followLine}
+                  ${maxAngleDelta}
+                  ${maxDisplacement}
+                },
+                "graphic": {},
+                ${markTextField}
+              }]`;
+          } else {
+            var textSymbolizers = `[{
+                "fill": {
+                  "numOpacity": ${markStyleData.transparent / 100},
+                  "strColor": "${markStyleData.fontColor}"
+                },
+                ${markFont},
+                ${linePlacement},
+                "halo": {
+                  "fill": { "strColor": "${markStyleData.haloColor}" },
+                  "numRadius": "${markStyleData.haloSize}"
+                },
+                "options": {
+                  ${autoWrap}
+                  ${spaceAround}
+                  ${repeat}
+                  ${followLine}
+                  ${maxAngleDelta}
+                  ${maxDisplacement}
+                },
+                "graphic": {
+                        "mark": [
+                          { "fill": { "strColor": "${
+                            markStyleData.backGroundColor
+                          }" }, "stroke": { "strColor": "${markStyleData.backGroundBorderColor}" } }
+                        ]
+                      },
+                ${markTextField}
+              }]`;
+          }
+        }
+        var mockModel = `{
+              "nameLayers": [
+                {
+                  "name": "",
+                  "style": [
+                    {
+                      "name": "${this.styleAliasName}",
+                      "featureTypeStyle": [
+                        {
+                          "rule": [
+                            {
+                              "lineSymbolizers": [
+                                {
+                                  "stroke": ${stroke},
+                                  "fill": ${fill},
+                                  "offset": {
+                                      "offsetX": "${publicData.xSkewing}",
+                                      "offsetY": "${publicData.ySkewing}"
+                                    }
+                                }
+                              ],
+                              "textSymbolizers": ${textSymbolizers},
+                              "name": "${publicData.ruleName}",
+                              "cqlFilter": "${filterData}",
+                              "minScaleDenominator": "${publicData.maxRatio}",
+                              "maxScaleDenominator": "${publicData.minRatio}"
+                            }
+                          ],
+                          "semanticTypeIdentifier": ["generic:geometry"]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "userLayers": null
+            }`;
+      } else if (this.layerType == 'point') {
+        // 如果是点添加数据, 那么里面所有的数据都需要重新处理
+        // 在店里面点大小和旋转需要处理
+        var pointSize = publicData.pointSizeField
+          ? `"sizeField":"${publicData.pointSizeField}"`
+          : `"numSize":"${publicData.pointSize}"`;
+        var pointRotation = publicData.pointOffsetField
+          ? `"rotationField":"${publicData.pointOffsetField}"`
+          : `"numRotation":"${publicData.pointOffset}"`;
+        // 处理点里面边的数据
+        var pointTransparent = lineStyleData.transparentField
+          ? `"opacityField":"${lineStyleData.transparentField}"`
+          : `"numOpacity":"${lineStyleData.transparent}"`;
+        var pointWidth = lineStyleData.widthField
+          ? `"widthField":"${lineStyleData.widthField}"`
+          : `"numWidth":"${lineStyleData.width}"`;
+        if (!lineStyleData.isShow) {
+          var lineStroke = null;
+        } else {
+          var lineStroke = `{
+            ${pointTransparent},
+            ${pointWidth},
+            "strColor":"${lineStyleData.color}"
+          }`;
+        }
+        // 处理fillStyle里面的数据
+        var fillOpacity = fillStyleData.transparentField
+          ? `"opacityField":"${fillStyleData.transparentField}"`
+          : `"numOpacity":"${fillStyleData.transparent}"`;
+        var fillColor =
+          fillStyleData.fillType == 'mark' ? `"strColor":"${fillStyleData.fillColor}"` : '';
+        // 根据fillStyleData的fillType为font或mark应该显示不同的数据
+        if (fillStyleData.fillType == 'mark') {
+        } else if (fillStyleData.fillType == 'font') {
+        }
+        if (!fillStyleData.isShow) {
+          var lineFill = null;
+        } else {
+          var lineFill = `{
+            ${fillOpacity},
+            ${fillColor}
+          }`;
+        }
+        // 处理markStyle的数据
+        if (!markStyleData.isShow) {
+          var textSymbolizers = null;
+        } else {
+          // 跟据不同方位值得到对应的结果
+          if (markStyleData.verticalType == 'top') {
+            var yValue = 0.0;
+          } else if (markStyleData.verticalType == 'middle') {
+            var yValue = 0.5;
+          } else if (markStyleData.verticalType == 'bottom') {
+            var yValue = 1.0;
+          } else {
+            var yValue = 0;
+          }
+          if (markStyleData.horizontalType == 'left') {
+            var xValue = 0.0;
+          } else if (markStyleData.horizontalType == 'center') {
+            var xValue = 0.5;
+          } else if (markStyleData.horizontalType == 'right') {
+            var xValue = 1.0;
+          } else {
+            var xValue = 0;
+          }
+          var textSymbolizers = `[{
+                "fill": {
+                  "numOpacity": ${markStyleData.transparent / 100},
+                  "strColor": "${markStyleData.fontColor}"
+                },
+                ${markFont},
+                "pointPlacement":{
+                    "anchorPoint":{
+                      "x":"${xValue}",
+                      "y":"${yValue}"
+                    },
+                    "displacement":{
+                      "x":"${markStyleData.displacementX}",
+                      "y":"${markStyleData.displacementY}"
+                    },
+                    ${pointPlacement}
+                },
+                "halo": {
+                  "fill": { "strColor": "${markStyleData.haloColor}" },
+                  "numRadius": "${markStyleData.haloSize}"
+                },
+                "options": {
+                  ${autoWrap}
+                  ${spaceAround}
+                  ${repeat}
+                  ${followLine}
+                  ${maxAngleDelta}
+                  ${maxDisplacement}
+                },
+                ${markTextField}
+            }]`;
+        }
+        var mockModel = `{
+              "nameLayers":[
+                  {
+                    "name":"",
+                    "style":[
+                        {
+                          "name":"${this.styleAliasName}",
+                          "featureTypeStyle":[
+                              {
+                                "rule":[
+                                    {
+                                      "pointSymbolizers":[
+                                          {
+                                            "graphic":{
+                                                "mark":[
+                                                  {
+                                                    "stroke":${lineStroke},
+                                                    "fill":${lineFill},
+                                                    "strWellKnownName":"${fillStyleData.mark}"
+                                                  }
+                                                ],
+                                              ${pointSize},
+                                              ${pointRotation}
+                                            },
+                                            "offset":{
+                                                "offsetX":"${publicData.xSkewing}",
+                                                "offsetY":"${publicData.ySkewing}"
+                                            }
+                                          }
+                                      ],
+                                      "textSymbolizers":${textSymbolizers},
+                                      "name": "${publicData.ruleName}",
+                                      "cqlFilter":"${filterData}",
+                                      "minScaleDenominator":"${publicData.maxRatio}",
+                                      "maxScaleDenominator":"${publicData.minRatio}"
+                                    }
+                                ],
+                                "semanticTypeIdentifier":[
+                                "generic:geometry"
+                                ]
+                              }
+                          ]
+                        }
+                    ]
+                  }
+              ],
+              "userLayers":null
+            }`;
+      }
+
+      // 去除字符串拼接的空格
+      var sld = mockModel.replace(/\ +/g, '').replace(/\n/g, '');
+      // 提交保存数据
+      let editParams = {
+        sld: sld,
+        resourceInfo: {
+          alias: this.styleAliasName,
+          name: '',
+          typeId: '20102',
+          TypeName: 'sld',
+          catalogId: '11111111-1111-1111-1111-111111111111',
+          userId: this.layerNode.resource.userId,
+          userName: '超级管理员',
+          orgId: this.layerNode.resource.orgId,
+          orgName: this.layerNode.resource.orgName,
+        },
+        styleType: 3,
       };
+      this.submitStyleEdit(editParams);
     },
   },
 };
@@ -321,6 +822,7 @@ export default {
             value="1"
             simple>
             <Panel name="1"> 通用<Public
+              ref = "public"
               slot="content"
               :layer-type="layerType"
               :field-num-s="fieldNumS"
@@ -328,6 +830,7 @@ export default {
             <Panel name="2">
               {{ getLineStr+'样式' }}
               <LineStyle
+                ref = "lineStyle"
                 slot="content"
                 :layer-type="layerType"
                 :field-num-s="fieldNumS"
@@ -339,31 +842,45 @@ export default {
               name="3">
               {{ getFileStr+'填充' }}
               <FillStyle
+                ref = "fillStyle"
                 slot="content"
+                :default-rule ="defaultRule"
                 :layer-type="layerType"
                 :field-num-s="fieldNumS"
                 :field-no-num-s="fieldNoNumS"
                 :style-type="styleType"/>
             </Panel>
+
             <Panel name="4">
               标注
               <MarkStyle
+                ref = "markStyle"
                 slot="content"
                 :layer-type="layerType"
                 :field-num-s="fieldNumS"
                 :field-no-num-s="fieldNoNumS"
                 :style-type="styleType"/>
             </Panel>
-            <Panel name="5">
+            <Panel
+              v-if = "layerType != 'point'"
+              name = "5">
+              线符号
+              <LineSymbol
+                slot = "content"
+                ref = "lineSymbol"
+              />
+            </Panel>
+            <Panel name="6">
               筛选条件过滤
               <AttributeFilter
+                ref = "attributeFilter"
                 slot="content"
                 :layer-type="layerType"
                 :field-num-s="fieldNumS"
                 :field-no-num-s="fieldNoNumS"
                 :style-type="styleType"/>
             </Panel>
-          </Collapse>
+          </linesym></line></panel></Collapse>
         </div>
         <div
           v-show="isGroupRule"
@@ -408,9 +925,6 @@ export default {
 <style lang="less" scoped>
 .main {
   margin: 8px;
-  .tilte-div {
-  }
-
   .title {
     font-weight: bold;
     margin-left: 8px;

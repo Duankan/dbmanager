@@ -2,54 +2,42 @@
   <div class="style-table-main">
     <div>
       <Row class="search-row">
-        <Col 
+        <Col
         span="6" >样式名称：</Col>
-        <Col span="18"><Input 
-          v-model="searchKey.name" 
-          size="small" 
+        <Col span="18"><Input
+          v-model="searchKey.name"
+          size="small"
           placeholder="输入样式名称关键字..."
           @on-change="getDataStyle"></Input></Col>
       </Row>
       <Row class="search-row">
-        <Col 
-          span="6" 
+        <Col
+          span="6"
         >样式别名：</Col>
-        <Col span="18"><Input 
-          v-model="searchKey.alias" 
+        <Col span="18"><Input
+          v-model="searchKey.alias"
           size="small"
           placeholder="输入样式别名关键字..."
           @on-change="getDataStyle"></Input></Col>
       </Row>
       <Row class="search-row">
-        <Col 
-          span="6" 
+        <Col
+          span="6"
         >样式分类：</Col>
-        <Col span="18"><Input 
+        <Col span="18"><Input
           size="small"
           placeholder="输入样式名称关键字..."></Input></Col>
       </Row>
     </div>
-    <Table 
+    <Table
       :height="tableHeight"
       :columns="columnsStyle"
-      :data="dataStyle" 
+      :data="dataStyle"
       style="margin-right:0px;"
       @on-row-dblclick="dbclick"></Table>
   </div>
 </template>
-<style lang="less" scoped>
-.style-table-main {
-  width: 100%;
-  height: 100%;
-}
 
-.search-row {
-  margin-bottom: 8px;
-  margin-right: 8px;
-  vertical-align: middle;
-  font-size: 12px;
-}
-</style>
 <script>
 const SET_MAP_SERVICELIST = 'SET_MAP_SERVICELIST';
 export default {

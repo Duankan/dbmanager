@@ -30,14 +30,12 @@ export default {
     };
   },
   mounted() {
-    // 日期格式化
     if (this.copyRowData.enddate) {
       this.copyRowData.enddate = date.format(new Date(this.copyRowData.enddate), 'YYYY-M-D');
     }
     if (this.copyRowData.begdate) {
       this.copyRowData.begdate = date.format(new Date(this.copyRowData.enddate), 'YYYY-M-D');
     }
-    console.log(this.treeData);
     //资源分类格式转换
     if (typeof this.copyRowData.restype === 'string') {
       this.copyRowData.restype = this.copyRowData.restype.split(',');
@@ -137,6 +135,9 @@ export default {
       this.copyRowData.keyword = [...this.copyRowData.keyword, ...this.selectedTags];
       //类数组对象转数组
       this.copyRowData.keyword = Array.from(new Set(this.copyRowData.keyword));
+      // if (this.copyRowData.keyword.length > 0) {
+      //   this.$refs.copyRowData.resetFields();
+      // }
     },
     //标签模态框取消
     cancel() {

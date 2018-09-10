@@ -197,8 +197,7 @@ export default {
         class="relevance-content">
         <Table
           :columns="tableTitle"
-          :data="tableData"
-          height = "410">
+          :data="tableData">
         </Table>
       </div>
     </div>

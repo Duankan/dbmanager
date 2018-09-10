@@ -100,7 +100,7 @@ export default {
           scale: this.selectScale,
         })
         .then(p => {
-          this.autoSheets = unitRes.data.map(p => p.tfName);
+          this.autoSheets = p.data.map(p => p.tfName);
           this.sheetLoading = false;
         })
         .catch(p => {
