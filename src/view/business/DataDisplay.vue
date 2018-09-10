@@ -101,10 +101,9 @@ export default {
         }
       }
     },
+    //分类显示自定义
     format(labels, selectedData) {
-      const index = labels.length - 1;
-      const data = selectedData[index] || false;
-      return labels[index];
+      return labels[labels.length - 1];
     },
   },
 };

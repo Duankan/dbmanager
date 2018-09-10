@@ -4,8 +4,8 @@ export default {
   name: 'BusinessSort',
   data() {
     return {
-      treeId: '',
-      treeDatas: [],
+      treeId: '', //树节点id
+      treeDatas: [], //分类数据
       dataTree: [
         {
           title: '',

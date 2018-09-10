@@ -22,9 +22,12 @@ export default {
   },
   data() {
     return {
+      //分类数据
       treeDatas: [],
+      //表格数据
       tableDatas: {},
       treeData: [],
+      //标签数据
       labelsData: [],
       display: true,
     };
