@@ -96,9 +96,14 @@ export default {
         const layers = nvalue;
         this.layerList = [];
         for (let i = 0; i < layers.length; i++) {
+          const layerData = layers[i].options;
           this.layerList.push({
-            label: layers[i].options.title,
-            value: layers[i].options.layers,
+            label: layerData.title
+              ? layerData.title
+              : layerData.layers
+                ? layerData.layers
+                : layerData.layer,
+            value: layerData.layers ? layerData.layers : layerData.layer,
           });
         }
       },
@@ -187,14 +192,24 @@ export default {
     //构建table里面的columns
     getColums() {
       const columns = [{ title: '序号', type: 'index', align: 'center', width: 100 }];
+      let isSetWidth;
+      this.fieldList.length > 9 ? (isSetWidth = true) : (isSetWidth = false);
       for (let i = 0; i < this.fieldList.length; i++) {
-        columns.push({
-          title: this.fieldList[i].label,
-          key: this.fieldList[i].label,
-          align: 'center',
-          // width: 100,
-          // maxWidth: 200,
-        });
+        if (isSetWidth) {
+          columns.push({
+            title: this.fieldList[i].label,
+            key: this.fieldList[i].label,
+            align: 'center',
+            width: 100,
+            maxWidth: 200,
+          });
+        } else {
+          columns.push({
+            title: this.fieldList[i].label,
+            key: this.fieldList[i].label,
+            align: 'center',
+          });
+        }
       }
       return columns;
     },

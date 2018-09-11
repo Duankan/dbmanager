@@ -63,6 +63,7 @@ export default {
       this.propWin = this.$window({
         title: '属性过滤',
         footerHide: true,
+        maximizable: false,
         render: h => {
           return h(
             AttributeFilter,
