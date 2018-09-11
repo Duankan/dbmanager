@@ -216,6 +216,11 @@ export default {
             currentNode: node.node,
             nodeData: data,
           },
+          on: {
+            'style-edit-event': value => {
+              this.$emit('style-edit-event', value);
+            },
+          },
         },
         [this.$scopedSlots.default]
       );

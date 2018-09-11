@@ -1,6 +1,7 @@
 <script>
 import { url } from '@ktw/ktools';
 import * as helps from '@/utils/helps';
+import * as kmap from '@ktw/kmap';
 
 const SET_MAP_GOCLAYER_DELETE = 'SET_MAP_GOCLAYER_DELETE';
 const SET_MAP_SERVICELIST = 'SET_MAP_SERVICELIST';
@@ -109,6 +110,9 @@ export default {
         [this.layerName]: this.serviceList,
       });
       window.dispatchEvent(new Event('resize'));
+      setTimeout(() => {
+        this.setBbox();
+      }, 0);
     },
     //加载表格
     loadTable() {
@@ -116,6 +120,16 @@ export default {
       this.pageInited = false;
       this.queryFeatures(1);
       this.$store.commit(SET_MAP_GEOJSON, { geojson: {}, type: 'once' });
+    },
+    //定位
+    setBbox() {
+      let layers = this.$store.getters.ogcLayers;
+      if (layers.length == 0) return;
+      if (this.serviceType == 0) {
+        kmap.default.kmapAPI.commonFunction.defineWMSCRS(this.$refs.map.$mapObject, layers[0]);
+      } else if (this.serviceType == 1) {
+        kmap.default.kmapAPI.commonFunction.defineWMTSCRS(this.$refs.map.$mapObject, layers[0]);
+      }
     },
     //查询要素
     queryFeatures(pageIdx) {

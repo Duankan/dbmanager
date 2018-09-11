@@ -97,7 +97,8 @@ export default {
         <ServiceTree
           v-else
           :condition="{title: filterText}"
-          :filter-text="filterText"/>
+          :filter-text="filterText"
+          @style-edit-event="mapLayerEditStyle"/>
           <!--<keep-alive>
           <component
             :is="componentId"

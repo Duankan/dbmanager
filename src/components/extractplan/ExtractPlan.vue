@@ -202,6 +202,8 @@ export default {
         title: '提取范围',
         footerHide: true,
         transfer: true,
+        maximizable: false,
+        collapsible: false,
         styles: {
           top: '50px',
           left: '27%',
@@ -228,6 +230,10 @@ export default {
         title: '提取范围',
         footerHide: true,
         transfer: true,
+        styles: {
+          top: '50px',
+          left: '27%',
+        },
         render: h => {
           return h(
             ExtractWizard,

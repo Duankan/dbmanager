@@ -15,16 +15,20 @@ export default {
       if (isDirectory(node)) return false;
       return isGisResource(node) && !canView(node.serviceList);
     },
+    mapLayerEditStyle(value) {
+      this.$emit('style-edit-event', value);
+    },
   },
 };
 </script>
 
 <template>
-  <DataTree 
+  <DataTree
     :filter-type="['sld', 'file']"
     :filter-text="filterText"
     :filter-node="filterNode"
-    draggable></DataTree>
+    draggable
+    @style-edit-event="mapLayerEditStyle"></DataTree>
 </template>
 
 <style lang="less" scoped>

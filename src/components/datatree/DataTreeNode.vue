@@ -118,7 +118,10 @@ export default {
         [layers]: this.currentNode.serviceList,
       });
     },
-    setStyle() {},
+    setStyle() {
+      this.view();
+      this.$emit('style-edit-event', this.currentNode);
+    },
   },
 };
 </script>
