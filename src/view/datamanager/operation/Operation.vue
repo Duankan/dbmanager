@@ -30,12 +30,13 @@ export default {
     },
     inputSearchData() {
       this.hasError = false;
-      if (!/^[\u4e00-\u9fa5a-zA-Z0-9_]*$/.test(this.search)) {
+      let keyword = this.search.trim();
+      if (keyword.includes('%')) {
         this.hasError = true;
         return;
       }
-      if (this.search.trim() != '') {
-        this.$store.dispatch(types.APP_NODES_TABLE, this.search);
+      if (keyword) {
+        this.$store.dispatch(types.APP_NODES_TABLE, keyword);
       } else {
         this.$store.dispatch(types.APP_NODES_FETCH, this.$store.state.app.selectNode);
       }
