@@ -107,6 +107,7 @@ export default {
     <Poptip
       slot="prepend"
       placement="bottom-start"
+      class="xzq-query"
       width="350" >
       <Button
         type="primary"
@@ -140,6 +141,7 @@ export default {
     <AutoComplete
       v-model="xzqKey"
       placeholder="输入行政区划名称、地名地址"
+      class="xzq-query"
       style="width:300px"
       icon="ios-search"
       clearable
@@ -164,5 +166,22 @@ export default {
   margin-left: 8px;
   font-size: 12px;
   display: inline-block;
+}
+
+.xzq-query {
+  float: left;
+
+  /deep/.k-btn {
+    border-radius: 0;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+  }
+
+  /deep/.k-input {
+    border-radius: 0;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border: 1px solid rgba(45, 140, 240, 0.5);
+  }
 }
 </style>
