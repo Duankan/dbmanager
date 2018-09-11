@@ -244,6 +244,9 @@ export default {
           logic: 'AND',
         },
       ];
+      this.$nextTick(() => {
+        this.$store.commit('SET_MAP_GEOJSON', { geojson: {}, type: 'once' });
+      });
     },
     //增加一组查询条件
     handleAdd(item) {
