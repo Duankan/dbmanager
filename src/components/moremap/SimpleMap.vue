@@ -44,6 +44,7 @@ export default {
       return id;
     },
     selectChange(value) {
+      debugger;
       this.$store.commit(`${this.mapId}/SET_MAP_GOCLAYER_DELETE`, [this.showLayerTitle]);
       this.$nextTick(() => {
         var item = this.historyLayerList.find(function(elem) {

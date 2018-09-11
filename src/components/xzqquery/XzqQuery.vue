@@ -109,7 +109,7 @@ export default {
       placement="bottom-start"
       width="350" >
       <Button
-        type="ghost"
+        type="primary"
         @click="isShow=!isShow">
         <Icon
           v-if="isShow"
